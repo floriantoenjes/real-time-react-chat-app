@@ -7,8 +7,9 @@ import {
 } from "@heroicons/react/24/outline";
 import { IconButton, Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
+import { Contact } from "../../../shared/types/Contact";
 
-export function TopBar(props: { selectedContact: string }) {
+export function TopBar(props: { selectedContact?: Contact }) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -26,7 +27,7 @@ export function TopBar(props: { selectedContact: string }) {
         >
             <div className={"flex items-center"}>
                 <Avatar />
-                <p>{props.selectedContact}</p>
+                <p>{props.selectedContact?.name}</p>
             </div>
             <div className={"flex"}>
                 <VideoCameraIcon className={"w-6 mr-3"} />

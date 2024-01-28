@@ -3,9 +3,10 @@ import { MicrophoneIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { useHandleInputChange } from "../../../helpers";
 import { messageData } from "../../../data/messages";
+import { Contact } from "../../../shared/types/Contact";
 
 export function SendMessageBar(props: {
-    selectedContact: string;
+    selectedContact?: Contact;
     setMessages: (
         value: React.SetStateAction<
             { from: string; at: Date; message: string }[]
@@ -19,8 +20,12 @@ export function SendMessageBar(props: {
     const handleInputChange = useHandleInputChange(setFormData);
 
     function checkEnterPressed(event: unknown & { key: string }) {
+        if (!props.selectedContact?.name) {
+            return;
+        }
+
         if (event.key === "Enter" && formData?.message) {
-            const newMessageData = [...messageData[props.selectedContact]];
+            const newMessageData = [...messageData[props.selectedContact.name]];
             newMessageData.push({
                 from: "florian",
                 at: new Date(),

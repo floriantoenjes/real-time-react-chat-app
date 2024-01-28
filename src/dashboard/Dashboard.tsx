@@ -4,9 +4,17 @@ import { Chat } from "./chat/Chat";
 import { useState } from "react";
 import { User } from "../shared/types/User";
 import { Navigate } from "react-router-dom";
+import { Contact } from "../shared/types/Contact";
+import { contacts } from "../data/contacts";
 
-export function Dashboard(props: { user: User | undefined }) {
-    const [selectedContact, setSelectedContact] = useState("Alex");
+export function Dashboard(props: { user?: User }) {
+    const defaultContact = props.user
+        ? contacts[props.user.username.toLowerCase()][0]
+        : undefined;
+
+    const [selectedContact, setSelectedContact] = useState<Contact | undefined>(
+        defaultContact,
+    );
 
     if (!props.user) {
         return <Navigate to={"/"} />;
