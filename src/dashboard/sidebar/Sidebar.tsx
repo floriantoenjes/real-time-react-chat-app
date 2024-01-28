@@ -52,7 +52,7 @@ export function Sidebar() {
     }
 
     return (
-        <div className={"sidebar h-full border"}>
+        <div className={"sidebar h-screen border"}>
             <div>
                 <Button>
                     <Link to="/">Sign out</Link>
@@ -76,7 +76,7 @@ export function Sidebar() {
                     </Button>
                 </div>
             </div>
-            <div className={"h-full border"}>
+            <div className={"border"}>
                 <div className={"border"}>
                     <Button
                         className={"text-start w-full"}

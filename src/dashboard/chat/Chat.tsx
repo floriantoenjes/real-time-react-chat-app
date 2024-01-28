@@ -5,8 +5,9 @@ import {
     PhoneIcon,
     VideoCameraIcon,
 } from "@heroicons/react/24/outline";
-import { Button, IconButton, Menu, MenuItem } from "@mui/material";
+import { IconButton, Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
+import { MainChat } from "./main-chat/MainChat";
 
 export function Chat() {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -19,10 +20,10 @@ export function Chat() {
     };
 
     return (
-        <div className={"w-full"}>
+        <div className={"h-screen w-full overflow-y-scroll"}>
             <div
                 className={
-                    "flex items-center border w-full p-2 justify-between"
+                    "flex items-center border w-full p-2 justify-between sticky top-0 bg-white"
                 }
             >
                 <div className={"flex items-center"}>
@@ -56,6 +57,7 @@ export function Chat() {
                     </Menu>
                 </div>
             </div>
+            <MainChat />
         </div>
     );
 }
