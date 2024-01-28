@@ -1,4 +1,6 @@
-export const messageData: { [key: string]: any[] } = {
+export const messageData: {
+    [key: string]: Array<{ from: string; at: Date; message: string }>;
+} = {
     Alex: [
         {
             from: "florian",

@@ -11,6 +11,7 @@ import { IconButton, Menu, MenuItem, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 import { MainChat } from "./main-chat/MainChat";
 import { messageData } from "../../data/messages";
+import { useHandleInputChange } from "../../helpers";
 
 export function Chat(props: { selectedContact: string }) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -28,7 +29,26 @@ export function Chat(props: { selectedContact: string }) {
 
     useEffect(() => {
         setMessages(messageData[props.selectedContact]);
+    }, [props.selectedContact]);
+
+    const [formData, setFormData] = useState<{ message: string }>({
+        message: "",
     });
+
+    const handleInputChange = useHandleInputChange(setFormData);
+
+    function checkEnterPressed(event: unknown & { key: string }) {
+        if (event.key === "Enter" && formData?.message) {
+            const newMessageData = [...messageData[props.selectedContact]];
+            newMessageData.push({
+                from: "florian",
+                at: new Date(),
+                message: formData.message,
+            });
+            setMessages(newMessageData);
+            setFormData({ message: "" });
+        }
+    }
 
     return (
         <div className={"h-screen w-full overflow-y-scroll"}>
@@ -79,6 +99,10 @@ export function Chat(props: { selectedContact: string }) {
                 <TextField
                     className={"w-full"}
                     label={"Gib eine Nachricht ein."}
+                    value={formData?.message}
+                    onKeyUp={checkEnterPressed}
+                    name={"message"}
+                    onChange={handleInputChange}
                 ></TextField>
                 <IconButton>
                     <MicrophoneIcon className={"w-8"} />

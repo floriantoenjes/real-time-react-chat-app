@@ -31,7 +31,7 @@ export function MainChat(props: { messages: any[] }) {
     }
 
     return (
-        <div className={"p-8 bg-orange-50 min-h-full"}>
+        <div className={"p-8 bg-orange-50 mb-16"} style={{ minHeight: "94%" }}>
             {messageList()} <div ref={messagesEndRef}></div>
         </div>
     );
