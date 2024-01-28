@@ -7,7 +7,10 @@ import {
 } from "@heroicons/react/24/outline";
 import { Avatar } from "../../shared/Avatar";
 
-export function Sidebar() {
+export function Sidebar(props: {
+    selectedContact: string;
+    setSelectedContact: (contact: string) => void;
+}) {
     function contactList() {
         const contacts = [
             {
@@ -38,7 +41,13 @@ export function Sidebar() {
         ];
 
         return contacts.map((c) => (
-            <div className={"contact flex border p-2 cursor-pointer"}>
+            <div
+                className={
+                    "contact flex border p-2 cursor-pointer" +
+                    (props.selectedContact === c.name ? " active" : "")
+                }
+                onClick={(event) => props.setSelectedContact(c.name)}
+            >
                 <Avatar width={"3.4rem"} height={"2.8rem"} />
                 <div className={"flex-col w-full"}>
                     <div className={"flex justify-between"}>

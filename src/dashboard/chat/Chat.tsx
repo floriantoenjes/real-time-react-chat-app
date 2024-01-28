@@ -11,7 +11,7 @@ import { IconButton, Menu, MenuItem, TextField } from "@mui/material";
 import { useState } from "react";
 import { MainChat } from "./main-chat/MainChat";
 
-export function Chat() {
+export function Chat(props: { selectedContact: string }) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -20,6 +20,43 @@ export function Chat() {
     const handleClose = () => {
         setAnchorEl(null);
     };
+
+    const [messages, setMessages] = useState([
+        {
+            from: "florian",
+            at: new Date(),
+            message: "Hallo, wie geht es dir?",
+        },
+        {
+            from: "alex",
+            at: new Date(),
+            message:
+                "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
+        },
+        {
+            from: "florian",
+            at: new Date(),
+            message:
+                "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
+        },
+        {
+            from: "alex",
+            at: new Date(),
+            message:
+                "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
+        },
+        {
+            from: "florian",
+            at: new Date(),
+            message:
+                "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
+        },
+        {
+            from: "alex",
+            at: new Date(),
+            message: "Hallo, wie geht es dir?",
+        },
+    ]);
 
     return (
         <div className={"h-screen w-full overflow-y-scroll"}>
@@ -30,7 +67,7 @@ export function Chat() {
             >
                 <div className={"flex items-center"}>
                     <Avatar />
-                    <p>Debora</p>
+                    <p>{props.selectedContact}</p>
                 </div>
                 <div className={"flex"}>
                     <VideoCameraIcon className={"w-6 mr-3"} />
@@ -59,7 +96,7 @@ export function Chat() {
                     </Menu>
                 </div>
             </div>
-            <MainChat />
+            <MainChat messages={messages} />
             <div className={"sticky bottom-0 bg-white p-3 flex"}>
                 <IconButton>
                     <PlusIcon className={"w-8"} />
