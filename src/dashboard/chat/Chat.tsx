@@ -2,10 +2,12 @@ import { Avatar } from "../../shared/Avatar";
 import {
     ChevronDownIcon,
     MagnifyingGlassIcon,
+    MicrophoneIcon,
     PhoneIcon,
+    PlusIcon,
     VideoCameraIcon,
 } from "@heroicons/react/24/outline";
-import { IconButton, Menu, MenuItem } from "@mui/material";
+import { IconButton, Menu, MenuItem, TextField } from "@mui/material";
 import { useState } from "react";
 import { MainChat } from "./main-chat/MainChat";
 
@@ -58,6 +60,18 @@ export function Chat() {
                 </div>
             </div>
             <MainChat />
+            <div className={"sticky bottom-0 bg-white p-3 flex"}>
+                <IconButton>
+                    <PlusIcon className={"w-8"} />
+                </IconButton>
+                <TextField
+                    className={"w-full"}
+                    label={"Gib eine Nachricht ein."}
+                ></TextField>
+                <IconButton>
+                    <MicrophoneIcon className={"w-8"} />
+                </IconButton>
+            </div>
         </div>
     );
 }
