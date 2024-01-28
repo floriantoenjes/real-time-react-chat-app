@@ -1,4 +1,12 @@
+import { createRef, useEffect } from "react";
+
 export function MainChat(props: { messages: any[] }) {
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView();
+    });
+
+    const messagesEndRef = createRef<HTMLDivElement>();
+
     function messageList() {
         if (!props.messages) {
             return [];
@@ -22,5 +30,9 @@ export function MainChat(props: { messages: any[] }) {
         });
     }
 
-    return <div className={"p-8 bg-orange-50 min-h-full"}>{messageList()}</div>;
+    return (
+        <div className={"p-8 bg-orange-50 min-h-full"}>
+            {messageList()} <div ref={messagesEndRef}></div>
+        </div>
+    );
 }

@@ -47,7 +47,7 @@ export function Sidebar(props: {
                     "contact flex border p-2 cursor-pointer" +
                     (props.selectedContact === c.name ? " active" : "")
                 }
-                onClick={(event) => props.setSelectedContact(c.name)}
+                onClick={() => props.setSelectedContact(c.name)}
             >
                 <Avatar width={"3.4rem"} height={"2.8rem"} />
                 <div className={"flex-col w-full"}>
