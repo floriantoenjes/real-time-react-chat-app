@@ -1,5 +1,6 @@
 .sidebar {
     width: 375px;
+    min-width: 375px;
 }
 
 .contact:hover {

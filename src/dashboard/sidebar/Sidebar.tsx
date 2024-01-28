@@ -19,7 +19,7 @@ export function Sidebar(props: {
                 lastMessage: "Hallo, wie geht es dir",
             },
             {
-                name: "Alexander",
+                name: "Alex",
                 time: "Gestern",
                 lastMessage: "Hallo, wie geht es dir",
             },
@@ -42,6 +42,7 @@ export function Sidebar(props: {
 
         return contacts.map((c) => (
             <div
+                key={Math.random() * 1_000_000}
                 className={
                     "contact flex border p-2 cursor-pointer" +
                     (props.selectedContact === c.name ? " active" : "")

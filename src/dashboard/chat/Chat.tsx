@@ -8,8 +8,9 @@ import {
     VideoCameraIcon,
 } from "@heroicons/react/24/outline";
 import { IconButton, Menu, MenuItem, TextField } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MainChat } from "./main-chat/MainChat";
+import { messageData } from "../../data/messages";
 
 export function Chat(props: { selectedContact: string }) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -21,42 +22,13 @@ export function Chat(props: { selectedContact: string }) {
         setAnchorEl(null);
     };
 
-    const [messages, setMessages] = useState([
-        {
-            from: "florian",
-            at: new Date(),
-            message: "Hallo, wie geht es dir?",
-        },
-        {
-            from: "alex",
-            at: new Date(),
-            message:
-                "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
-        },
-        {
-            from: "florian",
-            at: new Date(),
-            message:
-                "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
-        },
-        {
-            from: "alex",
-            at: new Date(),
-            message:
-                "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
-        },
-        {
-            from: "florian",
-            at: new Date(),
-            message:
-                "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
-        },
-        {
-            from: "alex",
-            at: new Date(),
-            message: "Hallo, wie geht es dir?",
-        },
-    ]);
+    const [messages, setMessages] = useState(
+        messageData[Object.keys(messageData)[0]],
+    );
+
+    useEffect(() => {
+        setMessages(messageData[props.selectedContact]);
+    });
 
     return (
         <div className={"h-screen w-full overflow-y-scroll"}>
@@ -97,7 +69,10 @@ export function Chat(props: { selectedContact: string }) {
                 </div>
             </div>
             <MainChat messages={messages} />
-            <div className={"sticky bottom-0 bg-white p-3 flex"}>
+            <div
+                className={"send-message-bar fixed bottom-0 bg-white p-3 flex"}
+                style={{ width: "calc(100% - 375px)" }}
+            >
                 <IconButton>
                     <PlusIcon className={"w-8"} />
                 </IconButton>
