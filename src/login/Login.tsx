@@ -3,17 +3,25 @@ import { Button, TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useHandleInputChange } from "../helpers";
+import { AuthService } from "../shared/services/AuthService";
+import { User } from "../shared/types/User";
 
-export function Login() {
+export function Login(props: {
+    setUser: React.Dispatch<React.SetStateAction<User | undefined>>;
+}) {
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
-        email: "",
-        password: "",
+        email: "user1@email.com",
+        password: "password",
     });
 
     function signIn() {
-        navigate("Dashboard");
+        const user = AuthService.signIn(formData.email, formData.password);
+        if (user) {
+            props.setUser(user);
+            navigate("Dashboard");
+        }
     }
 
     const handleInputChange = useHandleInputChange(setFormData);
@@ -35,6 +43,7 @@ export function Login() {
                             type="email"
                             label="E-Mail"
                             onChange={handleInputChange}
+                            value={"user1@email.com"}
                         />
                     </div>
                     <div className="mb-3">
@@ -43,6 +52,7 @@ export function Login() {
                             type="password"
                             label="Password"
                             onChange={handleInputChange}
+                            value={"password"}
                         />
                     </div>
 

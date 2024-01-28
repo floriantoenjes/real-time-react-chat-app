@@ -6,41 +6,17 @@ import {
     MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 import { Avatar } from "../../shared/Avatar";
+import { contacts } from "../../data/contacts";
 
 export function Sidebar(props: {
+    username: string;
     selectedContact: string;
     setSelectedContact: (contact: string) => void;
 }) {
     function contactList() {
-        const contacts = [
-            {
-                name: "Kevin",
-                time: "Gestern",
-                lastMessage: "Hallo, wie geht es dir",
-            },
-            {
-                name: "Alex",
-                time: "Gestern",
-                lastMessage: "Hallo, wie geht es dir",
-            },
-            {
-                name: "Thomas",
-                time: "Gestern",
-                lastMessage: "Hallo, wie geht es dir",
-            },
-            {
-                name: "Kontakt",
-                time: "Gestern",
-                lastMessage: "Hallo, wie geht es dir",
-            },
-            {
-                name: "Kontakt",
-                time: "Gestern",
-                lastMessage: "Hallo, wie geht es dir",
-            },
-        ];
+        const userContacts = contacts[props.username.toLowerCase()] ?? [];
 
-        return contacts.map((c) => (
+        return userContacts.map((c) => (
             <div
                 key={Math.random() * 1_000_000}
                 className={
@@ -68,6 +44,7 @@ export function Sidebar(props: {
                     <Link to="/">Sign out</Link>
                 </Button>
             </div>
+
             <div className={"flex"}>
                 <TextField
                     className={"w-full"}
@@ -80,6 +57,7 @@ export function Sidebar(props: {
                         </div>
                     }
                 />
+
                 <div className={"border"}>
                     <Button className={"h-full"}>
                         <FunnelIcon className={"h-8"} />
