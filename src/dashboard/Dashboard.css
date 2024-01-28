@@ -1,3 +1,7 @@
 .sidebar {
-    width: 350px;
+    width: 375px;
+}
+
+.contact:hover {
+    background-color: #eee;
 }
