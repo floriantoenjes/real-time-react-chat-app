@@ -20,10 +20,14 @@ export function Chat(props: { selectedContact?: Contact }) {
 
     return (
         <div className={"h-screen w-full overflow-y-scroll"}>
-            <TopBar selectedContact={props.selectedContact} />
+            <TopBar
+                selectedContact={props.selectedContact}
+                setMessages={setMessages}
+            />
             <MainChat messages={messages} />#
             <SendMessageBar
                 selectedContact={props.selectedContact}
+                messages={messages}
                 setMessages={setMessages}
             />
         </div>

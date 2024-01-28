@@ -6,10 +6,15 @@ import {
     VideoCameraIcon,
 } from "@heroicons/react/24/outline";
 import { IconButton, Menu, MenuItem } from "@mui/material";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { Contact } from "../../../shared/types/Contact";
 
-export function TopBar(props: { selectedContact?: Contact }) {
+export function TopBar(props: {
+    selectedContact?: Contact;
+    setMessages: Dispatch<
+        SetStateAction<{ from: string; at: Date; message: string }[]>
+    >;
+}) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -18,6 +23,11 @@ export function TopBar(props: { selectedContact?: Contact }) {
     const handleClose = () => {
         setAnchorEl(null);
     };
+
+    function emptyChat() {
+        props.setMessages([]);
+        handleClose();
+    }
 
     return (
         <div
@@ -30,9 +40,15 @@ export function TopBar(props: { selectedContact?: Contact }) {
                 <p>{props.selectedContact?.name}</p>
             </div>
             <div className={"flex"}>
-                <VideoCameraIcon className={"w-6 mr-3"} />
-                <PhoneIcon className={"w-6 mr-3"} />
-                <MagnifyingGlassIcon className={"w-6"} />
+                <IconButton className={"mr-3"}>
+                    <VideoCameraIcon className={"w-6"} />
+                </IconButton>
+                <IconButton className={"mr-3"}>
+                    <PhoneIcon className={"w-6"} />
+                </IconButton>
+                <IconButton>
+                    <MagnifyingGlassIcon className={"w-6"} />
+                </IconButton>
                 <IconButton
                     id="basic-button"
                     aria-controls={open ? "basic-menu" : undefined}
@@ -51,7 +67,7 @@ export function TopBar(props: { selectedContact?: Contact }) {
                         "aria-labelledby": "basic-button",
                     }}
                 >
-                    <MenuItem onClick={handleClose}>Chat leeren</MenuItem>
+                    <MenuItem onClick={emptyChat}>Chat leeren</MenuItem>
                     <MenuItem onClick={handleClose}>Chat löschen</MenuItem>
                 </Menu>
             </div>

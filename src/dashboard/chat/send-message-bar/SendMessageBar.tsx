@@ -2,11 +2,12 @@ import { IconButton, TextField } from "@mui/material";
 import { MicrophoneIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { useHandleInputChange } from "../../../helpers";
-import { messageData } from "../../../data/messages";
 import { Contact } from "../../../shared/types/Contact";
+import { Message } from "../../../shared/types/Message";
 
 export function SendMessageBar(props: {
     selectedContact?: Contact;
+    messages: Message[];
     setMessages: (
         value: React.SetStateAction<
             { from: string; at: Date; message: string }[]
@@ -25,7 +26,7 @@ export function SendMessageBar(props: {
         }
 
         if (event.key === "Enter" && formData?.message) {
-            const newMessageData = [...messageData[props.selectedContact.name]];
+            const newMessageData = [...props.messages];
             newMessageData.push({
                 from: "florian",
                 at: new Date(),
