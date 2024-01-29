@@ -6,6 +6,7 @@ import { Dashboard } from "./dashboard/Dashboard";
 import { User } from "./shared/types/User";
 import { io, Socket } from "socket.io-client";
 import { SocketContext } from "./shared/contexts/SocketContext";
+import { UserContext } from "./shared/contexts/UserContext";
 
 function App() {
     const [user, setUser] = useState<User>();
@@ -23,12 +24,17 @@ function App() {
     }, [socket, user?.username]);
 
     return (
-        <SocketContext.Provider value={[socket, setSocket]}>
-            <Routes>
-                <Route path="/" element={<Login setUser={setUser} />} />
-                <Route path="/dashboard" element={<Dashboard user={user} />} />
-            </Routes>
-        </SocketContext.Provider>
+        <UserContext.Provider value={[user, setUser]}>
+            <SocketContext.Provider value={[socket, setSocket]}>
+                <Routes>
+                    <Route path="/" element={<Login setUser={setUser} />} />
+                    <Route
+                        path="/dashboard"
+                        element={<Dashboard user={user} />}
+                    />
+                </Routes>
+            </SocketContext.Provider>
+        </UserContext.Provider>
     );
 }
 

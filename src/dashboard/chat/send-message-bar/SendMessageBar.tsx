@@ -1,26 +1,29 @@
 import { IconButton, TextField } from "@mui/material";
 import { MicrophoneIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useHandleInputChange } from "../../../helpers";
 import axios from "axios";
+import { UserContext } from "../../../shared/contexts/UserContext";
 
 export function SendMessageBar() {
     const [formData, setFormData] = useState<{ message: string }>({
         message: "",
     });
+    const [user] = useContext(UserContext);
 
     const handleInputChange = useHandleInputChange(setFormData);
 
     function checkEnterPressed(event: unknown & { key: string }) {
         if (event.key === "Enter" && formData?.message) {
-            sendMessage(formData.message);
+            sendMessage();
             setFormData({ message: "" });
         }
     }
 
-    function sendMessage(message: string) {
+    function sendMessage() {
         void axios.post("http://localhost:4200/send", {
             message: formData.message,
+            username: user?.username.toLowerCase(),
         });
     }
 
