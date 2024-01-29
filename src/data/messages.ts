@@ -1,5 +1,7 @@
+import { Message } from "../shared/types/Message";
+
 export const messageData: {
-    [key: string]: Array<{ from: string; at: Date; message: string }>;
+    [key: string]: Array<Message>;
 } = {
     Alex: [
         {
