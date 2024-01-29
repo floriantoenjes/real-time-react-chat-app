@@ -23,13 +23,14 @@ export function Dashboard(props: { user?: User }) {
 
     return (
         <div className={"h-screen flex"}>
-            <ContactsContext.Provider value={[contacts, setContacts]}>
-                <Sidebar
-                    username={props.user.username}
-                    selectedContact={selectedContact}
-                    setSelectedContact={setSelectedContact}
-                />
-                <Chat selectedContact={selectedContact} />
+            <ContactsContext.Provider
+                value={{
+                    contacts: [contacts, setContacts],
+                    selectedContact: [selectedContact, setSelectedContact],
+                }}
+            >
+                <Sidebar username={props.user.username} />
+                <Chat />
             </ContactsContext.Provider>
         </div>
     );

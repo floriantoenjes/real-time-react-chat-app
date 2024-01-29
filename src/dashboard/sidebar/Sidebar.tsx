@@ -6,16 +6,14 @@ import {
     MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 import { Avatar } from "../../shared/Avatar";
-import { Contact } from "../../shared/types/Contact";
-import { Dispatch, SetStateAction, useContext } from "react";
+import { useContext } from "react";
 import { ContactsContext } from "../../shared/contexts/ContactsContext";
 
-export function Sidebar(props: {
-    username: string;
-    selectedContact?: Contact;
-    setSelectedContact: Dispatch<SetStateAction<Contact | undefined>>;
-}) {
-    const [userContacts] = useContext(ContactsContext);
+export function Sidebar(props: { username: string }) {
+    const contactsContext = useContext(ContactsContext);
+    const [userContacts] = contactsContext.contacts;
+    const [selectedContact, setSelectedContact] =
+        contactsContext.selectedContact;
 
     function contactList() {
         return userContacts.map((c) => (
@@ -23,9 +21,9 @@ export function Sidebar(props: {
                 key={Math.random() * 1_000_000}
                 className={
                     "contact flex border p-2 cursor-pointer" +
-                    (props.selectedContact === c ? " active" : "")
+                    (selectedContact === c ? " active" : "")
                 }
-                onClick={() => props.setSelectedContact(c)}
+                onClick={() => setSelectedContact(c)}
             >
                 <Avatar width={"3.4rem"} height={"2.8rem"} />
                 <div className={"flex-col w-full"}>

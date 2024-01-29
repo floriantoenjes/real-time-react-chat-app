@@ -1,35 +1,28 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { MainChat } from "./main-chat/MainChat";
 import { messageData } from "../../data/messages";
 import { SendMessageBar } from "./send-message-bar/SendMessageBar";
 import { TopBar } from "./top-bar/TopBar";
-import { Contact } from "../../shared/types/Contact";
+import { ContactsContext } from "../../shared/contexts/ContactsContext";
 
-export function Chat(props: { selectedContact?: Contact }) {
+export function Chat() {
     const [messages, setMessages] = useState(
         messageData[Object.keys(messageData)[0]],
     );
 
-    useEffect(() => {
-        setMessages(
-            props.selectedContact
-                ? messageData[props.selectedContact.name]
-                : [],
-        );
-    }, [props.selectedContact]);
+    const [selectedContact] = useContext(ContactsContext).selectedContact;
 
-    return (
+    useEffect(() => {
+        setMessages(selectedContact ? messageData[selectedContact.name] : []);
+    }, [selectedContact]);
+
+    return selectedContact ? (
         <div className={"h-screen w-full overflow-y-scroll"}>
-            <TopBar
-                selectedContact={props.selectedContact}
-                setMessages={setMessages}
-            />
+            <TopBar setMessages={setMessages} />
             <MainChat messages={messages} />#
-            <SendMessageBar
-                selectedContact={props.selectedContact}
-                messages={messages}
-                setMessages={setMessages}
-            />
+            <SendMessageBar messages={messages} setMessages={setMessages} />
         </div>
+    ) : (
+        <div></div>
     );
 }

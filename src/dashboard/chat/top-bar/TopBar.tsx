@@ -6,19 +6,24 @@ import {
     VideoCameraIcon,
 } from "@heroicons/react/24/outline";
 import { IconButton, Menu, MenuItem } from "@mui/material";
-import { Dispatch, SetStateAction, useContext, useState } from "react";
+import {
+    Dispatch,
+    MouseEvent,
+    SetStateAction,
+    useContext,
+    useState,
+} from "react";
 import { Contact } from "../../../shared/types/Contact";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 
 export function TopBar(props: {
-    selectedContact?: Contact;
     setMessages: Dispatch<
         SetStateAction<{ from: string; at: Date; message: string }[]>
     >;
 }) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
     const handleClose = () => {
@@ -30,14 +35,15 @@ export function TopBar(props: {
         handleClose();
     }
 
-    const [contacts, setContacts] = useContext(ContactsContext);
+    const [contacts, setContacts] = useContext(ContactsContext).contacts;
+    const [selectedContact, setSelectedContact] =
+        useContext(ContactsContext).selectedContact;
 
     function deleteChat() {
         setContacts(
-            contacts.filter(
-                (cs: Contact) => cs.name !== props.selectedContact?.name,
-            ),
+            contacts.filter((cs: Contact) => cs.name !== selectedContact?.name),
         );
+        setSelectedContact(undefined);
     }
 
     return (
@@ -48,7 +54,7 @@ export function TopBar(props: {
         >
             <div className={"flex items-center"}>
                 <Avatar />
-                <p>{props.selectedContact?.name}</p>
+                <p>{selectedContact?.name}</p>
             </div>
             <div className={"flex"}>
                 <IconButton className={"mr-3"}>

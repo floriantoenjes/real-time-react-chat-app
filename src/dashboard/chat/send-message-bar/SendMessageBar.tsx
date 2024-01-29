@@ -2,11 +2,9 @@ import { IconButton, TextField } from "@mui/material";
 import { MicrophoneIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { SetStateAction, useState } from "react";
 import { useHandleInputChange } from "../../../helpers";
-import { Contact } from "../../../shared/types/Contact";
 import { Message } from "../../../shared/types/Message";
 
 export function SendMessageBar(props: {
-    selectedContact?: Contact;
     messages: Message[];
     setMessages: (value: SetStateAction<Message[]>) => void;
 }) {
@@ -17,10 +15,6 @@ export function SendMessageBar(props: {
     const handleInputChange = useHandleInputChange(setFormData);
 
     function checkEnterPressed(event: unknown & { key: string }) {
-        if (!props.selectedContact?.name) {
-            return;
-        }
-
         if (event.key === "Enter" && formData?.message) {
             const newMessageData = [...props.messages];
             newMessageData.push({
