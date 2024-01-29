@@ -29,7 +29,7 @@ export function Dashboard(props: { user?: User }) {
                     selectedContact: [selectedContact, setSelectedContact],
                 }}
             >
-                <Sidebar username={props.user.username} />
+                <Sidebar />
                 <Chat />
             </ContactsContext.Provider>
         </div>

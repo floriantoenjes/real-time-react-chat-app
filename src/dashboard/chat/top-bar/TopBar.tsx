@@ -22,6 +22,10 @@ export function TopBar(props: {
     >;
 }) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [contacts, setContacts] = useContext(ContactsContext).contacts;
+    const [selectedContact, setSelectedContact] =
+        useContext(ContactsContext).selectedContact;
+
     const open = Boolean(anchorEl);
     const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -34,10 +38,6 @@ export function TopBar(props: {
         props.setMessages([]);
         handleClose();
     }
-
-    const [contacts, setContacts] = useContext(ContactsContext).contacts;
-    const [selectedContact, setSelectedContact] =
-        useContext(ContactsContext).selectedContact;
 
     function deleteChat() {
         setContacts(

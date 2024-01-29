@@ -9,7 +9,7 @@ import { Avatar } from "../../shared/Avatar";
 import { useContext } from "react";
 import { ContactsContext } from "../../shared/contexts/ContactsContext";
 
-export function Sidebar(props: { username: string }) {
+export function Sidebar() {
     const contactsContext = useContext(ContactsContext);
     const [userContacts] = contactsContext.contacts;
     const [selectedContact, setSelectedContact] =
