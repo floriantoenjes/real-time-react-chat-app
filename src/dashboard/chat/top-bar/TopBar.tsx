@@ -6,8 +6,9 @@ import {
     VideoCameraIcon,
 } from "@heroicons/react/24/outline";
 import { IconButton, Menu, MenuItem } from "@mui/material";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useContext, useState } from "react";
 import { Contact } from "../../../shared/types/Contact";
+import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 
 export function TopBar(props: {
     selectedContact?: Contact;
@@ -27,6 +28,16 @@ export function TopBar(props: {
     function emptyChat() {
         props.setMessages([]);
         handleClose();
+    }
+
+    const [contacts, setContacts] = useContext(ContactsContext);
+
+    function deleteChat() {
+        setContacts(
+            contacts.filter(
+                (cs: Contact) => cs.name !== props.selectedContact?.name,
+            ),
+        );
     }
 
     return (
@@ -68,7 +79,7 @@ export function TopBar(props: {
                     }}
                 >
                     <MenuItem onClick={emptyChat}>Chat leeren</MenuItem>
-                    <MenuItem onClick={handleClose}>Chat löschen</MenuItem>
+                    <MenuItem onClick={deleteChat}>Chat löschen</MenuItem>
                 </Menu>
             </div>
         </div>

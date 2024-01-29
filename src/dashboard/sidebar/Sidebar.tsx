@@ -6,18 +6,18 @@ import {
     MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 import { Avatar } from "../../shared/Avatar";
-import { contacts } from "../../data/contacts";
 import { Contact } from "../../shared/types/Contact";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useContext } from "react";
+import { ContactsContext } from "../../shared/contexts/ContactsContext";
 
 export function Sidebar(props: {
     username: string;
     selectedContact?: Contact;
     setSelectedContact: Dispatch<SetStateAction<Contact | undefined>>;
 }) {
-    function contactList() {
-        const userContacts = contacts[props.username.toLowerCase()] ?? [];
+    const [userContacts] = useContext(ContactsContext);
 
+    function contactList() {
         return userContacts.map((c) => (
             <div
                 key={Math.random() * 1_000_000}

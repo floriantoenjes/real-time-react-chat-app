@@ -5,15 +5,16 @@ import { useState } from "react";
 import { User } from "../shared/types/User";
 import { Navigate } from "react-router-dom";
 import { Contact } from "../shared/types/Contact";
-import { contacts } from "../data/contacts";
+import { contactsData } from "../data/contacts";
+import { ContactsContext } from "../shared/contexts/ContactsContext";
 
 export function Dashboard(props: { user?: User }) {
-    const defaultContact = props.user
-        ? contacts[props.user.username.toLowerCase()][0]
-        : undefined;
+    const [contacts, setContacts] = useState(
+        props.user ? contactsData[props.user.username.toLowerCase()] : [],
+    );
 
     const [selectedContact, setSelectedContact] = useState<Contact | undefined>(
-        defaultContact,
+        props.user ? contacts[0] : undefined,
     );
 
     if (!props.user) {
@@ -22,12 +23,14 @@ export function Dashboard(props: { user?: User }) {
 
     return (
         <div className={"h-screen flex"}>
-            <Sidebar
-                username={props.user.username}
-                selectedContact={selectedContact}
-                setSelectedContact={setSelectedContact}
-            />
-            <Chat selectedContact={selectedContact} />
+            <ContactsContext.Provider value={[contacts, setContacts]}>
+                <Sidebar
+                    username={props.user.username}
+                    selectedContact={selectedContact}
+                    setSelectedContact={setSelectedContact}
+                />
+                <Chat selectedContact={selectedContact} />
+            </ContactsContext.Provider>
         </div>
     );
 }

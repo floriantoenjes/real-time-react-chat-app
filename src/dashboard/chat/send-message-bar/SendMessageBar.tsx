@@ -1,6 +1,6 @@
 import { IconButton, TextField } from "@mui/material";
 import { MicrophoneIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { SetStateAction, useState } from "react";
 import { useHandleInputChange } from "../../../helpers";
 import { Contact } from "../../../shared/types/Contact";
 import { Message } from "../../../shared/types/Message";
@@ -8,11 +8,7 @@ import { Message } from "../../../shared/types/Message";
 export function SendMessageBar(props: {
     selectedContact?: Contact;
     messages: Message[];
-    setMessages: (
-        value: React.SetStateAction<
-            { from: string; at: Date; message: string }[]
-        >,
-    ) => void;
+    setMessages: (value: SetStateAction<Message[]>) => void;
 }) {
     const [formData, setFormData] = useState<{ message: string }>({
         message: "",

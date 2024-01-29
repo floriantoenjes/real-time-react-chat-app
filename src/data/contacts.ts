@@ -1,6 +1,6 @@
 import { Contact } from "../shared/types/Contact";
 
-export const contacts: { [username: string]: Contact[] } = {
+export const contactsData: { [username: string]: Contact[] } = {
     florian: [
         {
             name: "Alex",
