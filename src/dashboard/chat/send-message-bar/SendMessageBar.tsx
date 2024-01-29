@@ -1,13 +1,10 @@
 import { IconButton, TextField } from "@mui/material";
 import { MicrophoneIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { SetStateAction, useState } from "react";
+import { useState } from "react";
 import { useHandleInputChange } from "../../../helpers";
-import { Message } from "../../../shared/types/Message";
+import axios from "axios";
 
-export function SendMessageBar(props: {
-    messages: Message[];
-    setMessages: (value: SetStateAction<Message[]>) => void;
-}) {
+export function SendMessageBar() {
     const [formData, setFormData] = useState<{ message: string }>({
         message: "",
     });
@@ -16,15 +13,15 @@ export function SendMessageBar(props: {
 
     function checkEnterPressed(event: unknown & { key: string }) {
         if (event.key === "Enter" && formData?.message) {
-            const newMessageData = [...props.messages];
-            newMessageData.push({
-                from: "florian",
-                at: new Date(),
-                message: formData.message,
-            });
-            props.setMessages(newMessageData);
+            sendMessage(formData.message);
             setFormData({ message: "" });
         }
+    }
+
+    function sendMessage(message: string) {
+        void axios.post("http://localhost:4200/send", {
+            message: formData.message,
+        });
     }
 
     return (

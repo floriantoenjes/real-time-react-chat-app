@@ -15,11 +15,10 @@ import {
 } from "react";
 import { Contact } from "../../../shared/types/Contact";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
+import { Message } from "../../../shared/types/Message";
 
 export function TopBar(props: {
-    setMessages: Dispatch<
-        SetStateAction<{ from: string; at: Date; message: string }[]>
-    >;
+    setMessages: Dispatch<SetStateAction<Message[]>>;
 }) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [contacts, setContacts] = useContext(ContactsContext).contacts;

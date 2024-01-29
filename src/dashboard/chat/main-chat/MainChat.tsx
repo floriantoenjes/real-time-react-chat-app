@@ -1,6 +1,7 @@
 import { createRef, useEffect } from "react";
+import { Message } from "../../../shared/types/Message";
 
-export function MainChat(props: { messages: any[] }) {
+export function MainChat(props: { messages: Message[] }) {
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView();
     });
@@ -8,10 +9,6 @@ export function MainChat(props: { messages: any[] }) {
     const messagesEndRef = createRef<HTMLDivElement>();
 
     function messageList() {
-        if (!props.messages) {
-            return [];
-        }
-
         return props.messages.map((msg) => {
             return (
                 <div className={"w-full flex"} key={Math.random() * 1_000_000}>
