@@ -49,7 +49,7 @@ export function TopBar(props: {
     return (
         <div
             className={
-                "flex items-center border w-full p-2 justify-between sticky top-0 bg-white"
+                "flex items-center border w-full p-2 justify-between sticky top-0 bg-white cursor-pointer"
             }
         >
             <div className={"flex items-center"}>

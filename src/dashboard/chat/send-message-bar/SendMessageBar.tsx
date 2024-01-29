@@ -42,6 +42,7 @@ export function SendMessageBar(props: {
                 onKeyUp={checkEnterPressed}
                 name={"message"}
                 onChange={handleInputChange}
+                multiline={true}
             ></TextField>
             <IconButton>
                 <MicrophoneIcon className={"w-8"} />
