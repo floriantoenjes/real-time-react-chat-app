@@ -43,7 +43,7 @@ export function Login(props: {
                             type="email"
                             label="E-Mail"
                             onChange={handleInputChange}
-                            value={"user1@email.com"}
+                            value={formData.email}
                         />
                     </div>
                     <div className="mb-3">
@@ -52,7 +52,7 @@ export function Login(props: {
                             type="password"
                             label="Password"
                             onChange={handleInputChange}
-                            value={"password"}
+                            value={formData.password}
                         />
                     </div>
 

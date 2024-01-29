@@ -13,7 +13,17 @@ export function Chat() {
     const [selectedContact] = useContext(ContactsContext).selectedContact;
 
     useEffect(() => {
-        setMessages(selectedContact ? messageData[selectedContact.name] : []);
+        if (!selectedContact) {
+            setMessages([]);
+            return;
+        }
+
+        if (!messageData[selectedContact.name]) {
+            setMessages([]);
+            return;
+        }
+
+        setMessages(messageData[selectedContact.name]);
     }, [selectedContact]);
 
     return selectedContact ? (
