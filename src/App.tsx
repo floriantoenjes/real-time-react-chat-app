@@ -7,6 +7,7 @@ import { User } from "./shared/types/User";
 import { io, Socket } from "socket.io-client";
 import { SocketContext } from "./shared/contexts/SocketContext";
 import { UserContext } from "./shared/contexts/UserContext";
+import { BACKEND_URL } from "./environment";
 
 function App() {
     const [user, setUser] = useState<User>();
@@ -16,7 +17,7 @@ function App() {
     useEffect(() => {
         if (user?.username) {
             setSocket(
-                io("http://localhost:4200", {
+                io(BACKEND_URL, {
                     query: { username: user?.username.toLowerCase() },
                 }),
             );
@@ -26,6 +27,7 @@ function App() {
             socket?.disconnect();
             setSocket(undefined);
         };
+        // eslint-disable-next-line
     }, [user?.username]);
 
     return (

@@ -4,6 +4,7 @@ import { useContext, useState } from "react";
 import { useHandleInputChange } from "../../../helpers";
 import axios from "axios";
 import { UserContext } from "../../../shared/contexts/UserContext";
+import { BACKEND_URL } from "../../../environment";
 
 export function SendMessageBar() {
     const [formData, setFormData] = useState<{ message: string }>({
@@ -14,15 +15,15 @@ export function SendMessageBar() {
     const handleInputChange = useHandleInputChange(setFormData);
 
     function checkEnterPressed(event: unknown & { key: string }) {
-        if (event.key === "Enter" && formData?.message) {
+        if (event.key === "Enter" && formData?.message.trim().length) {
             sendMessage();
             setFormData({ message: "" });
         }
     }
 
     function sendMessage() {
-        void axios.post("http://localhost:4200/send", {
-            message: formData.message,
+        void axios.post(`${BACKEND_URL}/send`, {
+            message: formData.message.trim(),
             username: user?.username.toLowerCase(),
         });
     }

@@ -1,7 +1,10 @@
-import { createRef, useEffect } from "react";
+import { createRef, useContext, useEffect } from "react";
 import { Message } from "../../../shared/types/Message";
+import { UserContext } from "../../../shared/contexts/UserContext";
 
 export function MainChat(props: { messages: Message[] }) {
+    const [user] = useContext(UserContext);
+
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView();
     });
@@ -15,7 +18,7 @@ export function MainChat(props: { messages: Message[] }) {
                     <div
                         className={
                             "border w-fit rounded p-3 m-3 max-w-96" +
-                            (msg.from === "florian"
+                            (msg.from === user?.username.toLowerCase()
                                 ? " ml-auto bg-green-300"
                                 : " bg-white")
                         }

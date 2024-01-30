@@ -1,51 +1,59 @@
 import { useContext, useEffect, useState } from "react";
 import { MainChat } from "./main-chat/MainChat";
-import { messageData } from "../../data/messages";
 import { SendMessageBar } from "./send-message-bar/SendMessageBar";
 import { TopBar } from "./top-bar/TopBar";
 import { ContactsContext } from "../../shared/contexts/ContactsContext";
 import { SocketContext } from "../../shared/contexts/SocketContext";
+import { Message } from "../../shared/types/Message";
+import axios from "axios";
+import { UserContext } from "../../shared/contexts/UserContext";
+import { BACKEND_URL } from "../../environment";
 
 export function Chat() {
-    const [messages, setMessages] = useState(
-        messageData[Object.keys(messageData)[0]],
-    );
+    const [messages, setMessages] = useState<Message[]>([]);
 
     const [selectedContact] = useContext(ContactsContext).selectedContact;
+    const [user] = useContext(UserContext);
 
     const [socket] = useContext(SocketContext);
 
     useEffect(() => {
+        async function fetchMessages() {
+            const response = await axios.post<Message[]>(
+                `${BACKEND_URL}/get-messages`,
+                {
+                    username: user?.username.toLowerCase(),
+                },
+            );
+            setMessages(response.data);
+        }
+
         if (!selectedContact) {
-            setMessages([]);
             return;
         }
 
-        if (!messageData[selectedContact.name]) {
-            setMessages([]);
-            return;
-        }
-
-        setMessages(messageData[selectedContact.name]);
-    }, [selectedContact]);
-
-    let counter = 0;
+        void fetchMessages();
+    }, [user?.username, selectedContact]);
 
     useEffect(() => {
+        function addMessage(message: string) {
+            if (!user) {
+                return;
+            }
+
+            const newMessageData = [...messages];
+            newMessageData.push({
+                from: user.username.toLowerCase(),
+                at: new Date(),
+                message,
+            });
+            setMessages(newMessageData);
+        }
+
         if (socket) {
             socket?.on("message", addMessage);
         }
-    }, [socket, messages]);
-
-    function addMessage(message: string) {
-        const newMessageData = [...messages];
-        newMessageData.push({
-            from: "florian",
-            at: new Date(),
-            message,
-        });
-        setMessages(newMessageData);
-    }
+    }, [socket, messages, user?.username]);
 
     return selectedContact ? (
         <div className={"h-screen w-full overflow-y-scroll"}>
