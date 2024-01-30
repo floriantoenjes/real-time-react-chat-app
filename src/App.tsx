@@ -14,14 +14,19 @@ function App() {
     const [socket, setSocket] = useState<Socket>();
 
     useEffect(() => {
-        if (!socket && user?.username) {
+        if (user?.username) {
             setSocket(
                 io("http://localhost:4200", {
                     query: { username: user?.username.toLowerCase() },
                 }),
             );
         }
-    }, [socket, user?.username]);
+
+        return () => {
+            socket?.disconnect();
+            setSocket(undefined);
+        };
+    }, [user?.username]);
 
     return (
         <UserContext.Provider value={[user, setUser]}>
