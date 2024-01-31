@@ -2,14 +2,14 @@ import { IconButton, TextField } from "@mui/material";
 import { MicrophoneIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { useContext, useState } from "react";
 import { useHandleInputChange } from "../../../helpers";
-import { UserContext } from "../../../shared/contexts/UserContext";
+import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
 
 export function SendMessageBar() {
     const [formData, setFormData] = useState<{ message: string }>({
         message: "",
     });
-    const [user] = useContext(UserContext);
+    const [user] = useUserContext();
     const messageService = useContext(MessageContext);
 
     const handleInputChange = useHandleInputChange(setFormData);
@@ -24,10 +24,6 @@ export function SendMessageBar() {
     }
 
     function sendMessage() {
-        if (!user) {
-            return;
-        }
-
         void messageService.sendMessage(formData.message.trim(), user.username);
     }
 

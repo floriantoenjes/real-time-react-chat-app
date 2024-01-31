@@ -5,23 +5,20 @@ import { TopBar } from "./top-bar/TopBar";
 import { ContactsContext } from "../../shared/contexts/ContactsContext";
 import { SocketContext } from "../../shared/contexts/SocketContext";
 import { Message } from "../../shared/types/Message";
-import { UserContext } from "../../shared/contexts/UserContext";
+import { useUserContext } from "../../shared/contexts/UserContext";
 import { MessageContext } from "../../shared/contexts/MessageContext";
 
 export function Chat() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [selectedContact] = useContext(ContactsContext).selectedContact;
-    const [user] = useContext(UserContext);
+    const [user] = useUserContext();
     const messageService = useContext(MessageContext);
 
     const [socket] = useContext(SocketContext);
 
     useEffect(() => {
         async function fetchMessages() {
-            if (!user) {
-                return;
-            }
-            setMessages(await messageService.getMessages(user?.username));
+            setMessages(await messageService.getMessages(user.username));
         }
 
         if (!selectedContact) {
@@ -29,14 +26,10 @@ export function Chat() {
         }
 
         void fetchMessages();
-    }, [user?.username, selectedContact]);
+    }, [user.username, selectedContact]);
 
     useEffect(() => {
         function addMessage(message: string) {
-            if (!user) {
-                return;
-            }
-
             const newMessageData = [...messages];
             newMessageData.push({
                 from: user.username,
@@ -49,7 +42,7 @@ export function Chat() {
         if (socket) {
             socket?.on("message", addMessage);
         }
-    }, [socket, messages, user?.username]);
+    }, [socket, messages, user.username]);
 
     return selectedContact ? (
         <div className={"h-screen w-full overflow-y-scroll"}>
