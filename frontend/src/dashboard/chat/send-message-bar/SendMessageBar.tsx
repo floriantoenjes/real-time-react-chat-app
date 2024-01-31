@@ -14,7 +14,9 @@ export function SendMessageBar() {
 
     const handleInputChange = useHandleInputChange(setFormData);
 
-    function checkEnterPressed(event: unknown & { key: string }) {
+    function checkEnterPressed(event: any) {
+        event = event as KeyboardEvent;
+
         if (event.key === "Enter" && formData?.message.trim().length) {
             sendMessage();
             setFormData({ message: "" });

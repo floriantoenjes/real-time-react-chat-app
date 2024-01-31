@@ -21,6 +21,17 @@ export const contract = c.router({
     }),
     summary: 'Get messages for user by username',
   },
+  deleteMessages: {
+    method: 'DELETE',
+    path: '/messages',
+    responses: {
+      200: z.boolean(),
+    },
+    body: z.object({
+      username: z.string(),
+    }),
+    summary: 'Delete messages for user by username',
+  },
   sendMessage: {
     method: 'POST',
     path: '/send',

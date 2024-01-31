@@ -16,14 +16,18 @@ import {
 import { Contact } from "../../../shared/types/Contact";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { Message } from "../../../shared/types/Message";
+import { MessageContext } from "../../../shared/contexts/MessageContext";
+import { UserContext } from "../../../shared/contexts/UserContext";
 
 export function TopBar(props: {
     setMessages: Dispatch<SetStateAction<Message[]>>;
 }) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [user] = useContext(UserContext);
     const [contacts, setContacts] = useContext(ContactsContext).contacts;
     const [selectedContact, setSelectedContact] =
         useContext(ContactsContext).selectedContact;
+    const messageService = useContext(MessageContext);
 
     const open = Boolean(anchorEl);
     const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
@@ -34,11 +38,22 @@ export function TopBar(props: {
     };
 
     function emptyChat() {
+        if (!user) {
+            return;
+        }
+
+        messageService.deleteMessages(user.username);
         props.setMessages([]);
         handleClose();
     }
 
     function deleteChat() {
+        if (!user) {
+            return;
+        }
+
+        messageService.deleteMessages(user.username);
+
         setContacts(
             contacts.filter((cs: Contact) => cs.name !== selectedContact?.name),
         );

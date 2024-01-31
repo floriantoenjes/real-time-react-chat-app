@@ -33,6 +33,14 @@ export class AppController {
     });
   }
 
+  @TsRestHandler(contract.deleteMessages)
+  async deleteMessages() {
+    return tsRestHandler(contract.deleteMessages, async ({ body }) => {
+      await this.messageModel.deleteMany({ from: body.username });
+      return { status: 200, body: true };
+    });
+  }
+
   @TsRestHandler(contract.sendMessage)
   async sendMessage() {
     return tsRestHandler(contract.sendMessage, async ({ body }) => {
