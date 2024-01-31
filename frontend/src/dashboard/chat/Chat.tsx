@@ -40,7 +40,7 @@ export function Chat() {
         }
 
         if (socket) {
-            socket?.on("message", addMessage);
+            socket?.once("message", addMessage);
         }
     }, [socket, messages, user.username]);
 
