@@ -18,7 +18,7 @@ export function MainChat(props: { messages: Message[] }) {
                     <div
                         className={
                             "border w-fit rounded p-3 m-3 max-w-96" +
-                            (msg.from === user?.username.toLowerCase()
+                            (msg.from === user?.username
                                 ? " ml-auto bg-green-300"
                                 : " bg-white")
                         }

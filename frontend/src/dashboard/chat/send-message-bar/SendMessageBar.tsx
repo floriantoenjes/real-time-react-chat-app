@@ -2,15 +2,15 @@ import { IconButton, TextField } from "@mui/material";
 import { MicrophoneIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { useContext, useState } from "react";
 import { useHandleInputChange } from "../../../helpers";
-import axios from "axios";
 import { UserContext } from "../../../shared/contexts/UserContext";
-import { BACKEND_URL } from "../../../environment";
+import { MessageContext } from "../../../shared/contexts/MessageContext";
 
 export function SendMessageBar() {
     const [formData, setFormData] = useState<{ message: string }>({
         message: "",
     });
     const [user] = useContext(UserContext);
+    const messageService = useContext(MessageContext);
 
     const handleInputChange = useHandleInputChange(setFormData);
 
@@ -22,10 +22,11 @@ export function SendMessageBar() {
     }
 
     function sendMessage() {
-        void axios.post(`${BACKEND_URL}/send`, {
-            message: formData.message.trim(),
-            username: user?.username.toLowerCase(),
-        });
+        if (!user) {
+            return;
+        }
+
+        void messageService.sendMessage(formData.message.trim(), user.username);
     }
 
     return (

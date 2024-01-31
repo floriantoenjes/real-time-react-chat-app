@@ -5,27 +5,23 @@ import { TopBar } from "./top-bar/TopBar";
 import { ContactsContext } from "../../shared/contexts/ContactsContext";
 import { SocketContext } from "../../shared/contexts/SocketContext";
 import { Message } from "../../shared/types/Message";
-import axios from "axios";
 import { UserContext } from "../../shared/contexts/UserContext";
-import { BACKEND_URL } from "../../environment";
+import { MessageContext } from "../../shared/contexts/MessageContext";
 
 export function Chat() {
     const [messages, setMessages] = useState<Message[]>([]);
-
     const [selectedContact] = useContext(ContactsContext).selectedContact;
     const [user] = useContext(UserContext);
+    const messageService = useContext(MessageContext);
 
     const [socket] = useContext(SocketContext);
 
     useEffect(() => {
         async function fetchMessages() {
-            const response = await axios.post<Message[]>(
-                `${BACKEND_URL}/get-messages`,
-                {
-                    username: user?.username.toLowerCase(),
-                },
-            );
-            setMessages(response.data);
+            if (!user) {
+                return;
+            }
+            setMessages(await messageService.getMessages(user?.username));
         }
 
         if (!selectedContact) {
@@ -43,7 +39,7 @@ export function Chat() {
 
             const newMessageData = [...messages];
             newMessageData.push({
-                from: user.username.toLowerCase(),
+                from: user.username,
                 at: new Date(),
                 message,
             });

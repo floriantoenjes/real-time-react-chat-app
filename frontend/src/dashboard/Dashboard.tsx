@@ -7,6 +7,8 @@ import { Navigate } from "react-router-dom";
 import { Contact } from "../shared/types/Contact";
 import { contactsData } from "../data/contacts";
 import { ContactsContext } from "../shared/contexts/ContactsContext";
+import { MessageContext } from "../shared/contexts/MessageContext";
+import { MessageService } from "../shared/services/MessageService";
 
 export function Dashboard(props: { user?: User }) {
     const [contacts, setContacts] = useState(
@@ -29,8 +31,10 @@ export function Dashboard(props: { user?: User }) {
                     selectedContact: [selectedContact, setSelectedContact],
                 }}
             >
-                <Sidebar />
-                <Chat />
+                <MessageContext.Provider value={new MessageService()}>
+                    <Sidebar />
+                    <Chat />
+                </MessageContext.Provider>
             </ContactsContext.Provider>
         </div>
     );
