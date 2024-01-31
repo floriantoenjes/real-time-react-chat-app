@@ -40,9 +40,9 @@ export function Sidebar() {
     return (
         <div className={"sidebar h-screen border"}>
             <div>
-                <Button>
-                    <Link to="/">Sign out</Link>
-                </Button>
+                <Link to="/">
+                    <Button>Sign out</Button>
+                </Link>
             </div>
 
             <div className={"flex"}>
