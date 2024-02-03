@@ -64,15 +64,13 @@ export class AppController {
   @TsRestHandler(contract.getContacts)
   async getContacts() {
     return tsRestHandler(contract.getContacts, async ({ body }) => {
-      const contacts = await this.contactModel.find({
-        userId: body.userId,
+      const user = await this.userModel.findOne({
+        _id: body.userId,
       });
-
-      console.log(contacts[0]);
 
       return {
         status: 200,
-        body: contacts,
+        body: user.contacts,
       };
     });
   }

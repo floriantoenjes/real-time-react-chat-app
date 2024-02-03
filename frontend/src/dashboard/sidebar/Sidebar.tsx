@@ -16,8 +16,6 @@ export function Sidebar() {
         contactsContext.selectedContact;
 
     function contactList() {
-        console.log(userContacts);
-
         return userContacts.map((c) => (
             <div
                 key={Math.random() * 1_000_000}
@@ -30,7 +28,7 @@ export function Sidebar() {
                 <Avatar width={"3.4rem"} height={"2.8rem"} />
                 <div className={"flex-col w-full"}>
                     <div className={"flex justify-between"}>
-                        <div>{c.userId}</div>
+                        <div>{c.username}</div>
                         <div>{c.lastMessage?.at.toString()}</div>
                     </div>
                     <div>{c.lastMessage?.message}</div>

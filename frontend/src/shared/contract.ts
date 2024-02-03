@@ -11,6 +11,7 @@ const MessageSchema = z.object({
 
 const ContactSchema = z.object({
     userId: z.string(),
+    username: z.string(),
     lastMessage: MessageSchema,
     messages: z.array(MessageSchema),
 });

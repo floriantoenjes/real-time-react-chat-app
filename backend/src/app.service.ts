@@ -35,18 +35,22 @@ export class AppService implements OnApplicationBootstrap {
     const user1Contacts = [
       {
         userId: user2Doc._id.toString(),
+        username: user2Doc.username,
         messages: [],
       } as Contact,
     ];
-    await this.contactModel.create(user1Contacts);
-
     const user2Contacts = [
       {
         userId: user1Doc._id.toString(),
+        username: user1Doc.username,
         messages: [],
       } as Contact,
     ];
-    await this.contactModel.create(user2Contacts);
+    user1Doc.contacts = user1Contacts;
+    user2Doc.contacts = user2Contacts;
+
+    await user1Doc.save();
+    await user2Doc.save();
   }
 
   getHello(): string {

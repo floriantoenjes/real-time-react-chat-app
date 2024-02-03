@@ -7,6 +7,9 @@ export class Contact {
   userId: string;
 
   @Prop()
+  username: string;
+
+  @Prop()
   lastMessage: Message;
 
   @Prop()

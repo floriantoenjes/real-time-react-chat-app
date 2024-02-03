@@ -62,7 +62,7 @@ export function TopBar(props: {
         >
             <div className={"flex items-center"}>
                 <Avatar />
-                <p>{selectedContact?.userId}</p>
+                <p>{selectedContact?.username}</p>
             </div>
             <div className={"flex"}>
                 <IconButton className={"mr-3"}>
