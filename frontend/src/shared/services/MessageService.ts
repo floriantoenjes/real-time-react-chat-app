@@ -13,7 +13,9 @@ export class MessageService {
     }
 
     async getMessages(username: string) {
-        const messages = await this.client.getMessages({ body: { username } });
+        const messages = await this.client.getMessages({
+            body: { username },
+        });
 
         if (messages.status === 200) {
             return messages.body;
@@ -26,11 +28,12 @@ export class MessageService {
         void this.client.deleteMessages({ body: { username } });
     }
 
-    sendMessage(message: string, fromUsername: string) {
+    sendMessage(userIdAuthor: string, message: string, contactId: string) {
         return this.client.sendMessage({
             body: {
+                userIdAuthor,
                 message,
-                from: fromUsername,
+                from: contactId,
             },
         });
     }

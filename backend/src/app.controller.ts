@@ -48,15 +48,21 @@ export class AppController {
   @TsRestHandler(contract.sendMessage)
   async sendMessage() {
     return tsRestHandler(contract.sendMessage, async ({ body }) => {
-      await this.messageModel.create({
-        message: body.message,
-        from: body.from,
-        at: new Date(),
-      });
+      const newMessage = new Message();
+      newMessage.message = body.message;
+      newMessage.from = body.userIdAuthor;
+      newMessage.at = new Date();
 
-      this.gateway.connectedSocketsMap
-        .get(body.from)
-        .emit('message', body.message);
+      const user = await this.userModel.findOne({ _id: body.userIdAuthor });
+      user.contacts
+        .find((c) => c.userId === body.from)
+        .messages.push(newMessage);
+      user.markModified('contacts');
+      const result = await user.save();
+
+      // this.gateway.connectedSocketsMap
+      //   .get(body.from.toLowerCase())
+      //   .emit('message', body.message);
       return { status: 201, body: true };
     });
   }

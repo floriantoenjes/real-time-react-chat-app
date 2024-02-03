@@ -16,8 +16,8 @@ import {
 import { Contact } from "../../../shared/types/Contact";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { Message } from "../../../shared/types/Message";
-import { MessageContext } from "../../../shared/contexts/MessageContext";
 import { useUserContext } from "../../../shared/contexts/UserContext";
+import { MessageContext } from "../../../shared/contexts/MessageContext";
 
 export function TopBar(props: {
     setMessages: Dispatch<SetStateAction<Message[]>>;

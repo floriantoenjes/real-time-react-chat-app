@@ -18,7 +18,7 @@ export function Chat() {
 
     useEffect(() => {
         async function fetchMessages() {
-            setMessages(await messageService.getMessages(user.username));
+            setMessages(await messageService.getMessages(user._id));
         }
 
         if (!selectedContact) {

@@ -4,11 +4,13 @@ import { useContext, useState } from "react";
 import { useHandleInputChange } from "../../../helpers";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
+import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 
 export function SendMessageBar() {
     const [formData, setFormData] = useState<{ message: string }>({
         message: "",
     });
+    const [selectedContact] = useContext(ContactsContext).selectedContact;
     const [user] = useUserContext();
     const messageService = useContext(MessageContext);
 
@@ -24,7 +26,15 @@ export function SendMessageBar() {
     }
 
     function sendMessage() {
-        void messageService.sendMessage(formData.message.trim(), user.username);
+        if (!selectedContact) {
+            return;
+        }
+
+        void messageService.sendMessage(
+            user._id,
+            formData.message.trim(),
+            selectedContact.userId,
+        );
     }
 
     return (

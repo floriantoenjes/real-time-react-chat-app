@@ -53,6 +53,7 @@ export const contract = c.router({
       201: z.boolean(),
     },
     body: z.object({
+      userIdAuthor: z.string(),
       message: z.string(),
       from: z.string(),
     }),

@@ -6,16 +6,15 @@ import { User } from "../shared/types/User";
 import { Navigate } from "react-router-dom";
 import { Contact } from "../shared/types/Contact";
 import { ContactsContext } from "../shared/contexts/ContactsContext";
-import { MessageContext } from "../shared/contexts/MessageContext";
 import { MessageService } from "../shared/services/MessageService";
 import { ContactService } from "../shared/services/ContactService";
+import { MessageContext } from "../shared/contexts/MessageContext";
 
 export function Dashboard(props: { user?: User }) {
     const [contacts, setContacts] = useState<Contact[]>([]);
     const [selectedContact, setSelectedContact] = useState<Contact | undefined>(
         undefined,
     );
-
     const contactService = new ContactService();
 
     useEffect(() => {

@@ -10,6 +10,7 @@ const MessageSchema = z.object({
 });
 
 const ContactSchema = z.object({
+    _id: z.string(),
     userId: z.string(),
     username: z.string(),
     lastMessage: MessageSchema,
@@ -54,6 +55,7 @@ export const contract = c.router({
             201: z.boolean(),
         },
         body: z.object({
+            userIdAuthor: z.string(),
             message: z.string(),
             from: z.string(),
         }),
