@@ -1,5 +1,7 @@
+import { Message } from "./Message";
+
 export type Contact = {
-    name: string;
-    time: string;
-    lastMessage: string;
+    userId: string;
+    lastMessage?: Message;
+    messages: Message[];
 };

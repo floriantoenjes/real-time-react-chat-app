@@ -1,23 +1,34 @@
 import "./Dashboard.css";
 import { Sidebar } from "./sidebar/Sidebar";
 import { Chat } from "./chat/Chat";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { User } from "../shared/types/User";
 import { Navigate } from "react-router-dom";
 import { Contact } from "../shared/types/Contact";
-import { contactsData } from "../data/contacts";
 import { ContactsContext } from "../shared/contexts/ContactsContext";
 import { MessageContext } from "../shared/contexts/MessageContext";
 import { MessageService } from "../shared/services/MessageService";
+import { ContactService } from "../shared/services/ContactService";
 
 export function Dashboard(props: { user?: User }) {
-    const [contacts, setContacts] = useState(
-        props.user ? contactsData[props.user.username.toLowerCase()] : [],
+    const [contacts, setContacts] = useState<Contact[]>([]);
+    const [selectedContact, setSelectedContact] = useState<Contact | undefined>(
+        undefined,
     );
 
-    const [selectedContact, setSelectedContact] = useState<Contact | undefined>(
-        props.user ? contacts[0] : undefined,
-    );
+    const contactService = new ContactService();
+
+    useEffect(() => {
+        (async () => {
+            if (!props.user) {
+                return;
+            }
+
+            setContacts(
+                await contactService.getContacts(props.user._id.toString()),
+            );
+        })();
+    }, [props.user]);
 
     if (!props.user) {
         return <Navigate to={"/"} />;
@@ -29,6 +40,7 @@ export function Dashboard(props: { user?: User }) {
                 value={{
                     contacts: [contacts, setContacts],
                     selectedContact: [selectedContact, setSelectedContact],
+                    contactService,
                 }}
             >
                 <MessageContext.Provider value={new MessageService()}>

@@ -47,7 +47,9 @@ export function TopBar(props: {
         messageService.deleteMessages(user.username);
 
         setContacts(
-            contacts.filter((cs: Contact) => cs.name !== selectedContact?.name),
+            contacts.filter(
+                (cs: Contact) => cs.userId !== selectedContact?.userId,
+            ),
         );
         setSelectedContact(undefined);
     }
@@ -60,7 +62,7 @@ export function TopBar(props: {
         >
             <div className={"flex items-center"}>
                 <Avatar />
-                <p>{selectedContact?.name}</p>
+                <p>{selectedContact?.userId}</p>
             </div>
             <div className={"flex"}>
                 <IconButton className={"mr-3"}>

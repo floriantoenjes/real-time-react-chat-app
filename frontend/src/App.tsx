@@ -8,10 +8,10 @@ import { io, Socket } from "socket.io-client";
 import { SocketContext } from "./shared/contexts/SocketContext";
 import { UserContext } from "./shared/contexts/UserContext";
 import { BACKEND_URL } from "./environment";
+import { UserService } from "./shared/services/UserService";
 
 function App() {
     const [user, setUser] = useState<User>();
-
     const [socket, setSocket] = useState<Socket>();
 
     useEffect(() => {
@@ -31,10 +31,10 @@ function App() {
     }, [user?.username]);
 
     return (
-        <UserContext.Provider value={[user, setUser]}>
+        <UserContext.Provider value={[user, setUser, new UserService()]}>
             <SocketContext.Provider value={[socket, setSocket]}>
                 <Routes>
-                    <Route path="/" element={<Login setUser={setUser} />} />
+                    <Route path="/" element={<Login />} />
                     <Route
                         path="/dashboard"
                         element={<Dashboard user={user} />}

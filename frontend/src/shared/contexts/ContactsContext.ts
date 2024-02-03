@@ -1,5 +1,6 @@
 import { createContext, Dispatch, SetStateAction } from "react";
 import { Contact } from "../types/Contact";
+import { ContactService } from "../services/ContactService";
 
 export const ContactsContext = createContext<{
     contacts: [Contact[], Dispatch<SetStateAction<Contact[]>>];
@@ -7,7 +8,9 @@ export const ContactsContext = createContext<{
         Contact | undefined,
         Dispatch<SetStateAction<Contact | undefined>>,
     ];
+    contactService: ContactService;
 }>({
     contacts: [[], () => {}],
     selectedContact: [undefined, () => {}],
+    contactService: new ContactService(),
 });

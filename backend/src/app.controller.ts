@@ -6,13 +6,17 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { contract } from '../shared/contract';
+import { Contact } from './schemas/contact.schema';
+import { User } from './schemas/user.schema';
 
 @Controller()
 export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly gateway: RealTimeChatGateway,
+    @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Message.name) private messageModel: Model<Message>,
+    @InjectModel(Contact.name) private contactModel: Model<Contact>,
   ) {}
 
   @Get()
@@ -54,6 +58,44 @@ export class AppController {
         .get(body.from)
         .emit('message', body.message);
       return { status: 201, body: true };
+    });
+  }
+
+  @TsRestHandler(contract.getContacts)
+  async getContacts() {
+    return tsRestHandler(contract.getContacts, async ({ body }) => {
+      const contacts = await this.contactModel.find({
+        userId: body.userId,
+      });
+
+      console.log(contacts[0]);
+
+      return {
+        status: 200,
+        body: contacts,
+      };
+    });
+  }
+
+  @TsRestHandler(contract.signIn)
+  async signIn() {
+    return tsRestHandler(contract.signIn, async ({ body }) => {
+      const user = await this.userModel.findOne({
+        email: body.email,
+        password: body.password,
+      });
+
+      if (!user) {
+        return {
+          status: 403,
+          body: false,
+        };
+      }
+
+      return {
+        status: 200,
+        body: user,
+      };
     });
   }
 }

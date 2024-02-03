@@ -1,25 +1,28 @@
 import "./Login.css";
 import { Button, TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useHandleInputChange } from "../helpers";
 import { AuthService } from "../shared/services/AuthService";
-import { User } from "../shared/types/User";
+import { UserContext } from "../shared/contexts/UserContext";
 
-export function Login(props: {
-    setUser: React.Dispatch<React.SetStateAction<User | undefined>>;
-}) {
+export function Login(props: {}) {
     const navigate = useNavigate();
+    const [user, setUser, userService] = useContext(UserContext);
 
     const [formData, setFormData] = useState({
-        email: "user1@email.com",
+        email: "florian@email.com",
         password: "password",
     });
 
-    function signIn() {
-        const user = AuthService.signIn(formData.email, formData.password);
+    async function signIn() {
+        const user = await AuthService.signIn(
+            formData.email,
+            formData.password,
+            userService,
+        );
         if (user) {
-            props.setUser(user);
+            setUser(user);
             navigate("Dashboard");
         }
     }

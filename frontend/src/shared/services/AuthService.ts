@@ -1,15 +1,7 @@
-import { users } from "../../data/users";
+import { UserService } from "./UserService";
 
 export const AuthService = {
-    signIn(email: string, password: string) {
-        const user = users.find(
-            (user) => user.email === email && user.password === password,
-        );
-
-        if (!user) {
-            return false;
-        }
-
-        return user;
+    signIn(email: string, password: string, userService: UserService) {
+        return userService.signIn(email, password);
     },
 };
