@@ -6,28 +6,19 @@ import {
     VideoCameraIcon,
 } from "@heroicons/react/24/outline";
 import { IconButton, Menu, MenuItem } from "@mui/material";
-import {
-    Dispatch,
-    MouseEvent,
-    SetStateAction,
-    useContext,
-    useState,
-} from "react";
+import { MouseEvent, useContext, useState } from "react";
 import { Contact } from "../../../shared/types/Contact";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
-import { Message } from "../../../shared/types/Message";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
 
-export function TopBar(props: {
-    setMessages: Dispatch<SetStateAction<Message[]>>;
-}) {
+export function TopBar() {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [user] = useUserContext();
     const [contacts, setContacts] = useContext(ContactsContext).contacts;
     const [selectedContact, setSelectedContact] =
         useContext(ContactsContext).selectedContact;
-    const messageService = useContext(MessageContext);
+    const [messages, setMessages, messageService] = useContext(MessageContext);
 
     const open = Boolean(anchorEl);
     const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
@@ -39,7 +30,7 @@ export function TopBar(props: {
 
     function emptyChat() {
         messageService.deleteMessages(user.username);
-        props.setMessages([]);
+        setMessages([]);
         handleClose();
     }
 

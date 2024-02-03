@@ -12,7 +12,7 @@ export function SendMessageBar() {
     });
     const [selectedContact] = useContext(ContactsContext).selectedContact;
     const [user] = useUserContext();
-    const messageService = useContext(MessageContext);
+    const [messages, setMessages, messageService] = useContext(MessageContext);
 
     const handleInputChange = useHandleInputChange(setFormData);
 

@@ -9,6 +9,7 @@ import { ContactsContext } from "../shared/contexts/ContactsContext";
 import { MessageService } from "../shared/services/MessageService";
 import { ContactService } from "../shared/services/ContactService";
 import { MessageContext } from "../shared/contexts/MessageContext";
+import { Message } from "../shared/types/Message";
 
 export function Dashboard(props: { user?: User }) {
     const [contacts, setContacts] = useState<Contact[]>([]);
@@ -16,6 +17,7 @@ export function Dashboard(props: { user?: User }) {
         undefined,
     );
     const contactService = new ContactService();
+    const [messages, setMessages] = useState<Message[] | undefined>([]);
 
     useEffect(() => {
         (async () => {
@@ -42,7 +44,9 @@ export function Dashboard(props: { user?: User }) {
                     contactService,
                 }}
             >
-                <MessageContext.Provider value={new MessageService()}>
+                <MessageContext.Provider
+                    value={[messages, setMessages, new MessageService()]}
+                >
                     <Sidebar />
                     <Chat />
                 </MessageContext.Provider>

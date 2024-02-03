@@ -1,9 +1,10 @@
-import { createRef, useEffect } from "react";
-import { Message } from "../../../shared/types/Message";
+import { createRef, useContext, useEffect } from "react";
 import { useUserContext } from "../../../shared/contexts/UserContext";
+import { MessageContext } from "../../../shared/contexts/MessageContext";
 
-export function MainChat(props: { messages: Message[] }) {
+export function MainChat() {
     const [user] = useUserContext();
+    const [messages] = useContext(MessageContext);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView();
@@ -12,7 +13,7 @@ export function MainChat(props: { messages: Message[] }) {
     const messagesEndRef = createRef<HTMLDivElement>();
 
     function messageList() {
-        return props.messages.map((msg) => {
+        return (messages ?? []).map((msg) => {
             return (
                 <div className={"w-full flex"} key={Math.random() * 1_000_000}>
                     <div
