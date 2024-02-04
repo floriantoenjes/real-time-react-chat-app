@@ -31,9 +31,9 @@ export class MessageService {
     sendMessage(userIdAuthor: string, message: string, contactId: string) {
         return this.client.sendMessage({
             body: {
-                userIdAuthor,
+                toUserId: contactId,
                 message,
-                from: contactId,
+                fromUserId: userIdAuthor,
             },
         });
     }

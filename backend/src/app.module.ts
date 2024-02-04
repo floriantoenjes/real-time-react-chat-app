@@ -12,7 +12,7 @@ import { UserController } from './controllers/user.controller';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost', {}),
+    MongooseModule.forRoot('mongodb://localhost'),
     MongooseModule.forFeature([
       { name: Message.name, schema: MessageSchema },
       { name: Contact.name, schema: ContactSchema },

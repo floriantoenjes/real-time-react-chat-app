@@ -5,6 +5,7 @@ const c = initContract();
 
 const MessageSchema = z.object({
     fromUserId: z.string(),
+    toUserId: z.string(),
     at: z.date(),
     message: z.string(),
 });
@@ -56,9 +57,9 @@ export const contract = c.router({
             201: z.boolean(),
         },
         body: z.object({
-            userIdAuthor: z.string(),
+            toUserId: z.string(),
             message: z.string(),
-            from: z.string(),
+            fromUserId: z.string(),
         }),
         summary: "Send a message",
     },

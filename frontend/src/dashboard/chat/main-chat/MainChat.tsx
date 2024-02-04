@@ -21,7 +21,7 @@ export function MainChat() {
                     <div
                         className={
                             "border w-fit rounded p-3 m-3 max-w-96" +
-                            (msg.fromUserId === user._id
+                            (msg.fromUserId === user._id.toString()
                                 ? " ml-auto bg-green-300"
                                 : " bg-white")
                         }

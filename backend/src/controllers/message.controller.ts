@@ -38,15 +38,16 @@ export class MessageController {
   @TsRestHandler(contract.sendMessage)
   async sendMessage() {
     return tsRestHandler(contract.sendMessage, async ({ body }) => {
-      const newMessage = new Message();
-      newMessage.message = body.message;
-      newMessage.fromUserId = body.userIdAuthor;
-      newMessage.at = new Date();
-
+      const newMessage = {
+        fromUserId: body.fromUserId,
+        message: body.message,
+        toUserId: body.toUserId,
+        at: new Date(),
+      } as Message;
       await this.messageModel.create(newMessage);
 
       this.gateway.connectedSocketsMap
-        .get(body.from)
+        .get(body.fromUserId)
         ?.emit('message', body.message);
 
       return { status: 201, body: true };

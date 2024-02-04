@@ -3,6 +3,8 @@ import { Contact } from './contact.schema';
 
 @Schema()
 export class User {
+  _id: any;
+
   @Prop()
   email: string;
 

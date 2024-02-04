@@ -4,7 +4,8 @@ import { z } from 'zod';
 const c = initContract();
 
 const MessageSchema = z.object({
-  from: z.string(),
+  fromUserId: z.string(),
+  toUserId: z.string(),
   at: z.date(),
   message: z.string(),
 });
@@ -18,7 +19,7 @@ const ContactSchema = z.object({
 });
 
 const UserSchema = z.object({
-  _id: z.string().or(z.any()),
+  _id: z.string(),
   email: z.string(),
   password: z.string(),
   username: z.string(),
@@ -56,9 +57,9 @@ export const contract = c.router({
       201: z.boolean(),
     },
     body: z.object({
-      userIdAuthor: z.string(),
+      toUserId: z.string(),
       message: z.string(),
-      from: z.string(),
+      fromUserId: z.string(),
     }),
     summary: 'Send a message',
   },

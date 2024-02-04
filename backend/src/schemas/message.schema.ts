@@ -9,6 +9,9 @@ export class Message {
   fromUserId: string;
 
   @Prop({ required: true })
+  toUserId: string;
+
+  @Prop({ required: true })
   at: Date;
 
   @Prop({ required: true })
