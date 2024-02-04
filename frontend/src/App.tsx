@@ -18,7 +18,7 @@ function App() {
         if (user?.username) {
             setSocket(
                 io(BACKEND_URL, {
-                    query: { username: user?.username },
+                    query: { username: user?._id },
                 }),
             );
         }

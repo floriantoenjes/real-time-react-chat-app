@@ -60,9 +60,10 @@ export class AppController {
       user.markModified('contacts');
       const result = await user.save();
 
-      // this.gateway.connectedSocketsMap
-      //   .get(body.from.toLowerCase())
-      //   .emit('message', body.message);
+      this.gateway.connectedSocketsMap
+        .get(body.from)
+        ?.emit('message', body.message);
+
       return { status: 201, body: true };
     });
   }

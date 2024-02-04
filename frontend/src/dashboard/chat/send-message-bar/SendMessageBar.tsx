@@ -30,11 +30,20 @@ export function SendMessageBar() {
             return;
         }
 
+        const messageToSend = {
+            userIdAuthor: user._id,
+            message: formData.message.trim(),
+            from: selectedContact.userId,
+            at: new Date(),
+        };
+
         void messageService.sendMessage(
             user._id,
             formData.message.trim(),
             selectedContact.userId,
         );
+
+        setMessages([...messages, messageToSend]);
     }
 
     return (

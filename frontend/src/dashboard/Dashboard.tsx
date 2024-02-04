@@ -17,7 +17,7 @@ export function Dashboard(props: { user?: User }) {
         undefined,
     );
     const contactService = new ContactService();
-    const [messages, setMessages] = useState<Message[] | undefined>([]);
+    const [messages, setMessages] = useState<Message[]>([]);
 
     useEffect(() => {
         (async () => {
