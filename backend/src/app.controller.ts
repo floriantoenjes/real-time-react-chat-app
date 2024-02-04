@@ -30,13 +30,13 @@ export class AppController {
   @TsRestHandler(contract.getMessages)
   async getMessages() {
     return tsRestHandler(contract.getMessages, async ({ body }) => {
-      const user = await this.userModel.findOne({
-        _id: body.userId,
+      const messages = await this.messageModel.find({
+        fromUserId: { $in: [body.userId, body.contactId] },
       });
 
       return {
         status: 200,
-        body: user.contacts.find((c) => c.userId === body.contactId).messages,
+        body: messages,
       };
     });
   }
@@ -54,15 +54,10 @@ export class AppController {
     return tsRestHandler(contract.sendMessage, async ({ body }) => {
       const newMessage = new Message();
       newMessage.message = body.message;
-      newMessage.from = body.userIdAuthor;
+      newMessage.fromUserId = body.userIdAuthor;
       newMessage.at = new Date();
 
-      const user = await this.userModel.findOne({ _id: body.userIdAuthor });
-      user.contacts
-        .find((c) => c.userId === body.from)
-        .messages.push(newMessage);
-      user.markModified('contacts');
-      const result = await user.save();
+      await this.messageModel.create(newMessage);
 
       this.gateway.connectedSocketsMap
         .get(body.from)

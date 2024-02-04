@@ -6,7 +6,7 @@ export type MessageDocument = HydratedDocument<Message>;
 @Schema()
 export class Message {
   @Prop({ required: true })
-  from: string;
+  fromUserId: string;
 
   @Prop({ required: true })
   at: Date;

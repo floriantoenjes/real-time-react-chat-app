@@ -14,10 +14,6 @@ export class AppService implements OnApplicationBootstrap {
   ) {}
 
   async onApplicationBootstrap() {
-    await this.messageModel.deleteMany({});
-    await this.userModel.deleteMany({});
-    await this.contactModel.deleteMany({});
-
     const user1 = {
       username: 'Florian',
       email: 'florian@email.com',
@@ -36,14 +32,12 @@ export class AppService implements OnApplicationBootstrap {
       {
         userId: user2Doc._id.toString(),
         username: user2Doc.username,
-        messages: [],
       } as Contact,
     ];
     const user2Contacts = [
       {
         userId: user1Doc._id.toString(),
         username: user1Doc.username,
-        messages: [],
       } as Contact,
     ];
     user1Doc.contacts = user1Contacts;

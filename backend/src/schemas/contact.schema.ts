@@ -11,9 +11,6 @@ export class Contact {
 
   @Prop()
   lastMessage: Message;
-
-  @Prop()
-  messages: Message[];
 }
 
 export const ContactSchema = SchemaFactory.createForClass(Contact);
