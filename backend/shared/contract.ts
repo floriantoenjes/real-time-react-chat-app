@@ -10,6 +10,7 @@ const MessageSchema = z.object({
 });
 
 const ContactSchema = z.object({
+  _id: z.string(),
   userId: z.string(),
   username: z.string(),
   lastMessage: MessageSchema,
@@ -17,6 +18,7 @@ const ContactSchema = z.object({
 });
 
 const UserSchema = z.object({
+  _id: z.string().or(z.any()),
   email: z.string(),
   password: z.string(),
   username: z.string(),
@@ -31,7 +33,8 @@ export const contract = c.router({
       200: z.array(MessageSchema),
     },
     body: z.object({
-      username: z.string(),
+      userId: z.string(),
+      contactId: z.string(),
     }),
     summary: 'Get messages for user by username',
   },

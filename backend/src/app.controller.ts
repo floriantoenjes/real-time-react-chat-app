@@ -30,10 +30,14 @@ export class AppController {
   @TsRestHandler(contract.getMessages)
   async getMessages() {
     return tsRestHandler(contract.getMessages, async ({ body }) => {
-      const messages = await this.messageModel
-        .find({ from: body.username })
-        .lean();
-      return { status: 200, body: messages };
+      const user = await this.userModel.findOne({
+        _id: body.userId,
+      });
+
+      return {
+        status: 200,
+        body: user.contacts.find((c) => c.userId === body.contactId).messages,
+      };
     });
   }
 

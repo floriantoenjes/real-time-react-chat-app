@@ -12,9 +12,9 @@ export class MessageService {
         });
     }
 
-    async getMessages(username: string) {
+    async getMessages(userId: string, contactId: string) {
         const messages = await this.client.getMessages({
-            body: { username },
+            body: { userId, contactId },
         });
 
         if (messages.status === 200) {

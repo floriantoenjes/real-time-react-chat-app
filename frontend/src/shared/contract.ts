@@ -33,7 +33,8 @@ export const contract = c.router({
             200: z.array(MessageSchema),
         },
         body: z.object({
-            username: z.string(),
+            userId: z.string(),
+            contactId: z.string(),
         }),
         summary: "Get messages for user by username",
     },

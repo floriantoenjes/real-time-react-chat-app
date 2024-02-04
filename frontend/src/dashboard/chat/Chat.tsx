@@ -15,13 +15,17 @@ export function Chat() {
 
     useEffect(() => {
         async function fetchMessages() {
-            setMessages(await messageService.getMessages(user._id));
-        }
+            if (!selectedContact) {
+                return;
+            }
 
-        if (!selectedContact) {
-            return;
+            setMessages(
+                await messageService.getMessages(
+                    user._id,
+                    selectedContact.userId,
+                ),
+            );
         }
-
         void fetchMessages();
     }, [user.username, selectedContact]);
 
