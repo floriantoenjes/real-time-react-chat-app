@@ -6,6 +6,7 @@ import { ContactsContext } from "../../shared/contexts/ContactsContext";
 import { SocketContext } from "../../shared/contexts/SocketContext";
 import { useUserContext } from "../../shared/contexts/UserContext";
 import { MessageContext } from "../../shared/contexts/MessageContext";
+import { Message } from "../../shared/types/Message";
 
 export function Chat() {
     const [selectedContact] = useContext(ContactsContext).selectedContact;
@@ -30,13 +31,9 @@ export function Chat() {
     }, [user.username, selectedContact]);
 
     useEffect(() => {
-        function addMessage(message: string) {
+        function addMessage(message: Message) {
             const newMessageData = [...(messages ?? [])];
-            newMessageData.push({
-                fromUserId: user._id,
-                at: new Date(),
-                message,
-            });
+            newMessageData.push(message);
             setMessages(newMessageData);
         }
 

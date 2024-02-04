@@ -31,9 +31,9 @@ export function SendMessageBar() {
         }
 
         const messageToSend = {
-            userIdAuthor: user._id,
+            fromUserId: user._id,
             message: formData.message.trim(),
-            fromUserId: selectedContact.userId,
+            toUserId: selectedContact.userId,
             at: new Date(),
         };
 

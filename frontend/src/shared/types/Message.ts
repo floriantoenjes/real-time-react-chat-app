@@ -1,1 +1,6 @@
-export type Message = { fromUserId: string; at: Date; message: string };
+export type Message = {
+    fromUserId: string;
+    toUserId: string;
+    at: Date;
+    message: string;
+};
