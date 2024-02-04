@@ -1,7 +1,6 @@
 import { initClient } from "@ts-rest/core";
-import { contract } from "../contract";
+import { Contact, contract } from "../contract";
 import { BACKEND_URL } from "../../environment";
-import { Contact } from "../types/Contact";
 
 export class ContactService {
     client;

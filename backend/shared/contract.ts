@@ -26,6 +26,10 @@ const UserSchema = z.object({
   contacts: z.array(ContactSchema),
 });
 
+export type User = z.infer<typeof UserSchema>;
+export type Contact = z.infer<typeof ContactSchema>;
+export type Message = z.infer<typeof MessageSchema>;
+
 export const contract = c.router({
   getMessages: {
     method: 'POST',

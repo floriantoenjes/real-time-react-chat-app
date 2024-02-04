@@ -1,6 +1,6 @@
 import { createContext, Dispatch, SetStateAction } from "react";
-import { Contact } from "../types/Contact";
 import { ContactService } from "../services/ContactService";
+import { Contact } from "../contract";
 
 export const ContactsContext = createContext<{
     contacts: [Contact[], Dispatch<SetStateAction<Contact[]>>];

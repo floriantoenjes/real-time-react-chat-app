@@ -3,12 +3,12 @@ import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import { Login } from "./login/Login";
 import { Dashboard } from "./dashboard/Dashboard";
-import { User } from "./shared/types/User";
 import { io, Socket } from "socket.io-client";
 import { SocketContext } from "./shared/contexts/SocketContext";
 import { UserContext } from "./shared/contexts/UserContext";
 import { BACKEND_URL } from "./environment";
 import { UserService } from "./shared/services/UserService";
+import { User } from "./shared/contract";
 
 function App() {
     const [user, setUser] = useState<User>();

@@ -1,6 +1,6 @@
-import { Message } from "./Message";
+import { Message } from "../contract";
 
-export type Contact = {
+export type ContactOLD = {
     _id: string;
     userId: string;
     username: string;

@@ -1,7 +1,6 @@
 import { initClient } from "@ts-rest/core";
-import { contract } from "../contract";
+import { contract, User } from "../contract";
 import { BACKEND_URL } from "../../environment";
-import { User } from "../types/User";
 
 export class UserService {
     client;

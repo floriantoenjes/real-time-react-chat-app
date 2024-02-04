@@ -6,7 +6,7 @@ import { ContactsContext } from "../../shared/contexts/ContactsContext";
 import { SocketContext } from "../../shared/contexts/SocketContext";
 import { useUserContext } from "../../shared/contexts/UserContext";
 import { MessageContext } from "../../shared/contexts/MessageContext";
-import { Message } from "../../shared/types/Message";
+import { Message } from "../../shared/contract";
 
 export function Chat() {
     const [selectedContact] = useContext(ContactsContext).selectedContact;

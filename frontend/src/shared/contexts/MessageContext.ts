@@ -1,6 +1,6 @@
 import { createContext, Dispatch, SetStateAction } from "react";
 import { MessageService } from "../services/MessageService";
-import { Message } from "../types/Message";
+import { Message } from "../contract";
 
 export const MessageContext = createContext<
     [Message[], Dispatch<SetStateAction<Message[]>>, MessageService]

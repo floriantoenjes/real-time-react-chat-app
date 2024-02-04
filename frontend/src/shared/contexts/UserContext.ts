@@ -1,6 +1,6 @@
 import { createContext, Dispatch, SetStateAction, useContext } from "react";
-import { User } from "../types/User";
 import { UserService } from "../services/UserService";
+import { User } from "../contract";
 
 export const UserContext = createContext<
     [User | undefined, Dispatch<SetStateAction<User | undefined>>, UserService]
