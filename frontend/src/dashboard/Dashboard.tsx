@@ -1,25 +1,32 @@
 import "./Dashboard.css";
 import { Sidebar } from "./sidebar/Sidebar";
 import { Chat } from "./chat/Chat";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { ContactsContext } from "../shared/contexts/ContactsContext";
 import { MessageService } from "../shared/services/MessageService";
 import { ContactService } from "../shared/services/ContactService";
 import { MessageContext } from "../shared/contexts/MessageContext";
-import { Contact, Message, User } from "../shared/contract";
+import {
+    Contact,
+    Message,
+    User,
+} from "real-time-chat-backend/dist/shared/contract";
 
 export function Dashboard(props: { user?: User }) {
     const [contacts, setContacts] = useState<Contact[]>([]);
     const [selectedContact, setSelectedContact] = useState<Contact | undefined>(
         undefined,
     );
-    const contactService = new ContactService();
+    const contactService = useMemo<ContactService>(
+        () => new ContactService(),
+        [],
+    );
     const [messages, setMessages] = useState<Message[]>([]);
 
     useEffect(() => {
         (async () => {
-            if (!props.user) {
+            if (!props.user?._id) {
                 return;
             }
 
@@ -27,7 +34,7 @@ export function Dashboard(props: { user?: User }) {
                 await contactService.getContacts(props.user._id.toString()),
             );
         })();
-    }, [props.user]);
+    }, [props.user, contactService]);
 
     if (!props.user) {
         return <Navigate to={"/"} />;

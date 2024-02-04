@@ -10,7 +10,7 @@ import { MouseEvent, useContext, useState } from "react";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
-import { Contact } from "../../../shared/contract";
+import { Contact } from "real-time-chat-backend/dist/shared/contract";
 
 export function TopBar() {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -18,7 +18,7 @@ export function TopBar() {
     const [contacts, setContacts] = useContext(ContactsContext).contacts;
     const [selectedContact, setSelectedContact] =
         useContext(ContactsContext).selectedContact;
-    const [messages, setMessages, messageService] = useContext(MessageContext);
+    const [, setMessages, messageService] = useContext(MessageContext);
 
     const open = Boolean(anchorEl);
     const handleClick = (event: MouseEvent<HTMLButtonElement>) => {

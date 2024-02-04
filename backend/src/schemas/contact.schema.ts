@@ -3,6 +3,8 @@ import { Message } from './message.schema';
 
 @Schema()
 export class Contact {
+  _id: any;
+
   @Prop()
   userId: string;
 

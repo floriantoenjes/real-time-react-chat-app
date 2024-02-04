@@ -29,7 +29,7 @@ export function Sidebar() {
                 <div className={"flex-col w-full"}>
                     <div className={"flex justify-between"}>
                         <div>{c.username}</div>
-                        <div>{c.lastMessage?.at.toString()}</div>
+                        <div>{c.lastMessage?.at?.toString()}</div>
                     </div>
                     <div>{c.lastMessage?.message}</div>
                 </div>

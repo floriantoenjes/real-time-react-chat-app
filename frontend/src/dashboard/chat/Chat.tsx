@@ -6,7 +6,7 @@ import { ContactsContext } from "../../shared/contexts/ContactsContext";
 import { SocketContext } from "../../shared/contexts/SocketContext";
 import { useUserContext } from "../../shared/contexts/UserContext";
 import { MessageContext } from "../../shared/contexts/MessageContext";
-import { Message } from "../../shared/contract";
+import { Message } from "real-time-chat-backend/dist/shared/contract";
 
 export function Chat() {
     const [selectedContact] = useContext(ContactsContext).selectedContact;
@@ -28,7 +28,7 @@ export function Chat() {
             );
         }
         void fetchMessages();
-    }, [user.username, selectedContact]);
+    }, [user.username, selectedContact, messageService, setMessages, user._id]);
 
     useEffect(() => {
         function addMessage(message: Message) {
@@ -40,7 +40,7 @@ export function Chat() {
         if (socket) {
             socket?.once("message", addMessage);
         }
-    }, [socket, messages, user.username]);
+    }, [socket, messages, user.username, setMessages]);
 
     return selectedContact ? (
         <div className={"h-screen w-full overflow-y-scroll"}>

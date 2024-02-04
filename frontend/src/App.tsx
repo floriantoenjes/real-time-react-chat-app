@@ -8,7 +8,7 @@ import { SocketContext } from "./shared/contexts/SocketContext";
 import { UserContext } from "./shared/contexts/UserContext";
 import { BACKEND_URL } from "./environment";
 import { UserService } from "./shared/services/UserService";
-import { User } from "./shared/contract";
+import { User } from "real-time-chat-backend/dist/shared/contract";
 
 function App() {
     const [user, setUser] = useState<User>();

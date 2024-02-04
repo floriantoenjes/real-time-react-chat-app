@@ -18,7 +18,7 @@ export class ContactController {
 
       return {
         status: 200,
-        body: user.contacts,
+        body: user?.contacts ?? [],
       };
     });
   }

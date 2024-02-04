@@ -1,6 +1,6 @@
 import { initClient } from "@ts-rest/core";
-import { contract, User } from "../contract";
 import { BACKEND_URL } from "../../environment";
+import { contract, User } from "real-time-chat-backend/dist/shared/contract";
 
 export class UserService {
     client;

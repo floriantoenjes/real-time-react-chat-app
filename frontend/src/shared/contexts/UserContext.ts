@@ -1,6 +1,6 @@
 import { createContext, Dispatch, SetStateAction, useContext } from "react";
 import { UserService } from "../services/UserService";
-import { User } from "../contract";
+import { User } from "real-time-chat-backend/dist/shared/contract";
 
 export const UserContext = createContext<
     [User | undefined, Dispatch<SetStateAction<User | undefined>>, UserService]

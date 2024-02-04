@@ -13,7 +13,7 @@ export class AppController {
   getHello(): string {
     this.gateway.connectedSocketsMap
       .get('florian')
-      .emit('message', 'Hello world!');
+      ?.emit('message', 'Hello world!');
     return this.appService.getHello();
   }
 }

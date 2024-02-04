@@ -8,7 +8,7 @@ import { UserContext } from "../shared/contexts/UserContext";
 
 export function Login(props: {}) {
     const navigate = useNavigate();
-    const [user, setUser, userService] = useContext(UserContext);
+    const [, setUser, userService] = useContext(UserContext);
 
     const [formData, setFormData] = useState({
         email: "florian@email.com",
