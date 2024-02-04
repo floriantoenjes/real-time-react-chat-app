@@ -6,6 +6,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Message, MessageSchema } from './schemas/message.schema';
 import { Contact, ContactSchema } from './schemas/contact.schema';
 import { User, UserSchema } from './schemas/user.schema';
+import { ContactController } from './controllers/contact.controller';
+import { MessageController } from './controllers/message.controller';
+import { UserController } from './controllers/user.controller';
 
 @Module({
   imports: [
@@ -16,7 +19,12 @@ import { User, UserSchema } from './schemas/user.schema';
       { name: User.name, schema: UserSchema },
     ]),
   ],
-  controllers: [AppController],
+  controllers: [
+    AppController,
+    ContactController,
+    MessageController,
+    UserController,
+  ],
   providers: [AppService, RealTimeChatGateway],
 })
 export class AppModule {}
