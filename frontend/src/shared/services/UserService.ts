@@ -14,12 +14,12 @@ export class UserService {
     }
 
     async signIn(email: string, password: string): Promise<User | false> {
-        const messages = await this.client.signIn({
+        const res = await this.client.signIn({
             body: { email, password },
         });
 
-        if (messages.status === 200) {
-            return messages.body;
+        if (res.status === 200) {
+            return res.body;
         }
 
         return false;

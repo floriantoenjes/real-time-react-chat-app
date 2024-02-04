@@ -33,7 +33,7 @@ export function Chat() {
         function addMessage(message: string) {
             const newMessageData = [...(messages ?? [])];
             newMessageData.push({
-                from: user.username,
+                fromUserId: user._id,
                 at: new Date(),
                 message,
             });

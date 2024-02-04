@@ -13,13 +13,15 @@ export function MainChat() {
     const messagesEndRef = createRef<HTMLDivElement>();
 
     function messageList() {
+        console.log(messages);
+
         return (messages ?? []).map((msg) => {
             return (
                 <div className={"w-full flex"} key={Math.random() * 1_000_000}>
                     <div
                         className={
                             "border w-fit rounded p-3 m-3 max-w-96" +
-                            (msg.from === user.username
+                            (msg.fromUserId === user._id
                                 ? " ml-auto bg-green-300"
                                 : " bg-white")
                         }

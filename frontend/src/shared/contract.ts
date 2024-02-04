@@ -4,7 +4,7 @@ import { z } from "zod";
 const c = initContract();
 
 const MessageSchema = z.object({
-    from: z.string(),
+    fromUserId: z.string(),
     at: z.date(),
     message: z.string(),
 });
