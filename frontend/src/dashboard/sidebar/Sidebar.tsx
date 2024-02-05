@@ -13,14 +13,19 @@ import { useUserContext } from "../../shared/contexts/UserContext";
 
 export function Sidebar() {
     const [user, , userService] = useUserContext();
+
     const contactsContext = useContext(ContactsContext);
-    const [userContacts, setUserContacts] = contactsContext.contacts;
     const contactService = contactsContext.contactService;
     const [selectedContact, setSelectedContact] =
         contactsContext.selectedContact;
+
+    const [userContacts, setUserContacts] = contactsContext.contacts;
+
     const [formData, setFormData] = useState({
         contactName: "",
     });
+
+    const handleInputChange = useHandleInputChange(setFormData);
 
     function contactList() {
         return userContacts.map((c) => (
@@ -43,8 +48,6 @@ export function Sidebar() {
             </div>
         ));
     }
-
-    const handleInputChange = useHandleInputChange(setFormData);
 
     async function addContact() {
         const searchedUser = await userService.searchForUserByUsername(

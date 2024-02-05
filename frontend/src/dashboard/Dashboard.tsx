@@ -1,7 +1,7 @@
 import "./Dashboard.css";
 import { Sidebar } from "./sidebar/Sidebar";
 import { Chat } from "./chat/Chat";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { ContactsContext } from "../shared/contexts/ContactsContext";
 import { MessageService } from "../shared/services/MessageService";
@@ -14,14 +14,12 @@ import {
 } from "real-time-chat-backend/dist/shared/contract";
 
 export function Dashboard(props: { user?: User }) {
+    const contactService = useRef(new ContactService());
     const [contacts, setContacts] = useState<Contact[]>([]);
     const [selectedContact, setSelectedContact] = useState<Contact | undefined>(
         undefined,
     );
-    const contactService = useMemo<ContactService>(
-        () => new ContactService(),
-        [],
-    );
+
     const [messages, setMessages] = useState<Message[]>([]);
     const messageService = useRef(new MessageService());
 
@@ -32,7 +30,9 @@ export function Dashboard(props: { user?: User }) {
             }
 
             setContacts(
-                await contactService.getContacts(props.user._id.toString()),
+                await contactService.current.getContacts(
+                    props.user._id.toString(),
+                ),
             );
         })();
     }, [props.user, contactService]);
@@ -47,7 +47,7 @@ export function Dashboard(props: { user?: User }) {
                 value={{
                     contacts: [contacts, setContacts],
                     selectedContact: [selectedContact, setSelectedContact],
-                    contactService,
+                    contactService: contactService.current,
                 }}
             >
                 <MessageContext.Provider
