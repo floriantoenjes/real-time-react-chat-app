@@ -12,9 +12,10 @@ import { useHandleInputChange } from "../../helpers";
 import { useUserContext } from "../../shared/contexts/UserContext";
 
 export function Sidebar() {
-    const [, , userService] = useUserContext();
+    const [user, , userService] = useUserContext();
     const contactsContext = useContext(ContactsContext);
-    const [userContacts] = contactsContext.contacts;
+    const [userContacts, setUserContacts] = contactsContext.contacts;
+    const contactService = contactsContext.contactService;
     const [selectedContact, setSelectedContact] =
         contactsContext.selectedContact;
     const [formData, setFormData] = useState({
@@ -46,9 +47,25 @@ export function Sidebar() {
     const handleInputChange = useHandleInputChange(setFormData);
 
     async function addContact() {
-        console.log(
-            await userService.searchForUserByUsername(formData.contactName),
+        const searchedUser = await userService.searchForUserByUsername(
+            formData.contactName,
         );
+        if (!searchedUser) {
+            return;
+        }
+        const newContactRes = await contactService.addContact(
+            user._id,
+            searchedUser._id,
+        );
+        if (newContactRes.status !== 201) {
+            return;
+        }
+
+        setUserContacts((prevState) => {
+            return [...prevState, newContactRes.body];
+        });
+
+        setFormData({ contactName: "" });
     }
 
     return (
@@ -70,6 +87,7 @@ export function Sidebar() {
                             Suchen oder neuen Chat beginnen
                         </div>
                     }
+                    value={formData.contactName}
                     onChange={handleInputChange}
                     onBlur={addContact}
                     name={"contactName"}

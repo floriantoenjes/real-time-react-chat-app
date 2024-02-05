@@ -34,7 +34,7 @@ export class ContactController {
       }
 
       const newContact = {
-        userId: body.userId,
+        userId: body.newContactId,
         username: contact.username,
       } as Contact;
 

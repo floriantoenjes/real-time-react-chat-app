@@ -1,7 +1,7 @@
 import "./Dashboard.css";
 import { Sidebar } from "./sidebar/Sidebar";
 import { Chat } from "./chat/Chat";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { ContactsContext } from "../shared/contexts/ContactsContext";
 import { MessageService } from "../shared/services/MessageService";
@@ -23,6 +23,7 @@ export function Dashboard(props: { user?: User }) {
         [],
     );
     const [messages, setMessages] = useState<Message[]>([]);
+    const messageService = useRef(new MessageService());
 
     useEffect(() => {
         (async () => {
@@ -50,7 +51,7 @@ export function Dashboard(props: { user?: User }) {
                 }}
             >
                 <MessageContext.Provider
-                    value={[messages, setMessages, new MessageService()]}
+                    value={[messages, setMessages, messageService.current]}
                 >
                     <Sidebar />
                     <Chat />

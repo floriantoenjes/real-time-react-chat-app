@@ -18,6 +18,7 @@ export class MessageController {
     return tsRestHandler(contract.getMessages, async ({ body }) => {
       const messages = await this.messageModel.find({
         fromUserId: { $in: [body.userId, body.contactId] },
+        toUserId: { $in: [body.userId, body.contactId] },
       });
 
       return {

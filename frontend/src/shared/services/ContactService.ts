@@ -3,7 +3,7 @@ import { BACKEND_URL } from "../../environment";
 import { Contact, contract } from "real-time-chat-backend/dist/shared/contract";
 
 export class ContactService {
-    client;
+    private client;
 
     constructor() {
         this.client = initClient(contract, {
@@ -20,5 +20,9 @@ export class ContactService {
         }
 
         return [];
+    }
+
+    async addContact(userId: string, newContactId: string) {
+        return await this.client.addContact({ body: { userId, newContactId } });
     }
 }
