@@ -6,14 +6,20 @@ import {
     MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 import { Avatar } from "../../shared/Avatar";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { ContactsContext } from "../../shared/contexts/ContactsContext";
+import { useHandleInputChange } from "../../helpers";
+import { useUserContext } from "../../shared/contexts/UserContext";
 
 export function Sidebar() {
+    const [, , userService] = useUserContext();
     const contactsContext = useContext(ContactsContext);
     const [userContacts] = contactsContext.contacts;
     const [selectedContact, setSelectedContact] =
         contactsContext.selectedContact;
+    const [formData, setFormData] = useState({
+        contactName: "",
+    });
 
     function contactList() {
         return userContacts.map((c) => (
@@ -37,6 +43,14 @@ export function Sidebar() {
         ));
     }
 
+    const handleInputChange = useHandleInputChange(setFormData);
+
+    async function addContact() {
+        console.log(
+            await userService.searchForUserByUsername(formData.contactName),
+        );
+    }
+
     return (
         <div className={"sidebar h-screen border"}>
             <div>
@@ -56,6 +70,9 @@ export function Sidebar() {
                             Suchen oder neuen Chat beginnen
                         </div>
                     }
+                    onChange={handleInputChange}
+                    onBlur={addContact}
+                    name={"contactName"}
                 />
 
                 <div className={"border"}>

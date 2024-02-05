@@ -23,4 +23,16 @@ export class UserService {
 
         return false;
     }
+
+    async searchForUserByUsername(username: string): Promise<User | false> {
+        const res = await this.client.searchUserByUsername({
+            body: { username },
+        });
+
+        if (res.status === 200) {
+            return res.body;
+        }
+
+        return false;
+    }
 }

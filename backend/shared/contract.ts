@@ -89,4 +89,25 @@ export const contract = c.router({
     }),
     summary: 'Sign in',
   },
+  addContact: {
+    method: 'PUT',
+    path: '/contacts',
+    responses: {
+      201: ContactSchema,
+    },
+    body: z.object({
+      userId: z.string(),
+      newContactId: z.string(),
+    }),
+    summary: 'Add a new contact',
+  },
+  searchUserByUsername: {
+    method: 'POST',
+    path: '/users/search',
+    responses: {
+      200: UserSchema,
+    },
+    body: z.object({ username: z.string() }),
+    summary: 'Search for a user by its id',
+  },
 });

@@ -32,6 +32,13 @@ export class AppService implements OnApplicationBootstrap {
     } as User;
     const user2Doc = await this.userModel.create(user2);
 
+    const user3 = {
+      username: 'Tom',
+      email: 'tom@email.com',
+      password: 'password',
+    } as User;
+    const user3Doc = await this.userModel.create(user3);
+
     const user1Contacts = [
       {
         userId: user2Doc._id.toString(),

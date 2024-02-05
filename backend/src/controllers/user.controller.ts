@@ -30,4 +30,23 @@ export class UserController {
       };
     });
   }
+
+  @TsRestHandler(contract.searchUserByUsername)
+  async searchUserByUsername() {
+    return tsRestHandler(contract.searchUserByUsername, async ({ body }) => {
+      const user = await this.userModel.findOne({ username: body.username });
+
+      if (!user) {
+        return {
+          status: 403,
+          body: false,
+        };
+      }
+
+      return {
+        status: 200,
+        body: user,
+      };
+    });
+  }
 }

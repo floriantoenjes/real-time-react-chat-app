@@ -19,5 +19,5 @@
         "strictNullChecks": true,
     },
     "include": ["src"],
-    "references": [{"path": "../backend"}]
+    "references": [{"path": "../backend/shared"}]
 }
