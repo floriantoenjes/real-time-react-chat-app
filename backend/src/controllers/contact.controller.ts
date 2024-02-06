@@ -38,6 +38,10 @@ export class ContactController {
         username: contact.username,
       } as Contact;
 
+      if (user.contacts.find((uc) => uc.userId === newContact.userId)) {
+        return { status: 404, body: false };
+      }
+
       user.contacts.push(newContact);
       user.markModified('contacts');
 
