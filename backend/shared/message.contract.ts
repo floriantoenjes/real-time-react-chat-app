@@ -32,7 +32,8 @@ export const messageContract = c.router({
       200: z.boolean(),
     },
     body: z.object({
-      username: z.string(),
+      fromUserId: z.string(),
+      toUserId: z.string(),
     }),
     summary: 'Delete messages for user by username',
   },

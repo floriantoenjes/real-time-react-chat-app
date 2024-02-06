@@ -29,13 +29,21 @@ export function TopBar() {
     };
 
     function emptyChat() {
-        messageService.deleteMessages(user.username);
+        if (!selectedContact) {
+            return;
+        }
+
+        messageService.deleteMessages(user._id, selectedContact.userId);
         setMessages([]);
         handleClose();
     }
 
     function deleteChat() {
-        messageService.deleteMessages(user.username);
+        if (!selectedContact) {
+            return;
+        }
+
+        messageService.deleteMessages(user._id, selectedContact.userId);
 
         setContacts(
             contacts.filter(

@@ -24,8 +24,8 @@ export class MessageService {
         return [];
     }
 
-    deleteMessages(username: string) {
-        void this.client.deleteMessages({ body: { username } });
+    deleteMessages(fromUserId: string, toUserId: string) {
+        void this.client.deleteMessages({ body: { fromUserId, toUserId } });
     }
 
     sendMessage(userIdAuthor: string, message: string, contactId: string) {

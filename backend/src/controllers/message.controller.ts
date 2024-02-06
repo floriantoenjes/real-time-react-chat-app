@@ -31,7 +31,10 @@ export class MessageController {
   @TsRestHandler(messageContract.deleteMessages)
   async deleteMessages() {
     return tsRestHandler(messageContract.deleteMessages, async ({ body }) => {
-      await this.messageModel.deleteMany({ from: body.username });
+      await this.messageModel.deleteMany({
+        fromUserId: body.fromUserId,
+        toUserId: body.toUserId,
+      });
       return { status: 200, body: true };
     });
   }
