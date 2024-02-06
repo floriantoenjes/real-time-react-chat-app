@@ -1,6 +1,6 @@
 import { createContext, Dispatch, SetStateAction } from "react";
 import { ContactService } from "../services/ContactService";
-import { Contact } from "real-time-chat-backend/dist/shared/contract";
+import { Contact } from "backend/shared/contact.contract";
 
 export const ContactsContext = createContext<{
     contacts: [Contact[], Dispatch<SetStateAction<Contact[]>>];

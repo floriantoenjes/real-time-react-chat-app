@@ -1,12 +1,15 @@
 import { initClient } from "@ts-rest/core";
 import { BACKEND_URL } from "../../environment";
-import { contract, User } from "real-time-chat-backend/dist/shared/contract";
+import {
+    User,
+    userContract,
+} from "real-time-chat-backend/dist/shared/user.contract";
 
 export class UserService {
     client;
 
     constructor() {
-        this.client = initClient(contract, {
+        this.client = initClient(userContract, {
             baseUrl: BACKEND_URL,
             baseHeaders: {},
         });

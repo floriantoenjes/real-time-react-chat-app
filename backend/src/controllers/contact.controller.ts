@@ -3,15 +3,15 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { User } from '../schemas/user.schema';
-import { Contact, contract } from '../../shared/contract';
+import { Contact, contactContract } from '../../shared/contact.contract';
 
 @Controller()
 export class ContactController {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
-  @TsRestHandler(contract.getContacts)
+  @TsRestHandler(contactContract.getContacts)
   async getContacts() {
-    return tsRestHandler(contract.getContacts, async ({ body }) => {
+    return tsRestHandler(contactContract.getContacts, async ({ body }) => {
       const user = await this.userModel.findOne({
         _id: body.userId,
       });
@@ -23,9 +23,9 @@ export class ContactController {
     });
   }
 
-  @TsRestHandler(contract.addContact)
+  @TsRestHandler(contactContract.addContact)
   async addContact() {
-    return tsRestHandler(contract.addContact, async ({ body }) => {
+    return tsRestHandler(contactContract.addContact, async ({ body }) => {
       const user = await this.userModel.findOne({ _id: body.userId });
       const contact = await this.userModel.findOne({ _id: body.newContactId });
 

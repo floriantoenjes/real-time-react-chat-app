@@ -7,11 +7,9 @@ import { ContactsContext } from "../shared/contexts/ContactsContext";
 import { MessageService } from "../shared/services/MessageService";
 import { ContactService } from "../shared/services/ContactService";
 import { MessageContext } from "../shared/contexts/MessageContext";
-import {
-    Contact,
-    Message,
-    User,
-} from "real-time-chat-backend/dist/shared/contract";
+import { User } from "real-time-chat-backend/dist/shared/user.contract";
+import { Contact } from "real-time-chat-backend/dist/shared/contact.contract";
+import { Message } from "real-time-chat-backend/dist/shared/message.contract";
 
 export function Dashboard(props: { user?: User }) {
     const contactService = useRef(new ContactService());

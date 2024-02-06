@@ -3,15 +3,15 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { User } from '../schemas/user.schema';
-import { contract } from '../../shared/contract';
+import { userContract } from '../../shared/user.contract';
 
 @Controller()
 export class UserController {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
-  @TsRestHandler(contract.signIn)
+  @TsRestHandler(userContract.signIn)
   async signIn() {
-    return tsRestHandler(contract.signIn, async ({ body }) => {
+    return tsRestHandler(userContract.signIn, async ({ body }) => {
       const user = await this.userModel.findOne({
         email: body.email,
         password: body.password,
@@ -31,22 +31,25 @@ export class UserController {
     });
   }
 
-  @TsRestHandler(contract.searchUserByUsername)
+  @TsRestHandler(userContract.searchUserByUsername)
   async searchUserByUsername() {
-    return tsRestHandler(contract.searchUserByUsername, async ({ body }) => {
-      const user = await this.userModel.findOne({ username: body.username });
+    return tsRestHandler(
+      userContract.searchUserByUsername,
+      async ({ body }) => {
+        const user = await this.userModel.findOne({ username: body.username });
 
-      if (!user) {
+        if (!user) {
+          return {
+            status: 403,
+            body: false,
+          };
+        }
+
         return {
-          status: 403,
-          body: false,
+          status: 200,
+          body: user,
         };
-      }
-
-      return {
-        status: 200,
-        body: user,
-      };
-    });
+      },
+    );
   }
 }

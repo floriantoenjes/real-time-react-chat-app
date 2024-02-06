@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Message } from '../schemas/message.schema';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
-import { contract } from '../../shared/contract';
+import { messageContract } from '../../shared/message.contract';
 
 @Controller()
 export class MessageController {
@@ -13,9 +13,9 @@ export class MessageController {
     @InjectModel(Message.name) private messageModel: Model<Message>,
   ) {}
 
-  @TsRestHandler(contract.getMessages)
+  @TsRestHandler(messageContract.getMessages)
   async getMessages() {
-    return tsRestHandler(contract.getMessages, async ({ body }) => {
+    return tsRestHandler(messageContract.getMessages, async ({ body }) => {
       const messages = await this.messageModel.find({
         fromUserId: { $in: [body.userId, body.contactId] },
         toUserId: { $in: [body.userId, body.contactId] },
@@ -28,17 +28,17 @@ export class MessageController {
     });
   }
 
-  @TsRestHandler(contract.deleteMessages)
+  @TsRestHandler(messageContract.deleteMessages)
   async deleteMessages() {
-    return tsRestHandler(contract.deleteMessages, async ({ body }) => {
+    return tsRestHandler(messageContract.deleteMessages, async ({ body }) => {
       await this.messageModel.deleteMany({ from: body.username });
       return { status: 200, body: true };
     });
   }
 
-  @TsRestHandler(contract.sendMessage)
+  @TsRestHandler(messageContract.sendMessage)
   async sendMessage() {
-    return tsRestHandler(contract.sendMessage, async ({ body }) => {
+    return tsRestHandler(messageContract.sendMessage, async ({ body }) => {
       const newMessage = {
         fromUserId: body.fromUserId,
         message: body.message,

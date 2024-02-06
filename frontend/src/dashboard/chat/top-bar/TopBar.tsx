@@ -10,7 +10,7 @@ import { MouseEvent, useContext, useState } from "react";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
-import { Contact } from "real-time-chat-backend/dist/shared/contract";
+import { Contact } from "real-time-chat-backend/dist/shared/contact.contract";
 
 export function TopBar() {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
