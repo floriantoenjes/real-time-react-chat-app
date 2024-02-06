@@ -37,4 +37,16 @@ export const contactContract = c.router({
     }),
     summary: 'Add a new contact',
   },
+  removeContact: {
+    method: 'DELETE',
+    path: '/contacts',
+    responses: {
+      204: z.boolean(),
+    },
+    body: z.object({
+      userId: z.string(),
+      contactId: z.string(),
+    }),
+    summary: 'Remove a contact',
+  },
 });

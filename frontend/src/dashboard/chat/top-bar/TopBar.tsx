@@ -19,6 +19,7 @@ export function TopBar() {
     const [selectedContact, setSelectedContact] =
         useContext(ContactsContext).selectedContact;
     const [, setMessages, messageService] = useContext(MessageContext);
+    const contactService = useContext(ContactsContext).contactService;
 
     const open = Boolean(anchorEl);
     const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
@@ -38,12 +39,21 @@ export function TopBar() {
         handleClose();
     }
 
-    function deleteChat() {
+    async function deleteChat() {
         if (!selectedContact) {
             return;
         }
 
         messageService.deleteMessages(user._id, selectedContact.userId);
+
+        const deletionRes = await contactService.deleteContact(
+            user._id,
+            selectedContact.userId,
+        );
+
+        if (deletionRes.status !== 204) {
+            return;
+        }
 
         setContacts(
             contacts.filter(

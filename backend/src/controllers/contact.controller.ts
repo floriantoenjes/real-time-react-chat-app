@@ -38,8 +38,11 @@ export class ContactController {
         username: contact.username,
       } as Contact;
 
-      if (user.contacts.find((uc) => uc.userId === newContact.userId)) {
-        return { status: 404, body: false };
+      const contactAlreadyExists = user.contacts.find(
+        (uc) => uc.userId === newContact.userId,
+      );
+      if (contactAlreadyExists) {
+        return { status: 400, body: false };
       }
 
       user.contacts.push(newContact);
@@ -50,6 +53,33 @@ export class ContactController {
       return {
         status: 201,
         body: newContact,
+      };
+    });
+  }
+
+  @TsRestHandler(contactContract.removeContact)
+  async removeContact() {
+    return tsRestHandler(contactContract.removeContact, async ({ body }) => {
+      const user = await this.userModel.findOne({ _id: body.userId });
+
+      if (!user) {
+        return { status: 404, body: false };
+      }
+
+      if (
+        user.contacts.find((uc) => uc.userId === body.contactId) === undefined
+      ) {
+        return { status: 404, body: false };
+      }
+
+      user.contacts = user.contacts.filter((u) => u.userId !== body.contactId);
+      user.markModified('contacts');
+
+      await user.save();
+
+      return {
+        status: 204,
+        body: true,
       };
     });
   }

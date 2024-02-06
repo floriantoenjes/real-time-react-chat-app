@@ -28,4 +28,8 @@ export class ContactService {
     async addContact(userId: string, newContactId: string) {
         return await this.client.addContact({ body: { userId, newContactId } });
     }
+
+    async deleteContact(userId: string, contactId: string) {
+        return await this.client.removeContact({ body: { userId, contactId } });
+    }
 }
