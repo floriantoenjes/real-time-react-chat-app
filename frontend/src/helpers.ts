@@ -13,3 +13,9 @@ export function useHandleInputChange<FormState>(
 
     return handleInputChange;
 }
+
+export function checkEnterPressed(event: any) {
+    event = event as KeyboardEvent;
+
+    return event.key === "Enter";
+}

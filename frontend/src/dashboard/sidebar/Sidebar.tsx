@@ -8,7 +8,7 @@ import {
 import { Avatar } from "../../shared/Avatar";
 import { useContext, useState } from "react";
 import { ContactsContext } from "../../shared/contexts/ContactsContext";
-import { useHandleInputChange } from "../../helpers";
+import { checkEnterPressed, useHandleInputChange } from "../../helpers";
 import { useUserContext } from "../../shared/contexts/UserContext";
 
 export function Sidebar() {
@@ -18,7 +18,6 @@ export function Sidebar() {
     const contactService = contactsContext.contactService;
     const [selectedContact, setSelectedContact] =
         contactsContext.selectedContact;
-
     const [userContacts, setUserContacts] = contactsContext.contacts;
 
     const [formData, setFormData] = useState({
@@ -49,7 +48,11 @@ export function Sidebar() {
         ));
     }
 
-    async function addContact() {
+    async function addContact(event: any) {
+        if (!checkEnterPressed(event)) {
+            return;
+        }
+
         const searchedUser = await userService.searchForUserByUsername(
             formData.contactName,
         );
@@ -92,7 +95,7 @@ export function Sidebar() {
                     }
                     value={formData.contactName}
                     onChange={handleInputChange}
-                    onBlur={addContact}
+                    onKeyUp={addContact}
                     name={"contactName"}
                 />
 

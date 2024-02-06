@@ -1,7 +1,7 @@
 import { IconButton, TextField } from "@mui/material";
 import { MicrophoneIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { useContext, useState } from "react";
-import { useHandleInputChange } from "../../../helpers";
+import { checkEnterPressed, useHandleInputChange } from "../../../helpers";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
@@ -16,10 +16,8 @@ export function SendMessageBar() {
 
     const handleInputChange = useHandleInputChange(setFormData);
 
-    function checkEnterPressed(event: any) {
-        event = event as KeyboardEvent;
-
-        if (event.key === "Enter" && formData?.message.trim().length) {
+    function sendOnEnterPressed(event: any) {
+        if (checkEnterPressed(event) && formData?.message.trim().length) {
             sendMessage();
             setFormData({ message: "" });
         }
@@ -58,10 +56,11 @@ export function SendMessageBar() {
                 className={"w-full"}
                 label={"Gib eine Nachricht ein."}
                 value={formData?.message}
-                onKeyUp={checkEnterPressed}
+                onKeyUp={sendOnEnterPressed}
                 name={"message"}
                 onChange={handleInputChange}
                 multiline={true}
+                inputRef={(input) => input && input.focus()}
             ></TextField>
             <IconButton>
                 <MicrophoneIcon className={"w-8"} />
