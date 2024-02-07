@@ -1,6 +1,7 @@
 import { createRef, useContext, useEffect } from "react";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
+import { Message } from "../../../shared/contexts/Message";
 
 export function MainChat() {
     const [user] = useUserContext();
@@ -13,23 +14,8 @@ export function MainChat() {
     const messagesEndRef = createRef<HTMLDivElement>();
 
     function messageList() {
-        console.log(messages);
-
         return (messages ?? []).map((msg) => {
-            return (
-                <div className={"w-full flex"} key={Math.random() * 1_000_000}>
-                    <div
-                        className={
-                            "border w-fit rounded p-3 m-3 max-w-96" +
-                            (msg.fromUserId === user._id.toString()
-                                ? " ml-auto bg-green-300"
-                                : " bg-white")
-                        }
-                    >
-                        <p>{msg.message}</p>
-                    </div>
-                </div>
-            );
+            return <Message msg={msg} user={user} />;
         });
     }
 
