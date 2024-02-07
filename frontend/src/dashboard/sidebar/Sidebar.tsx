@@ -5,11 +5,11 @@ import {
     FunnelIcon,
     MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
-import { Avatar } from "../../shared/Avatar";
 import { useContext, useState } from "react";
 import { ContactsContext } from "../../shared/contexts/ContactsContext";
 import { checkEnterPressed, useHandleInputChange } from "../../helpers";
 import { useUserContext } from "../../shared/contexts/UserContext";
+import { Contact } from "../../shared/Contact";
 
 export function Sidebar() {
     const [user, , userService] = useUserContext();
@@ -28,23 +28,11 @@ export function Sidebar() {
 
     function contactList() {
         return userContacts.map((c) => (
-            <div
-                key={Math.random() * 1_000_000}
-                className={
-                    "contact flex border p-2 cursor-pointer" +
-                    (selectedContact === c ? " active" : "")
-                }
-                onClick={() => setSelectedContact(c)}
-            >
-                <Avatar width={"3.4rem"} height={"2.8rem"} />
-                <div className={"flex-col w-full"}>
-                    <div className={"flex justify-between"}>
-                        <div>{c.username}</div>
-                        <div>{c.lastMessage?.at?.toString()}</div>
-                    </div>
-                    <div>{c.lastMessage?.message}</div>
-                </div>
-            </div>
+            <Contact
+                contact={c}
+                selectedContact={selectedContact}
+                setSelectedContact={setSelectedContact}
+            />
         ));
     }
 
