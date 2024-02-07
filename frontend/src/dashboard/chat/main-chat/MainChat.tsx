@@ -1,7 +1,7 @@
 import { createRef, useContext, useEffect } from "react";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
-import { Message } from "../../../shared/contexts/Message";
+import { Message } from "../../../shared/Message";
 
 export function MainChat() {
     const [user] = useUserContext();
