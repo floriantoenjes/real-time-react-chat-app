@@ -48,13 +48,13 @@ export class MessageController {
         toUserId: body.toUserId,
         at: new Date(),
       };
-      await this.messageModel.create(newMessage);
+      const newMessageCreated = await this.messageModel.create(newMessage);
 
       this.gateway.connectedSocketsMap
         .get(body.toUserId)
-        ?.emit('message', newMessage);
+        ?.emit('message', newMessageCreated);
 
-      return { status: 201, body: true };
+      return { status: 201, body: newMessageCreated };
     });
   }
 }

@@ -4,6 +4,7 @@ import { z } from 'zod';
 const c = initContract();
 
 export const MessageSchema = z.object({
+  _id: z.string(),
   fromUserId: z.string(),
   toUserId: z.string(),
   at: z.date(),
@@ -41,7 +42,7 @@ export const messageContract = c.router({
     method: 'POST',
     path: '/send',
     responses: {
-      201: z.boolean(),
+      201: MessageSchema,
     },
     body: z.object({
       toUserId: z.string(),

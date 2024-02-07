@@ -16,14 +16,14 @@ export function SendMessageBar() {
 
     const handleInputChange = useHandleInputChange(setFormData);
 
-    function sendOnEnterPressed(event: any) {
+    async function sendOnEnterPressed(event: any) {
         if (checkEnterPressed(event) && formData?.message.trim().length) {
-            sendMessage();
+            await sendMessage();
             setFormData({ message: "" });
         }
     }
 
-    function sendMessage() {
+    async function sendMessage() {
         if (!selectedContact) {
             return;
         }
@@ -35,13 +35,15 @@ export function SendMessageBar() {
             at: new Date(),
         };
 
-        void messageService.sendMessage(
+        const res = await messageService.sendMessage(
             user._id,
             formData.message.trim(),
             selectedContact.userId,
         );
 
-        setMessages([...messages, messageToSend]);
+        if (res.status === 201) {
+            setMessages([...messages, res.body]);
+        }
     }
 
     return (
