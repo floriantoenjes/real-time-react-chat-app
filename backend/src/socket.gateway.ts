@@ -9,7 +9,7 @@ export class RealTimeChatGateway implements OnGatewayConnection {
 
   handleConnection(socket: Socket): any {
     this.connectedSocketsMap.set(
-      socket.handshake.query.username as string,
+      socket.handshake.query.userId as string,
       socket,
     );
   }
