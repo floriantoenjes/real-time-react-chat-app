@@ -15,7 +15,7 @@ export function MainChat() {
 
     function messageList() {
         return (messages ?? []).map((msg) => {
-            return <Message msg={msg} user={user} />;
+            return <Message msg={msg} user={user} key={msg._id} />;
         });
     }
 

@@ -29,6 +29,7 @@ export function Sidebar() {
     function contactList() {
         return userContacts.map((c) => (
             <Contact
+                key={c.userId}
                 contact={c}
                 selectedContact={selectedContact}
                 setSelectedContact={setSelectedContact}

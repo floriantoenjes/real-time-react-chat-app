@@ -9,7 +9,6 @@ export function Contact(props: {
 }) {
     return (
         <div
-            key={Math.random() * 1_000_000}
             className={
                 "contact flex border p-2 cursor-pointer" +
                 (props.selectedContact === props.contact ? " active" : "")
