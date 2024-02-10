@@ -103,6 +103,7 @@ export function TopSection() {
                             )}
                             onChange={onChangeMembers}
                             value={groupMembers}
+                            className={"p-3"}
                         />
                     </div>
                     <div
