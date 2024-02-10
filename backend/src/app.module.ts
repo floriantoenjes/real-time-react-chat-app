@@ -13,6 +13,7 @@ import {
   ContactGroup,
   ContactGroupSchema,
 } from './schemas/contact-group.schema';
+import { ContactGroupController } from './controllers/contact-group.controller';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import {
     ContactController,
     MessageController,
     UserController,
+    ContactGroupController,
   ],
   providers: [AppService, RealTimeChatGateway],
 })

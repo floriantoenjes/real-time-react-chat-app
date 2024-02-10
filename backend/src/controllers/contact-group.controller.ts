@@ -9,7 +9,7 @@ import {
 } from '../../shared/contact-group.contract';
 
 @Controller()
-export class ContactController {
+export class ContactGroupController {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
   @TsRestHandler(contactGroupContract.getContactGroups)
