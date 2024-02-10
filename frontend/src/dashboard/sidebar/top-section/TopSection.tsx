@@ -3,6 +3,7 @@ import {
     Autocomplete,
     Button,
     Drawer,
+    Fab,
     IconButton,
     Menu,
     MenuItem,
@@ -10,7 +11,7 @@ import {
 } from "@mui/material";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import React, { useContext, useState } from "react";
-import { ArrowLeftIcon } from "@heroicons/react/24/solid";
+import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/solid";
 import "./TopSection.css";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { Contact } from "../../../shared/Contact";
@@ -69,9 +70,11 @@ export function TopSection() {
                 open={state["left"]}
                 onClose={toggleDrawer("left", false)}
             >
-                <div className={"drawer"}>
+                <div className={"drawer h-full"}>
                     <div className={"drawer-head"}>
-                        <div className={"flex justify-center items-center"}>
+                        <div
+                            className={"flex justify-center items-center py-5"}
+                        >
                             <ArrowLeftIcon className={"w-8"} />
                             <h4 className={"ml-3"}>
                                 Gruppenmitglieder hinzufügen
@@ -81,21 +84,28 @@ export function TopSection() {
                             multiple
                             id="tags-readOnly"
                             options={contacts.map((c) => c.username)}
-                            readOnly
                             renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    label="readOnly"
-                                    placeholder="Favorites"
-                                />
+                                <TextField {...params} label="Members" />
                             )}
+                            defaultValue={["Alex", "Tom"]}
                         />
                     </div>
-                    {contacts.map((c) => (
-                        <span onClick={alert}>
-                            <Contact contact={c} />
-                        </span>
-                    ))}
+                    <div
+                        className={
+                            "flex flex-col justify-between items-center h-3/4"
+                        }
+                    >
+                        <div className={"w-full"}>
+                            {contacts.map((c) => (
+                                <span onClick={alert}>
+                                    <Contact contact={c} />
+                                </span>
+                            ))}
+                        </div>
+                        <Fab className={"mt-auto mb-5"}>
+                            <ArrowRightIcon className={"w-8"} />
+                        </Fab>
+                    </div>
                 </div>
             </Drawer>
         </div>
