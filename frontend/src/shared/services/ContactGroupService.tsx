@@ -5,7 +5,7 @@ import {
     contactGroupContract,
 } from "real-time-chat-backend/dist/shared/contact-group.contract";
 
-export class ContactService {
+export class ContactGroupService {
     private client;
 
     constructor() {
