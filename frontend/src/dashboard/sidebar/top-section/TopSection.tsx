@@ -91,7 +91,9 @@ export function TopSection() {
                         <div
                             className={"flex justify-center items-center py-5"}
                         >
-                            <ArrowLeftIcon className={"w-8"} />
+                            <IconButton onClick={toggleDrawer("left", false)}>
+                                <ArrowLeftIcon className={"w-8"} />
+                            </IconButton>
                             <h4 className={"ml-3"}>
                                 Gruppenmitglieder hinzufügen
                             </h4>
