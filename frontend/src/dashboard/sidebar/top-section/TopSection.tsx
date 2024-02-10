@@ -64,6 +64,8 @@ export function TopSection() {
         setGroupMembers([...new Set<string>(value.sort())]);
     }
 
+    function createGroup() {}
+
     return (
         <div className={"flex items-center"}>
             <Link to="/">
@@ -118,9 +120,14 @@ export function TopSection() {
                                 </span>
                             ))}
                         </div>
-                        <Fab className={"mt-auto mb-5"}>
-                            <ArrowRightIcon className={"w-8"} />
-                        </Fab>
+                        {groupMembers.length > 0 && (
+                            <Fab
+                                className={"mt-auto mb-5"}
+                                onClick={createGroup}
+                            >
+                                <ArrowRightIcon className={"w-8"} />
+                            </Fab>
+                        )}
                     </div>
                 </div>
             </Drawer>
