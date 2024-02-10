@@ -15,6 +15,7 @@ import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/solid";
 import "./TopSection.css";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { Contact } from "../../../shared/Contact";
+import { Contact as ContactModel } from "real-time-chat-backend/shared/contact.contract";
 
 export function TopSection() {
     const [contacts] = useContext(ContactsContext).contacts;
@@ -49,6 +50,19 @@ export function TopSection() {
 
             setState({ ...state, [anchor]: open });
         };
+
+    const [groupMembers, setGroupMembers] = useState<string[]>([]);
+
+    function addGroupMember(contact: ContactModel) {
+        if (groupMembers.find((c) => c === contact.username)) {
+            return;
+        }
+        setGroupMembers((prevState) => [...prevState, contact.username].sort());
+    }
+
+    function onChangeMembers(evt: any, value: string[]) {
+        setGroupMembers([...new Set<string>(value.sort())]);
+    }
 
     return (
         <div className={"flex items-center"}>
@@ -87,7 +101,8 @@ export function TopSection() {
                             renderInput={(params) => (
                                 <TextField {...params} label="Members" />
                             )}
-                            defaultValue={["Alex", "Tom"]}
+                            onChange={onChangeMembers}
+                            value={groupMembers}
                         />
                     </div>
                     <div
@@ -97,7 +112,7 @@ export function TopSection() {
                     >
                         <div className={"w-full"}>
                             {contacts.map((c) => (
-                                <span onClick={alert}>
+                                <span onClick={() => addGroupMember(c)}>
                                     <Contact contact={c} />
                                 </span>
                             ))}
