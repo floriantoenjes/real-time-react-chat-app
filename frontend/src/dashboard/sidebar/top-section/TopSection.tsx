@@ -16,9 +16,13 @@ import "./TopSection.css";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { Contact } from "../../../shared/Contact";
 import { Contact as ContactModel } from "real-time-chat-backend/shared/contact.contract";
+import { useUserContext } from "../../../shared/contexts/UserContext";
 
 export function TopSection() {
-    const [contacts] = useContext(ContactsContext).contacts;
+    const contactsContext = useContext(ContactsContext);
+    const [contacts] = contactsContext.contacts;
+    const contactGroupService = contactsContext.contactGroupService;
+    const [user] = useUserContext();
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -64,7 +68,19 @@ export function TopSection() {
         setGroupMembers([...new Set<string>(value.sort())]);
     }
 
-    function createGroup() {}
+    function createGroup() {
+        const mappedMembers = groupMembers
+            .map((gm) => contacts.find((c) => c.username === gm))
+            .map((mm) => mm?.userId);
+
+        if (!mappedMembers) {
+            return;
+        }
+
+        contactGroupService
+            .addContactGroup(user._id, "ChatGroup1", mappedMembers)
+            .then(alert);
+    }
 
     return (
         <div className={"flex items-center"}>

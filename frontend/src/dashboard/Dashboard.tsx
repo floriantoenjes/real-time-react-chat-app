@@ -10,10 +10,14 @@ import { MessageContext } from "../shared/contexts/MessageContext";
 import { User } from "real-time-chat-backend/dist/shared/user.contract";
 import { Contact } from "real-time-chat-backend/dist/shared/contact.contract";
 import { Message } from "real-time-chat-backend/dist/shared/message.contract";
+import { ContactGroupService } from "../shared/services/ContactGroupService";
+import { ContactGroup } from "real-time-chat-backend/dist/shared/contact-group.contract";
 
 export function Dashboard(props: { user?: User }) {
     const contactService = useRef(new ContactService());
+    const contactGroupService = useRef(new ContactGroupService());
     const [contacts, setContacts] = useState<Contact[]>([]);
+    const [contactGroups, setContactGroups] = useState<ContactGroup[]>([]);
     const [selectedContact, setSelectedContact] = useState<Contact | undefined>(
         undefined,
     );
@@ -44,8 +48,10 @@ export function Dashboard(props: { user?: User }) {
             <ContactsContext.Provider
                 value={{
                     contacts: [contacts, setContacts],
+                    contactGroups: [contactGroups, setContactGroups],
                     selectedContact: [selectedContact, setSelectedContact],
                     contactService: contactService.current,
+                    contactGroupService: contactGroupService.current,
                 }}
             >
                 <MessageContext.Provider
