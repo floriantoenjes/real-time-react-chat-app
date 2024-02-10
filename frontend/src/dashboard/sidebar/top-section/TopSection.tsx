@@ -1,11 +1,23 @@
 import { Link } from "react-router-dom";
-import { Button, Drawer, IconButton, Menu, MenuItem } from "@mui/material";
+import {
+    Autocomplete,
+    Button,
+    Drawer,
+    IconButton,
+    Menu,
+    MenuItem,
+    TextField,
+} from "@mui/material";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 import "./TopSection.css";
+import { ContactsContext } from "../../../shared/contexts/ContactsContext";
+import { Contact } from "../../../shared/Contact";
 
 export function TopSection() {
+    const [contacts] = useContext(ContactsContext).contacts;
+
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -58,14 +70,32 @@ export function TopSection() {
                 onClose={toggleDrawer("left", false)}
             >
                 <div className={"drawer"}>
-                    <div
-                        className={
-                            "drawer-head flex justify-center items-center"
-                        }
-                    >
-                        <ArrowLeftIcon className={"w-8"} />
-                        <h4 className={"ml-3"}>Gruppenmitglieder hinzufügen</h4>
+                    <div className={"drawer-head"}>
+                        <div className={"flex justify-center items-center"}>
+                            <ArrowLeftIcon className={"w-8"} />
+                            <h4 className={"ml-3"}>
+                                Gruppenmitglieder hinzufügen
+                            </h4>
+                        </div>
+                        <Autocomplete
+                            multiple
+                            id="tags-readOnly"
+                            options={contacts.map((c) => c.username)}
+                            readOnly
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="readOnly"
+                                    placeholder="Favorites"
+                                />
+                            )}
+                        />
                     </div>
+                    {contacts.map((c) => (
+                        <span onClick={alert}>
+                            <Contact contact={c} />
+                        </span>
+                    ))}
                 </div>
             </Drawer>
         </div>

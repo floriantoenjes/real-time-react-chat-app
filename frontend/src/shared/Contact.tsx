@@ -4,8 +4,8 @@ import { Dispatch, SetStateAction } from "react";
 
 export function Contact(props: {
     contact: ContactModel;
-    selectedContact: ContactModel | undefined;
-    setSelectedContact: Dispatch<SetStateAction<ContactModel | undefined>>;
+    selectedContact?: ContactModel | undefined;
+    setSelectedContact?: Dispatch<SetStateAction<ContactModel | undefined>>;
 }) {
     return (
         <div
@@ -13,7 +13,10 @@ export function Contact(props: {
                 "contact flex border p-2 cursor-pointer" +
                 (props.selectedContact === props.contact ? " active" : "")
             }
-            onClick={() => props.setSelectedContact(props.contact)}
+            onClick={() =>
+                props.setSelectedContact &&
+                props.setSelectedContact(props.contact)
+            }
         >
             <Avatar width={"3.4rem"} height={"2.8rem"} />
             <div className={"flex-col w-full"}>
