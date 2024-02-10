@@ -1,0 +1,8 @@
+.drawer {
+    width: 375px;
+}
+
+.drawer-head {
+    background-color: lightblue;
+    height: 8rem;
+}
