@@ -9,6 +9,10 @@ import { User, UserSchema } from './schemas/user.schema';
 import { ContactController } from './controllers/contact.controller';
 import { MessageController } from './controllers/message.controller';
 import { UserController } from './controllers/user.controller';
+import {
+  ContactGroup,
+  ContactGroupSchema,
+} from './schemas/contact-group.schema';
 
 @Module({
   imports: [
@@ -16,6 +20,7 @@ import { UserController } from './controllers/user.controller';
     MongooseModule.forFeature([
       { name: Message.name, schema: MessageSchema },
       { name: Contact.name, schema: ContactSchema },
+      { name: ContactGroup.name, schema: ContactGroupSchema },
       { name: User.name, schema: UserSchema },
     ]),
   ],
