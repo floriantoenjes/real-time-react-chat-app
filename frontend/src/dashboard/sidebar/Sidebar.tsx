@@ -1,5 +1,4 @@
 import { Button, TextField } from "@mui/material";
-import { Link } from "react-router-dom";
 import {
     ArrowDownOnSquareIcon,
     FunnelIcon,
@@ -10,6 +9,7 @@ import { ContactsContext } from "../../shared/contexts/ContactsContext";
 import { checkEnterPressed, useHandleInputChange } from "../../helpers";
 import { useUserContext } from "../../shared/contexts/UserContext";
 import { Contact } from "../../shared/Contact";
+import { TopSection } from "./top-section/TopSection";
 
 export function Sidebar() {
     const [user, , userService] = useUserContext();
@@ -65,11 +65,7 @@ export function Sidebar() {
 
     return (
         <div className={"sidebar h-screen border"}>
-            <div>
-                <Link to="/">
-                    <Button>Sign out</Button>
-                </Link>
-            </div>
+            <TopSection />
 
             <div className={"flex"}>
                 <TextField
