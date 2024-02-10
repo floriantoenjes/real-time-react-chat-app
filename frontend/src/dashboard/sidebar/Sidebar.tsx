@@ -19,6 +19,8 @@ export function Sidebar() {
     const [selectedContact, setSelectedContact] =
         contactsContext.selectedContact;
     const [userContacts, setUserContacts] = contactsContext.contacts;
+    const [userContactGroups, setUserContactGroups] =
+        contactsContext.contactGroups;
 
     const [formData, setFormData] = useState({
         contactName: "",
@@ -27,14 +29,16 @@ export function Sidebar() {
     const handleInputChange = useHandleInputChange(setFormData);
 
     function contactList() {
-        return userContacts.map((c) => (
-            <Contact
-                key={c.userId}
-                contact={c}
-                selectedContact={selectedContact}
-                setSelectedContact={setSelectedContact}
-            />
-        ));
+        return userContacts
+            .concat(userContactGroups)
+            .map((c) => (
+                <Contact
+                    key={c._id}
+                    contact={c}
+                    selectedContact={selectedContact}
+                    setSelectedContact={setSelectedContact}
+                />
+            ));
     }
 
     async function addContact(event: any) {

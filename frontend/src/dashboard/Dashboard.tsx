@@ -36,6 +36,12 @@ export function Dashboard(props: { user?: User }) {
                     props.user._id.toString(),
                 ),
             );
+
+            setContactGroups(
+                await contactGroupService.current.getContactGroups(
+                    props.user._id.toString(),
+                ),
+            );
         })();
     }, [props.user, contactService]);
 
