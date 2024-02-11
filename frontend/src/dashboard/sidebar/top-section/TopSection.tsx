@@ -71,7 +71,12 @@ export function TopSection() {
     function createGroup() {
         const mappedMembers = groupMembers
             .map((gm) => contacts.find((c) => c.username === gm))
-            .map((mm) => mm?.userId);
+            .map((mm) => {
+                if (!mm?.userId) {
+                    throw new Error("Group member without user id!");
+                }
+                return mm.userId;
+            });
 
         if (!mappedMembers) {
             return;
