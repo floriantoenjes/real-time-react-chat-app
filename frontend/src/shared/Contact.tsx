@@ -1,12 +1,11 @@
 import { Avatar } from "./Avatar";
 import { Contact as ContactModel } from "real-time-chat-backend/dist/shared/contact.contract";
-import { ContactGroup as ContactGroupModel } from "real-time-chat-backend/dist/shared/contact-group.contract";
-import { Dispatch, SetStateAction } from "react";
+import { ContactGroup } from "real-time-chat-backend/dist/shared/contact-group.contract";
 
 export function Contact(props: {
-    contact: ContactModel | ContactGroupModel;
-    selectedContact?: ContactModel | undefined;
-    setSelectedContact?: Dispatch<SetStateAction<ContactModel | undefined>>;
+    contact: ContactModel;
+    selectedContact?: ContactModel | ContactGroup | undefined;
+    onContactSelect?: () => void;
 }) {
     return (
         <div
@@ -14,17 +13,12 @@ export function Contact(props: {
                 "contact flex border p-2 cursor-pointer" +
                 (props.selectedContact === props.contact ? " active" : "")
             }
-            onClick={() =>
-                props.setSelectedContact &&
-                props.setSelectedContact(props.contact)
-            }
+            onClick={props.onContactSelect}
         >
             <Avatar width={"3.4rem"} height={"2.8rem"} />
             <div className={"flex-col w-full"}>
                 <div className={"flex justify-between"}>
-                    <div>
-                        {props.contact.username ?? props.contact.groupName}
-                    </div>
+                    <div>{props.contact.username}</div>
                     <div>{props.contact.lastMessage?.at?.toString()}</div>
                 </div>
                 <div>{props.contact.lastMessage?.message}</div>

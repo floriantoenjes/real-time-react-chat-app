@@ -8,8 +8,8 @@ export const ContactsContext = createContext<{
     contacts: [Contact[], Dispatch<SetStateAction<Contact[]>>];
     contactGroups: [ContactGroup[], Dispatch<SetStateAction<ContactGroup[]>>];
     selectedContact: [
-        Contact | undefined,
-        Dispatch<SetStateAction<Contact | undefined>>,
+        Contact | ContactGroup | undefined,
+        Dispatch<SetStateAction<Contact | ContactGroup | undefined>>,
     ];
     contactService: ContactService;
     contactGroupService: ContactGroupService;

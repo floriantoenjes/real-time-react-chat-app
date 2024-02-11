@@ -138,8 +138,11 @@ export function TopSection() {
                     >
                         <div className={"w-full"}>
                             {contacts.map((c) => (
-                                <span onClick={() => addGroupMember(c)}>
-                                    <Contact key={c._id} contact={c} />
+                                <span
+                                    key={c.username}
+                                    onClick={() => addGroupMember(c)}
+                                >
+                                    <Contact contact={c} />
                                 </span>
                             ))}
                         </div>
