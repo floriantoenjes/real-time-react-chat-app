@@ -22,6 +22,7 @@ export class AppService implements OnApplicationBootstrap {
       username: 'Florian',
       email: 'florian@email.com',
       password: 'password',
+      avatarFileName: 'avatar1.svg',
     } as User;
     const user1Doc = await this.userModel.create(user1);
 
@@ -29,6 +30,7 @@ export class AppService implements OnApplicationBootstrap {
       username: 'Alex',
       email: 'alex@email.com',
       password: 'password',
+      avatarFileName: 'avatar3.svg',
     } as User;
     const user2Doc = await this.userModel.create(user2);
 
@@ -36,6 +38,7 @@ export class AppService implements OnApplicationBootstrap {
       username: 'Tom',
       email: 'tom@email.com',
       password: 'password',
+      avatarFileName: 'avatar2.svg',
     } as User;
     const user3Doc = await this.userModel.create(user3);
 

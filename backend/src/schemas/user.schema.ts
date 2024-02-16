@@ -20,6 +20,9 @@ export class User {
 
   @Prop()
   contactGroups: ContactGroup[];
+
+  @Prop()
+  avatarFileName?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
