@@ -11,6 +11,7 @@ import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
 import { Contact } from "real-time-chat-backend/shared/contact.contract";
+import { ChevronLeftIcon } from "@heroicons/react/16/solid";
 
 export function TopBar() {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -67,6 +68,11 @@ export function TopBar() {
                 "flex items-center border w-full p-2 justify-between sticky top-0 bg-white cursor-pointer"
             }
         >
+            <div className={"sm:block md:hidden"}>
+                <IconButton onClick={() => setSelectedContact(undefined)}>
+                    <ChevronLeftIcon className={"w-8"} />
+                </IconButton>
+            </div>
             <div className={"flex items-center"}>
                 <Avatar filename={selectedContact?.avatarFileName} />
                 <p>{selectedContact?.name}</p>

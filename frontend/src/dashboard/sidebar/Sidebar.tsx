@@ -68,7 +68,12 @@ export function Sidebar() {
     }
 
     return (
-        <div className={"sidebar h-screen border"}>
+        <div
+            className={
+                "sidebar h-screen border" +
+                (selectedContact ? " hidden md:block" : "")
+            }
+        >
             <TopSection />
 
             <div className={"flex"}>
