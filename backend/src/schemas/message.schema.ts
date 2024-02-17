@@ -1,10 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
-
-export type MessageDocument = HydratedDocument<Message>;
+import { Message as ZodMessage } from '../../shared/message.contract';
 
 @Schema()
-export class Message {
+export class Message implements ZodMessage {
   _id: any;
 
   @Prop({ required: true })
