@@ -1,7 +1,17 @@
 import { Message as MessageModel } from "real-time-chat-backend/shared/message.contract";
 import { User } from "real-time-chat-backend/shared/user.contract";
+import { useContext } from "react";
+import { ContactsContext } from "./contexts/ContactsContext";
 
 export function Message(props: { msg: MessageModel; user: User }) {
+    const [contacts] = useContext(ContactsContext).contacts;
+
+    let fromUsername = "";
+    if (props.msg.fromUserId !== props.user._id) {
+        fromUsername =
+            contacts.find((c) => c._id === props.msg.fromUserId)?.name + ": ";
+    }
+
     return (
         <div className={"w-full flex"}>
             <div
@@ -12,7 +22,10 @@ export function Message(props: { msg: MessageModel; user: User }) {
                         : " bg-white")
                 }
             >
-                <p>{props.msg.message}</p>
+                <p>
+                    {fromUsername}
+                    {props.msg.message}
+                </p>
             </div>
         </div>
     );
