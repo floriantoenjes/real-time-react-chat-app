@@ -1,6 +1,5 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
-import { ContactSchema } from './contact.contract';
 
 const c = initContract();
 
@@ -9,7 +8,7 @@ export const UserSchema = z.object({
   email: z.string(),
   password: z.string(),
   username: z.string(),
-  contacts: z.array(ContactSchema),
+  contactIds: z.array(z.string()),
   avatarFileName: z.string().optional(),
 });
 

@@ -70,7 +70,7 @@ export function TopBar() {
             }
         >
             <div className={"flex items-center"}>
-                <Avatar />
+                <Avatar filename={selectedContact?.avatarFileName} />
                 <p>{selectedContact?.username}</p>
             </div>
             <div className={"flex"}>

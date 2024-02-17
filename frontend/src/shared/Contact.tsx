@@ -15,7 +15,11 @@ export function Contact(props: {
             }
             onClick={props.onContactSelect}
         >
-            <Avatar width={"3.4rem"} height={"2.8rem"} />
+            <Avatar
+                width={"3.4rem"}
+                height={"2.8rem"}
+                filename={props.contact.avatarFileName}
+            />
             <div className={"flex-col w-full"}>
                 <div className={"flex justify-between"}>
                     <div>{props.contact.username}</div>

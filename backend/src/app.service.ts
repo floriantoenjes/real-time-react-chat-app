@@ -3,20 +3,19 @@ import { Message } from './schemas/message.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
-import { Contact } from './schemas/contact.schema';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
   constructor(
     @InjectModel(Message.name) private readonly messageModel: Model<Message>,
     @InjectModel(User.name) private readonly userModel: Model<User>,
-    @InjectModel(Contact.name) private readonly contactModel: Model<Contact>,
+    // @InjectModel(Contact.name) private readonly contactModel: Model<Contact>,
   ) {}
 
   async onApplicationBootstrap() {
     await this.messageModel.deleteMany({});
     await this.userModel.deleteMany({});
-    await this.contactModel.deleteMany({});
+    // await this.contactModel.deleteMany({});
 
     const user1 = {
       username: 'Florian',
@@ -42,20 +41,10 @@ export class AppService implements OnApplicationBootstrap {
     } as User;
     const user3Doc = await this.userModel.create(user3);
 
-    const user1Contacts = [
-      {
-        userId: user2Doc._id.toString(),
-        username: user2Doc.username,
-      } as Contact,
-    ];
-    const user2Contacts = [
-      {
-        userId: user1Doc._id.toString(),
-        username: user1Doc.username,
-      } as Contact,
-    ];
-    user1Doc.contacts = user1Contacts;
-    user2Doc.contacts = user2Contacts;
+    const user1Contacts = [user2Doc._id.toString()];
+    const user2Contacts = [user1Doc._id.toString()];
+    user1Doc.contactIds = user1Contacts;
+    user2Doc.contactIds = user2Contacts;
 
     await user1Doc.save();
     await user2Doc.save();

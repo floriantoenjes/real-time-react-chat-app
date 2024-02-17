@@ -1,7 +1,7 @@
 export function Avatar(props: {
-    width: string;
-    height: string;
-    filename: string;
+    width?: string;
+    height?: string;
+    filename?: string;
 }) {
     return (
         <div
@@ -13,7 +13,7 @@ export function Avatar(props: {
                 borderRadius: "50%",
             }}
         >
-            <img src={props.filename} />
+            <img src={"avatars/" + props.filename} />
         </div>
     );
 }

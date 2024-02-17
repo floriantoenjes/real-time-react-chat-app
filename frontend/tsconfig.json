@@ -1,7 +1,7 @@
 {
     "extends": "../tsconfig.base.json",
     "compilerOptions": {
-        "target": "ES2016",
+        "target": "esnext",
         "lib": ["dom", "dom.iterable", "esnext"],
         "allowJs": true,
         "skipLibCheck": true,
@@ -17,7 +17,11 @@
         "noEmit": true,
         "jsx": "react-jsx",
         "strictNullChecks": true,
+        "baseUrl": ".",
+        "paths": {
+            "@t/*": ["../backend/shared/*"],
+        }
     },
     "include": ["src"],
-    "references": [{"path": "../backend/shared"}]
+    "references": [{ "path": "./tsconfig.node.json" }]
 }
