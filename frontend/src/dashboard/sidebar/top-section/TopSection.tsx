@@ -105,7 +105,7 @@ export function TopSection() {
     return (
         <div className={"flex items-center"}>
             <Link to="/">
-                <Button>Sign out</Button>
+                <Button variant={"contained"}>Sign out</Button>
             </Link>
             <div className={"block ml-auto mr-2"}>
                 <IconButton onClick={handleClick}>

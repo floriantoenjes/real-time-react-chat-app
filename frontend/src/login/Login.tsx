@@ -61,7 +61,13 @@ export function Login(props: {}) {
                     </div>
 
                     <div className="w-fit mx-auto">
-                        <Button type={"submit"}>Sign In</Button>
+                        <Button
+                            variant={"contained"}
+                            autoFocus={true}
+                            type={"submit"}
+                        >
+                            Sign In
+                        </Button>
                     </div>
                 </form>
             </div>
