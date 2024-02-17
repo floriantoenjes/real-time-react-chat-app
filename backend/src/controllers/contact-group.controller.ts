@@ -2,7 +2,7 @@ import { Controller } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
-import { User } from '../schemas/user.schema';
+import { UserEntity } from '../schemas/user.schema';
 import {
   ContactGroup,
   contactGroupContract,
@@ -10,7 +10,9 @@ import {
 
 @Controller()
 export class ContactGroupController {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
+  ) {}
 
   @TsRestHandler(contactGroupContract.getContactGroups)
   async getContactGroups() {

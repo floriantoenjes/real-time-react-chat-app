@@ -5,14 +5,14 @@ import { Model } from 'mongoose';
 import { Message } from '../schemas/message.schema';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { messageContract } from '../../shared/message.contract';
-import { User } from '../schemas/user.schema';
+import { UserEntity } from '../schemas/user.schema';
 
 @Controller()
 export class MessageController {
   constructor(
     private readonly gateway: RealTimeChatGateway,
     @InjectModel(Message.name) private messageModel: Model<Message>,
-    @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
   ) {}
 
   @TsRestHandler(messageContract.getMessages)

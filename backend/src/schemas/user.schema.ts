@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ContactGroup } from '../../shared/contact-group.contract';
 import { Contact } from '../../shared/contact.contract';
-import { User as ZodUser } from '../../shared/user.contract';
+import { User } from '../../shared/user.contract';
 
-@Schema()
-export class User implements ZodUser {
+@Schema({ collection: 'users' })
+export class UserEntity implements User {
   _id: any;
 
   @Prop()
@@ -26,4 +26,4 @@ export class User implements ZodUser {
   avatarFileName?: string;
 }
 
-export const UserSchema = SchemaFactory.createForClass(User);
+export const UserSchema = SchemaFactory.createForClass(UserEntity);

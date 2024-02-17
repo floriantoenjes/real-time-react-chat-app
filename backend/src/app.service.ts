@@ -2,20 +2,20 @@ import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { Message } from './schemas/message.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from './schemas/user.schema';
+import { UserEntity } from './schemas/user.schema';
 import { Contact } from './schemas/contact.schema';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
   constructor(
     @InjectModel(Message.name) private readonly messageModel: Model<Message>,
-    @InjectModel(User.name) private readonly userModel: Model<User>,
+    @InjectModel(UserEntity.name) private readonly userModel: Model<UserEntity>,
     // @InjectModel(Contact.name) private readonly contactModel: Model<Contact>,
   ) {}
 
   async onApplicationBootstrap() {
     await this.messageModel.deleteMany({});
-    await this.userModel.deleteMany({});
+    // await this.userModel.deleteMany({});
     // await this.contactModel.deleteMany({});
 
     const user1 = {
@@ -23,7 +23,7 @@ export class AppService implements OnApplicationBootstrap {
       email: 'florian@email.com',
       password: 'password',
       avatarFileName: 'avatar1.svg',
-    } as User;
+    } as UserEntity;
     const user1Doc = await this.userModel.create(user1);
 
     const user2 = {
@@ -31,7 +31,7 @@ export class AppService implements OnApplicationBootstrap {
       email: 'alex@email.com',
       password: 'password',
       avatarFileName: 'avatar3.svg',
-    } as User;
+    } as UserEntity;
     const user2Doc = await this.userModel.create(user2);
 
     const user3 = {
@@ -39,7 +39,7 @@ export class AppService implements OnApplicationBootstrap {
       email: 'tom@email.com',
       password: 'password',
       avatarFileName: 'avatar2.svg',
-    } as User;
+    } as UserEntity;
     const user3Doc = await this.userModel.create(user3);
 
     const user1Contacts: Contact[] = [

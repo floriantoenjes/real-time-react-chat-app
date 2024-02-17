@@ -4,11 +4,12 @@ import { AppService } from './app.service';
 import { RealTimeChatGateway } from './socket.gateway';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Message, MessageSchema } from './schemas/message.schema';
-import { User, UserSchema } from './schemas/user.schema';
+import { UserEntity, UserSchema } from './schemas/user.schema';
 import { ContactController } from './controllers/contact.controller';
 import { MessageController } from './controllers/message.controller';
 import { UserController } from './controllers/user.controller';
 import { ContactGroupController } from './controllers/contact-group.controller';
+import { UserService } from './services/user.service';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { ContactGroupController } from './controllers/contact-group.controller';
       { name: Message.name, schema: MessageSchema },
       // { name: Contact.name, schema: ContactSchema },
       // { name: ContactGroup.name, schema: ContactGroupSchema },
-      { name: User.name, schema: UserSchema },
+      { name: UserEntity.name, schema: UserSchema },
     ]),
   ],
   controllers: [
@@ -27,6 +28,6 @@ import { ContactGroupController } from './controllers/contact-group.controller';
     UserController,
     ContactGroupController,
   ],
-  providers: [AppService, RealTimeChatGateway],
+  providers: [AppService, RealTimeChatGateway, UserService],
 })
 export class AppModule {}
