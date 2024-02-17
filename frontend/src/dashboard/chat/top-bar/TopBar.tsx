@@ -17,6 +17,8 @@ export function TopBar() {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [user] = useUserContext();
     const [contacts, setContacts] = useContext(ContactsContext).contacts;
+    const [contactGroups, setContactGroups] =
+        useContext(ContactsContext).contactGroups;
     const [selectedContact, setSelectedContact] =
         useContext(ContactsContext).selectedContact;
     const [, setMessages, messageService] = useContext(MessageContext);
@@ -59,6 +61,10 @@ export function TopBar() {
         setContacts(
             contacts.filter((cs: Contact) => cs._id !== selectedContact?._id),
         );
+        setContactGroups(
+            contactGroups.filter((cg) => cg._id !== selectedContact._id),
+        );
+
         setSelectedContact(undefined);
     }
 

@@ -69,12 +69,26 @@ export class ContactController {
         return { status: 404, body: false };
       }
 
-      if (user.contacts.find((uc) => uc._id === body.contactId) === undefined) {
+      const contact = user.contacts.find((uc) => uc._id === body.contactId);
+      const contactGroup = user.contactGroups.find(
+        (cg) => cg._id === body.contactId,
+      );
+
+      if (!contact && !contactGroup) {
         return { status: 404, body: false };
       }
 
-      user.contacts = user.contacts.filter((u) => u._id !== body.contactId);
-      user.markModified('contacts');
+      if (contact) {
+        user.contacts = user.contacts.filter((u) => u._id !== body.contactId);
+        user.markModified('contacts');
+      }
+
+      if (contactGroup) {
+        user.contactGroups = user.contactGroups.filter(
+          (cg) => cg._id !== body.contactId,
+        );
+        user.markModified('contactGroups');
+      }
 
       await user.save();
 
