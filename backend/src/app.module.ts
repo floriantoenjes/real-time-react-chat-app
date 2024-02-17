@@ -10,9 +10,15 @@ import { MessageController } from './controllers/message.controller';
 import { UserController } from './controllers/user.controller';
 import { ContactGroupController } from './controllers/contact-group.controller';
 import { UserService } from './services/user.service';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      serveRoot: '/frontend',
+      rootPath: join(__dirname, '..', '..', '..', 'frontend/dist'),
+    }),
     MongooseModule.forRoot('mongodb://localhost'),
     MongooseModule.forFeature([
       { name: MessageEntity.name, schema: MessageSchema },
