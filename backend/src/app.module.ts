@@ -13,7 +13,6 @@ import { UserService } from './services/user.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ConfigModule } from '@nestjs/config';
-import * as process from 'process';
 
 @Module({
   imports: [
