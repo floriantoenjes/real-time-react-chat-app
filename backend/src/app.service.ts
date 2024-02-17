@@ -11,7 +11,6 @@ export class AppService implements OnApplicationBootstrap {
     @InjectModel(MessageEntity.name)
     private readonly messageModel: Model<MessageEntity>,
     @InjectModel(UserEntity.name) private readonly userModel: Model<UserEntity>,
-    // @InjectModel(Contact.name) private readonly contactModel: Model<Contact>,
   ) {}
 
   async onApplicationBootstrap() {
@@ -42,6 +41,14 @@ export class AppService implements OnApplicationBootstrap {
       avatarFileName: 'avatar2.svg',
     } as UserEntity;
     const user3Doc = await this.userModel.create(user3);
+
+    const user4 = {
+      username: 'Stella',
+      email: 'stella@email.com',
+      password: 'password',
+      avatarFileName: 'avatar4.svg',
+    } as UserEntity;
+    const user4Doc = await this.userModel.create(user4);
 
     const user1Contacts: ContactEntity[] = [
       {
