@@ -10,7 +10,7 @@ import {
     TextField,
 } from "@mui/material";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/solid";
 import "./TopSection.css";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
@@ -34,12 +34,19 @@ export function TopSection() {
         setAnchorEl(null);
     };
 
-    const [state, setState] = React.useState({
+    const [state, setState] = useState({
         top: false,
         left: false,
         bottom: false,
         right: false,
     });
+
+    const [potentialGroupMembers, setPotentialGroupMembers] =
+        useState(contacts);
+
+    useEffect(() => {
+        setPotentialGroupMembers(contacts);
+    }, [contacts]);
 
     const toggleDrawer =
         (anchor: string, open: boolean) =>
@@ -62,10 +69,17 @@ export function TopSection() {
         if (groupMembers.find((c) => c === contact.name)) {
             return;
         }
+
+        setPotentialGroupMembers((prevState) =>
+            prevState.filter((pgm) => pgm !== contact),
+        );
         setGroupMembers((prevState) => [...prevState, contact.name].sort());
     }
 
     function onChangeMembers(evt: any, value: string[]) {
+        setPotentialGroupMembers(() =>
+            contacts.filter((c) => !value.includes(c.name)),
+        );
         setGroupMembers([...new Set<string>(value.sort())]);
     }
 
@@ -152,7 +166,7 @@ export function TopSection() {
                         }
                     >
                         <div className={"w-full"}>
-                            {contacts.map((c) => (
+                            {potentialGroupMembers.map((c) => (
                                 <span
                                     key={c.name}
                                     onClick={() => addGroupMember(c)}

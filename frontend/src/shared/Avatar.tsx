@@ -5,7 +5,7 @@ export function Avatar(props: {
 }) {
     return (
         <div
-            className={"mr-3"}
+            className={"mr-3 flex justify-center items-center"}
             style={{
                 width: props.width ?? "2.5rem",
                 height: props.height ?? "2.5rem",
@@ -14,6 +14,7 @@ export function Avatar(props: {
             }}
         >
             <img
+                style={{ maxHeight: "100%" }}
                 src={props.filename ? "avatars/" + props.filename : undefined}
             />
         </div>

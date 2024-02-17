@@ -9,7 +9,8 @@ export function Message(props: { msg: MessageModel; user: User }) {
     let fromUsername = "";
     if (props.msg.fromUserId !== props.user._id) {
         fromUsername =
-            contacts.find((c) => c._id === props.msg.fromUserId)?.name + ": ";
+            (contacts.find((c) => c._id === props.msg.fromUserId)?.name ??
+                "Unbekannt") + ": ";
     }
 
     return (
