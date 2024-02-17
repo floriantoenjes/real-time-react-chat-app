@@ -12,14 +12,23 @@ import { ContactGroupController } from './controllers/contact-group.controller';
 import { UserService } from './services/user.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { ConfigModule } from '@nestjs/config';
+import * as process from 'process';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      ignoreEnvFile: true,
+    }),
     ServeStaticModule.forRoot({
       serveRoot: '/frontend',
       rootPath: join(__dirname, '..', '..', '..', 'frontend/dist'),
     }),
-    MongooseModule.forRoot('mongodb://localhost'),
+    MongooseModule.forRoot(process.env.uri ?? 'mongodb://localhost', {
+      user: process.env.user,
+      pass: process.env.pass,
+      dbName: process.env.dbName,
+    }),
     MongooseModule.forFeature([
       { name: MessageEntity.name, schema: MessageSchema },
       // { name: Contact.name, schema: ContactSchema },
