@@ -9,6 +9,7 @@ export const ContactGroupSchema = z.object({
   memberIds: z.array(z.string()),
   name: z.string(),
   lastMessage: MessageSchema,
+  avatarFileName: z.string().optional(),
 });
 
 export type ContactGroup = z.infer<typeof ContactGroupSchema>;

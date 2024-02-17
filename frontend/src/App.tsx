@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import { Login } from "./login/Login";
 import { Dashboard } from "./dashboard/Dashboard";
 import { io, Socket } from "socket.io-client";
@@ -8,9 +8,11 @@ import { SocketContext } from "./shared/contexts/SocketContext";
 import { UserContext } from "./shared/contexts/UserContext";
 import { BACKEND_URL } from "./environment";
 import { UserService } from "./shared/services/UserService";
-import { User } from "real-time-chat-backend/dist/shared/user.contract";
+import { User } from "real-time-chat-backend/shared/user.contract";
+import { AuthService } from "./shared/services/AuthService";
 
 function App() {
+    const navigate = useNavigate();
     const [user, setUser] = useState<User>();
     const [socket, setSocket] = useState<Socket>();
 
@@ -29,6 +31,19 @@ function App() {
         };
         // eslint-disable-next-line
     }, [user?.username]);
+
+    if (!user && !!sessionStorage.getItem("signedIn")) {
+        AuthService.signIn(
+            "florian@email.com",
+            "password",
+            new UserService(),
+        ).then((user) => {
+            if (user) {
+                setUser(user);
+                navigate("Dashboard");
+            }
+        });
+    }
 
     return (
         <UserContext.Provider value={[user, setUser, new UserService()]}>

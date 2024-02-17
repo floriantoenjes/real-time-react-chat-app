@@ -22,6 +22,7 @@ export function Login(props: {}) {
             userService,
         );
         if (user) {
+            sessionStorage.setItem("signedIn", "true");
             setUser(user);
             navigate("Dashboard");
         }

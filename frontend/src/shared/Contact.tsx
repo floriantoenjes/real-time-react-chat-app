@@ -1,6 +1,6 @@
 import { Avatar } from "./Avatar";
-import { Contact as ContactModel } from "real-time-chat-backend/dist/shared/contact.contract";
-import { ContactGroup } from "real-time-chat-backend/dist/shared/contact-group.contract";
+import { Contact as ContactModel } from "real-time-chat-backend/shared/contact.contract";
+import { ContactGroup } from "real-time-chat-backend/shared/contact-group.contract";
 
 export function Contact(props: {
     contact: ContactModel;
