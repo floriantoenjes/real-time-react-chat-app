@@ -30,7 +30,7 @@ export class ContactGroupService {
         memberIds: string[],
     ) {
         return await this.client.addContactGroup({
-            body: { userId, groupName, memberIds },
+            body: { userId, name: groupName, memberIds },
         });
     }
 

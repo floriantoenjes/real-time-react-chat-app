@@ -1,18 +1,14 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { SchemaFactory } from '@nestjs/mongoose';
 import { Message } from './message.schema';
 
-@Schema()
 export class Contact {
   _id: any;
 
-  @Prop()
-  userId: string;
+  name: string;
 
-  @Prop()
-  username: string;
+  lastMessage?: Message;
 
-  @Prop()
-  lastMessage: Message;
+  avatarFileName?: string;
 }
 
 export const ContactSchema = SchemaFactory.createForClass(Contact);

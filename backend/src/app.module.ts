@@ -8,6 +8,7 @@ import { User, UserSchema } from './schemas/user.schema';
 import { ContactController } from './controllers/contact.controller';
 import { MessageController } from './controllers/message.controller';
 import { UserController } from './controllers/user.controller';
+import { ContactGroupController } from './controllers/contact-group.controller';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { UserController } from './controllers/user.controller';
     ContactController,
     MessageController,
     UserController,
-    // ContactGroupController,
+    ContactGroupController,
   ],
   providers: [AppService, RealTimeChatGateway],
 })

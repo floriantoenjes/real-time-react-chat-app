@@ -1,15 +1,15 @@
 import { createContext, Dispatch, SetStateAction } from "react";
 import { ContactService } from "../services/ContactService";
+import { Contact } from "real-time-chat-backend/dist/shared/contact.contract";
 import { ContactGroupService } from "../services/ContactGroupService";
 import { ContactGroup } from "real-time-chat-backend/dist/shared/contact-group.contract";
-import { User } from "real-time-chat-backend/dist/shared/user.contract";
 
 export const ContactsContext = createContext<{
-    contacts: [User[], Dispatch<SetStateAction<User[]>>];
+    contacts: [Contact[], Dispatch<SetStateAction<Contact[]>>];
     contactGroups: [ContactGroup[], Dispatch<SetStateAction<ContactGroup[]>>];
     selectedContact: [
-        User | undefined,
-        Dispatch<SetStateAction<User | undefined>>,
+        Contact | ContactGroup | undefined,
+        Dispatch<SetStateAction<Contact | ContactGroup | undefined>>,
     ];
     contactService: ContactService;
     contactGroupService: ContactGroupService;

@@ -3,6 +3,7 @@ import { Message } from './schemas/message.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
+import { Contact } from './schemas/contact.schema';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
@@ -41,10 +42,22 @@ export class AppService implements OnApplicationBootstrap {
     } as User;
     const user3Doc = await this.userModel.create(user3);
 
-    const user1Contacts = [user2Doc._id.toString()];
-    const user2Contacts = [user1Doc._id.toString()];
-    user1Doc.contactIds = user1Contacts;
-    user2Doc.contactIds = user2Contacts;
+    const user1Contacts: Contact[] = [
+      {
+        _id: user2Doc._id.toString(),
+        name: user2.username,
+        avatarFileName: user2.avatarFileName,
+      },
+    ];
+    const user2Contacts: Contact[] = [
+      {
+        _id: user1Doc._id.toString(),
+        name: user1.username,
+        avatarFileName: user1.avatarFileName,
+      },
+    ];
+    user1Doc.contacts = user1Contacts;
+    user2Doc.contacts = user2Contacts;
 
     await user1Doc.save();
     await user2Doc.save();

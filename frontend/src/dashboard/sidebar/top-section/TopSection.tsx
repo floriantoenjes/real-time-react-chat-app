@@ -58,10 +58,10 @@ export function TopSection() {
     const [groupMembers, setGroupMembers] = useState<string[]>([]);
 
     function addGroupMember(contact: ContactModel) {
-        if (groupMembers.find((c) => c === contact.username)) {
+        if (groupMembers.find((c) => c === contact.name)) {
             return;
         }
-        setGroupMembers((prevState) => [...prevState, contact.username].sort());
+        setGroupMembers((prevState) => [...prevState, contact.name].sort());
     }
 
     function onChangeMembers(evt: any, value: string[]) {
@@ -70,12 +70,12 @@ export function TopSection() {
 
     function createGroup() {
         const mappedMembers = groupMembers
-            .map((gm) => contacts.find((c) => c.username === gm))
+            .map((gm) => contacts.find((c) => c.name === gm))
             .map((mm) => {
-                if (!mm?.userId) {
+                if (!mm?._id) {
                     throw new Error("Group member without user id!");
                 }
-                return mm.userId;
+                return mm?._id;
             });
 
         if (!mappedMembers) {
@@ -122,7 +122,7 @@ export function TopSection() {
                         <Autocomplete
                             multiple
                             id="tags-readOnly"
-                            options={contacts.map((c) => c.username)}
+                            options={contacts.map((c) => c.name)}
                             renderInput={(params) => (
                                 <TextField {...params} label="Members" />
                             )}
@@ -139,7 +139,7 @@ export function TopSection() {
                         <div className={"w-full"}>
                             {contacts.map((c) => (
                                 <span
-                                    key={c.username}
+                                    key={c.name}
                                     onClick={() => addGroupMember(c)}
                                 >
                                     <Contact contact={c} />

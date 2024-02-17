@@ -30,17 +30,10 @@ export function Sidebar() {
 
     function contactList() {
         return userContacts
-            .concat(
-                userContactGroups.map((group) => ({
-                    _id: group._id,
-                    userId: group._id,
-                    username: group.groupName,
-                    lastMessage: group.lastMessage,
-                })),
-            )
+            .concat(userContactGroups)
             .map((c) => (
                 <Contact
-                    key={c.username}
+                    key={c.name}
                     contact={c}
                     selectedContact={selectedContact}
                     onContactSelect={() => setSelectedContact(c)}

@@ -9,7 +9,7 @@ export class ContactGroup {
   memberIds: string[];
 
   @Prop()
-  groupName: string;
+  name: string;
 
   @Prop()
   lastMessage: Message;

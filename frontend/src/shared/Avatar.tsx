@@ -13,7 +13,9 @@ export function Avatar(props: {
                 borderRadius: "50%",
             }}
         >
-            <img src={"avatars/" + props.filename} />
+            <img
+                src={props.filename ? "avatars/" + props.filename : undefined}
+            />
         </div>
     );
 }

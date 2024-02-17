@@ -3,7 +3,7 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { User } from '../schemas/user.schema';
-import { contactContract } from '../../shared/contact.contract';
+import { Contact, contactContract } from '../../shared/contact.contract';
 
 @Controller()
 export class ContactController {
@@ -18,7 +18,7 @@ export class ContactController {
 
       return {
         status: 200,
-        body: await this.userModel.find({ _id: { $in: user?.contactIds } }),
+        body: user?.contacts ?? [],
       };
     });
   }
@@ -33,24 +33,21 @@ export class ContactController {
         return { status: 404, body: false };
       }
 
-      const contactAlreadyAdded = user.contactIds.find(
-        (cid) => cid === body.newContactId,
+      const newContact = {
+        _id: body.newContactId,
+        name: contact.username,
+        avatarFileName: contact.avatarFileName,
+      } as Contact;
+
+      const contactAlreadyExists = user.contacts.find(
+        (uc) => uc._id === newContact._id,
       );
-      if (contactAlreadyAdded) {
+      if (contactAlreadyExists) {
         return { status: 400, body: false };
       }
 
-      const newContact = await this.userModel
-        .findOne({
-          _id: body.newContactId,
-        })
-        .lean();
-      if (!newContact) {
-        return { status: 404, body: false };
-      }
-
-      user.contactIds.push(body.newContactId);
-      user.markModified('contactIds');
+      user.contacts.push(newContact);
+      user.markModified('contacts');
 
       await user.save();
 
@@ -70,12 +67,12 @@ export class ContactController {
         return { status: 404, body: false };
       }
 
-      if (user.contactIds.find((cid) => cid === body.contactId) === undefined) {
+      if (user.contacts.find((uc) => uc._id === body.contactId) === undefined) {
         return { status: 404, body: false };
       }
 
-      user.contactIds = user.contactIds.filter((cid) => cid !== body.contactId);
-      user.markModified('contactIds');
+      user.contacts = user.contacts.filter((u) => u._id !== body.contactId);
+      user.markModified('contacts');
 
       await user.save();
 

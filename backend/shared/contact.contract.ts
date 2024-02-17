@@ -1,11 +1,13 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
+import { MessageSchema } from './message.contract';
 
 const c = initContract();
 
 export const ContactSchema = z.object({
   _id: z.string(),
-  username: z.string(),
+  name: z.string(),
+  lastMessage: MessageSchema.optional(),
   avatarFileName: z.string().optional(),
 });
 

@@ -21,10 +21,7 @@ export function Chat() {
             }
 
             setMessages(
-                await messageService.getMessages(
-                    user._id,
-                    selectedContact.userId,
-                ),
+                await messageService.getMessages(user._id, selectedContact._id),
             );
         }
         void fetchMessages();

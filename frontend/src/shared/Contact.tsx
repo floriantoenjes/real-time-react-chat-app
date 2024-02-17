@@ -22,7 +22,7 @@ export function Contact(props: {
             />
             <div className={"flex-col w-full"}>
                 <div className={"flex justify-between"}>
-                    <div>{props.contact.username}</div>
+                    <div>{props.contact.name}</div>
                     <div>{props.contact.lastMessage?.at?.toString()}</div>
                 </div>
                 <div>{props.contact.lastMessage?.message}</div>
