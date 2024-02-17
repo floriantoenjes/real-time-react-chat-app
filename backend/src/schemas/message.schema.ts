@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Message as ZodMessage } from '../../shared/message.contract';
+import { Message } from '../../shared/message.contract';
 
-@Schema()
-export class Message implements ZodMessage {
+@Schema({ collection: 'messages' })
+export class MessageEntity implements Message {
   _id: any;
 
   @Prop({ required: true })
@@ -18,4 +18,4 @@ export class Message implements ZodMessage {
   message: string;
 }
 
-export const MessageSchema = SchemaFactory.createForClass(Message);
+export const MessageSchema = SchemaFactory.createForClass(MessageEntity);

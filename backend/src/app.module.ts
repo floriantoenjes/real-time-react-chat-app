@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { RealTimeChatGateway } from './socket.gateway';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Message, MessageSchema } from './schemas/message.schema';
+import { MessageEntity, MessageSchema } from './schemas/message.schema';
 import { UserEntity, UserSchema } from './schemas/user.schema';
 import { ContactController } from './controllers/contact.controller';
 import { MessageController } from './controllers/message.controller';
@@ -15,7 +15,7 @@ import { UserService } from './services/user.service';
   imports: [
     MongooseModule.forRoot('mongodb://localhost'),
     MongooseModule.forFeature([
-      { name: Message.name, schema: MessageSchema },
+      { name: MessageEntity.name, schema: MessageSchema },
       // { name: Contact.name, schema: ContactSchema },
       // { name: ContactGroup.name, schema: ContactGroupSchema },
       { name: UserEntity.name, schema: UserSchema },

@@ -2,7 +2,7 @@ import { Controller } from '@nestjs/common';
 import { RealTimeChatGateway } from '../socket.gateway';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Message } from '../schemas/message.schema';
+import { MessageEntity } from '../schemas/message.schema';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { messageContract } from '../../shared/message.contract';
 import { UserEntity } from '../schemas/user.schema';
@@ -11,7 +11,7 @@ import { UserEntity } from '../schemas/user.schema';
 export class MessageController {
   constructor(
     private readonly gateway: RealTimeChatGateway,
-    @InjectModel(Message.name) private messageModel: Model<Message>,
+    @InjectModel(MessageEntity.name) private messageModel: Model<MessageEntity>,
     @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
   ) {}
 

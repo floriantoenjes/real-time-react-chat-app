@@ -1,9 +1,8 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Message } from './message.schema';
-import { ContactGroup as ZodContactGroup } from '../../shared/contact-group.contract';
+import { Prop, SchemaFactory } from '@nestjs/mongoose';
+import { MessageEntity } from './message.schema';
+import { ContactGroup } from '../../shared/contact-group.contract';
 
-@Schema()
-export class ContactGroup implements ZodContactGroup {
+export class ContactGroupEntity implements ContactGroup {
   _id: any;
 
   @Prop()
@@ -13,7 +12,8 @@ export class ContactGroup implements ZodContactGroup {
   name: string;
 
   @Prop()
-  lastMessage: Message;
+  lastMessage: MessageEntity;
 }
 
-export const ContactGroupSchema = SchemaFactory.createForClass(ContactGroup);
+export const ContactGroupSchema =
+  SchemaFactory.createForClass(ContactGroupEntity);

@@ -1,14 +1,15 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
-import { Message } from './schemas/message.schema';
+import { MessageEntity } from './schemas/message.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserEntity } from './schemas/user.schema';
-import { Contact } from './schemas/contact.schema';
+import { ContactEntity } from './schemas/contact.schema';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
   constructor(
-    @InjectModel(Message.name) private readonly messageModel: Model<Message>,
+    @InjectModel(MessageEntity.name)
+    private readonly messageModel: Model<MessageEntity>,
     @InjectModel(UserEntity.name) private readonly userModel: Model<UserEntity>,
     // @InjectModel(Contact.name) private readonly contactModel: Model<Contact>,
   ) {}
@@ -42,14 +43,14 @@ export class AppService implements OnApplicationBootstrap {
     } as UserEntity;
     const user3Doc = await this.userModel.create(user3);
 
-    const user1Contacts: Contact[] = [
+    const user1Contacts: ContactEntity[] = [
       {
         _id: user2Doc._id.toString(),
         name: user2.username,
         avatarFileName: user2.avatarFileName,
       },
     ];
-    const user2Contacts: Contact[] = [
+    const user2Contacts: ContactEntity[] = [
       {
         _id: user1Doc._id.toString(),
         name: user1.username,

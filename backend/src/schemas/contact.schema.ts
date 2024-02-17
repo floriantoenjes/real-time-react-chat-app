@@ -1,15 +1,15 @@
 import { SchemaFactory } from '@nestjs/mongoose';
-import { Message } from './message.schema';
-import { Contact as ZodContact } from '../../shared/contact.contract';
+import { MessageEntity } from './message.schema';
+import { Contact } from '../../shared/contact.contract';
 
-export class Contact implements ZodContact {
+export class ContactEntity implements Contact {
   _id: any;
 
   name: string;
 
-  lastMessage?: Message;
+  lastMessage?: MessageEntity;
 
   avatarFileName?: string;
 }
 
-export const ContactSchema = SchemaFactory.createForClass(Contact);
+export const ContactSchema = SchemaFactory.createForClass(ContactEntity);
