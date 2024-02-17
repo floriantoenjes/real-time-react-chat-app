@@ -49,7 +49,7 @@ export function SendMessageBar() {
     return (
         <div
             className={"send-message-bar fixed bottom-0 bg-white p-3 flex"}
-            style={{ minWidth: "calc(100% - 375px)" }}
+            style={{ minWidth: "calc(100% - 375px)", width: "100%" }}
         >
             <IconButton>
                 <PlusIcon className={"w-8"} />
