@@ -34,12 +34,13 @@ export class ContactController {
       }
 
       const newContact = {
-        userId: body.newContactId,
-        username: contact.username,
+        _id: body.newContactId,
+        name: contact.username,
+        avatarFileName: contact.avatarFileName,
       } as Contact;
 
       const contactAlreadyExists = user.contacts.find(
-        (uc) => uc.userId === newContact.userId,
+        (uc) => uc._id === newContact._id,
       );
       if (contactAlreadyExists) {
         return { status: 400, body: false };
@@ -66,13 +67,11 @@ export class ContactController {
         return { status: 404, body: false };
       }
 
-      if (
-        user.contacts.find((uc) => uc.userId === body.contactId) === undefined
-      ) {
+      if (user.contacts.find((uc) => uc._id === body.contactId) === undefined) {
         return { status: 404, body: false };
       }
 
-      user.contacts = user.contacts.filter((u) => u.userId !== body.contactId);
+      user.contacts = user.contacts.filter((u) => u._id !== body.contactId);
       user.markModified('contacts');
 
       await user.save();

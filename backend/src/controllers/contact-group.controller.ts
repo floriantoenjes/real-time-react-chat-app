@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { User } from '../schemas/user.schema';
@@ -35,30 +35,39 @@ export class ContactGroupController {
       contactGroupContract.addContactGroup,
       async ({ body }) => {
         const user = await this.userModel.findOne({ _id: body.userId });
-        const memberIds = await this.userModel.find({
+        const members = await this.userModel.find({
           _id: { $in: body.memberIds },
         });
 
-        if (!user || !memberIds.length) {
+        if (!user || !members.length) {
           return { status: 404, body: false };
         }
 
         const newContactGroup = {
+          _id: new Types.ObjectId().toString(),
           memberIds: body.memberIds,
-          groupName: body.groupName,
+          name: body.name,
         } as ContactGroup;
 
         const contactAlreadyExists = user.contactGroups.find(
-          (group) => group.groupName === newContactGroup.groupName,
+          (group) => group.name === newContactGroup.name,
         );
         if (contactAlreadyExists) {
           return { status: 400, body: false };
         }
 
-        user.contactGroups.push(newContactGroup);
-        user.markModified('contactGroups');
+        for (const member of [user, ...members]) {
+          member.contactGroups.push({
+            ...newContactGroup,
+            memberIds: [user, ...members]
+              .map((m) => m._id)
+              .filter((mid) => mid !== member._id)
+              .map((mid) => mid.toString()),
+          });
+          member.markModified('contactGroups');
 
-        await user.save();
+          await member.save();
+        }
 
         return {
           status: 201,

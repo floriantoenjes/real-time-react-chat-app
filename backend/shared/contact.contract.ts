@@ -6,9 +6,9 @@ const c = initContract();
 
 export const ContactSchema = z.object({
   _id: z.string(),
-  userId: z.string(),
-  username: z.string(),
-  lastMessage: MessageSchema,
+  name: z.string(),
+  lastMessage: MessageSchema.optional(),
+  avatarFileName: z.string().optional(),
 });
 
 export type Contact = z.infer<typeof ContactSchema>;

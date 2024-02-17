@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Contact } from './contact.schema';
-import { ContactGroup } from './contact-group.schema';
+import { ContactGroup } from '../../shared/contact-group.contract';
+import { Contact } from '../../shared/contact.contract';
 
 @Schema()
 export class User {
@@ -20,6 +20,9 @@ export class User {
 
   @Prop()
   contactGroups: ContactGroup[];
+
+  @Prop()
+  avatarFileName?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

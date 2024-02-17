@@ -1,4 +1,8 @@
-export function Avatar(props: any) {
+export function Avatar(props: {
+    width?: string;
+    height?: string;
+    filename?: string;
+}) {
     return (
         <div
             className={"mr-3"}
@@ -8,6 +12,10 @@ export function Avatar(props: any) {
                 backgroundColor: "lightblue",
                 borderRadius: "50%",
             }}
-        ></div>
+        >
+            <img
+                src={props.filename ? "avatars/" + props.filename : undefined}
+            />
+        </div>
     );
 }

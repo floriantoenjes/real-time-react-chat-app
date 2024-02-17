@@ -7,8 +7,9 @@ const c = initContract();
 export const ContactGroupSchema = z.object({
   _id: z.string(),
   memberIds: z.array(z.string()),
-  groupName: z.string(),
+  name: z.string(),
   lastMessage: MessageSchema,
+  avatarFileName: z.string().optional(),
 });
 
 export type ContactGroup = z.infer<typeof ContactGroupSchema>;
@@ -33,7 +34,7 @@ export const contactGroupContract = c.router({
     },
     body: z.object({
       userId: z.string(),
-      groupName: z.string(),
+      name: z.string(),
       memberIds: z.array(z.string()),
     }),
     summary: 'Add a new contact group',

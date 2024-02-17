@@ -10,6 +10,7 @@ export const UserSchema = z.object({
   password: z.string(),
   username: z.string(),
   contacts: z.array(ContactSchema),
+  avatarFileName: z.string().optional(),
 });
 
 export type User = z.infer<typeof UserSchema>;

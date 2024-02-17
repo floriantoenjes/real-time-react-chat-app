@@ -31,14 +31,14 @@ export function SendMessageBar() {
         const messageToSend = {
             fromUserId: user._id,
             message: formData.message.trim(),
-            toUserId: selectedContact.userId,
+            toUserId: selectedContact._id,
             at: new Date(),
         };
 
         const res = await messageService.sendMessage(
             user._id,
             formData.message.trim(),
-            selectedContact.userId,
+            selectedContact._id,
         );
 
         if (res.status === 201) {

@@ -21,6 +21,7 @@ import { useUserContext } from "../../../shared/contexts/UserContext";
 export function TopSection() {
     const contactsContext = useContext(ContactsContext);
     const [contacts] = contactsContext.contacts;
+    const [, setContactGroups] = contactsContext.contactGroups;
     const contactGroupService = contactsContext.contactGroupService;
     const [user] = useUserContext();
 
@@ -45,7 +46,7 @@ export function TopSection() {
         (event: React.KeyboardEvent | React.MouseEvent) => {
             handleClose();
             if (
-                event.type === "keydown" &&
+                event?.type === "keydown" &&
                 ((event as React.KeyboardEvent).key === "Tab" ||
                     (event as React.KeyboardEvent).key === "Shift")
             ) {
@@ -58,10 +59,10 @@ export function TopSection() {
     const [groupMembers, setGroupMembers] = useState<string[]>([]);
 
     function addGroupMember(contact: ContactModel) {
-        if (groupMembers.find((c) => c === contact.username)) {
+        if (groupMembers.find((c) => c === contact.name)) {
             return;
         }
-        setGroupMembers((prevState) => [...prevState, contact.username].sort());
+        setGroupMembers((prevState) => [...prevState, contact.name].sort());
     }
 
     function onChangeMembers(evt: any, value: string[]) {
@@ -70,12 +71,12 @@ export function TopSection() {
 
     function createGroup() {
         const mappedMembers = groupMembers
-            .map((gm) => contacts.find((c) => c.username === gm))
+            .map((gm) => contacts.find((c) => c.name === gm))
             .map((mm) => {
-                if (!mm?.userId) {
+                if (!mm?._id) {
                     throw new Error("Group member without user id!");
                 }
-                return mm.userId;
+                return mm;
             });
 
         if (!mappedMembers) {
@@ -83,8 +84,22 @@ export function TopSection() {
         }
 
         contactGroupService
-            .addContactGroup(user._id, "ChatGroup1", mappedMembers)
-            .then(alert);
+            .addContactGroup(
+                user._id,
+                mappedMembers
+                    .map((mm) => mm.name)
+                    .reduce(
+                        (previousValue, currentValue) =>
+                            previousValue + ", " + currentValue,
+                    ),
+                mappedMembers.map((mm) => mm._id),
+            )
+            .then((res) => {
+                toggleDrawer("left", false)({} as React.KeyboardEvent);
+                if (res.status === 201) {
+                    setContactGroups((prevState) => [...prevState, res.body]);
+                }
+            });
     }
 
     return (
@@ -122,7 +137,7 @@ export function TopSection() {
                         <Autocomplete
                             multiple
                             id="tags-readOnly"
-                            options={contacts.map((c) => c.username)}
+                            options={contacts.map((c) => c.name)}
                             renderInput={(params) => (
                                 <TextField {...params} label="Members" />
                             )}
@@ -139,7 +154,7 @@ export function TopSection() {
                         <div className={"w-full"}>
                             {contacts.map((c) => (
                                 <span
-                                    key={c.username}
+                                    key={c.name}
                                     onClick={() => addGroupMember(c)}
                                 >
                                     <Contact contact={c} />

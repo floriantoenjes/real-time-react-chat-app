@@ -10,7 +10,7 @@ import { MouseEvent, useContext, useState } from "react";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
-import { Contact } from "real-time-chat-backend/dist/shared/contact.contract";
+import { Contact } from "real-time-chat-backend/shared/contact.contract";
 
 export function TopBar() {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -34,7 +34,7 @@ export function TopBar() {
             return;
         }
 
-        messageService.deleteMessages(user._id, selectedContact.userId);
+        messageService.deleteMessages(user._id, selectedContact._id);
         setMessages([]);
         handleClose();
     }
@@ -44,11 +44,11 @@ export function TopBar() {
             return;
         }
 
-        messageService.deleteMessages(user._id, selectedContact.userId);
+        messageService.deleteMessages(user._id, selectedContact._id);
 
         const deletionRes = await contactService.deleteContact(
             user._id,
-            selectedContact.userId,
+            selectedContact._id,
         );
 
         if (deletionRes.status !== 204) {
@@ -56,9 +56,7 @@ export function TopBar() {
         }
 
         setContacts(
-            contacts.filter(
-                (cs: Contact) => cs.userId !== selectedContact?.userId,
-            ),
+            contacts.filter((cs: Contact) => cs._id !== selectedContact?._id),
         );
         setSelectedContact(undefined);
     }
@@ -70,8 +68,8 @@ export function TopBar() {
             }
         >
             <div className={"flex items-center"}>
-                <Avatar />
-                <p>{selectedContact?.username}</p>
+                <Avatar filename={selectedContact?.avatarFileName} />
+                <p>{selectedContact?.name}</p>
             </div>
             <div className={"flex"}>
                 <IconButton className={"mr-3"}>

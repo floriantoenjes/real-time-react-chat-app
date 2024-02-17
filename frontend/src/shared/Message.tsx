@@ -1,5 +1,5 @@
-import { Message as MessageModel } from "real-time-chat-backend/dist/shared/message.contract";
-import { User } from "real-time-chat-backend/dist/shared/user.contract";
+import { Message as MessageModel } from "real-time-chat-backend/shared/message.contract";
+import { User } from "real-time-chat-backend/shared/user.contract";
 
 export function Message(props: { msg: MessageModel; user: User }) {
     return (

@@ -1,6 +1,6 @@
 import { Avatar } from "./Avatar";
-import { Contact as ContactModel } from "real-time-chat-backend/dist/shared/contact.contract";
-import { ContactGroup } from "real-time-chat-backend/dist/shared/contact-group.contract";
+import { Contact as ContactModel } from "real-time-chat-backend/shared/contact.contract";
+import { ContactGroup } from "real-time-chat-backend/shared/contact-group.contract";
 
 export function Contact(props: {
     contact: ContactModel;
@@ -15,10 +15,14 @@ export function Contact(props: {
             }
             onClick={props.onContactSelect}
         >
-            <Avatar width={"3.4rem"} height={"2.8rem"} />
+            <Avatar
+                width={"3.4rem"}
+                height={"2.8rem"}
+                filename={props.contact.avatarFileName}
+            />
             <div className={"flex-col w-full"}>
                 <div className={"flex justify-between"}>
-                    <div>{props.contact.username}</div>
+                    <div>{props.contact.name}</div>
                     <div>{props.contact.lastMessage?.at?.toString()}</div>
                 </div>
                 <div>{props.contact.lastMessage?.message}</div>

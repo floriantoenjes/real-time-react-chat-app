@@ -1,9 +1,6 @@
 import { initClient } from "@ts-rest/core";
 import { BACKEND_URL } from "../../environment";
-import {
-    ContactGroup,
-    contactGroupContract,
-} from "real-time-chat-backend/dist/shared/contact-group.contract";
+import { ContactGroup, contactGroupContract } from "@t/contact-group.contract";
 
 export class ContactGroupService {
     private client;
@@ -33,7 +30,7 @@ export class ContactGroupService {
         memberIds: string[],
     ) {
         return await this.client.addContactGroup({
-            body: { userId, groupName, memberIds },
+            body: { userId, name: groupName, memberIds },
         });
     }
 

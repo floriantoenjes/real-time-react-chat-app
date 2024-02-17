@@ -10,18 +10,19 @@ export class AppService implements OnApplicationBootstrap {
   constructor(
     @InjectModel(Message.name) private readonly messageModel: Model<Message>,
     @InjectModel(User.name) private readonly userModel: Model<User>,
-    @InjectModel(Contact.name) private readonly contactModel: Model<Contact>,
+    // @InjectModel(Contact.name) private readonly contactModel: Model<Contact>,
   ) {}
 
   async onApplicationBootstrap() {
     await this.messageModel.deleteMany({});
     await this.userModel.deleteMany({});
-    await this.contactModel.deleteMany({});
+    // await this.contactModel.deleteMany({});
 
     const user1 = {
       username: 'Florian',
       email: 'florian@email.com',
       password: 'password',
+      avatarFileName: 'avatar1.svg',
     } as User;
     const user1Doc = await this.userModel.create(user1);
 
@@ -29,6 +30,7 @@ export class AppService implements OnApplicationBootstrap {
       username: 'Alex',
       email: 'alex@email.com',
       password: 'password',
+      avatarFileName: 'avatar3.svg',
     } as User;
     const user2Doc = await this.userModel.create(user2);
 
@@ -36,20 +38,23 @@ export class AppService implements OnApplicationBootstrap {
       username: 'Tom',
       email: 'tom@email.com',
       password: 'password',
+      avatarFileName: 'avatar2.svg',
     } as User;
     const user3Doc = await this.userModel.create(user3);
 
-    const user1Contacts = [
+    const user1Contacts: Contact[] = [
       {
-        userId: user2Doc._id.toString(),
-        username: user2Doc.username,
-      } as Contact,
+        _id: user2Doc._id.toString(),
+        name: user2.username,
+        avatarFileName: user2.avatarFileName,
+      },
     ];
-    const user2Contacts = [
+    const user2Contacts: Contact[] = [
       {
-        userId: user1Doc._id.toString(),
-        username: user1Doc.username,
-      } as Contact,
+        _id: user1Doc._id.toString(),
+        name: user1.username,
+        avatarFileName: user1.avatarFileName,
+      },
     ];
     user1Doc.contacts = user1Contacts;
     user2Doc.contacts = user2Contacts;
