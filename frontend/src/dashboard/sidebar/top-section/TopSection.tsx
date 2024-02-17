@@ -21,6 +21,7 @@ import { useUserContext } from "../../../shared/contexts/UserContext";
 export function TopSection() {
     const contactsContext = useContext(ContactsContext);
     const [contacts] = contactsContext.contacts;
+    const [, setContactGroups] = contactsContext.contactGroups;
     const contactGroupService = contactsContext.contactGroupService;
     const [user] = useUserContext();
 
@@ -45,7 +46,7 @@ export function TopSection() {
         (event: React.KeyboardEvent | React.MouseEvent) => {
             handleClose();
             if (
-                event.type === "keydown" &&
+                event?.type === "keydown" &&
                 ((event as React.KeyboardEvent).key === "Tab" ||
                     (event as React.KeyboardEvent).key === "Shift")
             ) {
@@ -75,7 +76,7 @@ export function TopSection() {
                 if (!mm?._id) {
                     throw new Error("Group member without user id!");
                 }
-                return mm?._id;
+                return mm;
             });
 
         if (!mappedMembers) {
@@ -83,8 +84,22 @@ export function TopSection() {
         }
 
         contactGroupService
-            .addContactGroup(user._id, "ChatGroup1", mappedMembers)
-            .then(alert);
+            .addContactGroup(
+                user._id,
+                mappedMembers
+                    .map((mm) => mm.name)
+                    .reduce(
+                        (previousValue, currentValue) =>
+                            previousValue + ", " + currentValue,
+                    ),
+                mappedMembers.map((mm) => mm._id),
+            )
+            .then((res) => {
+                toggleDrawer("left", false)({} as React.KeyboardEvent);
+                if (res.status === 201) {
+                    setContactGroups((prevState) => [...prevState, res.body]);
+                }
+            });
     }
 
     return (

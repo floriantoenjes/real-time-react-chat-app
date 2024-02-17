@@ -34,7 +34,7 @@ function App() {
 
     if (!user && !!sessionStorage.getItem("signedIn")) {
         AuthService.signIn(
-            "florian@email.com",
+            sessionStorage.getItem("signedIn") + "@email.com",
             "password",
             new UserService(),
         ).then((user) => {
