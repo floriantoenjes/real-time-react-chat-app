@@ -10,10 +10,17 @@ export function Login(props: {}) {
     const navigate = useNavigate();
     const [, setUser, userService] = useContext(UserContext);
 
-    const [formData, setFormData] = useState({
-        email: "florian@email.com",
-        password: "password",
-    });
+    const [formData, setFormData] = useState(
+        import.meta.env.PROD
+            ? {
+                  email: "",
+                  password: "",
+              }
+            : {
+                  email: "florian@email.com",
+                  password: "password",
+              },
+    );
 
     async function signIn() {
         const user = await AuthService.signIn(

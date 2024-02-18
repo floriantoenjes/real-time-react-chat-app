@@ -118,7 +118,7 @@ export function TopSection() {
 
     return (
         <div className={"flex items-center"}>
-            <Link to="/">
+            <Link to="/" onClick={() => sessionStorage.removeItem("signedIn")}>
                 <Button variant={"contained"}>Sign out</Button>
             </Link>
             <div className={"block ml-auto mr-2"}>
