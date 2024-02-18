@@ -41,7 +41,7 @@ export function Register(props: {}) {
         <div className="h-screen flex justify-center items-center">
             <div className="Login flex justify-center items-center">
                 <form onSubmit={handleSubmit(signUp)} className="my-auto">
-                    <h4 className="text-center">Login</h4>
+                    <h4 className="text-center">Register</h4>
                     <div className="my-3">
                         <TextField
                             type="email"

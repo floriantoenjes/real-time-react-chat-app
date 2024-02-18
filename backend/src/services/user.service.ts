@@ -3,6 +3,7 @@ import { User } from '../../shared/user.contract';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UserEntity } from '../schemas/user.schema';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -11,15 +12,28 @@ export class UserService {
   ) {}
 
   async findUserBy(filter: any) {
-    const user = await this.userModel.findOne(filter);
+    const password = filter.password;
+    delete filter.password;
+
+    let user = await this.userModel.findOne(filter);
+    if (
+      user &&
+      password !== undefined &&
+      !(await bcrypt.compare(password, user.password))
+    ) {
+      user = null;
+    }
 
     return this.returnUserOrNotFound(user);
   }
 
   async createUser(email: string, password: string, username: string) {
+    const saltOrRounds = 10;
+    const hash = await bcrypt.hash(password, saltOrRounds);
+
     const createdUser = await this.userModel.create({
       email,
-      password,
+      password: hash,
       username,
     });
 

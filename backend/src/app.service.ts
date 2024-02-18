@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserEntity } from './schemas/user.schema';
 import { ContactEntity } from './schemas/contact.schema';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
@@ -22,10 +23,13 @@ export class AppService implements OnApplicationBootstrap {
       return;
     }
 
+    const saltOrRounds = 10;
+    const password = await bcrypt.hash('password', saltOrRounds);
+
     const user1 = {
       username: 'Florian',
       email: 'florian@email.com',
-      password: 'password',
+      password,
       avatarFileName: 'avatar1.svg',
     } as UserEntity;
     const user1Doc = await this.userModel.create(user1);
@@ -33,7 +37,7 @@ export class AppService implements OnApplicationBootstrap {
     const user2 = {
       username: 'Alex',
       email: 'alex@email.com',
-      password: 'password',
+      password,
       avatarFileName: 'avatar3.svg',
     } as UserEntity;
     const user2Doc = await this.userModel.create(user2);
@@ -41,7 +45,7 @@ export class AppService implements OnApplicationBootstrap {
     const user3 = {
       username: 'Tom',
       email: 'tom@email.com',
-      password: 'password',
+      password,
       avatarFileName: 'avatar2.svg',
     } as UserEntity;
     const user3Doc = await this.userModel.create(user3);
@@ -49,7 +53,7 @@ export class AppService implements OnApplicationBootstrap {
     const user4 = {
       username: 'Stella',
       email: 'stella@email.com',
-      password: 'password',
+      password,
       avatarFileName: 'avatar4.svg',
     } as UserEntity;
     const user4Doc = await this.userModel.create(user4);
