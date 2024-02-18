@@ -1,7 +1,5 @@
-import { Link } from "react-router-dom";
 import {
     Autocomplete,
-    Button,
     Drawer,
     Fab,
     IconButton,
@@ -17,8 +15,11 @@ import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { Contact } from "../../../shared/Contact";
 import { Contact as ContactModel } from "real-time-chat-backend/shared/contact.contract";
 import { useUserContext } from "../../../shared/contexts/UserContext";
+import { useNavigate } from "react-router-dom";
+import { Avatar } from "../../../shared/Avatar";
 
 export function TopSection() {
+    const navigate = useNavigate();
     const contactsContext = useContext(ContactsContext);
     const [contacts] = contactsContext.contacts;
     const [, setContactGroups] = contactsContext.contactGroups;
@@ -117,10 +118,10 @@ export function TopSection() {
     }
 
     return (
-        <div className={"flex items-center"}>
-            <Link to="/" onClick={() => sessionStorage.removeItem("signedIn")}>
-                <Button variant={"contained"}>Sign out</Button>
-            </Link>
+        <div className={"flex items-center mb-3"}>
+            <div className={"ml-3"}>
+                <Avatar filename={user.avatarFileName} />
+            </div>
             <div className={"block ml-auto mr-2"}>
                 <IconButton onClick={handleClick}>
                     <ChevronDownIcon className={"w-8"} />
@@ -128,6 +129,14 @@ export function TopSection() {
                 <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
                     <MenuItem onClick={toggleDrawer("left", true)}>
                         New group
+                    </MenuItem>
+                    <MenuItem
+                        onClick={() => {
+                            sessionStorage.removeItem("signedIn");
+                            navigate("/");
+                        }}
+                    >
+                        Sign out
                     </MenuItem>
                 </Menu>
             </div>

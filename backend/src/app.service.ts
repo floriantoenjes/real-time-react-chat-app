@@ -18,6 +18,10 @@ export class AppService implements OnApplicationBootstrap {
     await this.userModel.deleteMany({});
     // await this.contactModel.deleteMany({});
 
+    if (await this.userModel.findOne()) {
+      return;
+    }
+
     const user1 = {
       username: 'Florian',
       email: 'florian@email.com',

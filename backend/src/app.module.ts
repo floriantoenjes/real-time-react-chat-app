@@ -26,7 +26,7 @@ import { ConfigModule } from '@nestjs/config';
     MongooseModule.forRoot(process.env.uri ?? 'mongodb://localhost', {
       user: process.env.user,
       pass: process.env.pass,
-      dbName: process.env.dbName,
+      dbName: 'real-time-chat',
     }),
     MongooseModule.forFeature([
       { name: MessageEntity.name, schema: MessageSchema },

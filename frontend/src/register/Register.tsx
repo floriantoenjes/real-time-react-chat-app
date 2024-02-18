@@ -1,5 +1,5 @@
 import { Button, TextField } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthService } from "../shared/services/AuthService";
 import { UserContext } from "../shared/contexts/UserContext";
@@ -46,39 +46,46 @@ export function Register(props: {}) {
                         <TextField
                             type="email"
                             label="E-Mail"
-                            {...register("email")}
+                            {...register("email", { required: true })}
                         />
                     </div>
                     <div className="mb-3">
                         <TextField
                             type="password"
                             label="Password"
-                            {...register("password")}
+                            {...register("password", { required: true })}
                         />
                     </div>
                     <div className="mb-3">
                         <TextField
                             type="password"
                             label="Confirm Password"
-                            {...register("passwordConfirm")}
+                            {...register("passwordConfirm", {
+                                required: true,
+                                validate: (value, formValues) =>
+                                    value === formValues.password,
+                            })}
                         />
                     </div>
                     <div className="mb-3">
                         <TextField
                             type="text"
                             label="Username"
-                            {...register("username")}
+                            {...register("username", { required: true })}
                         />
                     </div>
 
                     <div className="w-fit mx-auto">
-                        <Button
-                            variant={"contained"}
-                            autoFocus={true}
-                            type={"submit"}
-                        >
-                            Sign In
-                        </Button>
+                        <span className={"mr-3"}>
+                            <Button
+                                variant={"contained"}
+                                autoFocus={true}
+                                type={"submit"}
+                            >
+                                Sign Up
+                            </Button>
+                        </span>
+                        <Link to={"/"}>or Sign In</Link>
                     </div>
                 </form>
             </div>

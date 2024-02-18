@@ -1,5 +1,5 @@
 import { Button, TextField } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import { useHandleInputChange } from "../helpers";
 import { AuthService } from "../shared/services/AuthService";
@@ -67,13 +67,16 @@ export function Login(props: {}) {
                     </div>
 
                     <div className="w-fit mx-auto">
-                        <Button
-                            variant={"contained"}
-                            autoFocus={true}
-                            type={"submit"}
-                        >
-                            Sign In
-                        </Button>
+                        <span className={"mr-3"}>
+                            <Button
+                                variant={"contained"}
+                                autoFocus={true}
+                                type={"submit"}
+                            >
+                                Sign In
+                            </Button>
+                        </span>
+                        <Link to={"/register"}>or Sign Up</Link>
                     </div>
                 </form>
             </div>
