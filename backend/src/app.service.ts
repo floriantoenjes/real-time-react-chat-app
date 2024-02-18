@@ -16,7 +16,7 @@ export class AppService implements OnApplicationBootstrap {
 
   async onApplicationBootstrap() {
     await this.messageModel.deleteMany({});
-    await this.userModel.deleteMany({});
+    // await this.userModel.deleteMany({});
     // await this.contactModel.deleteMany({});
 
     if (await this.userModel.findOne()) {
