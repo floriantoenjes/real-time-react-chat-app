@@ -16,6 +16,20 @@ export class UserService {
     return this.returnUserOrNotFound(user);
   }
 
+  async createUser(email: string, password: string, username: string) {
+    const createdUser = await this.userModel.create({
+      email,
+      password,
+      username,
+    });
+
+    if (!createdUser) {
+      return { status: 400 as const, body: null };
+    }
+
+    return { status: 201 as const, body: createdUser };
+  }
+
   private returnUserOrNotFound(user: User | null) {
     if (!user) {
       return {

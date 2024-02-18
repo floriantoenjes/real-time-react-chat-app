@@ -17,6 +17,17 @@ export class UserController {
     });
   }
 
+  @TsRestHandler(userContract.signUp)
+  async signUp() {
+    return tsRestHandler(userContract.signUp, async ({ body }) => {
+      return this.userService.createUser(
+        body.email,
+        body.password,
+        body.username,
+      );
+    });
+  }
+
   @TsRestHandler(userContract.searchUserByUsername)
   async searchUserByUsername() {
     return tsRestHandler(

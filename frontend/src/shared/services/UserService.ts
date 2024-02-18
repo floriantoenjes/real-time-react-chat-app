@@ -24,6 +24,22 @@ export class UserService {
         return false;
     }
 
+    async signUp(
+        email: string,
+        password: string,
+        username: string,
+    ): Promise<User | false> {
+        const res = await this.client.signUp({
+            body: { email, password, username },
+        });
+
+        if (res.status === 201) {
+            return res.body;
+        }
+
+        return false;
+    }
+
     async searchForUserByUsername(username: string): Promise<User | false> {
         const res = await this.client.searchUserByUsername({
             body: { username },

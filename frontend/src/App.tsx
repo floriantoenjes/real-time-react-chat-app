@@ -10,6 +10,7 @@ import { BACKEND_URL } from "./environment";
 import { UserService } from "./shared/services/UserService";
 import { User } from "real-time-chat-backend/shared/user.contract";
 import { AuthService } from "./shared/services/AuthService";
+import { Register } from "./register/Register";
 
 function App() {
     const navigate = useNavigate();
@@ -50,6 +51,7 @@ function App() {
             <SocketContext.Provider value={[socket, setSocket]}>
                 <Routes>
                     <Route path="/" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
                     <Route
                         path="/dashboard"
                         element={<Dashboard user={user} />}

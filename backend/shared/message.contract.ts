@@ -8,7 +8,7 @@ export const MessageSchema = z.object({
   fromUserId: z.string(),
   toUserId: z.string(),
   at: z.date(),
-  message: z.string(),
+  message: z.string().max(4096),
 });
 
 export type Message = z.infer<typeof MessageSchema>;

@@ -25,10 +25,23 @@ export const userContract = c.router({
       200: UserSchema,
     },
     body: z.object({
-      email: z.string(),
+      email: z.string().email(),
       password: z.string(),
     }),
     summary: 'Sign in',
+  },
+  signUp: {
+    method: 'POST',
+    path: '/register',
+    responses: {
+      201: UserSchema,
+    },
+    body: z.object({
+      email: z.string().email(),
+      password: z.string(),
+      username: z.string().min(3).max(15),
+    }),
+    summary: 'Register',
   },
   searchUserByUsername: {
     method: 'POST',

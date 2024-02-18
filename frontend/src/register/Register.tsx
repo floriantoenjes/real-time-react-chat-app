@@ -1,68 +1,73 @@
 import { Button, TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useContext, useState } from "react";
-import { useHandleInputChange } from "../helpers";
+import { useContext } from "react";
 import { AuthService } from "../shared/services/AuthService";
 import { UserContext } from "../shared/contexts/UserContext";
+import { useForm } from "react-hook-form";
 
-export function Login(props: {}) {
+type SignUpData = {
+    email: "";
+    password: "";
+    passwordConfirm: "";
+    username: "";
+};
+
+export function Register(props: {}) {
     const navigate = useNavigate();
     const [, setUser, userService] = useContext(UserContext);
 
-    const [formData, setFormData] = useState(
-        import.meta.env.PROD
-            ? {
-                  email: "",
-                  password: "",
-              }
-            : {
-                  email: "florian@email.com",
-                  password: "password",
-              },
-    );
+    const {
+        register,
+        handleSubmit,
+        watch,
+        formState: { errors },
+    } = useForm<SignUpData>();
 
-    async function signIn() {
-        const user = await AuthService.signIn(
+    async function signUp(formData: SignUpData) {
+        const user = await AuthService.signUp(
             formData.email,
             formData.password,
+            formData.username,
             userService,
         );
         if (user) {
             sessionStorage.setItem("signedIn", user.username.toLowerCase());
             setUser(user);
-            navigate("Dashboard");
+            navigate("/Dashboard");
         }
     }
 
-    const handleInputChange = useHandleInputChange(setFormData);
-
     return (
         <div className="h-screen flex justify-center items-center">
-            <div className="Login flex justify-center items-center p-3">
-                <form
-                    onSubmit={(event) => {
-                        event.preventDefault();
-                        void signIn();
-                    }}
-                    className="my-auto"
-                >
+            <div className="Login flex justify-center items-center">
+                <form onSubmit={handleSubmit(signUp)} className="my-auto">
                     <h4 className="text-center">Login</h4>
                     <div className="my-3">
                         <TextField
-                            name="email"
                             type="email"
                             label="E-Mail"
-                            onChange={handleInputChange}
-                            value={formData.email}
+                            {...register("email")}
                         />
                     </div>
                     <div className="mb-3">
                         <TextField
-                            name="password"
                             type="password"
                             label="Password"
-                            onChange={handleInputChange}
-                            value={formData.password}
+                            {...register("password")}
+                        />
+                    </div>
+                    <div className="mb-3">
+                        <TextField
+                            type="password"
+                            label="Confirm Password"
+                            {...register("passwordConfirm")}
+                        />
+                    </div>
+                    <div className="mb-3">
+                        <TextField
+                            type="text"
+                            label="Username"
+                            {...register("username")}
                         />
                     </div>
 
