@@ -17,6 +17,7 @@ import { Contact as ContactModel } from "real-time-chat-backend/shared/contact.c
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 import { Avatar } from "../../../shared/Avatar";
+import { LOCAL_STORAGE_AUTH_KEY } from "../../../environment";
 
 export function TopSection() {
     const navigate = useNavigate();
@@ -132,7 +133,7 @@ export function TopSection() {
                     </MenuItem>
                     <MenuItem
                         onClick={() => {
-                            sessionStorage.removeItem("signedIn");
+                            localStorage.removeItem(LOCAL_STORAGE_AUTH_KEY);
                             navigate("/");
                         }}
                     >

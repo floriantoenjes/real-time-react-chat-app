@@ -4,6 +4,7 @@ import { useContext, useState } from "react";
 import { useHandleInputChange } from "../helpers";
 import { AuthService } from "../shared/services/AuthService";
 import { UserContext } from "../shared/contexts/UserContext";
+import { LOCAL_STORAGE_AUTH_KEY } from "../environment";
 
 export function Login(props: {}) {
     const navigate = useNavigate();
@@ -28,7 +29,10 @@ export function Login(props: {}) {
             userService,
         );
         if (user) {
-            sessionStorage.setItem("signedIn", user.username.toLowerCase());
+            localStorage.setItem(
+                LOCAL_STORAGE_AUTH_KEY,
+                user.username.toLowerCase(),
+            );
             setUser(user);
             navigate("Dashboard");
         }

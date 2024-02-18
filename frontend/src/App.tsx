@@ -6,7 +6,7 @@ import { Dashboard } from "./dashboard/Dashboard";
 import { io, Socket } from "socket.io-client";
 import { SocketContext } from "./shared/contexts/SocketContext";
 import { UserContext } from "./shared/contexts/UserContext";
-import { BACKEND_URL } from "./environment";
+import { BACKEND_URL, LOCAL_STORAGE_AUTH_KEY } from "./environment";
 import { UserService } from "./shared/services/UserService";
 import { User } from "real-time-chat-backend/shared/user.contract";
 import { AuthService } from "./shared/services/AuthService";
@@ -33,9 +33,9 @@ function App() {
         // eslint-disable-next-line
     }, [user?.username]);
 
-    if (!user && !!sessionStorage.getItem("signedIn")) {
+    if (!user && !!localStorage.getItem(LOCAL_STORAGE_AUTH_KEY)) {
         AuthService.signIn(
-            sessionStorage.getItem("signedIn") + "@email.com",
+            localStorage.getItem(LOCAL_STORAGE_AUTH_KEY) + "@email.com",
             "password",
             new UserService(),
         ).then((user) => {
