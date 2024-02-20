@@ -61,6 +61,10 @@ export class UserService {
             params: { userId },
         })) as any;
 
-        return btoa(String.fromCharCode(...new Uint8Array(res.body.data)));
+        return btoa(
+            new Uint8Array(res.body.data).reduce(function (data, byte) {
+                return data + String.fromCharCode(byte);
+            }, ""),
+        );
     }
 }
