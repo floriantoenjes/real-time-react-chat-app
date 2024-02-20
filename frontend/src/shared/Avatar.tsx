@@ -1,7 +1,12 @@
 import { User } from "@t/user.contract";
 import { useEffect } from "react";
 
-export function Avatar(props: { width?: string; height?: string; user: User }) {
+export function Avatar(props: {
+    width?: string;
+    height?: string;
+    user: User;
+    squared?: boolean;
+}) {
     useEffect(() => {
         console.log(props.user?.avatarBase64);
     }, [props.user?.avatarBase64?.current]);
@@ -17,7 +22,10 @@ export function Avatar(props: { width?: string; height?: string; user: User }) {
             }}
         >
             <img
-                style={{ maxHeight: "100%", borderRadius: "50%" }}
+                style={{
+                    maxHeight: "100%",
+                    borderRadius: props.squared ? "" : "50%",
+                }}
                 // src={ : undefined}
                 src={
                     props.user?.avatarBase64?.current

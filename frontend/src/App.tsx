@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+    Dispatch,
+    SetStateAction,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 import "./App.css";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { Login } from "./login/Login";
@@ -12,7 +18,7 @@ import { User } from "real-time-chat-backend/shared/user.contract";
 import { AuthService } from "./shared/services/AuthService";
 import { Register } from "./register/Register";
 
-let setUserTest;
+let setUserWithAvatarBytes: any;
 
 function App() {
     const navigate = useNavigate();
@@ -41,23 +47,22 @@ function App() {
             "password",
             new UserService(),
         ).then((user) => {
-            if (user && setUserTest) {
-                setUserTest(setUser)(user);
+            if (user && setUserWithAvatarBytes) {
+                setUserWithAvatarBytes(setUser)(user);
             }
         });
     }
 
     const av = useRef("");
 
-    if (!setUserTest) {
-        setUserTest = (stUser) => (user) => {
-            new UserService().loadAvatar(user._id).then((bytes) => {
-                console.log(user);
-                av.current = bytes;
-                stUser({ ...user, avatarBase64: av });
-                console.log(user);
-            });
-        };
+    if (!setUserWithAvatarBytes) {
+        setUserWithAvatarBytes =
+            (setUser: Dispatch<SetStateAction<User>>) => (user: User) => {
+                new UserService().loadAvatar(user._id).then((bytes) => {
+                    av.current = bytes;
+                    setUser({ ...user, avatarBase64: av });
+                });
+            };
     }
 
     useEffect(() => {
@@ -68,7 +73,7 @@ function App() {
 
     return (
         <UserContext.Provider
-            value={[user, setUserTest(setUser), new UserService()]}
+            value={[user, setUserWithAvatarBytes(setUser), new UserService()]}
         >
             <SocketContext.Provider value={[socket, setSocket]}>
                 <Routes>

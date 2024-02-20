@@ -3,6 +3,7 @@ import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 import React, { useRef } from "react";
 import { useUserContext } from "../../../../shared/contexts/UserContext";
 import { Avatar } from "../../../../shared/Avatar";
+import { CheckIcon } from "@heroicons/react/16/solid";
 
 export function UserProfile(props: { toggleDrawer: any }) {
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -31,7 +32,12 @@ export function UserProfile(props: { toggleDrawer: any }) {
                     className={"mt-3 avatar bg-blue-400 w-48 h-48 rounded"}
                     onClick={() => fileInputRef.current?.click()}
                 >
-                    <Avatar user={user} width={"12rem"} height={"12rem"} />
+                    <Avatar
+                        user={user}
+                        width={"12rem"}
+                        height={"12rem"}
+                        squared={true}
+                    />
                 </div>
                 <input
                     type="file"
@@ -40,8 +46,10 @@ export function UserProfile(props: { toggleDrawer: any }) {
                     onChange={handleAvatarSubmit}
                 />
                 <div className={"w-full"}>
-                    <div className={"mt-auto mb-5"}>
-                        <Fab>Save</Fab>
+                    <div className={"mt-auto mb-5 text-center"}>
+                        <Fab>
+                            <CheckIcon className={"w-8"} />
+                        </Fab>
                     </div>
                 </div>
             </div>
