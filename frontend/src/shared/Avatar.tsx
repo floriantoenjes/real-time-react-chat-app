@@ -1,8 +1,11 @@
-export function Avatar(props: {
-    width?: string;
-    height?: string;
-    filename?: string;
-}) {
+import { User } from "@t/user.contract";
+import { useEffect } from "react";
+
+export function Avatar(props: { width?: string; height?: string; user: User }) {
+    useEffect(() => {
+        console.log(props.user?.avatarBase64);
+    }, [props.user?.avatarBase64?.current]);
+
     return (
         <div
             className={"mr-3 flex justify-center items-center"}
@@ -14,8 +17,13 @@ export function Avatar(props: {
             }}
         >
             <img
-                style={{ maxHeight: "100%" }}
-                src={props.filename ? "avatars/" + props.filename : undefined}
+                style={{ maxHeight: "100%", borderRadius: "50%" }}
+                // src={ : undefined}
+                src={
+                    props.user?.avatarBase64?.current
+                        ? `data:image/jpg;base64,${props.user?.avatarBase64?.current}`
+                        : "avatars/" + props.user?.avatarFileName ?? ""
+                }
             />
         </div>
     );

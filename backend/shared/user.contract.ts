@@ -13,6 +13,7 @@ export const UserSchema = z.object({
   contacts: z.array(ContactSchema),
   contactGroups: z.array(ContactGroupSchema),
   avatarFileName: z.string().optional(),
+  avatarBase64: z.any().optional(),
 });
 
 export type User = z.infer<typeof UserSchema>;
@@ -51,5 +52,24 @@ export const userContract = c.router({
     },
     body: z.object({ username: z.string() }),
     summary: 'Search for a user by its id',
+  },
+  uploadAvatar: {
+    method: 'POST',
+    path: '/users/avatar',
+    contentType: 'multipart/form-data',
+    responses: {
+      201: z.boolean(),
+    },
+    body: c.type<{ avatar: File; userId: string }>(),
+    summary: 'Upload user avatar',
+  },
+  loadAvatar: {
+    method: 'GET',
+    path: '/users/avatar/:userId',
+    pathParams: z.object({ userId: z.string() }),
+    responses: {
+      200: c.type<Uint8Array>(),
+    },
+    summary: 'Get the users avatar',
   },
 });

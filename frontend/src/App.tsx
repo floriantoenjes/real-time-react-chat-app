@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./App.css";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { Login } from "./login/Login";
@@ -11,6 +11,8 @@ import { UserService } from "./shared/services/UserService";
 import { User } from "real-time-chat-backend/shared/user.contract";
 import { AuthService } from "./shared/services/AuthService";
 import { Register } from "./register/Register";
+
+let setUserTest;
 
 function App() {
     const navigate = useNavigate();
@@ -39,15 +41,35 @@ function App() {
             "password",
             new UserService(),
         ).then((user) => {
-            if (user) {
-                setUser(user);
-                navigate("Dashboard");
+            if (user && setUserTest) {
+                setUserTest(setUser)(user);
             }
         });
     }
 
+    const av = useRef("");
+
+    if (!setUserTest) {
+        setUserTest = (stUser) => (user) => {
+            new UserService().loadAvatar(user._id).then((bytes) => {
+                console.log(user);
+                av.current = bytes;
+                stUser({ ...user, avatarBase64: av });
+                console.log(user);
+            });
+        };
+    }
+
+    useEffect(() => {
+        if (user?._id) {
+            navigate("/dashboard");
+        }
+    }, [user]);
+
     return (
-        <UserContext.Provider value={[user, setUser, new UserService()]}>
+        <UserContext.Provider
+            value={[user, setUserTest(setUser), new UserService()]}
+        >
             <SocketContext.Provider value={[socket, setSocket]}>
                 <Routes>
                     <Route path="/" element={<Login />} />

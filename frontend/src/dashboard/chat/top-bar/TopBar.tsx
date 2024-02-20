@@ -80,7 +80,7 @@ export function TopBar() {
                 </IconButton>
             </div>
             <div className={"flex items-center"}>
-                <Avatar filename={selectedContact?.avatarFileName} />
+                <Avatar user={user} />
                 <p>{selectedContact?.name}</p>
             </div>
             <div className={"flex"}>

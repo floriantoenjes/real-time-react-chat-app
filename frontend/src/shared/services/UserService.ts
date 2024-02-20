@@ -51,4 +51,16 @@ export class UserService {
 
         return false;
     }
+
+    async uploadAvatar(file: File, userId: string) {
+        await this.client.uploadAvatar({ body: { avatar: file, userId } });
+    }
+
+    async loadAvatar(userId: string) {
+        const res = (await this.client.loadAvatar({
+            params: { userId },
+        })) as any;
+
+        return btoa(String.fromCharCode(...new Uint8Array(res.body.data)));
+    }
 }

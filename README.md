@@ -22,6 +22,7 @@ The frontend...
 * is also written in TypeScript making use of React v18 as a framework.
 * uses the MUI material library components.
 * uses Tailwind CSS as a style library.
+* offers responsiveness to run on phone and web
 * is compiled with Vite for a fast development speed.
 
 Backend and frontend...
@@ -30,4 +31,4 @@ Backend and frontend...
 
 ### TODOs
 * Add remaining What's App functionality
-* Secure the app properly
+* Secure the app properly with JWTs

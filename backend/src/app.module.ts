@@ -13,6 +13,7 @@ import { UserService } from './services/user.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ConfigModule } from '@nestjs/config';
+import { ObjectStorageService } from './services/object-storage.service';
 
 @Module({
   imports: [
@@ -42,6 +43,11 @@ import { ConfigModule } from '@nestjs/config';
     UserController,
     ContactGroupController,
   ],
-  providers: [AppService, RealTimeChatGateway, UserService],
+  providers: [
+    AppService,
+    RealTimeChatGateway,
+    UserService,
+    ObjectStorageService,
+  ],
 })
 export class AppModule {}

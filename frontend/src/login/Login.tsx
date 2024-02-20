@@ -34,7 +34,7 @@ export function Login(props: {}) {
                 user.username.toLowerCase(),
             );
             setUser(user);
-            navigate("Dashboard");
+            navigate("/dashboard");
         }
     }
 
