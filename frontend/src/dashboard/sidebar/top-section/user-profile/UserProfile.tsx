@@ -7,14 +7,19 @@ import { CheckIcon } from "@heroicons/react/16/solid";
 
 export function UserProfile(props: { toggleDrawer: any }) {
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [user, , userService] = useUserContext();
+    const [user, setUser, userService] = useUserContext();
 
-    function handleAvatarSubmit(event: any) {
-        console.log(event.target.files[0]);
-        const formData = new FormData();
-        formData.append("file", event.target.files[0], "avatar");
+    let fileToUpload: File;
 
-        void userService.uploadAvatar(event.target.files[0], user._id);
+    function handleAvatarSubmit() {
+        void userService.uploadAvatar(fileToUpload, user._id).then(() => {
+            setUser(user);
+            props.toggleDrawer("left", false)();
+        });
+    }
+
+    function setFileToUpload(event: any) {
+        fileToUpload = event.target.files[0];
     }
 
     return (
@@ -43,11 +48,11 @@ export function UserProfile(props: { toggleDrawer: any }) {
                     type="file"
                     ref={fileInputRef}
                     hidden={true}
-                    onChange={handleAvatarSubmit}
+                    onChange={setFileToUpload}
                 />
                 <div className={"w-full"}>
                     <div className={"mt-auto mb-5 text-center"}>
-                        <Fab>
+                        <Fab onClick={handleAvatarSubmit}>
                             <CheckIcon className={"w-8"} />
                         </Fab>
                     </div>
