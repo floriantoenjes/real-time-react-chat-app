@@ -8,8 +8,8 @@ export class ObjectStorageService {
     this.s3 = new S3({
       endpoint: 'https://fra1.digitaloceanspaces.com',
       credentials: {
-        accessKeyId: 'DO00GPD6K8MQ3DKYATYJ',
-        secretAccessKey: 'o4Ic9l39HfZoKdvkI6OrK85MAZ8820lrKz09/5xqNO8',
+        accessKeyId: process.env.s3AcessKey ?? '',
+        secretAccessKey: process.env.s3SecretAccessKey ?? '',
       },
     });
   }
