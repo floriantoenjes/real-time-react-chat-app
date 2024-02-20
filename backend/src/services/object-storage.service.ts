@@ -8,7 +8,7 @@ export class ObjectStorageService {
     this.s3 = new S3({
       endpoint: 'https://fra1.digitaloceanspaces.com',
       credentials: {
-        accessKeyId: process.env.s3AcessKey ?? '',
+        accessKeyId: process.env.s3AccessKey ?? '',
         secretAccessKey: process.env.s3SecretAccessKey ?? '',
       },
     });
