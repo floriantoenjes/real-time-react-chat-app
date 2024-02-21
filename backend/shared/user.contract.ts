@@ -23,7 +23,7 @@ export const userContract = c.router({
     method: 'POST',
     path: '/login',
     responses: {
-      200: UserSchema,
+      200: z.object({ user: UserSchema, access_token: z.string() }),
     },
     body: z.object({
       email: z.string().email(),

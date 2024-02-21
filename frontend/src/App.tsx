@@ -15,7 +15,6 @@ import { UserContext } from "./shared/contexts/UserContext";
 import { BACKEND_URL, LOCAL_STORAGE_AUTH_KEY } from "./environment";
 import { UserService } from "./shared/services/UserService";
 import { User } from "real-time-chat-backend/shared/user.contract";
-import { AuthService } from "./shared/services/AuthService";
 import { Register } from "./register/Register";
 
 let setUserWithAvatarBytes: any;
@@ -42,15 +41,15 @@ function App() {
     }, [user?.username]);
 
     if (!user && !!localStorage.getItem(LOCAL_STORAGE_AUTH_KEY)) {
-        AuthService.signIn(
-            localStorage.getItem(LOCAL_STORAGE_AUTH_KEY) + "@email.com",
-            "password",
-            new UserService(),
-        ).then((user) => {
-            if (user && setUserWithAvatarBytes) {
-                setUserWithAvatarBytes(setUser)(user);
-            }
-        });
+        // AuthService.refresh(
+        //     localStorage.getItem(LOCAL_STORAGE_AUTH_KEY) + "@email.com",
+        //     "password",
+        //     new UserService(),
+        // ).then((user) => {
+        //     if (user && setUserWithAvatarBytes) {
+        //         setUserWithAvatarBytes(setUser)(user);
+        //     }
+        // });
     }
 
     const av = useRef("");

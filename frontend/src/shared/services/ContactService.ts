@@ -1,5 +1,5 @@
 import { initClient } from "@ts-rest/core";
-import { BACKEND_URL } from "../../environment";
+import { BACKEND_URL, LOCAL_STORAGE_AUTH_KEY } from "../../environment";
 import { Contact, contactContract } from "@t/contact.contract";
 
 export class ContactService {
@@ -8,7 +8,10 @@ export class ContactService {
     constructor() {
         this.client = initClient(contactContract, {
             baseUrl: BACKEND_URL,
-            baseHeaders: {},
+            baseHeaders: {
+                Authorization:
+                    "Bearer " + localStorage.getItem(LOCAL_STORAGE_AUTH_KEY),
+            },
         });
     }
 

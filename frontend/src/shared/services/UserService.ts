@@ -1,5 +1,5 @@
 import { initClient } from "@ts-rest/core";
-import { BACKEND_URL } from "../../environment";
+import { BACKEND_URL, LOCAL_STORAGE_AUTH_KEY } from "../../environment";
 import { User, userContract } from "@t/user.contract";
 
 export class UserService {
@@ -8,11 +8,17 @@ export class UserService {
     constructor() {
         this.client = initClient(userContract, {
             baseUrl: BACKEND_URL,
-            baseHeaders: {},
+            baseHeaders: {
+                Authorization:
+                    "Bearer " + localStorage.getItem(LOCAL_STORAGE_AUTH_KEY),
+            },
         });
     }
 
-    async signIn(email: string, password: string): Promise<User | false> {
+    async signIn(
+        email: string,
+        password: string,
+    ): Promise<{ user: User; access_token: string } | false> {
         const res = await this.client.signIn({
             body: { email, password },
         });

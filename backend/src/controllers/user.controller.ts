@@ -28,10 +28,7 @@ export class UserController {
   @Public()
   async signIn() {
     return tsRestHandler(userContract.signIn, async ({ body }) => {
-      return this.userService.findUserBy({
-        email: body.email,
-        password: body.password,
-      });
+      return this.userService.signIn(body.email, body.password);
     });
   }
 

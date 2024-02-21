@@ -7,9 +7,7 @@ export function Avatar(props: {
     user: User;
     squared?: boolean;
 }) {
-    useEffect(() => {
-        console.log(props.user?.avatarBase64);
-    }, [props.user?.avatarBase64?.current]);
+    useEffect(() => {}, [props.user?.avatarBase64?.current]);
 
     return (
         <div

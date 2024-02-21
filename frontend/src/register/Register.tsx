@@ -4,7 +4,6 @@ import { useContext } from "react";
 import { AuthService } from "../shared/services/AuthService";
 import { UserContext } from "../shared/contexts/UserContext";
 import { useForm } from "react-hook-form";
-import { LOCAL_STORAGE_AUTH_KEY } from "../environment";
 
 type SignUpData = {
     email: "";
@@ -32,10 +31,6 @@ export function Register(props: {}) {
             userService,
         );
         if (user) {
-            localStorage.setItem(
-                LOCAL_STORAGE_AUTH_KEY,
-                user.username.toLowerCase(),
-            );
             setUser(user);
             navigate("/Dashboard");
         }

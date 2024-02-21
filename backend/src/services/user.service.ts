@@ -21,7 +21,11 @@ export class UserService {
 
     const payload = { sub: res.body._id, username: res.body.username };
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      status: 200 as const,
+      body: {
+        user: res.body,
+        access_token: await this.jwtService.signAsync(payload),
+      },
     };
   }
 
