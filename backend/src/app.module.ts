@@ -14,6 +14,10 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ConfigModule } from '@nestjs/config';
 import { ObjectStorageService } from './services/object-storage.service';
+import { JwtModule } from '@nestjs/jwt';
+import { jwtConstants } from './services/constants';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './guards/auth.guard';
 
 @Module({
   imports: [
@@ -33,6 +37,13 @@ import { ObjectStorageService } from './services/object-storage.service';
       // { name: ContactGroup.name, schema: ContactGroupSchema },
       { name: UserEntity.name, schema: UserSchema },
     ]),
+    JwtModule.register({
+      global: true,
+      secret: jwtConstants.secret,
+      signOptions: {
+        expiresIn: '600s',
+      },
+    }),
   ],
   controllers: [
     AppController,
@@ -46,6 +57,10 @@ import { ObjectStorageService } from './services/object-storage.service';
     RealTimeChatGateway,
     UserService,
     ObjectStorageService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
   ],
 })
 export class AppModule {}

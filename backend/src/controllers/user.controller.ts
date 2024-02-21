@@ -15,6 +15,7 @@ import { userContract } from '../../shared/user.contract';
 import { UserService } from '../services/user.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ObjectStorageService } from '../services/object-storage.service';
+import { Public } from '../services/constants';
 
 @Controller()
 export class UserController {
@@ -24,6 +25,7 @@ export class UserController {
   ) {}
 
   @TsRestHandler(userContract.signIn)
+  @Public()
   async signIn() {
     return tsRestHandler(userContract.signIn, async ({ body }) => {
       return this.userService.findUserBy({
@@ -34,6 +36,7 @@ export class UserController {
   }
 
   @TsRestHandler(userContract.signUp)
+  @Public()
   async signUp() {
     return tsRestHandler(userContract.signUp, async ({ body }) => {
       return this.userService.createUser(
