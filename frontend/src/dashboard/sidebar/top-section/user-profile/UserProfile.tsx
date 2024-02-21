@@ -1,6 +1,6 @@
 import { Fab, IconButton } from "@mui/material";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { useUserContext } from "../../../../shared/contexts/UserContext";
 import { Avatar } from "../../../../shared/Avatar";
 import { CheckIcon } from "@heroicons/react/16/solid";
@@ -9,17 +9,24 @@ export function UserProfile(props: { toggleDrawer: any }) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [user, setUser, userService] = useUserContext();
 
-    let fileToUpload: File;
+    const [file, setFile] = useState<File>();
+
+    const [fileChanged, setFileChanged] = useState(false);
 
     function handleAvatarSubmit() {
-        void userService.uploadAvatar(fileToUpload, user._id).then(() => {
+        if (!file) {
+            return;
+        }
+
+        void userService.uploadAvatar(file, user._id).then(() => {
             setUser(user);
             props.toggleDrawer("left", false)();
         });
     }
 
     function setFileToUpload(event: any) {
-        fileToUpload = event.target.files[0];
+        setFileChanged(true);
+        setFile(event.target.files[0]);
     }
 
     return (
@@ -52,9 +59,11 @@ export function UserProfile(props: { toggleDrawer: any }) {
                 />
                 <div className={"w-full"}>
                     <div className={"mt-auto mb-5 text-center"}>
-                        <Fab onClick={handleAvatarSubmit}>
-                            <CheckIcon className={"w-8"} />
-                        </Fab>
+                        {fileChanged && (
+                            <Fab onClick={handleAvatarSubmit}>
+                                <CheckIcon className={"w-8"} />
+                            </Fab>
+                        )}
                     </div>
                 </div>
             </div>

@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { Avatar } from "../../../shared/Avatar";
 import { LOCAL_STORAGE_AUTH_KEY } from "../../../environment";
 import { UserProfile } from "./user-profile/UserProfile";
+import { GroupCreation } from "./group-creation/GroupCreation";
 
 export function TopSection() {
     const navigate = useNavigate();
@@ -28,8 +29,10 @@ export function TopSection() {
         right: false,
     });
 
+    const [section, setSection] = useState("");
+
     const toggleDrawer =
-        (anchor: string, open: boolean) =>
+        (anchor: string, open: boolean, section?: string) =>
         (event: React.KeyboardEvent | React.MouseEvent) => {
             handleClose();
             if (
@@ -41,11 +44,18 @@ export function TopSection() {
             }
 
             setState({ ...state, [anchor]: open });
+
+            if (section) {
+                setSection(section);
+            }
         };
 
     return (
         <div className={"flex items-center mb-3"}>
-            <div className={"ml-3"} onClick={toggleDrawer("left", true)}>
+            <div
+                className={"ml-3"}
+                onClick={toggleDrawer("left", true, "profile")}
+            >
                 <Avatar user={user} />
             </div>
             <div className={"block ml-auto mr-2"}>
@@ -53,7 +63,7 @@ export function TopSection() {
                     <ChevronDownIcon className={"w-8"} />
                 </IconButton>
                 <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-                    <MenuItem onClick={toggleDrawer("left", true)}>
+                    <MenuItem onClick={toggleDrawer("left", true, "group")}>
                         New group
                     </MenuItem>
                     <MenuItem
@@ -71,8 +81,12 @@ export function TopSection() {
                 open={state["left"]}
                 onClose={toggleDrawer("left", false)}
             >
-                {/*<GroupCreation user={user} toggleDrawer={toggleDrawer} />*/}
-                <UserProfile toggleDrawer={toggleDrawer} />
+                {section === "group" && (
+                    <GroupCreation user={user} toggleDrawer={toggleDrawer} />
+                )}
+                {section === "profile" && (
+                    <UserProfile toggleDrawer={toggleDrawer} />
+                )}
             </Drawer>
         </div>
     );
