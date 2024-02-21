@@ -17,9 +17,7 @@ import { ObjectStorageService } from './services/object-storage.service';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      ignoreEnvFile: true,
-    }),
+    ConfigModule.forRoot(),
     ServeStaticModule.forRoot({
       serveRoot: '/frontend',
       rootPath: join(__dirname, '..', '..', '..', 'frontend/dist'),

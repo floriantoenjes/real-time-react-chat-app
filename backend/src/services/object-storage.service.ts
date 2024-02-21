@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { S3 } from 'aws-sdk';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ObjectStorageService {
   private s3: S3;
-  constructor() {
+  constructor(readonly configService: ConfigService) {
     this.s3 = new S3({
       endpoint: 'https://fra1.digitaloceanspaces.com',
       credentials: {
-        accessKeyId: process.env.s3AccessKey ?? '',
-        secretAccessKey: process.env.s3SecretAccessKey ?? '',
+        accessKeyId: configService.get('S3_ACCESS_KEY_ID') ?? '',
+        secretAccessKey: configService.get('S3_SECRET_ACCESS_KEY') ?? '',
       },
     });
   }
