@@ -30,6 +30,18 @@ export class UserService {
         return false;
     }
 
+    async refresh(
+        accessToken: string,
+    ): Promise<{ user: User; access_token: string } | false> {
+        const res = await this.client.refresh({ body: { accessToken } });
+
+        if (res.status === 200) {
+            return res.body;
+        }
+
+        return false;
+    }
+
     async signUp(
         email: string,
         password: string,

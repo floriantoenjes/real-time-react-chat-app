@@ -31,6 +31,17 @@ export const userContract = c.router({
     }),
     summary: 'Sign in',
   },
+  refresh: {
+    method: 'POST',
+    path: '/refresh',
+    responses: {
+      200: z.object({ user: UserSchema, access_token: z.string() }),
+    },
+    body: z.object({
+      accessToken: z.string(),
+    }),
+    summary: 'Refresh sign in via JWT',
+  },
   signUp: {
     method: 'POST',
     path: '/register',

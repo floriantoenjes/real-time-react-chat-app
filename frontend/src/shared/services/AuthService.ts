@@ -12,6 +12,20 @@ export const AuthService = {
         return body.user;
     },
 
+    async refresh(userService: UserService) {
+        const jwt = localStorage.getItem(LOCAL_STORAGE_AUTH_KEY);
+        if (!jwt) {
+            return;
+        }
+        const res = await userService.refresh(jwt);
+        if (!res) {
+            return;
+        }
+        localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, res.access_token);
+
+        return res.user;
+    },
+
     async signUp(
         email: string,
         password: string,

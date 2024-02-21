@@ -29,6 +29,24 @@ export class UserService {
     };
   }
 
+  async refresh(accessToken: string) {
+    const decodedJwt = this.jwtService.decode(accessToken);
+
+    const res = await this.findUserBy({ username: decodedJwt.username });
+    if (!res.body) {
+      return res;
+    }
+
+    const payload = { sub: res.body._id, username: res.body.username };
+    return {
+      status: 200 as const,
+      body: {
+        user: res.body,
+        access_token: await this.jwtService.signAsync(payload),
+      },
+    };
+  }
+
   async findUserBy(filter: any) {
     const password = filter.password;
     delete filter.password;

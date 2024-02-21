@@ -16,6 +16,7 @@ import { BACKEND_URL, LOCAL_STORAGE_AUTH_KEY } from "./environment";
 import { UserService } from "./shared/services/UserService";
 import { User } from "real-time-chat-backend/shared/user.contract";
 import { Register } from "./register/Register";
+import { AuthService } from "./shared/services/AuthService";
 
 let setUserWithAvatarBytes: any;
 
@@ -40,17 +41,16 @@ function App() {
         // eslint-disable-next-line
     }, [user?.username]);
 
-    if (!user && !!localStorage.getItem(LOCAL_STORAGE_AUTH_KEY)) {
-        // AuthService.refresh(
-        //     localStorage.getItem(LOCAL_STORAGE_AUTH_KEY) + "@email.com",
-        //     "password",
-        //     new UserService(),
-        // ).then((user) => {
-        //     if (user && setUserWithAvatarBytes) {
-        //         setUserWithAvatarBytes(setUser)(user);
-        //     }
-        // });
-    }
+    useEffect(() => {
+        if (!user && !!localStorage.getItem(LOCAL_STORAGE_AUTH_KEY)) {
+            AuthService.refresh(new UserService()).then((user) => {
+                console.log(user);
+                if (user && setUserWithAvatarBytes) {
+                    setUserWithAvatarBytes(setUser)(user);
+                }
+            });
+        }
+    }, []);
 
     const av = useRef("");
 
