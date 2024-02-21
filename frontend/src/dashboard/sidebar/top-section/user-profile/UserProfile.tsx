@@ -8,9 +8,7 @@ import { CheckIcon } from "@heroicons/react/16/solid";
 export function UserProfile(props: { toggleDrawer: any }) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [user, setUser, userService] = useUserContext();
-
     const [file, setFile] = useState<File>();
-
     const [fileChanged, setFileChanged] = useState(false);
 
     function handleAvatarSubmit() {
