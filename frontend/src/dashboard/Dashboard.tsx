@@ -12,9 +12,15 @@ import { Contact } from "real-time-chat-backend/shared/contact.contract";
 import { Message } from "real-time-chat-backend/shared/message.contract";
 import { ContactGroupService } from "../shared/services/ContactGroupService";
 import { ContactGroup } from "real-time-chat-backend/shared/contact-group.contract";
+import { useUserContext } from "../shared/contexts/UserContext";
 
 export function Dashboard(props: { user?: User }) {
-    const contactService = useRef(new ContactService());
+    if (!props.user) {
+        return <Navigate to={"/"} />;
+    }
+
+    const [, , userService] = useUserContext();
+    const contactService = useRef(new ContactService(userService));
     const contactGroupService = useRef(new ContactGroupService());
     const [contacts, setContacts] = useState<Contact[]>([]);
     const [contactGroups, setContactGroups] = useState<ContactGroup[]>([]);
@@ -44,10 +50,6 @@ export function Dashboard(props: { user?: User }) {
             );
         })();
     }, [props.user, contactService]);
-
-    if (!props.user) {
-        return <Navigate to={"/"} />;
-    }
 
     return (
         <div className={"h-screen flex"}>

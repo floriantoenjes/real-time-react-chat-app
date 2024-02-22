@@ -27,8 +27,11 @@ export function Avatar(props: {
                 }}
                 // src={ : undefined}
                 src={
-                    props.user?.avatarBase64?.current
-                        ? `data:image/jpg;base64,${props.user?.avatarBase64?.current}`
+                    props.user?.avatarBase64
+                        ? `data:image/jpg;base64,${
+                              props.user?.avatarBase64?.current ??
+                              props.user.avatarBase64
+                          }`
                         : "avatars/" + props.user?.avatarFileName ?? ""
                 }
             />

@@ -9,7 +9,7 @@ export const ContactSchema = z.object({
   name: z.string(),
   lastMessage: MessageSchema.optional(),
   avatarFileName: z.string().optional(),
-  avatarBase64: z.string().optional(),
+  avatarBase64: z.any().optional(),
 });
 
 export type Contact = z.infer<typeof ContactSchema>;

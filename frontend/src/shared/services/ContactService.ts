@@ -1,11 +1,14 @@
 import { initClient } from "@ts-rest/core";
 import { BACKEND_URL, LOCAL_STORAGE_AUTH_KEY } from "../../environment";
 import { Contact, contactContract } from "@t/contact.contract";
+import { UserService } from "./UserService";
 
 export class ContactService {
     private client;
 
-    constructor() {
+    constructor(private readonly userService: UserService) {
+        this.userService = userService;
+
         this.client = initClient(contactContract, {
             baseUrl: BACKEND_URL,
             baseHeaders: {
@@ -16,10 +19,23 @@ export class ContactService {
     }
 
     async getContacts(userId: string): Promise<Contact[]> {
-        const messages = await this.client.getContacts({ body: { userId } });
+        const res = await this.client.getContacts({ body: { userId } });
 
-        if (messages.status === 200) {
-            return messages.body;
+        if (res.status === 200) {
+            let initializedContacts = [];
+            for (const contact of res.body) {
+                const avatarBase64 = await this.userService.loadAvatar(
+                    contact._id,
+                );
+                if (avatarBase64.length > 10) {
+                    contact.avatarBase64 = avatarBase64;
+                }
+
+                initializedContacts.push(contact);
+            }
+            console.log("initialized", initializedContacts);
+
+            return initializedContacts;
         }
 
         return [];
