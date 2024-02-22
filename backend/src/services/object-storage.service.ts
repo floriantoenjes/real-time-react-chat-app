@@ -9,8 +9,14 @@ export class ObjectStorageService {
     this.s3 = new S3({
       endpoint: 'https://fra1.digitaloceanspaces.com',
       credentials: {
-        accessKeyId: configService.get('S3_ACCESS_KEY_ID') ?? '',
-        secretAccessKey: configService.get('S3_SECRET_ACCESS_KEY') ?? '',
+        accessKeyId:
+          configService.get('S3_ACCESS_KEY_ID') ??
+          process.env.s3AccessKey ??
+          '',
+        secretAccessKey:
+          configService.get('S3_SECRET_ACCESS_KEY') ??
+          process.env.s3SecretAccessKey ??
+          '',
       },
     });
   }
