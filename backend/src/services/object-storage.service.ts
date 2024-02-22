@@ -8,6 +8,7 @@ export class ObjectStorageService {
   constructor(readonly configService: ConfigService) {
     this.s3 = new S3({
       endpoint: 'https://fra1.digitaloceanspaces.com',
+      region: 'fra1',
       credentials: {
         accessKeyId:
           configService.get('S3_ACCESS_KEY_ID') ??
