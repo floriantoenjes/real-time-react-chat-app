@@ -1,10 +1,11 @@
 import { User } from "@t/user.contract";
 import { useEffect } from "react";
+import { Contact } from "@t/contact.contract";
 
 export function Avatar(props: {
     width?: string;
     height?: string;
-    user: User;
+    user: User | Contact;
     squared?: boolean;
 }) {
     useEffect(() => {}, [props.user?.avatarBase64?.current]);
