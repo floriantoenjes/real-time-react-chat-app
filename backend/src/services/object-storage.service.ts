@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { S3 } from 'aws-sdk';
+import { S3 } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -20,14 +20,18 @@ export class ObjectStorageService {
       },
     });
   }
-  async uploadFile(buffer: Buffer, filename: string): Promise<string> {
+  async uploadFile(
+    buffer: Buffer,
+    filename: string,
+  ): Promise<string | undefined> {
     const params = {
       Bucket: 'florians-realtime-chat-bucket',
       Key: filename,
       Body: buffer,
     };
-    const { Location } = await this.s3.upload(params).promise();
-    return Location;
+    const res = await this.s3.putObject(params);
+
+    return res?.VersionId;
   }
 
   async loadFile(fileName: string) {
@@ -35,8 +39,8 @@ export class ObjectStorageService {
       Bucket: 'florians-realtime-chat-bucket',
       Key: fileName,
     };
-    const res = await this.s3.getObject(params).promise();
+    const res = await this.s3.getObject(params);
 
-    return res.Body as Uint8Array;
+    return res.Body?.transformToByteArray();
   }
 }

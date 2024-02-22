@@ -80,7 +80,10 @@ export class UserService {
         })) as any;
 
         return btoa(
-            new Uint8Array(res.body.data).reduce(function (data, byte) {
+            new Uint8Array(Object.values(res.body)).reduce(function (
+                data,
+                byte,
+            ) {
                 return data + String.fromCharCode(byte);
             }, ""),
         );
