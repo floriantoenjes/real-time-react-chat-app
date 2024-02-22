@@ -51,13 +51,17 @@ export class UserService {
     const password = filter.password;
     delete filter.password;
 
-    let user = await this.userModel.findOne(filter);
+    let user = await this.userModel.findOne(filter).select('+password');
     if (
       user &&
       password !== undefined &&
       !(await bcrypt.compare(password, user.password))
     ) {
       user = null;
+    }
+
+    if (user) {
+      user.password = '';
     }
 
     return this.returnUserOrNotFound(user);
