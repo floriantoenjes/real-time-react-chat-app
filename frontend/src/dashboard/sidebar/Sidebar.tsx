@@ -37,9 +37,15 @@ export function Sidebar() {
                 return;
             }
 
-            setUsers(users.filter((u) => u._id !== user._id));
+            setUsers(
+                users.filter(
+                    (u) =>
+                        u._id !== user._id &&
+                        !userContacts.find((uc) => uc._id === u._id),
+                ),
+            );
         });
-    }, []);
+    }, [userContacts]);
 
     function contactList() {
         return userContacts
