@@ -26,9 +26,9 @@ The frontend...
 * is compiled with Vite for a fast development speed.
 
 Backend and frontend...
+* are secured via JWTs
 * communicate via REST with typesafe communication via ts-rest, a tRPC like communications contract between frontend and backend.
 * are processing real time updates with WebSocket connections via socket.io server and client.
 
 ### TODOs
 * Add remaining What's App functionality
-* Secure the app properly with JWTs
