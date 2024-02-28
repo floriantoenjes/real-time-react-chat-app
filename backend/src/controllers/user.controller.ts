@@ -24,6 +24,13 @@ export class UserController {
     private readonly objectStorageService: ObjectStorageService,
   ) {}
 
+  @TsRestHandler(userContract.getAll)
+  async getAll() {
+    return tsRestHandler(userContract.getAll, async () => {
+      return this.userService.findUsersBy();
+    });
+  }
+
   @TsRestHandler(userContract.signIn)
   @Public()
   async signIn() {

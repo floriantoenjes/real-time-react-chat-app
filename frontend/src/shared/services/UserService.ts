@@ -15,6 +15,16 @@ export class UserService {
         });
     }
 
+    async getUsers() {
+        const res = await this.client.getAll();
+
+        if (res.status === 200) {
+            return res.body;
+        }
+
+        return false;
+    }
+
     async signIn(
         email: string,
         password: string,

@@ -1,6 +1,6 @@
 import { IconButton, TextField } from "@mui/material";
 import { MicrophoneIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { useContext, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { checkEnterPressed, useHandleInputChange } from "../../../helpers";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
@@ -15,6 +15,8 @@ export function SendMessageBar() {
     const [messages, setMessages, messageService] = useContext(MessageContext);
 
     const handleInputChange = useHandleInputChange(setFormData);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [file, setFile] = useState<File>();
 
     async function sendOnEnterPressed(event: any) {
         if (checkEnterPressed(event) && formData?.message.trim().length) {
@@ -46,14 +48,25 @@ export function SendMessageBar() {
         }
     }
 
+    function setFileToUpload(event: any) {
+        setFile(event.target.files[0]);
+        console.log(file);
+    }
+
     return (
         <div
             className={"send-message-bar fixed bottom-0 bg-white p-3 flex"}
             style={{ minWidth: "calc(100% - 375px)", width: "100%" }}
         >
-            <IconButton>
+            <IconButton onClick={() => fileInputRef.current?.click()}>
                 <PlusIcon className={"w-8"} />
             </IconButton>
+            <input
+                type="file"
+                ref={fileInputRef}
+                hidden={true}
+                onChange={setFileToUpload}
+            />
             <TextField
                 className={"w-full"}
                 label={"Gib eine Nachricht ein."}

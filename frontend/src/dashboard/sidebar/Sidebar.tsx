@@ -1,15 +1,16 @@
-import { Button, TextField } from "@mui/material";
+import { Autocomplete, Button, TextField } from "@mui/material";
 import {
     ArrowDownOnSquareIcon,
     FunnelIcon,
     MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ContactsContext } from "../../shared/contexts/ContactsContext";
 import { checkEnterPressed, useHandleInputChange } from "../../helpers";
 import { useUserContext } from "../../shared/contexts/UserContext";
 import { Contact } from "../../shared/Contact";
 import { TopSection } from "./top-section/TopSection";
+import { User } from "@t/user.contract";
 
 export function Sidebar() {
     const [user, , userService] = useUserContext();
@@ -26,7 +27,19 @@ export function Sidebar() {
         contactName: "",
     });
 
+    const [users, setUsers] = useState<User[]>([]);
+
     const handleInputChange = useHandleInputChange(setFormData);
+
+    useEffect(() => {
+        userService.getUsers().then((users) => {
+            if (!users) {
+                return;
+            }
+
+            setUsers(users.filter((u) => u._id !== user._id));
+        });
+    }, []);
 
     function contactList() {
         return userContacts
@@ -77,20 +90,28 @@ export function Sidebar() {
             <TopSection />
 
             <div className={"flex"}>
-                <TextField
+                <Autocomplete
+                    options={users.map((u) => u.username)}
+                    onSelect={handleInputChange}
                     className={"w-full"}
-                    label={
-                        <div>
-                            <MagnifyingGlassIcon
-                                className={"w-4 inline mr-2"}
-                            />
-                            Suchen oder neuen Chat beginnen
-                        </div>
-                    }
                     value={formData.contactName}
-                    onChange={handleInputChange}
+                    freeSolo={true}
+                    isOptionEqualToValue={(option, value) => option === value}
+                    renderInput={(params) => (
+                        <TextField
+                            name={"contactName"}
+                            {...params}
+                            label={
+                                <div>
+                                    <MagnifyingGlassIcon
+                                        className={"w-4 inline mr-2"}
+                                    />
+                                    Suchen oder neuen Chat beginnen
+                                </div>
+                            }
+                        />
+                    )}
                     onKeyUp={addContact}
-                    name={"contactName"}
                 />
 
                 <div className={"border"}>

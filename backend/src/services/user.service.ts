@@ -13,6 +13,11 @@ export class UserService {
     private readonly jwtService: JwtService,
   ) {}
 
+  async findUsersBy(filter?: any) {
+    let users = await this.userModel.find(filter ?? {});
+    return this.returnEntityOrNotFound<User[]>(users);
+  }
+
   async signIn(email: string, password: string) {
     const res = await this.findUserBy({ email, password });
     if (!res.body) {
@@ -64,7 +69,7 @@ export class UserService {
       user.password = '';
     }
 
-    return this.returnUserOrNotFound(user);
+    return this.returnEntityOrNotFound(user);
   }
 
   async createUser(email: string, password: string, username: string) {
@@ -84,8 +89,8 @@ export class UserService {
     return { status: 201 as const, body: createdUser };
   }
 
-  private returnUserOrNotFound(user: User | null) {
-    if (!user) {
+  private returnEntityOrNotFound<T>(entity: T | null) {
+    if (!entity) {
       return {
         status: 404 as const,
         body: null,
@@ -94,7 +99,7 @@ export class UserService {
 
     return {
       status: 200 as const,
-      body: user,
+      body: entity,
     };
   }
 }

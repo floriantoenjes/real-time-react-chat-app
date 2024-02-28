@@ -19,6 +19,14 @@ export const UserSchema = z.object({
 export type User = z.infer<typeof UserSchema>;
 
 export const userContract = c.router({
+  getAll: {
+    method: 'GET',
+    path: '/users',
+    responses: {
+      200: z.array(UserSchema),
+    },
+    summary: 'Get all users',
+  },
   signIn: {
     method: 'POST',
     path: '/login',

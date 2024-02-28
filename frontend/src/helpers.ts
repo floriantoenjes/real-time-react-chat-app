@@ -1,9 +1,7 @@
 export function useHandleInputChange<FormState>(
     setFormData: React.Dispatch<React.SetStateAction<FormState>>,
 ) {
-    const handleInputChange = (
-        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    ) => {
+    const handleInputChange = (event: any) => {
         const { name, value } = event.target;
         setFormData((prevFormData) => ({
             ...prevFormData,
