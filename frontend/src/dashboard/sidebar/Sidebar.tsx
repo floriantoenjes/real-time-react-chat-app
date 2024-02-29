@@ -6,7 +6,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useContext, useEffect, useState } from "react";
 import { ContactsContext } from "../../shared/contexts/ContactsContext";
-import { checkEnterPressed, useHandleInputChange } from "../../helpers";
+import { useHandleInputChange } from "../../helpers";
 import { useUserContext } from "../../shared/contexts/UserContext";
 import { Contact } from "../../shared/Contact";
 import { TopSection } from "./top-section/TopSection";
@@ -30,6 +30,8 @@ export function Sidebar() {
     const [users, setUsers] = useState<User[]>([]);
 
     const handleInputChange = useHandleInputChange(setFormData);
+
+    const [autoCompleteKey, setAutoCompleteKey] = useState<boolean>(false);
 
     useEffect(() => {
         userService.getUsers().then((users) => {
@@ -60,13 +62,21 @@ export function Sidebar() {
             ));
     }
 
-    async function addContact(event: any) {
-        if (!checkEnterPressed(event)) {
+    async function addContact(evt: any) {
+        if (
+            !users
+                .map((u) => u.username)
+                .includes(
+                    !!evt.target.value
+                        ? evt.target.value
+                        : evt.target.textContent ?? "",
+                )
+        ) {
             return;
         }
 
         const searchedUser = await userService.searchForUserByUsername(
-            formData.contactName,
+            !!evt.target.value ? evt.target.value : evt.target.textContent,
         );
         if (!searchedUser) {
             return;
@@ -84,6 +94,7 @@ export function Sidebar() {
         });
 
         setFormData({ contactName: "" });
+        setAutoCompleteKey(!autoCompleteKey);
     }
 
     return (
@@ -98,15 +109,21 @@ export function Sidebar() {
             <div className={"flex"}>
                 <Autocomplete
                     options={users.map((u) => u.username)}
-                    onSelect={handleInputChange}
+                    onChange={(evt) => {
+                        setFormData({
+                            contactName: (evt.target as any).textValue,
+                        });
+                        void addContact(evt);
+                    }}
+                    key={"" + autoCompleteKey}
                     className={"w-full"}
-                    value={formData.contactName}
                     freeSolo={true}
                     isOptionEqualToValue={(option, value) => option === value}
                     renderInput={(params) => (
                         <TextField
                             name={"contactName"}
                             {...params}
+                            onInput={handleInputChange}
                             label={
                                 <div>
                                     <MagnifyingGlassIcon
@@ -117,7 +134,6 @@ export function Sidebar() {
                             }
                         />
                     )}
-                    onKeyUp={addContact}
                 />
 
                 <div className={"border"}>

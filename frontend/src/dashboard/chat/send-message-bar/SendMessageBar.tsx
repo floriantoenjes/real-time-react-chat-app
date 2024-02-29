@@ -75,7 +75,7 @@ export function SendMessageBar() {
                 name={"message"}
                 onChange={handleInputChange}
                 multiline={true}
-                inputRef={(input) => input && input.focus()}
+                // inputRef={(input) => input && input.focus()}
             ></TextField>
             <IconButton>
                 <MicrophoneIcon className={"w-8"} />
