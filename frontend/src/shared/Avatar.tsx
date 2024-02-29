@@ -20,21 +20,24 @@ export function Avatar(props: {
                 borderRadius: "50%",
             }}
         >
-            <img
-                style={{
-                    maxHeight: "100%",
-                    borderRadius: props.squared ? "" : "50%",
-                }}
-                // src={ : undefined}
-                src={
-                    props.user?.avatarBase64
-                        ? `data:image/jpg;base64,${
-                              props.user?.avatarBase64?.current ??
-                              props.user.avatarBase64
-                          }`
-                        : "avatars/" + props.user?.avatarFileName ?? ""
-                }
-            />
+            {props.user.avatarBase64 ||
+                (props.user.avatarFileName && (
+                    <img
+                        style={{
+                            maxHeight: "100%",
+                            borderRadius: props.squared ? "" : "50%",
+                        }}
+                        // src={ : undefined}
+                        src={
+                            props.user?.avatarBase64
+                                ? `data:image/jpg;base64,${
+                                      props.user?.avatarBase64?.current ??
+                                      props.user.avatarBase64
+                                  }`
+                                : "avatars/" + props.user?.avatarFileName ?? ""
+                        }
+                    />
+                ))}
         </div>
     );
 }

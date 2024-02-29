@@ -98,10 +98,15 @@ export class UserController {
     @UploadedFile() avatar: Express.Multer.File,
     @Body() body: { userId: string },
   ) {
-    await this.objectStorageService.uploadFile(
-      avatar.buffer,
-      body.userId.replaceAll('"', '') + '_avatar',
-    );
+    body.userId = body.userId.replaceAll('"', '');
+    const fileName = body.userId + '_avatar';
+
+    await this.objectStorageService.uploadFile(avatar.buffer, fileName);
+
+    await this.userService.updateUser({
+      _id: body.userId,
+      avatarFileName: fileName,
+    });
 
     return {
       status: 200 as const,

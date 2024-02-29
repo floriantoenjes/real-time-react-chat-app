@@ -44,7 +44,6 @@ function App() {
     useEffect(() => {
         if (!user && !!localStorage.getItem(LOCAL_STORAGE_AUTH_KEY)) {
             AuthService.refresh(new UserService()).then((user) => {
-                console.log(user);
                 if (user && setUserWithAvatarBytes) {
                     setUserWithAvatarBytes(setUser)(user);
                 }
@@ -57,6 +56,10 @@ function App() {
     if (!setUserWithAvatarBytes) {
         setUserWithAvatarBytes =
             (setUser: Dispatch<SetStateAction<User>>) => (user: User) => {
+                if (!user.avatarFileName?.startsWith(user._id)) {
+                    setUser(user);
+                    return;
+                }
                 new UserService().loadAvatar(user._id).then((bytes) => {
                     av.current = bytes;
                     setUser({ ...user, avatarBase64: av });

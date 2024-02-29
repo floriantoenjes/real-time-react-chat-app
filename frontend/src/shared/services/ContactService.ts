@@ -24,6 +24,10 @@ export class ContactService {
         if (res.status === 200) {
             let initializedContacts = [];
             for (const contact of res.body) {
+                if (!contact.avatarFileName?.startsWith(contact._id)) {
+                    initializedContacts.push(contact);
+                    continue;
+                }
                 const avatarBase64 = await this.userService.loadAvatar(
                     contact._id,
                 );

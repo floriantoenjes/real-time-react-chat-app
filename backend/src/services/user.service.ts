@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '../../shared/user.contract';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { UserEntity } from '../schemas/user.schema';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -87,6 +87,17 @@ export class UserService {
     }
 
     return { status: 201 as const, body: createdUser };
+  }
+
+  async updateUser(userPartial: Partial<User>) {
+    const res = await this.findUserBy({
+      _id: new Types.ObjectId(userPartial._id),
+    });
+    if (res.status === 404) {
+      return res;
+    }
+
+    return this.userModel.updateOne({ _id: userPartial._id }, userPartial);
   }
 
   private returnEntityOrNotFound<T>(entity: T | null) {
