@@ -2,8 +2,9 @@ import { Fab, IconButton } from "@mui/material";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 import React, { useRef, useState } from "react";
 import { useUserContext } from "../../../../shared/contexts/UserContext";
-import { Avatar } from "../../../../shared/Avatar";
 import { CheckIcon } from "@heroicons/react/16/solid";
+import Cropper, { Area, Point } from "react-easy-crop";
+import { Avatar } from "../../../../shared/Avatar";
 
 export function UserProfile(props: { toggleDrawer: any }) {
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -11,15 +12,32 @@ export function UserProfile(props: { toggleDrawer: any }) {
     const [file, setFile] = useState<File>();
     const [fileChanged, setFileChanged] = useState(false);
 
+    const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
+    const [zoom, setZoom] = useState(1);
+
+    const [croppedArea, setCroppedArea] = useState<Area>();
+    const onCropComplete = (croppedArea: Area, croppedAreaPixels: Area) => {
+        setCroppedArea(croppedAreaPixels);
+    };
+
     function handleAvatarSubmit() {
-        if (!file) {
+        if (!file || !croppedArea) {
             return;
         }
 
-        void userService.uploadAvatar(file, user._id).then(() => {
-            setUser(user);
-            props.toggleDrawer("left", false)();
-        });
+        void userService
+            .uploadAvatar(
+                file,
+                croppedArea.x,
+                croppedArea.y,
+                croppedArea.width,
+                croppedArea.height,
+                user._id,
+            )
+            .then(() => {
+                setUser(user);
+                props.toggleDrawer("left", false)();
+            });
     }
 
     function setFileToUpload(event: any) {
@@ -49,6 +67,19 @@ export function UserProfile(props: { toggleDrawer: any }) {
                         squared={true}
                     />
                 </div>
+                {fileInputRef.current?.files?.[0] && (
+                    <Cropper
+                        image={URL.createObjectURL(
+                            fileInputRef.current.files[0],
+                        )}
+                        crop={crop}
+                        zoom={zoom}
+                        aspect={1}
+                        onCropChange={setCrop}
+                        onCropComplete={onCropComplete}
+                        onZoomChange={setZoom}
+                    />
+                )}
                 <input
                     type="file"
                     ref={fileInputRef}

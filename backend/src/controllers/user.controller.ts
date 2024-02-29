@@ -16,6 +16,7 @@ import { UserService } from '../services/user.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ObjectStorageService } from '../services/object-storage.service';
 import { Public } from '../services/constants';
+import Jimp from 'jimp';
 
 @Controller()
 export class UserController {
@@ -96,12 +97,30 @@ export class UserController {
     @TsRestRequest()
     {}: NestRequestShapes<typeof userContract>['uploadAvatar'],
     @UploadedFile() avatar: Express.Multer.File,
-    @Body() body: { userId: string },
+    @Body()
+    body: {
+      userId: string;
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    },
   ) {
     body.userId = body.userId.replaceAll('"', '');
     const fileName = body.userId + '_avatar';
 
-    await this.objectStorageService.uploadFile(avatar.buffer, fileName);
+    async function crop(image: Jimp) {
+      // Read the image.
+      image.crop(+body.x, +body.y, +body.width, +body.height);
+      // Save and overwrite the image
+    }
+    const img = await Jimp.read(avatar.buffer);
+    await crop(img);
+
+    await this.objectStorageService.uploadFile(
+      await img.getBufferAsync(Jimp.MIME_JPEG),
+      fileName,
+    );
 
     await this.userService.updateUser({
       _id: body.userId,

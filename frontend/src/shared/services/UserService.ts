@@ -80,8 +80,17 @@ export class UserService {
         return false;
     }
 
-    async uploadAvatar(file: File, userId: string) {
-        await this.client.uploadAvatar({ body: { avatar: file, userId } });
+    async uploadAvatar(
+        file: File,
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        userId: string,
+    ) {
+        await this.client.uploadAvatar({
+            body: { avatar: file, userId, x, y, width, height },
+        });
     }
 
     async loadAvatar(userId: string) {

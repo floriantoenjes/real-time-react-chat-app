@@ -79,7 +79,14 @@ export const userContract = c.router({
     responses: {
       201: z.boolean(),
     },
-    body: c.type<{ avatar: File; userId: string }>(),
+    body: c.type<{
+      avatar: File;
+      userId: string;
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    }>(),
     summary: 'Upload user avatar',
   },
   loadAvatar: {
