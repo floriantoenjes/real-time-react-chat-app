@@ -5,10 +5,11 @@ import { useUserContext } from "../../../../shared/contexts/UserContext";
 import { CheckIcon } from "@heroicons/react/16/solid";
 import Cropper, { Area, Point } from "react-easy-crop";
 import { Avatar } from "../../../../shared/Avatar";
+import { useDiContext } from "../../../../shared/contexts/DiContext";
 
 export function UserProfile(props: { toggleDrawer: any }) {
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [user, setUser, userService] = useUserContext();
+    const [user, setUser] = useUserContext();
     const [file, setFile] = useState<File>();
     const [fileChanged, setFileChanged] = useState(false);
 
@@ -19,6 +20,7 @@ export function UserProfile(props: { toggleDrawer: any }) {
     const onCropComplete = (croppedArea: Area, croppedAreaPixels: Area) => {
         setCroppedArea(croppedAreaPixels);
     };
+    const userService = useDiContext().UserService;
 
     function handleAvatarSubmit() {
         if (!file || !croppedArea) {

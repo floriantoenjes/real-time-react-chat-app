@@ -1,9 +1,9 @@
 import { Button, TextField } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useContext } from "react";
-import { AuthService } from "../shared/services/AuthService";
 import { UserContext } from "../shared/contexts/UserContext";
 import { useForm } from "react-hook-form";
+import { useDiContext } from "../shared/contexts/DiContext";
 
 type SignUpData = {
     email: "";
@@ -14,7 +14,8 @@ type SignUpData = {
 
 export function Register(props: {}) {
     const navigate = useNavigate();
-    const [, setUser, userService] = useContext(UserContext);
+    const [, setUser] = useContext(UserContext);
+    const authService = useDiContext().AuthService;
 
     const {
         register,
@@ -24,11 +25,10 @@ export function Register(props: {}) {
     } = useForm<SignUpData>();
 
     async function signUp(formData: SignUpData) {
-        const user = await AuthService.signUp(
+        const user = await authService.signUp(
             formData.email,
             formData.password,
             formData.username,
-            userService,
         );
         if (user) {
             setUser(user);

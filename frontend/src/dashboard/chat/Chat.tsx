@@ -7,12 +7,14 @@ import { SocketContext } from "../../shared/contexts/SocketContext";
 import { useUserContext } from "../../shared/contexts/UserContext";
 import { MessageContext } from "../../shared/contexts/MessageContext";
 import { Message } from "real-time-chat-backend/shared/message.contract";
+import { useDiContext } from "../../shared/contexts/DiContext";
 
 export function Chat() {
     const [selectedContact] = useContext(ContactsContext).selectedContact;
     const [user] = useUserContext();
-    const [messages, setMessages, messageService] = useContext(MessageContext);
+    const [messages, setMessages] = useContext(MessageContext);
     const [socket] = useContext(SocketContext);
+    const messageService = useDiContext().MessageService;
 
     useEffect(() => {
         async function fetchMessages() {

@@ -27,7 +27,7 @@ function App() {
     const userService = useDiContext().UserService;
 
     useEffect(() => {
-        if (user?.username) {
+        if (user?._id) {
             setSocket(
                 io(BACKEND_URL, {
                     query: { userId: user?._id },
@@ -40,7 +40,7 @@ function App() {
             setSocket(undefined);
         };
         // eslint-disable-next-line
-    }, [user?.username]);
+    }, [user?._id]);
 
     useEffect(() => {
         if (!user && !!localStorage.getItem(LOCAL_STORAGE_AUTH_KEY)) {

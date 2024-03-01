@@ -5,6 +5,7 @@ import { checkEnterPressed, useHandleInputChange } from "../../../helpers";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
+import { useDiContext } from "../../../shared/contexts/DiContext";
 
 export function SendMessageBar() {
     const [formData, setFormData] = useState<{ message: string }>({
@@ -12,7 +13,8 @@ export function SendMessageBar() {
     });
     const [selectedContact] = useContext(ContactsContext).selectedContact;
     const [user] = useUserContext();
-    const [messages, setMessages, messageService] = useContext(MessageContext);
+    const [messages, setMessages] = useContext(MessageContext);
+    const messageService = useDiContext().MessageService;
 
     const handleInputChange = useHandleInputChange(setFormData);
     const fileInputRef = useRef<HTMLInputElement>(null);

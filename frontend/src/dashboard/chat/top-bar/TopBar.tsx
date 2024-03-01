@@ -12,6 +12,7 @@ import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
 import { Contact } from "real-time-chat-backend/shared/contact.contract";
 import { ChevronLeftIcon } from "@heroicons/react/16/solid";
+import { useDiContext } from "../../../shared/contexts/DiContext";
 
 export function TopBar() {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -21,8 +22,9 @@ export function TopBar() {
         useContext(ContactsContext).contactGroups;
     const [selectedContact, setSelectedContact] =
         useContext(ContactsContext).selectedContact;
-    const [, setMessages, messageService] = useContext(MessageContext);
-    const contactService = useContext(ContactsContext).contactService;
+    const [, setMessages] = useContext(MessageContext);
+    const contactService = useDiContext().ContactService;
+    const messageService = useDiContext().MessageService;
 
     const open = Boolean(anchorEl);
     const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
