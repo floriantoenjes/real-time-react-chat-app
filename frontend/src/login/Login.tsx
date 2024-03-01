@@ -2,12 +2,13 @@ import { Button, TextField } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import { useHandleInputChange } from "../helpers";
-import { AuthService } from "../shared/services/AuthService";
 import { UserContext } from "../shared/contexts/UserContext";
+import { useDiContext } from "../shared/contexts/DiContext";
 
 export function Login(props: {}) {
     const navigate = useNavigate();
-    const [, setUser, userService] = useContext(UserContext);
+    const [, setUser] = useContext(UserContext);
+    const authService = useDiContext().AuthService;
 
     const [formData, setFormData] = useState(
         import.meta.env.PROD
@@ -22,10 +23,9 @@ export function Login(props: {}) {
     );
 
     async function signIn() {
-        const user = await AuthService.signIn(
+        const user = await authService.signIn(
             formData.email,
             formData.password,
-            userService,
         );
         if (user) {
             setUser(user);

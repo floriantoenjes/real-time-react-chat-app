@@ -7,8 +7,6 @@ export class ContactService {
     private client;
 
     constructor(private readonly userService: UserService) {
-        this.userService = userService;
-
         this.client = initClient(contactContract, {
             baseUrl: BACKEND_URL,
             baseHeaders: {

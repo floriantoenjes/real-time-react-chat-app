@@ -13,10 +13,9 @@ import { io, Socket } from "socket.io-client";
 import { SocketContext } from "./shared/contexts/SocketContext";
 import { UserContext } from "./shared/contexts/UserContext";
 import { BACKEND_URL, LOCAL_STORAGE_AUTH_KEY } from "./environment";
-import { UserService } from "./shared/services/UserService";
 import { User } from "real-time-chat-backend/shared/user.contract";
 import { Register } from "./register/Register";
-import { AuthService } from "./shared/services/AuthService";
+import { useDiContext } from "./shared/contexts/DiContext";
 
 let setUserWithAvatarBytes: any;
 
@@ -24,6 +23,8 @@ function App() {
     const navigate = useNavigate();
     const [user, setUser] = useState<User>();
     const [socket, setSocket] = useState<Socket>();
+    const authService = useDiContext().AuthService;
+    const userService = useDiContext().UserService;
 
     useEffect(() => {
         if (user?.username) {
@@ -43,7 +44,7 @@ function App() {
 
     useEffect(() => {
         if (!user && !!localStorage.getItem(LOCAL_STORAGE_AUTH_KEY)) {
-            AuthService.refresh(new UserService()).then((user) => {
+            authService.refresh().then((user) => {
                 if (user && setUserWithAvatarBytes) {
                     setUserWithAvatarBytes(setUser)(user);
                 }
@@ -60,7 +61,7 @@ function App() {
                     setUser(user);
                     return;
                 }
-                new UserService().loadAvatar(user._id).then((bytes) => {
+                userService.loadAvatar(user._id).then((bytes) => {
                     av.current = bytes;
                     setUser({ ...user, avatarBase64: av });
                 });
@@ -74,9 +75,7 @@ function App() {
     }, [user]);
 
     return (
-        <UserContext.Provider
-            value={[user, setUserWithAvatarBytes(setUser), new UserService()]}
-        >
+        <UserContext.Provider value={[user, setUserWithAvatarBytes(setUser)]}>
             <SocketContext.Provider value={[socket, setSocket]}>
                 <Routes>
                     <Route path="/" element={<Login />} />

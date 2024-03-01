@@ -11,12 +11,13 @@ import { useUserContext } from "../../shared/contexts/UserContext";
 import { Contact } from "../../shared/Contact";
 import { TopSection } from "./top-section/TopSection";
 import { User } from "@t/user.contract";
+import { useDiContext } from "../../shared/contexts/DiContext";
 
 export function Sidebar() {
-    const [user, , userService] = useUserContext();
-
+    const [user, ,] = useUserContext();
+    const userService = useDiContext().UserService;
     const contactsContext = useContext(ContactsContext);
-    const contactService = contactsContext.contactService;
+    const contactService = useDiContext().ContactService;
     const [selectedContact, setSelectedContact] =
         contactsContext.selectedContact;
     const [userContacts, setUserContacts] = contactsContext.contacts;
