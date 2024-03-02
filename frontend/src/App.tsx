@@ -16,6 +16,7 @@ import { BACKEND_URL, LOCAL_STORAGE_AUTH_KEY } from "./environment";
 import { User } from "real-time-chat-backend/shared/user.contract";
 import { Register } from "./register/Register";
 import { useDiContext } from "./shared/contexts/DiContext";
+import { UserFactory } from "./shared/factories/user.factory";
 
 let setUserWithAvatarBytes: any;
 
@@ -57,14 +58,11 @@ function App() {
     if (!setUserWithAvatarBytes) {
         setUserWithAvatarBytes =
             (setUser: Dispatch<SetStateAction<User>>) => (user: User) => {
-                if (!user.avatarFileName?.startsWith(user._id)) {
-                    setUser(user);
-                    return;
-                }
-                userService.loadAvatar(user._id).then((bytes) => {
-                    av.current = bytes;
-                    setUser({ ...user, avatarBase64: av });
-                });
+                UserFactory.createUserWithAvatarBytes(user, userService).then(
+                    (user) => {
+                        setUser(user);
+                    },
+                );
             };
     }
 

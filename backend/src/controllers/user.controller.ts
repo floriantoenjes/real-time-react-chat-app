@@ -112,15 +112,16 @@ export class UserController {
     async function crop(image: Jimp) {
       // Read the image.
       image.crop(+body.x, +body.y, +body.width, +body.height);
+      image.resize(512, 512);
       // Save and overwrite the image
     }
     const img = await Jimp.read(avatar.buffer);
     await crop(img);
 
-    await this.objectStorageService.uploadFile(
-      await img.getBufferAsync(Jimp.MIME_JPEG),
-      fileName,
-    );
+    img.quality(60);
+    const jpeg = await img.getBufferAsync(Jimp.MIME_JPEG);
+
+    await this.objectStorageService.uploadFile(jpeg, fileName);
 
     await this.userService.updateUser({
       _id: body.userId,

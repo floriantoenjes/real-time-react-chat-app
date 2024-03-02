@@ -32,7 +32,7 @@ export function Avatar(props: {
                                   props.user?.avatarBase64?.current ??
                                   props.user.avatarBase64
                               }`
-                            : "avatars/" + props.user?.avatarFileName ?? ""
+                            : "avatars/" + props.user?.avatarFileName
                     }
                 />
             )}

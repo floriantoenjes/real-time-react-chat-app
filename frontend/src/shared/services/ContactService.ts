@@ -2,6 +2,7 @@ import { initClient } from "@ts-rest/core";
 import { BACKEND_URL, LOCAL_STORAGE_AUTH_KEY } from "../../environment";
 import { Contact, contactContract } from "@t/contact.contract";
 import { UserService } from "./UserService";
+import { UserFactory } from "../factories/user.factory";
 
 export class ContactService {
     private client;
@@ -22,21 +23,13 @@ export class ContactService {
         if (res.status === 200) {
             let initializedContacts = [];
             for (const contact of res.body) {
-                if (!contact.avatarFileName?.startsWith(contact._id)) {
-                    initializedContacts.push(contact);
-                    continue;
-                }
-                const avatarBase64 = await this.userService.loadAvatar(
-                    contact._id,
+                initializedContacts.push(
+                    await UserFactory.createUserWithAvatarBytes(
+                        contact,
+                        this.userService,
+                    ),
                 );
-                if (avatarBase64.length > 10) {
-                    contact.avatarBase64 = avatarBase64;
-                }
-
-                initializedContacts.push(contact);
             }
-            console.log("initialized", initializedContacts);
-
             return initializedContacts;
         }
 
