@@ -1,22 +1,11 @@
-import { initClient } from "@ts-rest/core";
-import { BACKEND_URL, LOCAL_STORAGE_AUTH_KEY } from "../../environment";
 import { User, userContract } from "@t/user.contract";
+import { ClientService } from "./ClientService";
 
 export class UserService {
-    client;
-
-    constructor() {
-        this.client = initClient(userContract, {
-            baseUrl: BACKEND_URL,
-            baseHeaders: {
-                Authorization:
-                    "Bearer " + localStorage.getItem(LOCAL_STORAGE_AUTH_KEY),
-            },
-        });
-    }
+    constructor(private clientService: ClientService) {}
 
     async getUsers() {
-        const res = await this.client.getAll();
+        const res = await this.clientService.getClient(userContract).getAll();
 
         if (res.status === 200) {
             return res.body;
@@ -29,7 +18,7 @@ export class UserService {
         email: string,
         password: string,
     ): Promise<{ user: User; access_token: string } | false> {
-        const res = await this.client.signIn({
+        const res = await this.clientService.getClient(userContract).signIn({
             body: { email, password },
         });
 
@@ -43,7 +32,9 @@ export class UserService {
     async refresh(
         accessToken: string,
     ): Promise<{ user: User; access_token: string } | false> {
-        const res = await this.client.refresh({ body: { accessToken } });
+        const res = await this.clientService
+            .getClient(userContract)
+            .refresh({ body: { accessToken } });
 
         if (res.status === 200) {
             return res.body;
@@ -57,7 +48,7 @@ export class UserService {
         password: string,
         username: string,
     ): Promise<User | false> {
-        const res = await this.client.signUp({
+        const res = await this.clientService.getClient(userContract).signUp({
             body: { email, password, username },
         });
 
@@ -69,9 +60,11 @@ export class UserService {
     }
 
     async searchForUserByUsername(username: string): Promise<User | false> {
-        const res = await this.client.searchUserByUsername({
-            body: { username },
-        });
+        const res = await this.clientService
+            .getClient(userContract)
+            .searchUserByUsername({
+                body: { username },
+            });
 
         if (res.status === 200) {
             return res.body;
@@ -88,15 +81,17 @@ export class UserService {
         height: number,
         userId: string,
     ) {
-        await this.client.uploadAvatar({
+        await this.clientService.getClient(userContract).uploadAvatar({
             body: { avatar: file, userId, x, y, width, height },
         });
     }
 
     async loadAvatar(userId: string) {
-        const res = (await this.client.loadAvatar({
-            params: { userId },
-        })) as any;
+        const res = (await this.clientService
+            .getClient(userContract)
+            .loadAvatar({
+                params: { userId },
+            })) as any;
 
         return btoa(
             new Uint8Array(Object.values(res.body)).reduce(function (

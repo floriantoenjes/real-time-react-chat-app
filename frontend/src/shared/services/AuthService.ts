@@ -1,8 +1,12 @@
 import { UserService } from "./UserService";
 import { LOCAL_STORAGE_AUTH_KEY } from "../../environment";
+import { ClientService } from "./ClientService";
 
 export class AuthService {
-    constructor(private readonly userService: UserService) {}
+    constructor(
+        private readonly clientService: ClientService,
+        private readonly userService: UserService,
+    ) {}
 
     async signIn(email: string, password: string) {
         const body = await this.userService.signIn(email, password);
@@ -10,6 +14,7 @@ export class AuthService {
             return;
         }
         localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, body.access_token);
+        this.clientService.clearBearerTokenAndClients();
 
         return body.user;
     }
@@ -24,6 +29,7 @@ export class AuthService {
             return;
         }
         localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, res.access_token);
+        this.clientService.clearBearerTokenAndClients();
 
         return res.user;
     }

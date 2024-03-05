@@ -45,13 +45,29 @@ function App() {
 
     useEffect(() => {
         if (!user && !!localStorage.getItem(LOCAL_STORAGE_AUTH_KEY)) {
-            authService.refresh().then((user) => {
-                if (user && setUserWithAvatarBytes) {
-                    setUserWithAvatarBytes(setUser)(user);
-                }
-            });
+            authService
+                .refresh()
+                .then((user) => {
+                    if (user && setUserWithAvatarBytes) {
+                        setUserWithAvatarBytes(setUser)(user);
+                        return;
+                    }
+
+                    if (!user) {
+                        signOut();
+                    }
+                })
+                .catch(() => {
+                    signOut();
+                });
+            return;
         }
-    }, []);
+
+        if (user) {
+            setUserWithAvatarBytes(setUser)(user);
+            return;
+        }
+    }, [user?._id]);
 
     const av = useRef("");
 
@@ -71,6 +87,11 @@ function App() {
             navigate("/dashboard");
         }
     }, [user]);
+
+    function signOut() {
+        localStorage.removeItem(LOCAL_STORAGE_AUTH_KEY);
+        navigate("/");
+    }
 
     return (
         <UserContext.Provider value={[user, setUserWithAvatarBytes(setUser)]}>

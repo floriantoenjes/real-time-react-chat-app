@@ -93,7 +93,7 @@ export function GroupCreation(props: { user: User; toggleDrawer: any }) {
                     className={"p-3"}
                 />
             </div>
-            <div className={"flex flex-col justify-between items-center h-3/4"}>
+            <div className={"flex flex-col justify-between items-center h-2/3"}>
                 <div className={"w-full"}>
                     {potentialGroupMembers.map((c) => (
                         <span key={c.name} onClick={() => addGroupMember(c)}>
