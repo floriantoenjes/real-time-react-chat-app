@@ -79,6 +79,7 @@ export function UserProfile(props: { toggleDrawer: any }) {
                 </div>
                 {fileInputRef.current?.files?.[0] && (
                     <Cropper
+                        classes={{ containerClassName: "z-10" }}
                         image={URL.createObjectURL(
                             fileInputRef.current.files[0],
                         )}
