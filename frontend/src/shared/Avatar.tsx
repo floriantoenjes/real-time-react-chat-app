@@ -24,7 +24,7 @@ export function Avatar(props: {
                 <img
                     style={{
                         maxHeight: "100%",
-                        borderRadius: props.squared ? "" : "50%",
+                        borderRadius: props.squared ? "5%" : "50%",
                     }}
                     src={
                         props.user?.avatarBase64

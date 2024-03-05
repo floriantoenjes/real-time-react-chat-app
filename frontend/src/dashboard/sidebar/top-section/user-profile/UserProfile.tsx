@@ -6,6 +6,7 @@ import { CheckIcon } from "@heroicons/react/16/solid";
 import Cropper, { Area, Point } from "react-easy-crop";
 import { Avatar } from "../../../../shared/Avatar";
 import { useDiContext } from "../../../../shared/contexts/DiContext";
+import { PencilSquareIcon } from "@heroicons/react/24/outline";
 
 export function UserProfile(props: { toggleDrawer: any }) {
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -59,9 +60,16 @@ export function UserProfile(props: { toggleDrawer: any }) {
             </div>
             <div className={"flex flex-col justify-between items-center h-3/4"}>
                 <div
-                    className={"mt-3 avatar bg-blue-400 w-48 h-48 rounded"}
+                    className={
+                        "mt-3 avatar bg-blue-400 w-48 h-48 relative cursor-pointer rounded-xl"
+                    }
                     onClick={() => fileInputRef.current?.click()}
                 >
+                    <PencilSquareIcon
+                        className={
+                            "w-12 h-12 absolute z-10 right-0 bottom-0 bg-white rounded-full p-3 m-2"
+                        }
+                    ></PencilSquareIcon>
                     <Avatar
                         user={user}
                         width={"12rem"}
