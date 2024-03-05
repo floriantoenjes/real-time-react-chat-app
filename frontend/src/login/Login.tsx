@@ -28,8 +28,7 @@ export function Login(props: {}) {
             formData.password,
         );
         if (user) {
-            setUser(user);
-            navigate("/dashboard");
+            window.location.reload();
         }
     }
 
