@@ -30,5 +30,6 @@ Backend and frontend...
 * communicate via REST with typesafe communication via ts-rest, a tRPC like communications contract between frontend and backend.
 * are processing real time updates with WebSocket connections via socket.io server and client.
 
-### TODOs
-* Add remaining What's App functionality
+### Next TODOs
+* Implement sending of files in chat
+* Check JWTs for expiration
