@@ -53,7 +53,7 @@ export function TopSection() {
     return (
         <div className={"flex items-center mb-3"}>
             <div
-                className={"ml-3"}
+                className={"ml-3 cursor-pointer"}
                 onClick={toggleDrawer("left", true, "profile")}
             >
                 <Avatar user={user} />
