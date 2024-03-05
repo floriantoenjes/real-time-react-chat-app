@@ -18,9 +18,19 @@ export class ContactController {
         _id: body.userId,
       });
 
+      const contacts: Contact[] = [];
+      for (const contact of user?.contacts ?? []) {
+        const contactUser = await this.userModel
+          .findOne({ _id: contact._id })
+          .lean();
+        if (contactUser) {
+          contacts.push({ ...contact, ...contactUser });
+        }
+      }
+
       return {
         status: 200,
-        body: user?.contacts ?? [],
+        body: contacts,
       };
     });
   }
