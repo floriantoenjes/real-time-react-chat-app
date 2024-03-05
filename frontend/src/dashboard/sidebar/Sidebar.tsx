@@ -6,7 +6,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useContext, useEffect, useState } from "react";
 import { ContactsContext } from "../../shared/contexts/ContactsContext";
-import { useHandleInputChange } from "../../helpers";
+import { checkEnterPressed, useHandleInputChange } from "../../helpers";
 import { useUserContext } from "../../shared/contexts/UserContext";
 import { Contact } from "../../shared/Contact";
 import { TopSection } from "./top-section/TopSection";
@@ -116,7 +116,17 @@ export function Sidebar() {
                         });
                         void addContact(evt);
                     }}
-                    key={"" + autoCompleteKey}
+                    onKeyUp={(evt) => {
+                        if (!checkEnterPressed(evt)) {
+                            return;
+                        }
+
+                        setFormData({
+                            contactName: (evt.target as any).textValue,
+                        });
+                        void addContact(evt);
+                    }}
+                    onBlur={(evt) => console.log(evt)}
                     className={"w-full"}
                     freeSolo={true}
                     isOptionEqualToValue={(option, value) => option === value}
@@ -125,6 +135,7 @@ export function Sidebar() {
                             name={"contactName"}
                             {...params}
                             onInput={handleInputChange}
+                            onBlur={handleInputChange}
                             label={
                                 <div>
                                     <MagnifyingGlassIcon

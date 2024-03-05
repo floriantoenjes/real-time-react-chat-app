@@ -5,12 +5,13 @@ import { Contact as ContactModel } from "@t/contact.contract";
 import { ContactsContext } from "../../../../shared/contexts/ContactsContext";
 import { Contact } from "../../../../shared/Contact";
 import { User } from "@t/user.contract";
+import { useDiContext } from "../../../../shared/contexts/DiContext";
 
 export function GroupCreation(props: { user: User; toggleDrawer: any }) {
     const contactsContext = useContext(ContactsContext);
     const [contacts] = contactsContext.contacts;
     const [, setContactGroups] = contactsContext.contactGroups;
-    const contactGroupService = contactsContext.contactGroupService;
+    const contactGroupService = useDiContext().ContactGroupService;
 
     const [groupMembers, setGroupMembers] = useState<string[]>([]);
 

@@ -20,7 +20,10 @@ export function MainChat() {
     }
 
     return (
-        <div className={"p-8 bg-orange-50 mb-16"} style={{ minHeight: "80%" }}>
+        <div
+            className={"p-8 bg-orange-50 mb-16"}
+            style={{ minHeight: "calc(100% - 146px)" }}
+        >
             {messageList()} <div ref={messagesEndRef}></div>
         </div>
     );
