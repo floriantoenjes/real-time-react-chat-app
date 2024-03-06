@@ -75,15 +75,16 @@ export class MessageController {
         toUserId: body.toUserId,
         at: new Date(),
       };
-      const userResponse = await this.userService.findUserBy({
-        _id: body.fromUserId,
-      });
 
-      if (!userResponse.body) {
-        return userResponse;
+      const user = await this.userModel
+        .findById(body.fromUserId)
+        .select('+password');
+      if (!user) {
+        return {
+          status: 404,
+          body: false,
+        };
       }
-
-      const user = userResponse.body;
       const newlyCreatedMessage = await this.messageModel.create(newMessage);
 
       const contactGroup = this.getContactGroup(user, body.toUserId);
@@ -103,17 +104,19 @@ export class MessageController {
       if (userContact) {
         userContact.lastMessage = newlyCreatedMessage;
         user.markModified('contacts');
-        void this.userModel.updateOne({ _id: userContact._id }, user);
+        void user.save();
       }
 
-      const receiver = await this.userModel.findOne({ _id: body.toUserId });
+      const receiver = await this.userModel
+        .findOne({ _id: body.toUserId })
+        .select('+password');
       const receiverContact = receiver?.contacts.find(
         (c) => c._id === user._id.toString(),
       );
       if (receiver && receiverContact) {
         receiverContact.lastMessage = newlyCreatedMessage;
         receiver.markModified('contacts');
-        void this.userModel.updateOne({ _id: receiver._id }, receiver);
+        void receiver.save();
       }
 
       return { status: 201, body: newlyCreatedMessage };
