@@ -103,7 +103,7 @@ export class MessageController {
       if (userContact) {
         userContact.lastMessage = newlyCreatedMessage;
         user.markModified('contacts');
-        void user.save();
+        void this.userModel.updateOne({ _id: userContact._id }, user);
       }
 
       const receiver = await this.userModel.findOne({ _id: body.toUserId });
@@ -113,7 +113,7 @@ export class MessageController {
       if (receiver && receiverContact) {
         receiverContact.lastMessage = newlyCreatedMessage;
         receiver.markModified('contacts');
-        void receiver.save();
+        void this.userModel.updateOne({ _id: receiver._id }, receiver);
       }
 
       return { status: 201, body: newlyCreatedMessage };
