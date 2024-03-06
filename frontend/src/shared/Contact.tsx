@@ -1,6 +1,7 @@
 import { Avatar } from "./Avatar";
 import { Contact as ContactModel } from "real-time-chat-backend/shared/contact.contract";
 import { ContactGroup } from "real-time-chat-backend/shared/contact-group.contract";
+import { DateTime } from "luxon";
 
 export function Contact(props: {
     contact: ContactModel;
@@ -19,9 +20,17 @@ export function Contact(props: {
             <div className={"flex-col w-full"}>
                 <div className={"flex justify-between"}>
                     <div>{props.contact.name}</div>
-                    <div>{props.contact.lastMessage?.at?.toString()}</div>
+                    {props.contact.lastMessage && (
+                        <div>
+                            {DateTime.fromJSDate(
+                                new Date(props.contact.lastMessage.at),
+                            ).toFormat("dd.MM.yyyy")}
+                        </div>
+                    )}
                 </div>
-                <div>{props.contact.lastMessage?.message}</div>
+                <div className={"text-gray-500"}>
+                    {props.contact.lastMessage?.message}
+                </div>
             </div>
         </div>
     );

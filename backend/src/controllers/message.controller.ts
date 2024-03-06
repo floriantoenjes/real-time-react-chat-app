@@ -99,6 +99,23 @@ export class MessageController {
         }
       }
 
+      const userContact = user.contacts.find((uc) => uc._id === body.toUserId);
+      if (userContact) {
+        userContact.lastMessage = newlyCreatedMessage;
+        user.markModified('contacts');
+        void user.save();
+      }
+
+      const receiver = await this.userModel.findOne({ _id: body.toUserId });
+      const receiverContact = receiver?.contacts.find(
+        (c) => c._id === user._id.toString(),
+      );
+      if (receiver && receiverContact) {
+        receiverContact.lastMessage = newlyCreatedMessage;
+        receiver.markModified('contacts');
+        void receiver.save();
+      }
+
       return { status: 201, body: newlyCreatedMessage };
     });
   }

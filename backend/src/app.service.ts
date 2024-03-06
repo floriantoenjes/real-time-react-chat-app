@@ -12,6 +12,8 @@ export class AppService implements OnApplicationBootstrap {
     @InjectModel(MessageEntity.name)
     private readonly messageModel: Model<MessageEntity>,
     @InjectModel(UserEntity.name) private readonly userModel: Model<UserEntity>,
+    @InjectModel(ContactEntity.name)
+    private readonly contactModel: Model<ContactEntity>,
   ) {}
 
   async onApplicationBootstrap() {

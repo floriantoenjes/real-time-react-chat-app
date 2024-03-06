@@ -42,7 +42,7 @@ export function Sidebar() {
 
             setUsers(
                 users.filter(
-                    (u) =>
+                    (u: any) =>
                         u._id !== user._id &&
                         !userContacts.find((uc) => uc._id === u._id),
                 ),
@@ -53,6 +53,18 @@ export function Sidebar() {
     function contactList() {
         return userContacts
             .concat(userContactGroups)
+            .sort((uc1, uc2) => {
+                const uc1MessageDate = uc1.lastMessage?.at;
+                const uc2MessageDate = uc2.lastMessage?.at;
+
+                if (uc1MessageDate && uc2MessageDate) {
+                    return -uc1MessageDate
+                        .toString()
+                        .localeCompare(uc2MessageDate.toString());
+                }
+
+                return 0;
+            })
             .map((c) => (
                 <Contact
                     key={c.name}

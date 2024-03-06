@@ -17,6 +17,7 @@
     "@types/react-dom": "^18.2.18",
     "@types/react-router-dom": "^5.3.3",
     "axios": "^1.6.7",
+    "luxon": "^3.4.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-easy-crop": "^5.0.5",
@@ -54,6 +55,7 @@
     ]
   },
   "devDependencies": {
+    "@types/luxon": "^3.4.2",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.17",
     "postcss": "^8.4.35",
