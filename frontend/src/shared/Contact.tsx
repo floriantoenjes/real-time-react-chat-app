@@ -29,7 +29,13 @@ export function Contact(props: {
                     )}
                 </div>
                 <div className={"text-gray-500"}>
-                    {props.contact.lastMessage?.message}
+                    {props.contact.lastMessage &&
+                        (props.contact.lastMessage.message.length > 35
+                            ? props.contact.lastMessage?.message.substring(
+                                  0,
+                                  35,
+                              ) + "..."
+                            : props.contact.lastMessage.message)}
                 </div>
             </div>
         </div>
