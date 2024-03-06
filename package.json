@@ -10,6 +10,9 @@
     "start": "node backend/dist/src/main",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "dependencies": {
+    "@nestjs/cli": "^10.0.0"
+  },
   "author": "",
   "license": "ISC",
   "workspaces": [
