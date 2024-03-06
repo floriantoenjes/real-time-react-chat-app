@@ -7,6 +7,7 @@ import Cropper, { Area, Point } from "react-easy-crop";
 import { Avatar } from "../../../../shared/Avatar";
 import { useDiContext } from "../../../../shared/contexts/DiContext";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
+import { getSetUserWithAvatarBytes } from "../../../../shared/helpers";
 
 export function UserProfile(props: { toggleDrawer: any }) {
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -38,7 +39,10 @@ export function UserProfile(props: { toggleDrawer: any }) {
                 user._id,
             )
             .then(() => {
-                setUser(user);
+                getSetUserWithAvatarBytes(userService)(setUser)({
+                    ...user,
+                    avatarFileName: user._id + "_avatar",
+                });
                 props.toggleDrawer("left", false)();
             });
     }

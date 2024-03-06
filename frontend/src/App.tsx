@@ -1,10 +1,4 @@
-import React, {
-    Dispatch,
-    SetStateAction,
-    useEffect,
-    useRef,
-    useState,
-} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./App.css";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { Login } from "./login/Login";
@@ -16,7 +10,7 @@ import { BACKEND_URL, LOCAL_STORAGE_AUTH_KEY } from "./environment";
 import { User } from "real-time-chat-backend/shared/user.contract";
 import { Register } from "./register/Register";
 import { useDiContext } from "./shared/contexts/DiContext";
-import { UserFactory } from "./shared/factories/user.factory";
+import { getSetUserWithAvatarBytes } from "./shared/helpers";
 
 let setUserWithAvatarBytes: any;
 
@@ -72,14 +66,7 @@ function App() {
     const av = useRef("");
 
     if (!setUserWithAvatarBytes) {
-        setUserWithAvatarBytes =
-            (setUser: Dispatch<SetStateAction<User>>) => (user: User) => {
-                UserFactory.createUserWithAvatarBytes(user, userService).then(
-                    (user) => {
-                        setUser(user);
-                    },
-                );
-            };
+        setUserWithAvatarBytes = getSetUserWithAvatarBytes(userService);
     }
 
     useEffect(() => {

@@ -8,7 +8,7 @@ export function Avatar(props: {
     user: User | Contact;
     squared?: boolean;
 }) {
-    useEffect(() => {}, [props.user?.avatarBase64?.current]);
+    useEffect(() => {}, [props.user?.avatarBase64]);
 
     return (
         <div

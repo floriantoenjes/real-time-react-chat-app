@@ -18,7 +18,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './services/constants';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guards/auth.guard';
-import { ContactEntity, ContactSchema } from './schemas/contact.schema';
 
 @Module({
   imports: [
@@ -34,7 +33,7 @@ import { ContactEntity, ContactSchema } from './schemas/contact.schema';
     }),
     MongooseModule.forFeature([
       { name: MessageEntity.name, schema: MessageSchema },
-      { name: ContactEntity.name, schema: ContactSchema },
+      // { name: ContactEntity.name, schema: ContactSchema },
       // { name: ContactGroup.name, schema: ContactGroupSchema },
       { name: UserEntity.name, schema: UserSchema },
     ]),
