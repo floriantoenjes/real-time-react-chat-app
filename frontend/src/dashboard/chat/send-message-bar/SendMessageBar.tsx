@@ -12,6 +12,7 @@ export function SendMessageBar() {
         message: "",
     });
     const [selectedContact] = useContext(ContactsContext).selectedContact;
+    const [, setContacts] = useContext(ContactsContext).contacts;
     const [user] = useUserContext();
     const [messages, setMessages] = useContext(MessageContext);
     const messageService = useDiContext().MessageService;
@@ -32,18 +33,22 @@ export function SendMessageBar() {
             return;
         }
 
-        const messageToSend = {
-            fromUserId: user._id,
-            message: formData.message.trim(),
-            toUserId: selectedContact._id,
-            at: new Date(),
-        };
-
         const res = await messageService.sendMessage(
             user._id,
             formData.message.trim(),
             selectedContact._id,
         );
+
+        setContacts((prevState) => {
+            const contact = prevState.find(
+                (c) => c._id === selectedContact._id,
+            );
+            if (contact) {
+                contact.lastMessage = res.body;
+            }
+
+            return prevState;
+        });
 
         if (res.status === 201) {
             setMessages([...messages, res.body]);
