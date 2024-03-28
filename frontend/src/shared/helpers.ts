@@ -5,7 +5,8 @@ import { UserService } from "./services/UserService";
 
 export const getSetUserWithAvatarBytes = (userService: UserService) => {
     return (setUser: Dispatch<SetStateAction<User | undefined>>) =>
-        (user: User) => {
+        (user: SetStateAction<User | undefined>) => {
+            user = user as User;
             UserFactory.createUserWithAvatarBytes(user, userService).then(
                 (user) => {
                     setUser(user);

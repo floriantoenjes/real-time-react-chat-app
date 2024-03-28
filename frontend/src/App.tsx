@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import "./App.css";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { Login } from "./login/Login";
@@ -12,14 +12,16 @@ import { Register } from "./register/Register";
 import { useDiContext } from "./shared/contexts/DiContext";
 import { getSetUserWithAvatarBytes } from "./shared/helpers";
 
-let setUserWithAvatarBytes: any;
-
 function App() {
     const navigate = useNavigate();
     const [user, setUser] = useState<User>();
     const [socket, setSocket] = useState<Socket>();
     const authService = useDiContext().AuthService;
     const userService = useDiContext().UserService;
+    const setUserWithAvatarBytes: (
+        setUser: Dispatch<SetStateAction<User | undefined>>,
+    ) => (user: SetStateAction<User | undefined>) => void =
+        getSetUserWithAvatarBytes(userService);
 
     useEffect(() => {
         if (user?._id) {
@@ -42,7 +44,7 @@ function App() {
             authService
                 .refresh()
                 .then((user) => {
-                    if (user && setUserWithAvatarBytes) {
+                    if (user) {
                         setUserWithAvatarBytes(setUser)(user);
                         return;
                     }
@@ -62,12 +64,6 @@ function App() {
             return;
         }
     }, [user?._id]);
-
-    const av = useRef("");
-
-    if (!setUserWithAvatarBytes) {
-        setUserWithAvatarBytes = getSetUserWithAvatarBytes(userService);
-    }
 
     useEffect(() => {
         if (user?._id) {

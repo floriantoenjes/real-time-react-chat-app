@@ -5,10 +5,7 @@ export const UserContext = createContext<
     [User | undefined, Dispatch<SetStateAction<User | undefined>>]
 >([undefined, () => {}]);
 
-export function useUserContext(): [
-    User,
-    Dispatch<SetStateAction<User | undefined>>,
-] {
+export function useUserContext(): [User, (user: User) => void] {
     const [user, setUser] = useContext(UserContext);
     if (!user) {
         throw new Error("User must be set in order to use the UserContext!");
