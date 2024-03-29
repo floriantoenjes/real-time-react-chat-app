@@ -24,6 +24,7 @@ function App() {
         getSetUserWithAvatarBytes(userService);
 
     useEffect(() => {
+        let interval: NodeJS.Timer;
         if (user?._id) {
             console.log(user._id);
             const socket = io(BACKEND_URL, {
@@ -37,7 +38,7 @@ function App() {
             });
 
             socket.on("disconnect", function () {
-                const interval = setInterval(() => {
+                interval = setInterval(() => {
                     console.log("WebSocket disconnected. Reconnecting...");
                     socket.connect();
                     if (socket.connected) {
@@ -49,6 +50,7 @@ function App() {
         }
 
         return () => {
+            clearInterval(interval);
             socket?.disconnect();
             setSocket(undefined);
         };
