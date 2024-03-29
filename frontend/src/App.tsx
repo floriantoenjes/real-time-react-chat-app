@@ -28,7 +28,6 @@ function App() {
             console.log(user._id);
             const socket = io(BACKEND_URL, {
                 query: { userId: user?._id },
-                transports: ["websocket"],
             });
             socket.connect();
             setSocket(socket);
