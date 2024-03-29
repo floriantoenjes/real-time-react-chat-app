@@ -28,9 +28,14 @@ function App() {
             console.log(user._id);
             const socket = io(BACKEND_URL, {
                 query: { userId: user?._id },
-                transports: ["websocket"],
             });
+            socket.connect();
             setSocket(socket);
+
+            socket.on("connect", function () {
+                console.log("WebSocket connected", socket);
+            });
+
             socket.on("disconnect", function () {
                 const interval = setInterval(() => {
                     console.log("WebSocket disconnected. Reconnecting...");
