@@ -25,6 +25,7 @@ function App() {
 
     useEffect(() => {
         if (user?._id) {
+            console.log(user._id);
             const socket = io(BACKEND_URL, {
                 query: { userId: user?._id },
             });
