@@ -27,7 +27,7 @@ export function Chat() {
             );
         }
         void fetchMessages();
-    }, [user, selectedContact, setMessages, messageService]);
+    }, [user, selectedContact, setMessages, messageService, socket?.connected]);
 
     useEffect(() => {
         function addMessage(message: Message) {

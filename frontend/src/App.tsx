@@ -25,11 +25,20 @@ function App() {
 
     useEffect(() => {
         if (user?._id) {
-            setSocket(
-                io(BACKEND_URL, {
-                    query: { userId: user?._id },
-                }),
-            );
+            const socket = io(BACKEND_URL, {
+                query: { userId: user?._id },
+            });
+            setSocket(socket);
+            socket.on("disconnect", function () {
+                const interval = setInterval(() => {
+                    console.log("WebSocket disconnected. Reconnecting...");
+                    socket.connect();
+                    if (socket.connected) {
+                        console.log("WebSocket reconnected.");
+                        clearInterval(interval);
+                    }
+                }, 1000);
+            });
         }
 
         return () => {
