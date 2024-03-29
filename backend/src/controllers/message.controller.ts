@@ -48,6 +48,18 @@ export class MessageController {
         toUserId: { $in: [body.userId, body.contactId] },
       });
 
+      for (const message of messages) {
+        if (!message.read && body.userId === message.toUserId.toString()) {
+          await this.messageModel.updateOne(
+            { _id: message._id },
+            { read: true },
+          );
+          this.gateway.connectedSocketsMap
+            .get(message.fromUserId)
+            ?.emit('messageRead', message._id);
+        }
+      }
+
       return {
         status: 200,
         body: messages,
@@ -120,6 +132,24 @@ export class MessageController {
       }
 
       return { status: 201, body: newlyCreatedMessage };
+    });
+  }
+
+  @TsRestHandler(messageContract.markMessageRead)
+  async markMessageRead() {
+    return tsRestHandler(messageContract.markMessageRead, async ({ body }) => {
+      const msg = await this.messageModel.findOne({ _id: body.msgId });
+      if (!msg) {
+        return { status: 404 };
+      }
+      msg.read = true;
+      const updatedMsg = await msg.save();
+
+      this.gateway.connectedSocketsMap
+        .get(updatedMsg.fromUserId)
+        ?.emit('messageRead', updatedMsg._id);
+
+      return { status: 200, body: true };
     });
   }
 

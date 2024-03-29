@@ -34,11 +34,24 @@ export function Chat() {
         function addMessage(message: Message) {
             const newMessageData = [...(messages ?? [])];
             newMessageData.push(message);
+            messageService.setMessageRead(message._id);
             setMessages(newMessageData);
         }
 
         if (socket) {
-            socket?.once("message", addMessage);
+            socket.once("message", addMessage);
+            socket.on("messageRead", (msgId: string) => {
+                setMessages((prevState) => {
+                    const nowReadMsgIdx = prevState.findIndex((msg) => {
+                        return msg._id === msgId || msg._id.startsWith("temp-");
+                    });
+                    if (!prevState[nowReadMsgIdx]) {
+                        return prevState;
+                    }
+                    prevState[nowReadMsgIdx].read = true;
+                    return [...prevState];
+                });
+            });
         }
     }, [socket, messages, user.username, setMessages]);
 

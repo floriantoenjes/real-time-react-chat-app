@@ -33,6 +33,22 @@ export function SendMessageBar() {
             return;
         }
 
+        const messageToSend = {
+            message: formData.message.trim(),
+            fromUserId: user._id,
+            toUserId: selectedContact._id,
+        };
+        setMessages([
+            ...messages,
+            {
+                ...messageToSend,
+                _id: "temp-" + new Date().toString(),
+                at: new Date(),
+                read: false,
+                sent: false,
+            },
+        ]);
+
         const res = await messageService.sendMessage(
             user._id,
             formData.message.trim(),
@@ -51,7 +67,17 @@ export function SendMessageBar() {
         });
 
         if (res.status === 201) {
-            setMessages([...messages, res.body]);
+            setMessages((prevState) => {
+                const msgIdx = prevState.findIndex(
+                    (msg) =>
+                        msg.fromUserId === messageToSend.fromUserId &&
+                        msg.toUserId === messageToSend.toUserId &&
+                        msg.message === messageToSend.message,
+                );
+                prevState[msgIdx] = res.body;
+
+                return [...prevState];
+            });
         }
     }
 

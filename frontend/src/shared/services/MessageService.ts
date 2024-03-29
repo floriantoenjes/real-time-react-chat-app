@@ -33,4 +33,12 @@ export class MessageService {
             },
         });
     }
+
+    setMessageRead(msgId: string) {
+        return this.clientService.getClient(messageContract).markMessageRead({
+            body: {
+                msgId,
+            },
+        });
+    }
 }

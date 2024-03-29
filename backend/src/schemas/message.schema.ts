@@ -5,17 +5,23 @@ import { Message } from '../../shared/message.contract';
 export class MessageEntity implements Message {
   _id: any;
 
-  @Prop({ required: true })
+  @Prop()
   fromUserId: string;
 
-  @Prop({ required: true })
+  @Prop()
   toUserId: string;
 
-  @Prop({ required: true })
+  @Prop()
   at: Date;
 
-  @Prop({ required: true })
+  @Prop()
   message: string;
+
+  @Prop()
+  read: boolean;
+
+  @Prop({ default: true })
+  sent: boolean = true;
 }
 
 export const MessageSchema = SchemaFactory.createForClass(MessageEntity);

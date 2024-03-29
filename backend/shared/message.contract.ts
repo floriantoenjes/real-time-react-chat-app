@@ -9,6 +9,8 @@ export const MessageSchema = z.object({
   toUserId: z.string(),
   at: z.date(),
   message: z.string().max(4096),
+  read: z.boolean().default(false),
+  sent: z.boolean().default(true),
 });
 
 export type Message = z.infer<typeof MessageSchema>;
@@ -50,5 +52,16 @@ export const messageContract = c.router({
       fromUserId: z.string(),
     }),
     summary: 'Send a message',
+  },
+  markMessageRead: {
+    method: 'PATCH',
+    path: '/read',
+    responses: {
+      200: z.boolean(),
+    },
+    body: z.object({
+      msgId: z.string(),
+    }),
+    summary: 'Mark message as read',
   },
 });
