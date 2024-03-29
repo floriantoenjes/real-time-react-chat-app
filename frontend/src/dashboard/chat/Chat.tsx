@@ -26,6 +26,7 @@ export function Chat() {
                 await messageService.getMessages(user._id, selectedContact._id),
             );
         }
+        console.log("fetching messages");
         void fetchMessages();
     }, [user, selectedContact, setMessages, messageService, socket?.connected]);
 
