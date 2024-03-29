@@ -38,10 +38,12 @@ function App() {
             });
 
             socket.on("disconnect", function () {
+                setSocket(undefined);
                 interval = setInterval(() => {
                     console.log("WebSocket disconnected. Reconnecting...");
                     socket.connect();
                     if (socket.connected) {
+                        setSocket(socket);
                         console.log("WebSocket reconnected.");
                         clearInterval(interval);
                     }
