@@ -1,6 +1,8 @@
-<img src="./imgs/florians_chat.jpg" height="512px" width="512px">
+<img src="./imgs/florians_chat.jpg" height="300px" width="300px">
 
 ## Florian's Chat (Real-Time Chat App - What's App style)
+
+<img src="./imgs/dashboard.png" style="width: 80%; ">
 
 ### Functionality
 
@@ -9,7 +11,7 @@ Right now users can...
 * add other users as contacts and write them messages.
 * create chat groups with multiple users and exchange messages.
 * clean up or delete chats.
-* receive messages in real time.
+* receive messages and see if they have been read in real time.
 
 ### Technical Details
 
