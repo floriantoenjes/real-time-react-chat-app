@@ -2,6 +2,9 @@
 
 ## Florian's Chat (Real-Time Chat App - What's App style)
 
+### Demo
+Feel free to sign up with a made-up email and a password of choice for demo purposes.
+
 <img src="./imgs/dashboard.png" style="width: 80%; ">
 
 ### Functionality
