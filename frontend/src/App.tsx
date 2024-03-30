@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { Login } from "./login/Login";
@@ -10,7 +10,7 @@ import { BACKEND_URL, LOCAL_STORAGE_AUTH_KEY } from "./environment";
 import { User } from "real-time-chat-backend/shared/user.contract";
 import { Register } from "./register/Register";
 import { useDiContext } from "./shared/contexts/DiContext";
-import { getSetUserWithAvatarBytes } from "./shared/helpers";
+import { getSetUserWithAvatarBytesOptional } from "./shared/helpers";
 
 function App() {
     const navigate = useNavigate();
@@ -18,10 +18,8 @@ function App() {
     const [socket, setSocket] = useState<Socket>();
     const authService = useDiContext().AuthService;
     const userService = useDiContext().UserService;
-    const setUserWithAvatarBytes: (
-        setUser: Dispatch<SetStateAction<User | undefined>>,
-    ) => (user: SetStateAction<User | undefined>) => void =
-        getSetUserWithAvatarBytes(userService);
+    const setUserWithAvatarBytes =
+        getSetUserWithAvatarBytesOptional(userService);
 
     useEffect(() => {
         let interval: NodeJS.Timer;
