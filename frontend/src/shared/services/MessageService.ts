@@ -1,4 +1,4 @@
-import { messageContract } from "@t/message.contract";
+import { Message, messageContract } from "@t/message.contract";
 import { ClientService } from "./ClientService";
 
 export class MessageService {
@@ -24,12 +24,18 @@ export class MessageService {
             .deleteMessages({ body: { fromUserId, toUserId } });
     }
 
-    sendMessage(userIdAuthor: string, message: string, contactId: string) {
+    sendMessage(
+        userIdAuthor: string,
+        message: string,
+        contactId: string,
+        type: Message["type"],
+    ) {
         return this.clientService.getClient(messageContract).sendMessage({
             body: {
                 toUserId: contactId,
                 message,
                 fromUserId: userIdAuthor,
+                type,
             },
         });
     }
@@ -40,5 +46,16 @@ export class MessageService {
                 msgId,
             },
         });
+    }
+
+    sendImage(image: File, userId: string) {
+        return this.clientService
+            .getClient<typeof messageContract>(messageContract)
+            .sendImage({
+                body: {
+                    image,
+                    userId,
+                },
+            });
     }
 }

@@ -6,6 +6,7 @@ import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { useDiContext } from "../../../shared/contexts/DiContext";
+import { Message } from "@t/message.contract";
 
 export function SendMessageBar() {
     const [formData, setFormData] = useState<{ message: string }>({
@@ -28,13 +29,16 @@ export function SendMessageBar() {
         }
     }
 
-    async function sendMessage() {
+    async function sendMessage(
+        message: string = formData.message.trim(),
+        type: Message["type"] = "text",
+    ) {
         if (!selectedContact) {
             return;
         }
 
         const messageToSend = {
-            message: formData.message.trim(),
+            message,
             fromUserId: user._id,
             toUserId: selectedContact._id,
         };
@@ -46,20 +50,22 @@ export function SendMessageBar() {
                 at: new Date(),
                 read: false,
                 sent: false,
+                type,
             },
         ]);
 
         const res = await messageService.sendMessage(
             user._id,
-            formData.message.trim(),
+            message,
             selectedContact._id,
+            type,
         );
 
         setContacts((prevState) => {
             const contact = prevState.find(
                 (c) => c._id === selectedContact._id,
             );
-            if (contact) {
+            if (contact && res.status === 201) {
                 contact.lastMessage = res.body;
             }
 
@@ -82,8 +88,11 @@ export function SendMessageBar() {
     }
 
     function setFileToUpload(event: any) {
-        setFile(event.target.files[0]);
-        console.log(file);
+        const file = event.target.files[0];
+        setFile(file);
+        void messageService.sendImage(file, user._id);
+        console.log(file.name);
+        void sendMessage(file.name, "image");
     }
 
     return (

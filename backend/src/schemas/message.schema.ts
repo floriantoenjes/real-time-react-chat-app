@@ -22,6 +22,9 @@ export class MessageEntity implements Message {
 
   @Prop({ default: true })
   sent: boolean = true;
+
+  @Prop()
+  type: 'text' | 'image';
 }
 
 export const MessageSchema = SchemaFactory.createForClass(MessageEntity);

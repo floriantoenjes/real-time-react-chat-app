@@ -11,6 +11,7 @@ export const MessageSchema = z.object({
   message: z.string().max(4096),
   read: z.boolean().default(false),
   sent: z.boolean().default(true),
+  type: z.literal('text').or(z.literal('image')),
 });
 
 export type Message = z.infer<typeof MessageSchema>;
@@ -50,6 +51,7 @@ export const messageContract = c.router({
       toUserId: z.string(),
       message: z.string(),
       fromUserId: z.string(),
+      type: z.literal('text').or(z.literal('image')),
     }),
     summary: 'Send a message',
   },
@@ -63,5 +65,18 @@ export const messageContract = c.router({
       msgId: z.string(),
     }),
     summary: 'Mark message as read',
+  },
+  sendImage: {
+    method: 'POST',
+    path: '/image',
+    contentType: 'multipart/form-data',
+    responses: {
+      201: z.boolean(),
+    },
+    body: c.type<{
+      image: File;
+      userId: string;
+    }>(),
+    summary: 'Upload user avatar',
   },
 });

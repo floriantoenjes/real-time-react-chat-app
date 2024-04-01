@@ -1,13 +1,26 @@
-import { Controller } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { RealTimeChatGateway } from '../socket.gateway';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { MessageEntity } from '../schemas/message.schema';
-import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
+import {
+  NestRequestShapes,
+  TsRest,
+  tsRestHandler,
+  TsRestHandler,
+  TsRestRequest,
+} from '@ts-rest/nest';
 import { Message, messageContract } from '../../shared/message.contract';
 import { UserEntity } from '../schemas/user.schema';
 import { UserService } from '../services/user.service';
 import { User } from '../../shared/user.contract';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ObjectStorageService } from '../services/object-storage.service';
 
 @Controller()
 export class MessageController {
@@ -16,6 +29,7 @@ export class MessageController {
     @InjectModel(MessageEntity.name) private messageModel: Model<MessageEntity>,
     @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
     private readonly userService: UserService,
+    private readonly objectStorageService: ObjectStorageService,
   ) {}
 
   @TsRestHandler(messageContract.getMessages)
@@ -86,6 +100,7 @@ export class MessageController {
         message: body.message,
         toUserId: body.toUserId,
         at: new Date(),
+        type: body.type,
       };
 
       const user = await this.userModel
@@ -151,6 +166,34 @@ export class MessageController {
 
       return { status: 200, body: true };
     });
+  }
+
+  @TsRest(messageContract.sendImage)
+  @UseInterceptors(FileInterceptor('image'))
+  async updateUserAvatar(
+    @TsRestRequest()
+    {}: NestRequestShapes<typeof messageContract>['sendImage'],
+    @UploadedFile() image: Express.Multer.File,
+    @Body()
+    body: {
+      userId: string;
+    },
+  ) {
+    body.userId = body.userId.replaceAll('"', '');
+
+    if (!(await this.userModel.findOne({ _id: body.userId }))) {
+      return { status: 404 };
+    }
+
+    await this.objectStorageService.uploadFile(
+      image.buffer,
+      image.originalname,
+    );
+
+    return {
+      status: 200 as const,
+      body: true,
+    };
   }
 
   private emitMessageViaWebSocket(
