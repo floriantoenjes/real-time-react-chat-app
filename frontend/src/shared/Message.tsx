@@ -3,6 +3,7 @@ import { User } from "real-time-chat-backend/shared/user.contract";
 import { useContext } from "react";
 import { ContactsContext } from "./contexts/ContactsContext";
 import { CheckIcon } from "@heroicons/react/16/solid";
+import { Button } from "@mui/material";
 
 export function Message(props: { msg: MessageModel; user: User }) {
     const [contacts] = useContext(ContactsContext).contacts;
@@ -28,6 +29,7 @@ export function Message(props: { msg: MessageModel; user: User }) {
                     {fromUsername}
                     {props.msg.message}
                 </p>
+                {props.msg.type === "image" && <Button>Show</Button>}
                 {props.msg.fromUserId === props.user._id.toString() &&
                     props.msg.sent && (
                         <CheckIcon className={"w-4 h-4 mt-auto"} />
