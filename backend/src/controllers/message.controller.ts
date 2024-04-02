@@ -168,12 +168,12 @@ export class MessageController {
     });
   }
 
-  @TsRest(messageContract.sendImage)
-  @UseInterceptors(FileInterceptor('image'))
+  @TsRest(messageContract.sendFile)
+  @UseInterceptors(FileInterceptor('file'))
   async updateUserAvatar(
     @TsRestRequest()
-    {}: NestRequestShapes<typeof messageContract>['sendImage'],
-    @UploadedFile() image: Express.Multer.File,
+    {}: NestRequestShapes<typeof messageContract>['sendFile'],
+    @UploadedFile() file: Express.Multer.File,
     @Body()
     body: {
       userId: string;
@@ -185,10 +185,7 @@ export class MessageController {
       return { status: 404 };
     }
 
-    await this.objectStorageService.uploadFile(
-      image.buffer,
-      image.originalname,
-    );
+    await this.objectStorageService.uploadFile(file.buffer, file.originalname);
 
     return {
       status: 200 as const,

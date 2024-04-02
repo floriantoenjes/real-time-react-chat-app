@@ -17,6 +17,7 @@ export function SendMessageBar() {
     const [user] = useUserContext();
     const [messages, setMessages] = useContext(MessageContext);
     const messageService = useDiContext().MessageService;
+    const audioService = useDiContext().AudioService;
 
     const handleInputChange = useHandleInputChange(setFormData);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -90,15 +91,33 @@ export function SendMessageBar() {
     function setFileToUpload(event: any) {
         const file = event.target.files[0];
         setFile(file);
-        void messageService.sendImage(file, user._id);
+        void messageService.sendFile(file, user._id);
         console.log(file.name);
         void sendMessage(file.name, "image");
+    }
+
+    function startRecordAudio() {
+        audioService.startAudioRecording();
+    }
+
+    async function endRecordAudio() {
+        const recording = await audioService.stop();
+        await messageService.sendFile(new File([recording], "audio"), user._id);
+        await sendMessage("audio", "audio");
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            console.log(e.target?.result);
+        };
+        reader.readAsDataURL(
+            new Blob([recording], { type: "audio/ogg; codecs=opus" }),
+        );
     }
 
     return (
         <div
             className={"send-message-bar fixed bottom-0 bg-white p-3 flex"}
-            style={{ minWidth: "calc(100% - 375px)", width: "100%" }}
+            style={{ minWidth: "calc(100% - 375px)" }}
         >
             <IconButton onClick={() => fileInputRef.current?.click()}>
                 <PlusIcon className={"w-8"} />
@@ -120,7 +139,11 @@ export function SendMessageBar() {
                 // inputRef={(input) => input && input.focus()}
             ></TextField>
             <IconButton>
-                <MicrophoneIcon className={"w-8"} />
+                <MicrophoneIcon
+                    className={"w-8"}
+                    onMouseDown={startRecordAudio}
+                    onMouseUp={endRecordAudio}
+                />
             </IconButton>
         </div>
     );

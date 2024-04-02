@@ -18,4 +18,19 @@ export class FileService {
             }, ""),
         );
     }
+
+    async loadFile(userId: string, fileName: string) {
+        const res = (await this.clientService
+            .getClient(fileContract)
+            .loadFile({ body: { userId, fileName } })) as any;
+
+        const result = new Uint8Array(Object.values(res.body)).reduce(function (
+            data,
+            byte,
+        ) {
+            return data + String.fromCharCode(byte);
+        }, "");
+        console.log(btoa(result));
+        return btoa(result);
+    }
 }

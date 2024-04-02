@@ -48,12 +48,12 @@ export class MessageService {
         });
     }
 
-    sendImage(image: File, userId: string) {
+    sendFile(file: File, userId: string) {
         return this.clientService
             .getClient<typeof messageContract>(messageContract)
-            .sendImage({
+            .sendFile({
                 body: {
-                    image,
+                    file,
                     userId,
                 },
             });

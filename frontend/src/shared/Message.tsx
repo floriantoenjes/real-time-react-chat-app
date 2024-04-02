@@ -1,6 +1,6 @@
 import { Message as MessageModel } from "real-time-chat-backend/shared/message.contract";
 import { User } from "real-time-chat-backend/shared/user.contract";
-import { useContext, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { ContactsContext } from "./contexts/ContactsContext";
 import { CheckIcon } from "@heroicons/react/16/solid";
 import { Button } from "@mui/material";
@@ -11,6 +11,7 @@ export function Message(props: { msg: MessageModel; user: User }) {
     const fileService = useDiContext().FileService;
 
     const [image, setImage] = useState<string>();
+    const audioRef = useRef<HTMLAudioElement>(null);
 
     let fromUsername = "";
     if (props.msg.fromUserId !== props.user._id) {
@@ -28,6 +29,31 @@ export function Message(props: { msg: MessageModel; user: User }) {
             props.msg.message,
         );
         setImage(image);
+    }
+
+    async function playAudio() {
+        if (props.msg.type !== "audio") {
+            return;
+        }
+        const audio = await fileService.loadFile(
+            props.user._id,
+            props.msg.message,
+        );
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const current = audioRef.current;
+            if (current && e.target) {
+                // const srcUrl = e.target.result;
+                const srcUrl = `data:audio/ogg; codecs=opus;base64,` + audio;
+                if (srcUrl) {
+                    current.src = srcUrl.toString();
+                    void current.play();
+                }
+            }
+        };
+        reader.readAsDataURL(
+            new Blob([audio], { type: "audio/ogg; codecs=opus" }),
+        );
     }
 
     return (
@@ -49,6 +75,12 @@ export function Message(props: { msg: MessageModel; user: User }) {
                         <Button onClick={loadImage}>Show</Button>
                     )}
                     {image && <img src={`data:image/jpg;base64,${image}`} />}
+                    {props.msg.type === "audio" && (
+                        <div>
+                            <Button onClick={playAudio}>Play</Button>
+                            <audio ref={audioRef} />
+                        </div>
+                    )}
                 </div>
                 {props.msg.fromUserId === props.user._id.toString() &&
                     props.msg.sent && (
