@@ -32,7 +32,7 @@ export class AudioService {
                         //create a media recorder instance by passing that stream into the MediaRecorder constructor
 
                         this.mediaRecorder = new MediaRecorder(stream, {
-                            mimeType: "audio/webm",
+                            mimeType: "audio/webm;codecs=opus",
                         }); /*the MediaRecorder interface of the MediaStream Recording
                         API provides functionality to easily record media*/
 
