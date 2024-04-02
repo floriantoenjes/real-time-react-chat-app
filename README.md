@@ -15,6 +15,8 @@ Right now users can...
 * create chat groups with multiple users and exchange messages.
 * clean up or delete chats.
 * receive messages and see if they have been read in real time.
+* edit their profiles, look at other user's profiles
+* send images
 
 ### Technical Details
 

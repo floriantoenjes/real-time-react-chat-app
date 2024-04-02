@@ -24,9 +24,9 @@ export const fileContract = c.router({
     summary: 'Upload a file',
   },
   loadFile: {
-    method: 'GET',
-    path: '/files/:userId/:fileName',
-    pathParams: z.object({ userId: z.string(), fileName: z.string() }),
+    method: 'POST',
+    path: '/get-file',
+    body: z.object({ userId: z.string(), fileName: z.string() }),
     responses: {
       200: c.type<Uint8Array>(),
     },

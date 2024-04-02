@@ -18,6 +18,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './services/constants';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guards/auth.guard';
+import { FileController } from './controllers/file.controller';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { AuthGuard } from './guards/auth.guard';
   controllers: [
     AppController,
     ContactController,
+    FileController,
     MessageController,
     UserController,
     ContactGroupController,
