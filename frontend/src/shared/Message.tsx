@@ -44,7 +44,7 @@ export function Message(props: { msg: MessageModel; user: User }) {
             const current = audioRef.current;
             if (current && e.target) {
                 // const srcUrl = e.target.result;
-                const srcUrl = `data:audio/ogg; codecs=opus;base64,` + audio;
+                const srcUrl = `data:audio/webm;base64,` + audio;
                 if (srcUrl) {
                     current.src = srcUrl.toString();
                     void current.play();

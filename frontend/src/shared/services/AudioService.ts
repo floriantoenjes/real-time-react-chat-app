@@ -30,9 +30,10 @@ export class AudioService {
                         this.streamBeingCaptured = stream;
 
                         //create a media recorder instance by passing that stream into the MediaRecorder constructor
-                        this.mediaRecorder = new MediaRecorder(
-                            stream,
-                        ); /*the MediaRecorder interface of the MediaStream Recording
+
+                        this.mediaRecorder = new MediaRecorder(stream, {
+                            mimeType: "audio/webm",
+                        }); /*the MediaRecorder interface of the MediaStream Recording
                         API provides functionality to easily record media*/
 
                         //clear previously saved audio Blobs, if any

@@ -109,9 +109,7 @@ export function SendMessageBar() {
         reader.onload = function (e) {
             console.log(e.target?.result);
         };
-        reader.readAsDataURL(
-            new Blob([recording], { type: "audio/ogg; codecs=opus" }),
-        );
+        reader.readAsDataURL(new Blob([recording], { type: "audio/webm" }));
     }
 
     return (
