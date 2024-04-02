@@ -141,6 +141,8 @@ export function SendMessageBar() {
             <IconButton>
                 <MicrophoneIcon
                     className={"w-8"}
+                    onTouchStart={startRecordAudio}
+                    onTouchEnd={endRecordAudio}
                     onMouseDown={startRecordAudio}
                     onMouseUp={endRecordAudio}
                 />
