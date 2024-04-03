@@ -1,7 +1,7 @@
 import "./SendMessageBar.css";
 import { IconButton, TextField } from "@mui/material";
 import { MicrophoneIcon, PlusIcon } from "@heroicons/react/24/outline";
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { checkEnterPressed, useHandleInputChange } from "../../../helpers";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
@@ -22,10 +22,21 @@ export function SendMessageBar() {
     const recorder = new MicRecorder({
         bitRate: 128,
     });
+    let isRecording = useRef(false);
 
     const handleInputChange = useHandleInputChange(setFormData);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [file, setFile] = useState<File>();
+
+    useEffect(() => {
+        window.addEventListener("mouseup", endRecordAudio);
+        window.addEventListener("touchend", endRecordAudio);
+
+        return () => {
+            window.removeEventListener("mouseup", endRecordAudio);
+            window.removeEventListener("touchend", endRecordAudio);
+        };
+    }, [recorder]);
 
     async function sendOnEnterPressed(event: any) {
         if (checkEnterPressed(event) && formData?.message.trim().length) {
@@ -99,11 +110,18 @@ export function SendMessageBar() {
         void sendMessage(file.name, "image");
     }
 
-    function startRecordAudio() {
+    async function startRecordAudio() {
+        await new Audio("sounds/start_record.mp3").play();
         void recorder.start();
+        isRecording.current = true;
     }
 
     async function endRecordAudio() {
+        if (!isRecording.current) {
+            return;
+        }
+        isRecording.current = false;
+
         const fileName = `audio-${user._id}-${new Date().getTime()}`;
         const [buffer, blob] = await recorder.stop().getMp3();
         const file = new File(buffer, fileName, {
@@ -140,9 +158,7 @@ export function SendMessageBar() {
                 <MicrophoneIcon
                     className={"w-8"}
                     onTouchStart={startRecordAudio}
-                    onTouchEnd={endRecordAudio}
                     onMouseDown={startRecordAudio}
-                    onMouseUp={endRecordAudio}
                 />
             </IconButton>
         </div>
