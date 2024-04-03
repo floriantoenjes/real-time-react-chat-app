@@ -1,3 +1,4 @@
+import "./SendMessageBar.css";
 import { IconButton, TextField } from "@mui/material";
 import { MicrophoneIcon, PlusIcon } from "@heroicons/react/24/outline";
 import React, { useContext, useRef, useState } from "react";
@@ -115,10 +116,7 @@ export function SendMessageBar() {
     }
 
     return (
-        <div
-            className={"send-message-bar fixed bottom-0 bg-white p-3 flex"}
-            style={{ minWidth: "calc(100% - 375px)" }}
-        >
+        <div className={"send-message-bar fixed bottom-0 bg-white p-3 flex"}>
             <IconButton onClick={() => fileInputRef.current?.click()}>
                 <PlusIcon className={"w-8"} />
             </IconButton>

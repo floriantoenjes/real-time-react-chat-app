@@ -1,0 +1,9 @@
+.send-message-bar {
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .send-message-bar {
+        width: calc(100% - 375px);
+    }
+}
