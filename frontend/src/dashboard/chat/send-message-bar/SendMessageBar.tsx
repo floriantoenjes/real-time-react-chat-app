@@ -104,17 +104,15 @@ export function SendMessageBar() {
     }
 
     async function endRecordAudio() {
+        const fileName = `audio-${user._id}-${new Date().getTime()}`;
         const [buffer, blob] = await recorder.stop().getMp3();
-        const file = new File(buffer, "audio", {
+        const file = new File(buffer, fileName, {
             type: blob.type,
             lastModified: Date.now(),
         });
 
         await messageService.sendFile(file, user._id);
-        await sendMessage("audio", "audio");
-
-        const player = new Audio(URL.createObjectURL(file));
-        player.play().then();
+        await sendMessage(fileName, "audio");
     }
 
     return (
