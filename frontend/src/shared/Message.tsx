@@ -39,21 +39,19 @@ export function Message(props: { msg: MessageModel; user: User }) {
             props.user._id,
             props.msg.message,
         );
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            const current = audioRef.current;
-            if (current && e.target) {
-                // const srcUrl = e.target.result;
-                const srcUrl = `data:audio/webm;codecs=opus;base64,` + audio;
-                if (srcUrl) {
-                    current.src = srcUrl.toString();
-                    void current.play();
-                }
-            }
-        };
-        reader.readAsDataURL(
-            new Blob([audio], { type: "audio/ogg; codecs=opus" }),
-        );
+
+        const file = new File([audio], "audio", { type: "audio/mp3" });
+        new Audio(URL.createObjectURL(file)).play().then();
+        // const current = audioRef.current;
+        // if (current) {
+        //     // const srcUrl = e.target.result;
+        //     const srcUrl = `data:audio/mp3;base64,` + audio;
+        //     console.log("srcUrl", srcUrl);
+        //     if (srcUrl) {
+        //         current.src = srcUrl.toString();
+        //         void current.play();
+        //     }
+        // }
     }
 
     return (

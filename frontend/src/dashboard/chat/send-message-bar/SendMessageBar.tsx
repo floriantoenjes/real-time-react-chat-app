@@ -18,7 +18,10 @@ export function SendMessageBar() {
     const [user] = useUserContext();
     const [messages, setMessages] = useContext(MessageContext);
     const messageService = useDiContext().MessageService;
-    const audioService = useDiContext().AudioService;
+    // @ts-ignore
+    const recorder = new MicRecorder({
+        bitRate: 128,
+    });
 
     const handleInputChange = useHandleInputChange(setFormData);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -93,26 +96,25 @@ export function SendMessageBar() {
         const file = event.target.files[0];
         setFile(file);
         void messageService.sendFile(file, user._id);
-        console.log(file.name);
         void sendMessage(file.name, "image");
     }
 
     function startRecordAudio() {
-        audioService.startAudioRecording();
+        void recorder.start();
     }
 
     async function endRecordAudio() {
-        const recording = await audioService.stop();
-        await messageService.sendFile(new File([recording], "audio"), user._id);
+        const [buffer, blob] = await recorder.stop().getMp3();
+        const file = new File(buffer, "audio", {
+            type: blob.type,
+            lastModified: Date.now(),
+        });
+
+        await messageService.sendFile(file, user._id);
         await sendMessage("audio", "audio");
 
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            console.log(e.target?.result);
-        };
-        reader.readAsDataURL(
-            new Blob([recording], { type: "audio/webm;codecs=opus" }),
-        );
+        const player = new Audio(URL.createObjectURL(file));
+        player.play().then();
     }
 
     return (
