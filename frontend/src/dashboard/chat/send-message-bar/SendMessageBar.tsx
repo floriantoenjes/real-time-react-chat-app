@@ -111,9 +111,11 @@ export function SendMessageBar() {
     }
 
     async function startRecordAudio() {
-        await new Audio("sounds/start_record.mp3").play();
-        void recorder.start();
-        isRecording.current = true;
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(async () => {
+            await new Audio("sounds/start_record.mp3").play();
+            void recorder.start();
+            isRecording.current = true;
+        });
     }
 
     async function endRecordAudio() {
