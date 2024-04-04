@@ -29,12 +29,10 @@ export function SendMessageBar() {
     const [file, setFile] = useState<File>();
 
     useEffect(() => {
-        window.addEventListener("mouseup", endRecordAudio);
-        // window.addEventListener("touchend", endRecordAudio);
+        window.addEventListener("pointerup", endRecordAudio);
 
         return () => {
-            window.removeEventListener("mouseup", endRecordAudio);
-            // window.removeEventListener("touchend", endRecordAudio);
+            window.removeEventListener("pointerup", endRecordAudio);
         };
     }, [recorder]);
 
@@ -159,8 +157,7 @@ export function SendMessageBar() {
             <IconButton>
                 <MicrophoneIcon
                     className={"w-8"}
-                    // onTouchStart={startRecordAudio}
-                    onMouseDown={startRecordAudio}
+                    onPointerDown={startRecordAudio}
                 />
             </IconButton>
         </div>
