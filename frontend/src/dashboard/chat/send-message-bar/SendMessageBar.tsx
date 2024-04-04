@@ -23,6 +23,7 @@ export function SendMessageBar() {
         bitRate: 128,
     });
     let isRecording = useRef(false);
+    let askedPermission = useRef(false);
 
     const handleInputChange = useHandleInputChange(setFormData);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -110,6 +111,10 @@ export function SendMessageBar() {
 
     async function startRecordAudio() {
         navigator.mediaDevices.getUserMedia({ audio: true }).then(async () => {
+            if (!askedPermission.current) {
+                askedPermission.current = true;
+                return;
+            }
             await new Audio("sounds/start_record.mp3").play();
             void recorder.start();
             isRecording.current = true;
