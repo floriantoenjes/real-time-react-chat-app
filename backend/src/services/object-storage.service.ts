@@ -5,10 +5,12 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class ObjectStorageService {
   private s3: S3;
+
   constructor(readonly configService: ConfigService) {
     this.s3 = new S3({
-      endpoint: 'https://fra1.digitaloceanspaces.com',
-      region: 'fra1',
+      endpoint: configService.get('S3_URL'),
+      forcePathStyle: configService.get('S3_DEBUG'),
+      region: configService.get('S3_REGION'),
       credentials: {
         accessKeyId:
           configService.get('S3_ACCESS_KEY_ID') ??
@@ -26,7 +28,7 @@ export class ObjectStorageService {
     filename: string,
   ): Promise<string | undefined> {
     const params = {
-      Bucket: 'florians-realtime-chat-bucket',
+      Bucket: this.configService.get('S3_BUCKET_NAME'),
       Key: filename,
       Body: buffer,
     };
@@ -37,7 +39,7 @@ export class ObjectStorageService {
 
   async loadFile(fileName: string) {
     const params = {
-      Bucket: 'florians-realtime-chat-bucket',
+      Bucket: this.configService.get('S3_BUCKET_NAME'),
       Key: fileName,
     };
     const res = await this.s3.getObject(params);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import "./App.css";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { Login } from "./login/Login";
@@ -11,6 +11,77 @@ import { User } from "real-time-chat-backend/shared/user.contract";
 import { Register } from "./register/Register";
 import { useDiContext } from "./shared/contexts/DiContext";
 import { getSetUserWithAvatarBytesOptional } from "./shared/helpers";
+import { AuthService } from "./shared/services/AuthService";
+
+function initializeWebSocket<ListenEvents>(
+    setSocket: Dispatch<SetStateAction<Socket | undefined>>,
+    user: User,
+) {
+    let interval: NodeJS.Timer;
+    console.log(user._id);
+    const socket = io(BACKEND_URL, {
+        query: { userId: user?._id },
+    });
+    socket.connect();
+    setSocket(socket);
+
+    socket.on("connect", function () {
+        console.log("WebSocket connected", socket);
+    });
+
+    socket.on("disconnect", function () {
+        setSocket(undefined);
+        interval = setInterval(() => {
+            console.log("WebSocket disconnected. Reconnecting...");
+            socket.connect();
+            if (socket.connected) {
+                setSocket(socket);
+                console.log("WebSocket reconnected.");
+                clearInterval(interval);
+            }
+        }, 1000);
+    });
+
+    return () => {
+        clearInterval(interval);
+        socket?.disconnect();
+        setSocket(undefined);
+    };
+}
+
+function authenticateUserAndFetchAvatar(
+    user: User | undefined,
+    authService: AuthService,
+    setUserWithAvatarBytes: (
+        setUser: React.Dispatch<React.SetStateAction<User | undefined>>,
+    ) => (user: React.SetStateAction<User | undefined>) => void,
+    setUser: Dispatch<SetStateAction<User | undefined>>,
+    signOut: () => void,
+) {
+    if (!user && !!localStorage.getItem(LOCAL_STORAGE_AUTH_KEY)) {
+        authService
+            .refresh()
+            .then((user) => {
+                if (user) {
+                    setUserWithAvatarBytes(setUser)(user);
+                    return;
+                }
+
+                if (!user) {
+                    signOut();
+                }
+            })
+            .catch(() => {
+                signOut();
+            });
+        return;
+    }
+
+    if (user) {
+        setUserWithAvatarBytes(setUser)(user);
+        return;
+    }
+}
 
 function App() {
     const navigate = useNavigate();
@@ -22,72 +93,19 @@ function App() {
         getSetUserWithAvatarBytesOptional(userService);
 
     useEffect(() => {
-        let interval: NodeJS.Timer;
-        if (user?._id) {
-            console.log(user._id);
-            const socket = io(BACKEND_URL, {
-                query: { userId: user?._id },
-            });
-            socket.connect();
-            setSocket(socket);
+        authenticateUserAndFetchAvatar(
+            user,
+            authService,
+            setUserWithAvatarBytes,
+            setUser,
+            signOut,
+        );
 
-            socket.on("connect", function () {
-                console.log("WebSocket connected", socket);
-            });
-
-            socket.on("disconnect", function () {
-                setSocket(undefined);
-                interval = setInterval(() => {
-                    console.log("WebSocket disconnected. Reconnecting...");
-                    socket.connect();
-                    if (socket.connected) {
-                        setSocket(socket);
-                        console.log("WebSocket reconnected.");
-                        clearInterval(interval);
-                    }
-                }, 1000);
-            });
-        }
-
-        return () => {
-            clearInterval(interval);
-            socket?.disconnect();
-            setSocket(undefined);
-        };
-        // eslint-disable-next-line
-    }, [user?._id]);
-
-    useEffect(() => {
-        if (!user && !!localStorage.getItem(LOCAL_STORAGE_AUTH_KEY)) {
-            authService
-                .refresh()
-                .then((user) => {
-                    if (user) {
-                        setUserWithAvatarBytes(setUser)(user);
-                        return;
-                    }
-
-                    if (!user) {
-                        signOut();
-                    }
-                })
-                .catch(() => {
-                    signOut();
-                });
-            return;
-        }
-
-        if (user) {
-            setUserWithAvatarBytes(setUser)(user);
-            return;
-        }
-    }, [user?._id]);
-
-    useEffect(() => {
         if (user?._id) {
             navigate("/dashboard");
+            return initializeWebSocket(setSocket, user);
         }
-    }, [user]);
+    }, [user?._id]);
 
     function signOut() {
         localStorage.removeItem(LOCAL_STORAGE_AUTH_KEY);

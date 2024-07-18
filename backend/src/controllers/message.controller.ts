@@ -170,7 +170,7 @@ export class MessageController {
 
   @TsRest(messageContract.sendFile)
   @UseInterceptors(FileInterceptor('file'))
-  async updateUserAvatar(
+  async uploadFile(
     @TsRestRequest()
     {}: NestRequestShapes<typeof messageContract>['sendFile'],
     @UploadedFile() file: Express.Multer.File,

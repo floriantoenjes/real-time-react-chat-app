@@ -21,6 +21,7 @@ export function GroupCreation(props: { user: User; toggleDrawer: any }) {
     useEffect(() => {
         setPotentialGroupMembers(contacts);
     }, [contacts]);
+
     function addGroupMember(contact: ContactModel) {
         if (groupMembers.find((c) => c === contact.name)) {
             return;
