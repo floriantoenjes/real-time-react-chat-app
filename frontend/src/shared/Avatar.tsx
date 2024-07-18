@@ -14,8 +14,10 @@ export function Avatar(props: {
         <div
             className={"mr-3 flex justify-center items-center"}
             style={{
-                width: props.width ?? "2.5rem",
-                height: props.height ?? "2.5rem",
+                minWidth: props.width ?? "2.5rem",
+                minHeight: props.height ?? "2.5rem",
+                maxWidth: props.width ?? "2.5rem",
+                maxHeight: props.height ?? "2.5rem",
                 backgroundColor: "lightblue",
                 borderRadius: "50%",
             }}

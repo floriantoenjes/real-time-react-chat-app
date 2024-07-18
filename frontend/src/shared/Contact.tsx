@@ -16,7 +16,7 @@ export function Contact(props: {
             }
             onClick={props.onContactSelect}
         >
-            <Avatar width={"3.4rem"} height={"2.8rem"} user={props.contact} />
+            <Avatar width={"3rem"} height={"3rem"} user={props.contact} />
             <div className={"flex-col w-full"}>
                 <div className={"flex justify-between"}>
                     <div>{props.contact.name}</div>
@@ -28,7 +28,7 @@ export function Contact(props: {
                         </div>
                     )}
                 </div>
-                <div className={"text-gray-500"}>
+                <div className={"text-gray-500"} style={{ maxWidth: "18rem" }}>
                     {props.contact.lastMessage &&
                         (props.contact.lastMessage.message.length > 35
                             ? props.contact.lastMessage?.message.substring(
