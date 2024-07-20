@@ -25,3 +25,7 @@ spec:
               value: "mongodb://mongodb:27017"
             - name: redis
               value: "redis://redis:6379"
+          readinessProbe:
+            httpGet:
+              path: "/ready"
+              port: 4200

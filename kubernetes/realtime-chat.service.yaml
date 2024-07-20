@@ -12,5 +12,4 @@ spec:
   type: LoadBalancer
   externalIPs:
     - 192.168.2.200
-  sessionAffinity: ClientIP
 

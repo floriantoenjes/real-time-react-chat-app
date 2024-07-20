@@ -21,6 +21,8 @@ export class RealTimeChatGateway
   server: Server;
 
   handleConnection(socket: Socket): void {
+    // TODO: Check for JWT for security here
+
     const userId = socket.handshake.query.userId as string;
     console.log(`New connection: ${socket.id} for user: ${userId}`);
     // Join the socket to a room named after the userId
