@@ -68,8 +68,8 @@ export class MessageController {
             { _id: message._id },
             { read: true },
           );
-          this.gateway.connectedSocketsMap
-            .get(message.fromUserId)
+          this.gateway
+            .prepareSendMessage(message.fromUserId)
             ?.emit('messageRead', message._id);
         }
       }
@@ -160,8 +160,8 @@ export class MessageController {
       msg.read = true;
       const updatedMsg = await msg.save();
 
-      this.gateway.connectedSocketsMap
-        .get(updatedMsg.fromUserId)
+      this.gateway
+        .prepareSendMessage(updatedMsg.fromUserId)
         ?.emit('messageRead', updatedMsg._id);
 
       return { status: 200, body: true };
@@ -197,8 +197,8 @@ export class MessageController {
     userSocketId: string,
     messageToSend: Message,
   ) {
-    this.gateway.connectedSocketsMap
-      .get(userSocketId)
+    this.gateway
+      .prepareSendMessage(userSocketId)
       ?.emit('message', messageToSend);
   }
 
