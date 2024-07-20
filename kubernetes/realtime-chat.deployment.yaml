@@ -16,7 +16,7 @@ spec:
         app: realtime-chat
     spec:
       containers:
-        - image: florians-realtime-chat:1.0.3
+        - image: florians-realtime-chat:1.0.5
           name: florians-realtime-chat
           resources: {}
           imagePullPolicy: Never
