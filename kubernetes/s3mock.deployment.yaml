@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: s3-mock
+  labels:
+    app: s3-mock
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: s3-mock
+  template:
+    metadata:
+      name: s3-mock
+      labels:
+        app: s3-mock
+    spec:
+      containers:
+        - name: s3-mock
+          image: adobe/s3mock:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9090
+              protocol: TCP
+      restartPolicy: Always
+
+

@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: realtime-chat
+  name: realtime-chat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: realtime-chat
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: realtime-chat
+    spec:
+      containers:
+        - image: florians-realtime-chat:1.0.3
+          name: florians-realtime-chat
+          resources: {}
+          imagePullPolicy: Never
+          env:
+            - name: uri
+              value: "mongodb://mongodb:27017"

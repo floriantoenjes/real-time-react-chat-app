@@ -1,6 +1,6 @@
 {
   "name": "real-time-chat-app",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,8 @@
     "build-frontend": "cd frontend && npm run build",
     "build-backend": "cd backend && npm run build",
     "start": "node backend/dist/src/main",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docker:build": "npm run build && docker build -t florians-realtime-chat:1.0.3 ."
   },
   "dependencies": {
     "@nestjs/cli": "^10.0.0"
