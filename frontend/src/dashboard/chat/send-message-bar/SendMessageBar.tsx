@@ -1,6 +1,10 @@
 import "./SendMessageBar.css";
 import { IconButton, TextField } from "@mui/material";
-import { MicrophoneIcon, PlusIcon } from "@heroicons/react/24/outline";
+import {
+    MicrophoneIcon,
+    PaperAirplaneIcon,
+    PlusIcon,
+} from "@heroicons/react/24/outline";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { checkEnterPressed, useHandleInputChange } from "../../../helpers";
 import { useUserContext } from "../../../shared/contexts/UserContext";
@@ -160,10 +164,18 @@ export function SendMessageBar() {
                 // inputRef={(input) => input && input.focus()}
             ></TextField>
             <IconButton>
-                <MicrophoneIcon
-                    className={"w-8"}
-                    onPointerDown={startRecordAudio}
-                />
+                {formData.message.trim().length >= 1 && (
+                    <PaperAirplaneIcon
+                        className={"w-8"}
+                        onPointerDown={(event) => sendMessage()}
+                    />
+                )}
+                {formData.message.trim().length === 0 && (
+                    <MicrophoneIcon
+                        className={"w-8"}
+                        onPointerDown={startRecordAudio}
+                    />
+                )}
             </IconButton>
         </div>
     );
