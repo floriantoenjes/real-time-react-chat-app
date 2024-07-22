@@ -18,7 +18,13 @@ spec:
       containers:
         - image: europe-west3-docker.pkg.dev/my-project-1470767799419/realtime-chat-repo/realtime-chat-gke:1.1.0
           name: florians-realtime-chat
-          resources: {}
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
           imagePullPolicy: IfNotPresent
           env:
             - name: uri

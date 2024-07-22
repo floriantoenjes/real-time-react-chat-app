@@ -22,5 +22,12 @@ spec:
           ports:
             - containerPort: 6379
               protocol: TCP
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "125m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
       restartPolicy: Always
 
