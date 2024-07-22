@@ -167,7 +167,10 @@ export function SendMessageBar() {
                 {formData.message.trim().length >= 1 && (
                     <PaperAirplaneIcon
                         className={"w-8"}
-                        onPointerDown={(event) => sendMessage()}
+                        onPointerDown={async (event) => {
+                            await sendMessage();
+                            setFormData({ message: "" });
+                        }}
                     />
                 )}
                 {formData.message.trim().length === 0 && (
