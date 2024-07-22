@@ -9,7 +9,7 @@ export class ObjectStorageService {
   constructor(readonly configService: ConfigService) {
     this.s3 = new S3({
       endpoint: configService.get('S3_URL'),
-      forcePathStyle: configService.get('S3_DEBUG'),
+      forcePathStyle: !!configService.get('S3_DEBUG'),
       region: configService.get('S3_REGION'),
       credentials: {
         accessKeyId:

@@ -16,16 +16,28 @@ spec:
         app: realtime-chat
     spec:
       containers:
-        - image: florians-realtime-chat:1.0.7
+        - image: europe-west3-docker.pkg.dev/my-project-1470767799419/realtime-chat-repo/realtime-chat-gke:1.1.0
           name: florians-realtime-chat
           resources: {}
-          imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
           env:
             - name: uri
               value: "mongodb://mongodb:27017"
             - name: redis
               value: "redis://redis:6379"
+            - name: S3_URL
+              value: "http://s3mock:9090"
+            - name: S3_DEBUG
+              value: "true"
+            - name: S3_REGION
+              value: "fra1"
+            - name: S3_BUCKET_NAME
+              value: "florians-realtime-chat-bucket"
           readinessProbe:
+            httpGet:
+              path: "/ready"
+              port: 4200
+          livenessProbe:
             httpGet:
               path: "/ready"
               port: 4200

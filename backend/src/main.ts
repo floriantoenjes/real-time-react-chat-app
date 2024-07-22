@@ -4,7 +4,11 @@ import { RedisIoAdapter } from './adapters/RedisIoAdapter';
 
 async function bootstrap() {
   console.log(
-    `Connecting to uri: ${process.env.uri} with username: ${process.env.user} and dbName: ${process.env.dbName}`,
+    `Connecting to db uri: ${process.env.uri} with username: ${process.env.user} and dbName: ${process.env.dbName}`,
+  );
+
+  console.log(
+    `Connecting to S3: ${process.env.S3_URL} at ${process.env.S3_REGION} with debug flag ${process.env.S3_DEBUG}`,
   );
 
   const app = await NestFactory.create(AppModule);

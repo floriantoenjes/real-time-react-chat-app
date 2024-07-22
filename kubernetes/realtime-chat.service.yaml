@@ -9,7 +9,4 @@ spec:
     - protocol: TCP
       port: 4200
       targetPort: 4200
-  type: LoadBalancer
-  externalIPs:
-    - 192.168.2.200
-
+  type: ClusterIP
