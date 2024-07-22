@@ -5,7 +5,7 @@ metadata:
     app: realtime-chat
   name: realtime-chat
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: realtime-chat
@@ -16,7 +16,7 @@ spec:
         app: realtime-chat
     spec:
       containers:
-        - image: europe-west3-docker.pkg.dev/my-project-1470767799419/realtime-chat-repo/realtime-chat-gke:1.1.1
+        - image: europe-west3-docker.pkg.dev/my-project-1470767799419/realtime-chat-repo/realtime-chat-gke:1.1.2
           name: florians-realtime-chat
           resources:
             requests:

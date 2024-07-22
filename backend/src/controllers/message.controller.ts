@@ -88,6 +88,12 @@ export class MessageController {
         fromUserId: body.fromUserId,
         toUserId: body.toUserId,
       });
+
+      await this.messageModel.deleteMany({
+        toUserId: body.fromUserId,
+        fromUserId: body.toUserId,
+      });
+
       return { status: 200, body: true };
     });
   }
