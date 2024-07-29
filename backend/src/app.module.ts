@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { RealTimeChatGateway } from './socket.gateway';
+import { RealTimeChatGateway } from './gateways/socket.gateway';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MessageEntity, MessageSchema } from './schemas/message.schema';
 import { UserEntity, UserSchema } from './schemas/user.schema';
@@ -21,48 +21,48 @@ import { AuthGuard } from './guards/auth.guard';
 import { FileController } from './controllers/file.controller';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot(),
-    ServeStaticModule.forRoot({
-      serveRoot: '/frontend',
-      rootPath: join(__dirname, '..', '..', '..', 'frontend/dist'),
-    }),
-    MongooseModule.forRoot(process.env.uri ?? 'mongodb://localhost', {
-      user: process.env.user,
-      pass: process.env.pass,
-      dbName: 'real-time-chat',
-    }),
-    MongooseModule.forFeature([
-      { name: MessageEntity.name, schema: MessageSchema },
-      // { name: ContactEntity.name, schema: ContactSchema },
-      // { name: ContactGroup.name, schema: ContactGroupSchema },
-      { name: UserEntity.name, schema: UserSchema },
-    ]),
-    JwtModule.register({
-      global: true,
-      secret: jwtConstants.secret,
-      signOptions: {
-        expiresIn: '600s',
-      },
-    }),
-  ],
-  controllers: [
-    AppController,
-    ContactController,
-    FileController,
-    MessageController,
-    UserController,
-    ContactGroupController,
-  ],
-  providers: [
-    AppService,
-    RealTimeChatGateway,
-    UserService,
-    ObjectStorageService,
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    },
-  ],
+    imports: [
+        ConfigModule.forRoot(),
+        ServeStaticModule.forRoot({
+            serveRoot: '/frontend',
+            rootPath: join(__dirname, '..', '..', '..', 'frontend/dist'),
+        }),
+        MongooseModule.forRoot(process.env.uri ?? 'mongodb://localhost', {
+            user: process.env.user,
+            pass: process.env.pass,
+            dbName: 'real-time-chat',
+        }),
+        MongooseModule.forFeature([
+            { name: MessageEntity.name, schema: MessageSchema },
+            // { name: ContactEntity.name, schema: ContactSchema },
+            // { name: ContactGroup.name, schema: ContactGroupSchema },
+            { name: UserEntity.name, schema: UserSchema },
+        ]),
+        JwtModule.register({
+            global: true,
+            secret: jwtConstants.secret,
+            signOptions: {
+                expiresIn: '600s',
+            },
+        }),
+    ],
+    controllers: [
+        AppController,
+        ContactController,
+        FileController,
+        MessageController,
+        UserController,
+        ContactGroupController,
+    ],
+    providers: [
+        AppService,
+        RealTimeChatGateway,
+        UserService,
+        ObjectStorageService,
+        {
+            provide: APP_GUARD,
+            useClass: AuthGuard,
+        },
+    ],
 })
 export class AppModule {}
