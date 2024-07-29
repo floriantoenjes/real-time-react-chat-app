@@ -24,6 +24,7 @@ The backend...
 * is written in TypeScript making use of NestJS as a framework.
 * talks via mongoose to a MongoDb cluster for data persistence.
 * serves the frontend as well
+* makes its WebSocket connections scalable by using a Redis instance
 
 The frontend...
 * is also written in TypeScript making use of React v18 as a framework.
@@ -39,5 +40,6 @@ Backend and frontend...
 
 ### Next TODOs
 * Implement sending of audio files in chat
+* Implement Voice Calls
 * Check JWTs for expiration
 * Implement backend validation
