@@ -19,6 +19,7 @@ function initializeWebSocket<ListenEvents>(
     setSocket: Dispatch<SetStateAction<Socket | undefined>>,
     user: User,
 ) {
+    // @ts-ignore
     let interval: NodeJS.Timer;
     console.log(user._id);
     const socket = io(BACKEND_URL, {
@@ -116,6 +117,7 @@ function App() {
     }
 
     const [peer, setPeer] = useState<Peer | null>(null);
+    const [stream, setStream] = useState<MediaStream | null>(null);
 
     useEffect(() => {
         console.log(peer, setPeer);
@@ -140,7 +142,9 @@ function App() {
     return (
         <UserContext.Provider value={[user, setUserWithAvatarBytes(setUser)]}>
             <SocketContext.Provider value={[socket, setSocket]}>
-                <PeerContext.Provider value={[peer, setPeer]}>
+                <PeerContext.Provider
+                    value={{ peer, setPeer, stream, setStream }}
+                >
                     <Routes>
                         <Route path="/" element={<Login />} />
                         <Route path="/register" element={<Register />} />

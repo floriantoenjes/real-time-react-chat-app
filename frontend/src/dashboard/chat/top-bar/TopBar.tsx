@@ -6,14 +6,7 @@ import {
     VideoCameraIcon,
 } from "@heroicons/react/24/outline";
 import { Drawer, IconButton, Menu, MenuItem } from "@mui/material";
-import React, {
-    Dispatch,
-    MouseEvent,
-    SetStateAction,
-    useContext,
-    useEffect,
-    useState,
-} from "react";
+import React, { MouseEvent, useContext, useEffect, useState } from "react";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
@@ -23,10 +16,7 @@ import { useDiContext } from "../../../shared/contexts/DiContext";
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
 import { PeerContext } from "../../../shared/contexts/PeerContext";
 
-export function TopBar(props: {
-    stream: MediaStream | null;
-    setStream: Dispatch<SetStateAction<MediaStream | null>>;
-}) {
+export function TopBar() {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [user] = useUserContext();
     const [contacts, setContacts] = useContext(ContactsContext).contacts;
@@ -110,7 +100,7 @@ export function TopBar(props: {
             setState({ ...state, [anchor]: open });
         };
 
-    const [peer, setPeer] = useContext(PeerContext);
+    const { peer, setStream } = useContext(PeerContext);
 
     async function startVideoCall() {
         if (!selectedContact) {
@@ -129,7 +119,7 @@ export function TopBar(props: {
                 const call = peer.call(selectedContact?.name, stream);
                 call.on("stream", (remoteStream) => {
                     // Show stream in some <video> element.
-                    props.setStream(remoteStream);
+                    setStream(remoteStream);
                 });
             })
             .catch((reason) => console.log(reason));
@@ -139,21 +129,6 @@ export function TopBar(props: {
         if (!peer) {
             return;
         }
-        peer.on("call", (call) => {
-            navigator.mediaDevices
-                .getUserMedia({ video: true, audio: true })
-                .then(
-                    (stream) => {
-                        call.answer(stream); // Answer the call with an A/V stream.
-                        call.on("stream", (remoteStream) => {
-                            props.setStream(remoteStream);
-                        });
-                    },
-                    (err) => {
-                        console.error("Failed to get local stream", err);
-                    },
-                );
-        });
     }, [peer]);
 
     return (
