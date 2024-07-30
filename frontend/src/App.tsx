@@ -12,6 +12,8 @@ import { Register } from "./register/Register";
 import { useDiContext } from "./shared/contexts/DiContext";
 import { getSetUserWithAvatarBytesOptional } from "./shared/helpers";
 import { AuthService } from "./shared/services/AuthService";
+import { PeerContext } from "./shared/contexts/PeerContext";
+import Peer from "peerjs";
 
 function initializeWebSocket<ListenEvents>(
     setSocket: Dispatch<SetStateAction<Socket | undefined>>,
@@ -113,17 +115,41 @@ function App() {
         navigate("/");
     }
 
+    const [peer, setPeer] = useState<Peer | null>(null);
+
+    useEffect(() => {
+        console.log(peer, setPeer);
+        if (user && !peer) {
+            const newPeer = new Peer(user.username, {
+                host: "localhost",
+                port: 9000,
+                path: "/",
+            });
+            setPeer(newPeer);
+
+            newPeer.on("open", (id) => {
+                console.log("My peer ID is: " + id);
+            });
+
+            newPeer.on("error", (err) => {
+                console.error("Peer error:", err);
+            });
+        }
+    }, [user?.username]);
+
     return (
         <UserContext.Provider value={[user, setUserWithAvatarBytes(setUser)]}>
             <SocketContext.Provider value={[socket, setSocket]}>
-                <Routes>
-                    <Route path="/" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route
-                        path="/dashboard"
-                        element={<Dashboard user={user} />}
-                    />
-                </Routes>
+                <PeerContext.Provider value={[peer, setPeer]}>
+                    <Routes>
+                        <Route path="/" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
+                        <Route
+                            path="/dashboard"
+                            element={<Dashboard user={user} />}
+                        />
+                    </Routes>
+                </PeerContext.Provider>
             </SocketContext.Provider>
         </UserContext.Provider>
     );

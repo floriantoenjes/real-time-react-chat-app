@@ -6,7 +6,14 @@ import {
     VideoCameraIcon,
 } from "@heroicons/react/24/outline";
 import { Drawer, IconButton, Menu, MenuItem } from "@mui/material";
-import React, { MouseEvent, useContext, useState } from "react";
+import React, {
+    Dispatch,
+    MouseEvent,
+    SetStateAction,
+    useContext,
+    useEffect,
+    useState,
+} from "react";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
@@ -14,8 +21,12 @@ import { Contact } from "real-time-chat-backend/shared/contact.contract";
 import { ChevronLeftIcon } from "@heroicons/react/16/solid";
 import { useDiContext } from "../../../shared/contexts/DiContext";
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
+import { PeerContext } from "../../../shared/contexts/PeerContext";
 
-export function TopBar() {
+export function TopBar(props: {
+    stream: MediaStream | null;
+    setStream: Dispatch<SetStateAction<MediaStream | null>>;
+}) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [user] = useUserContext();
     const [contacts, setContacts] = useContext(ContactsContext).contacts;
@@ -99,6 +110,52 @@ export function TopBar() {
             setState({ ...state, [anchor]: open });
         };
 
+    const [peer, setPeer] = useContext(PeerContext);
+
+    async function startVideoCall() {
+        if (!selectedContact) {
+            return;
+        }
+
+        navigator.mediaDevices
+            .getUserMedia({ video: true, audio: true })
+            .then(async (stream) => {
+                console.log(peer, selectedContact.name);
+
+                if (!peer) {
+                    return;
+                }
+
+                const call = peer.call(selectedContact?.name, stream);
+                call.on("stream", (remoteStream) => {
+                    // Show stream in some <video> element.
+                    props.setStream(remoteStream);
+                });
+            })
+            .catch((reason) => console.log(reason));
+    }
+
+    useEffect(() => {
+        if (!peer) {
+            return;
+        }
+        peer.on("call", (call) => {
+            navigator.mediaDevices
+                .getUserMedia({ video: true, audio: true })
+                .then(
+                    (stream) => {
+                        call.answer(stream); // Answer the call with an A/V stream.
+                        call.on("stream", (remoteStream) => {
+                            props.setStream(remoteStream);
+                        });
+                    },
+                    (err) => {
+                        console.error("Failed to get local stream", err);
+                    },
+                );
+        });
+    }, [peer]);
+
     return (
         <div
             className={
@@ -119,7 +176,10 @@ export function TopBar() {
             </div>
             <div className={"flex"}>
                 <IconButton className={"mr-3"}>
-                    <VideoCameraIcon className={"w-6"} />
+                    <VideoCameraIcon
+                        className={"w-6"}
+                        onClick={() => startVideoCall()}
+                    />
                 </IconButton>
                 <IconButton className={"mr-3"}>
                     <PhoneIcon className={"w-6"} />
