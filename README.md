@@ -3,7 +3,7 @@
 ## Florian's Chat (Real-Time Chat App - What's App style)
 
 ### Demo
-Feel free to sign up at <a href="http://chat.floriantoenjes.com/">chat.floriantoenjes.com <a/>with a made-up email and a password of choice for demo purposes.
+Feel free to sign up at <a href="http://whatsapp.floriantoenjes.com/">chat.floriantoenjes.com <a/>with a made-up email and a password of choice for demo purposes.
 
 <img src="./imgs/dashboard.png" style="width: 80%; ">
 
