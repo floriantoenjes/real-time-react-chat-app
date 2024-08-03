@@ -65,6 +65,8 @@ export function Dashboard(props: { user?: User }) {
         setStream,
         callingStream,
         setCallingStream,
+        setReceiveCallingStream,
+        receiveCallingStream,
     } = useContext(PeerContext);
 
     useEffect(() => {
@@ -106,6 +108,7 @@ export function Dashboard(props: { user?: User }) {
 
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(
             (stream) => {
+                setReceiveCallingStream(stream);
                 call.answer(stream); // Answer the call with an A/V stream.
                 call.on("stream", (remoteStream) => {
                     setStream(remoteStream);
@@ -150,6 +153,13 @@ export function Dashboard(props: { user?: User }) {
                 }
 
                 setStream(null);
+
+                if (receiveCallingStream) {
+                    for (const track of receiveCallingStream?.getTracks()) {
+                        track.stop();
+                    }
+                    setReceiveCallingStream(null);
+                }
 
                 // peer?.destroy();
             }

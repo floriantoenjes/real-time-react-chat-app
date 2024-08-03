@@ -126,6 +126,8 @@ function App() {
     const [callingStream, setCallingStream] = useState<MediaStream | null>(
         null,
     );
+    const [receiveCallingStream, setReceiveCallingStream] =
+        useState<MediaStream | null>(null);
 
     useEffect(() => {
         console.log(peer, setPeer);
@@ -164,6 +166,8 @@ function App() {
                         setCall,
                         stream,
                         setStream,
+                        receiveCallingStream,
+                        setReceiveCallingStream,
                     }}
                 >
                     <Routes>

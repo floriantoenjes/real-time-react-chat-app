@@ -6,6 +6,8 @@ export const PeerContext = createContext<{
     setCalling: Dispatch<SetStateAction<boolean>>;
     callingStream: MediaStream | null;
     setCallingStream: Dispatch<SetStateAction<MediaStream | null>>;
+    receiveCallingStream: MediaStream | null;
+    setReceiveCallingStream: Dispatch<SetStateAction<MediaStream | null>>;
     peer: Peer | null;
     setPeer: Dispatch<SetStateAction<Peer | null>>;
     connection: DataConnection | null;
@@ -19,6 +21,8 @@ export const PeerContext = createContext<{
     setCalling: (value) => {},
     callingStream: null,
     setCallingStream: () => {},
+    receiveCallingStream: null,
+    setReceiveCallingStream: () => {},
     peer: null,
     setPeer: (value) => {},
     connection: null,
