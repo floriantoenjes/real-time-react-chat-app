@@ -39,7 +39,7 @@ Backend and frontend...
 * are processing real time updates with WebSocket connections via socket.io server and client.
 
 ### Next TODOs
-* Implement sending of audio files in chat
+* Fine tune sending of audio files in chat
 * Implement Voice Calls
 * Check JWTs for expiration
 * Implement backend validation

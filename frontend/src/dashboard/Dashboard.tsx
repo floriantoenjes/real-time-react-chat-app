@@ -10,8 +10,13 @@ import { Contact } from "real-time-chat-backend/shared/contact.contract";
 import { Message } from "real-time-chat-backend/shared/message.contract";
 import { ContactGroup } from "real-time-chat-backend/shared/contact-group.contract";
 import { useDiContext } from "../shared/contexts/DiContext";
-import { initCalls, PeerContext } from "../shared/contexts/PeerContext";
-import { ChevronLeftIcon } from "@heroicons/react/16/solid";
+import { PeerContext } from "../shared/contexts/PeerContext";
+import { IconButton } from "@mui/material";
+import {
+    PhoneIcon,
+    PhoneXMarkIcon,
+    XMarkIcon,
+} from "@heroicons/react/24/outline";
 
 export function Dashboard(props: { user?: User }) {
     if (!props.user) {
@@ -48,13 +53,34 @@ export function Dashboard(props: { user?: User }) {
         })();
     }, [props.user, contactService]);
 
-    const { peer, stream, setStream } = useContext(PeerContext);
+    const {
+        calling,
+        setCalling,
+        peer,
+        connection,
+        setDataConnection,
+        call,
+        setCall,
+        stream,
+        setStream,
+        callingStream,
+        setCallingStream,
+    } = useContext(PeerContext);
 
     useEffect(() => {
         if (!peer) {
             return;
         }
-        initCalls(peer, setStream);
+        peer.on("connection", (connection) => {
+            setDataConnection(connection);
+            peer.on("call", (call) => {
+                setCall(call);
+            });
+
+            connection.on("close", () => {
+                setCall(null);
+            });
+        });
     }, [peer]);
 
     const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -73,6 +99,63 @@ export function Dashboard(props: { user?: User }) {
         });
     }, [stream]);
 
+    function answerCall() {
+        if (!call) {
+            return;
+        }
+
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(
+            (stream) => {
+                call.answer(stream); // Answer the call with an A/V stream.
+                call.on("stream", (remoteStream) => {
+                    setStream(remoteStream);
+                });
+
+                call.on("close", () => {
+                    console.log("close");
+                    hangUpCall();
+                });
+            },
+            (err) => {
+                console.error("Failed to get local stream", err);
+            },
+        );
+    }
+
+    function hangUpCall() {
+        if (!call) {
+            return;
+        }
+
+        call.close();
+        setTimeout(() => {
+            setCall(null);
+        });
+    }
+
+    useEffect(() => {
+        console.log("call, stream", call, stream, calling);
+        if (!call && stream) {
+            if (videoRef.current?.srcObject) {
+                // @ts-ignore
+                for (const track of videoRef.current.srcObject.getTracks()) {
+                    track.stop();
+                }
+                videoRef.current.srcObject = null;
+
+                if (stream) {
+                    for (const track of stream.getTracks()) {
+                        track.stop();
+                    }
+                }
+
+                setStream(null);
+
+                // peer?.destroy();
+            }
+        }
+    }, [call]);
+
     return (
         <div className={"h-screen flex"}>
             <ContactsContext.Provider
@@ -83,38 +166,64 @@ export function Dashboard(props: { user?: User }) {
                 }}
             >
                 <MessageContext.Provider value={[messages, setMessages]}>
-                    {!stream && (
+                    {!stream && !calling && !call && (
                         <>
                             <Sidebar />
                             <Chat />
                         </>
                     )}
+                    {calling && (
+                        <div className={"mx-auto my-auto"}>
+                            <h2>Calling</h2>
+                            <div className={"flex"}>
+                                <IconButton>
+                                    <XMarkIcon
+                                        className="w-8 h-8"
+                                        onClick={() => {
+                                            connection?.close({ flush: true });
+                                            if (!callingStream) {
+                                                return;
+                                            }
+                                            for (const track of callingStream?.getTracks()) {
+                                                track.stop();
+                                            }
+                                            setCallingStream(null);
+                                            call?.close();
+                                            setCall(null);
+                                            setCalling(false);
+                                        }}
+                                    />
+                                </IconButton>
+                            </div>
+                        </div>
+                    )}
+
+                    {!calling && call && !stream && (
+                        <div className={"mx-auto my-auto"}>
+                            <h2>Incoming call</h2>
+                            <div className={"flex"}>
+                                <IconButton onClick={answerCall}>
+                                    <PhoneIcon className="w-8 h-8" />
+                                </IconButton>
+
+                                <IconButton>
+                                    <XMarkIcon
+                                        className="w-8 h-8"
+                                        onClick={() => {
+                                            connection?.close();
+                                            hangUpCall();
+                                        }}
+                                    />
+                                </IconButton>
+                            </div>
+                        </div>
+                    )}
 
                     {stream && (
                         <>
-                            <ChevronLeftIcon
+                            <PhoneXMarkIcon
                                 className={"w-8"}
-                                onClick={() => {
-                                    if (videoRef.current?.srcObject) {
-                                        // @ts-ignore
-                                        for (const track of videoRef.current.srcObject.getTracks()) {
-                                            track.stop();
-                                            alert("stopped src track");
-                                        }
-                                        videoRef.current.srcObject = null;
-
-                                        for (const track of stream.getTracks()) {
-                                            track.stop();
-                                            alert("stopped stream track");
-                                        }
-                                        setStream(null);
-                                        alert("set stream null");
-
-                                        console.log("destroy peer", peer);
-                                        peer?.destroy();
-                                        console.log("destroyed peer", peer);
-                                    }
-                                }}
+                                onClick={hangUpCall}
                             />
                             <video ref={videoRef}></video>
                         </>

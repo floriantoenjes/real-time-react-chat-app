@@ -13,7 +13,7 @@ import { useDiContext } from "./shared/contexts/DiContext";
 import { getSetUserWithAvatarBytesOptional } from "./shared/helpers";
 import { AuthService } from "./shared/services/AuthService";
 import { PeerContext } from "./shared/contexts/PeerContext";
-import Peer from "peerjs";
+import Peer, { DataConnection, MediaConnection } from "peerjs";
 
 function initializeWebSocket<ListenEvents>(
     setSocket: Dispatch<SetStateAction<Socket | undefined>>,
@@ -116,8 +116,16 @@ function App() {
         navigate("/");
     }
 
+    const [calling, setCalling] = useState<boolean>(false);
     const [peer, setPeer] = useState<Peer | null>(null);
+    const [connection, setDataConnection] = useState<DataConnection | null>(
+        null,
+    );
+    const [call, setCall] = useState<MediaConnection | null>(null);
     const [stream, setStream] = useState<MediaStream | null>(null);
+    const [callingStream, setCallingStream] = useState<MediaStream | null>(
+        null,
+    );
 
     useEffect(() => {
         console.log(peer, setPeer);
@@ -143,7 +151,20 @@ function App() {
         <UserContext.Provider value={[user, setUserWithAvatarBytes(setUser)]}>
             <SocketContext.Provider value={[socket, setSocket]}>
                 <PeerContext.Provider
-                    value={{ peer, setPeer, stream, setStream }}
+                    value={{
+                        calling,
+                        setCalling,
+                        callingStream,
+                        setCallingStream,
+                        peer,
+                        setPeer,
+                        connection,
+                        setDataConnection,
+                        call,
+                        setCall,
+                        stream,
+                        setStream,
+                    }}
                 >
                     <Routes>
                         <Route path="/" element={<Login />} />

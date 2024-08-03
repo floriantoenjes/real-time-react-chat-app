@@ -100,26 +100,59 @@ export function TopBar() {
             setState({ ...state, [anchor]: open });
         };
 
-    const { peer, setStream } = useContext(PeerContext);
+    const {
+        setDataConnection,
+        setCallingStream,
+        setCalling,
+        peer,
+        call,
+        setCall,
+        setStream,
+    } = useContext(PeerContext);
 
     async function startVideoCall() {
         if (!selectedContact) {
             return;
         }
 
+        setCalling(true);
+
         navigator.mediaDevices
             .getUserMedia({ video: true, audio: true })
             .then(async (stream) => {
+                setCallingStream(stream);
                 console.log(peer, selectedContact.name);
 
                 if (!peer) {
                     return;
                 }
 
-                const call = peer.call(selectedContact?.name, stream);
-                call.on("stream", (remoteStream) => {
-                    // Show stream in some <video> element.
-                    setStream(remoteStream);
+                const connection = peer.connect(selectedContact.name);
+                setDataConnection(connection);
+
+                connection.on("open", () => {
+                    const call = peer.call(selectedContact?.name, stream);
+                    setCall(call);
+                    call.on("stream", (remoteStream) => {
+                        // Show stream in some <video> element.
+                        setStream(remoteStream);
+                    });
+
+                    call.on("close", () => {
+                        setCall(null);
+                        stream.getTracks().forEach((track) => {
+                            track.stop();
+                        });
+                        setCalling(false);
+                    });
+
+                    connection.on("close", () => {
+                        setCall(null);
+                        stream.getTracks().forEach((track) => {
+                            track.stop();
+                        });
+                        setCalling(false);
+                    });
                 });
             })
             .catch((reason) => console.log(reason));
