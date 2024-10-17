@@ -26,6 +26,9 @@ export function Dashboard(props: { user?: User }) {
     const contactService = useRef(useDiContext().ContactService);
     const contactGroupService = useRef(useDiContext().ContactGroupService);
     const [contacts, setContacts] = useState<Contact[]>([]);
+    const [contactsOnlineStatus, setContactsOnlineStatus] = useState<
+        Map<string, boolean>
+    >(new Map<string, boolean>());
     const [contactGroups, setContactGroups] = useState<ContactGroup[]>([]);
     const [selectedContact, setSelectedContact] = useState<Contact | undefined>(
         undefined,
@@ -34,6 +37,27 @@ export function Dashboard(props: { user?: User }) {
     const [messages, setMessages] = useState<Message[]>([]);
 
     useEffect(() => {
+        const contactOnlineStatusInterval = setInterval(async () => {
+            if (contacts) {
+                const res =
+                    await contactService.current.getContactsOnlineStatus(
+                        contacts.map((c) => c._id),
+                    );
+                if (res.status === 200) {
+                    const onlineStatusMap = new Map<string, boolean>();
+                    for (const userId of Object.keys(res.body)) {
+                        onlineStatusMap.set(userId, res.body[userId]);
+                    }
+                    setContactsOnlineStatus(onlineStatusMap);
+                }
+            }
+        }, 10_000);
+
+        return () => clearInterval(contactOnlineStatusInterval);
+    }, [contacts]);
+
+    useEffect(() => {
+        let contactOnlineStatusInterval: number;
         (async () => {
             if (!props.user?._id) {
                 return;
@@ -171,6 +195,10 @@ export function Dashboard(props: { user?: User }) {
             <ContactsContext.Provider
                 value={{
                     contacts: [contacts, setContacts],
+                    contactsOnlineStatus: [
+                        contactsOnlineStatus,
+                        setContactsOnlineStatus,
+                    ],
                     contactGroups: [contactGroups, setContactGroups],
                     selectedContact: [selectedContact, setSelectedContact],
                 }}

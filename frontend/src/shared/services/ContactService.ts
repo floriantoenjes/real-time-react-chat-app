@@ -41,4 +41,10 @@ export class ContactService {
             .getClient(contactContract)
             .removeContact({ body: { userId, contactId } });
     }
+
+    async getContactsOnlineStatus(contactIds: string[]) {
+        return await this.clientService
+            .getClient(contactContract)
+            .getContactsOnlineStatus({ body: contactIds });
+    }
 }

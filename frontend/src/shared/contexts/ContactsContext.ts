@@ -4,6 +4,10 @@ import { ContactGroup } from "real-time-chat-backend/shared/contact-group.contra
 
 export const ContactsContext = createContext<{
     contacts: [Contact[], Dispatch<SetStateAction<Contact[]>>];
+    contactsOnlineStatus: [
+        Map<string, boolean>,
+        Dispatch<SetStateAction<Map<string, boolean>>>,
+    ];
     contactGroups: [ContactGroup[], Dispatch<SetStateAction<ContactGroup[]>>];
     selectedContact: [
         Contact | ContactGroup | undefined,
@@ -11,6 +15,7 @@ export const ContactsContext = createContext<{
     ];
 }>({
     contacts: [[], () => {}],
+    contactsOnlineStatus: [new Map<string, boolean>(), () => {}],
     contactGroups: [[], () => {}],
     selectedContact: [undefined, () => {}],
 });

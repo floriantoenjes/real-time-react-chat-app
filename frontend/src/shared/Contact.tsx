@@ -7,15 +7,23 @@ export function Contact(props: {
     contact: ContactModel;
     selectedContact?: ContactModel | ContactGroup | undefined;
     onContactSelect?: () => void;
+    isOnline?: boolean;
 }) {
     return (
         <div
             className={
-                "contact flex border p-2 cursor-pointer" +
+                "contact flex border p-2 cursor-pointer relative" +
                 (props.selectedContact === props.contact ? " active" : "")
             }
             onClick={props.onContactSelect}
         >
+            {props.isOnline && (
+                <div
+                    className={
+                        "bg-green-500 rounded-full w-3 h-3 absolute top-11 left-11"
+                    }
+                ></div>
+            )}
             <Avatar width={"3rem"} height={"3rem"} user={props.contact} />
             <div className={"flex-col w-full"}>
                 <div className={"flex justify-between"}>
