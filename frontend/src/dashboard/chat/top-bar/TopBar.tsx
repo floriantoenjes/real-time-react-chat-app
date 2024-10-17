@@ -24,6 +24,8 @@ export function TopBar() {
         useContext(ContactsContext).contactGroups;
     const [selectedContact, setSelectedContact] =
         useContext(ContactsContext).selectedContact;
+    const [contactsOnlineStatus] =
+        useContext(ContactsContext).contactsOnlineStatus;
     const [, setMessages] = useContext(MessageContext);
     const contactService = useDiContext().ContactService;
     const messageService = useDiContext().MessageService;
@@ -179,7 +181,12 @@ export function TopBar() {
                 className={"flex items-center"}
                 onClick={toggleDrawer("right", true)}
             >
-                <Avatar user={selectedContact ?? user} />
+                <Avatar
+                    user={selectedContact ?? user}
+                    isOnline={contactsOnlineStatus.get(
+                        selectedContact?._id ?? "",
+                    )}
+                />
                 <p>{selectedContact?.name}</p>
             </div>
             <div className={"flex"}>

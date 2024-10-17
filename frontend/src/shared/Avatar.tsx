@@ -7,12 +7,13 @@ export function Avatar(props: {
     height?: string;
     user: User | Contact;
     squared?: boolean;
+    isOnline?: boolean;
 }) {
     useEffect(() => {}, [props.user?.avatarBase64]);
 
     return (
         <div
-            className={"mr-3 flex justify-center items-center"}
+            className={"mr-3 flex justify-center items-center relative"}
             style={{
                 minWidth: props.width ?? "2.5rem",
                 minHeight: props.height ?? "2.5rem",
@@ -22,6 +23,13 @@ export function Avatar(props: {
                 borderRadius: "50%",
             }}
         >
+            {props.isOnline && (
+                <div
+                    className={
+                        "bg-green-500 rounded-full w-3 h-3 absolute right-0 bottom-0"
+                    }
+                ></div>
+            )}
             {(props.user.avatarBase64 || props.user.avatarFileName) && (
                 <img
                     style={{

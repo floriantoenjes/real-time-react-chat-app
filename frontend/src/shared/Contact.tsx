@@ -12,19 +12,17 @@ export function Contact(props: {
     return (
         <div
             className={
-                "contact flex border p-2 cursor-pointer relative" +
+                "contact flex border p-2 cursor-pointer" +
                 (props.selectedContact === props.contact ? " active" : "")
             }
             onClick={props.onContactSelect}
         >
-            {props.isOnline && (
-                <div
-                    className={
-                        "bg-green-500 rounded-full w-3 h-3 absolute top-11 left-11"
-                    }
-                ></div>
-            )}
-            <Avatar width={"3rem"} height={"3rem"} user={props.contact} />
+            <Avatar
+                width={"3rem"}
+                height={"3rem"}
+                user={props.contact}
+                isOnline={props.isOnline}
+            />
             <div className={"flex-col w-full"}>
                 <div className={"flex justify-between"}>
                     <div>{props.contact.name}</div>
