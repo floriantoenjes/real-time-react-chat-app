@@ -190,13 +190,21 @@ export function TopBar() {
                 <p>{selectedContact?.name}</p>
             </div>
             <div className={"flex"}>
-                <IconButton className={"mr-3"}>
-                    <VideoCameraIcon
-                        className={"w-6"}
-                        onClick={() => startVideoCall()}
-                    />
+                <IconButton
+                    className={"mr-3"}
+                    disabled={
+                        !contactsOnlineStatus.get(selectedContact?._id ?? "")
+                    }
+                    onClick={() => startVideoCall()}
+                >
+                    <VideoCameraIcon className={"w-6"} />
                 </IconButton>
-                <IconButton className={"mr-3"}>
+                <IconButton
+                    className={"mr-3"}
+                    disabled={
+                        !contactsOnlineStatus.get(selectedContact?._id ?? "")
+                    }
+                >
                     <PhoneIcon className={"w-6"} />
                 </IconButton>
                 <IconButton>
