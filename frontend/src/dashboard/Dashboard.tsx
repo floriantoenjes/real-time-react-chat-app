@@ -17,6 +17,7 @@ import {
     PhoneXMarkIcon,
     XMarkIcon,
 } from "@heroicons/react/24/outline";
+import { SocketContext } from "../shared/contexts/SocketContext";
 
 export function Dashboard(props: { user?: User }) {
     if (!props.user) {
@@ -35,29 +36,9 @@ export function Dashboard(props: { user?: User }) {
     );
 
     const [messages, setMessages] = useState<Message[]>([]);
+    const [socket] = useContext(SocketContext);
 
     useEffect(() => {
-        const contactOnlineStatusInterval = setInterval(async () => {
-            if (contacts) {
-                const res =
-                    await contactService.current.getContactsOnlineStatus(
-                        contacts.map((c) => c._id),
-                    );
-                if (res.status === 200) {
-                    const onlineStatusMap = new Map<string, boolean>();
-                    for (const userId of Object.keys(res.body)) {
-                        onlineStatusMap.set(userId, res.body[userId]);
-                    }
-                    setContactsOnlineStatus(onlineStatusMap);
-                }
-            }
-        }, 10_000);
-
-        return () => clearInterval(contactOnlineStatusInterval);
-    }, [contacts]);
-
-    useEffect(() => {
-        let contactOnlineStatusInterval: number;
         (async () => {
             if (!props.user?._id) {
                 return;
@@ -76,6 +57,46 @@ export function Dashboard(props: { user?: User }) {
             );
         })();
     }, [props.user, contactService]);
+
+    useEffect(() => {
+        if (contacts) {
+            (async () => {
+                const res =
+                    await contactService.current.getContactsOnlineStatus(
+                        contacts.map((c) => c._id),
+                    );
+                if (res.status === 200) {
+                    const onlineStatusMap = new Map<string, boolean>();
+                    for (const userId of Object.keys(res.body)) {
+                        onlineStatusMap.set(userId, res.body[userId]);
+                    }
+                    setContactsOnlineStatus(onlineStatusMap);
+                }
+            })();
+        }
+    }, [contacts]);
+
+    useEffect(() => {
+        function setContactOnlineStatus(
+            contactId: string,
+            onlineStatus: boolean,
+        ) {
+            setContactsOnlineStatus((prevState) => {
+                prevState.set(contactId, onlineStatus);
+                return new Map(prevState);
+            });
+        }
+
+        if (socket) {
+            socket.on("contactOnline", (contactId: string) => {
+                setContactOnlineStatus(contactId, true);
+            });
+
+            socket.on("contactOffline", (contactId: string) => {
+                setContactOnlineStatus(contactId, false);
+            });
+        }
+    }, [socket]);
 
     const {
         calling,

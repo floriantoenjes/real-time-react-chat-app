@@ -6,6 +6,8 @@ import {
     WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { ContactService } from '../services/contact.service';
+import { User } from '../../shared/user.contract';
 
 @WebSocketGateway({
     cors: {
@@ -22,6 +24,8 @@ export class RealTimeChatGateway
 
     private readonly onlineUsersSet: Set<string> = new Set<string>();
 
+    constructor(private readonly contactService: ContactService) {}
+
     handleConnection(socket: Socket): void {
         // TODO: Check for JWT for security here
 
@@ -29,7 +33,16 @@ export class RealTimeChatGateway
         console.log(`New connection: ${socket.id} for user: ${userId}`);
         // Join the socket to a room named after the userId
         socket.join(userId);
+
         this.onlineUsersSet.add(userId);
+
+        this.contactService
+            .getUsersThatHaveContact(userId)
+            .then((contacts: User[]) => {
+                this.server
+                    .to(contacts.map((c) => c._id.toString()))
+                    .emit('contactOnline', userId);
+            });
     }
 
     handleDisconnect(socket: Socket): void {
@@ -37,7 +50,16 @@ export class RealTimeChatGateway
         console.log(`Client disconnected: ${socket.id} for user: ${userId}`);
         // Leave the room when the socket disconnects
         socket.leave(userId);
+
         this.onlineUsersSet.delete(userId);
+
+        this.contactService
+            .getUsersThatHaveContact(userId)
+            .then((contacts: User[]) => {
+                this.server
+                    .to(contacts.map((c) => c._id.toString()))
+                    .emit('contactOffline', userId);
+            });
     }
 
     @SubscribeMessage('message')

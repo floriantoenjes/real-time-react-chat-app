@@ -4,35 +4,23 @@ import { InjectModel } from '@nestjs/mongoose';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { UserEntity } from '../schemas/user.schema';
 import { Contact, contactContract } from '../../shared/contact.contract';
+import { ContactService } from '../services/contact.service';
 import { RealTimeChatGateway } from '../gateways/socket.gateway';
 
 @Controller()
 export class ContactController {
     constructor(
         @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
+        private readonly contactService: ContactService,
         private readonly gateway: RealTimeChatGateway,
     ) {}
 
     @TsRestHandler(contactContract.getContacts)
     async getContacts() {
         return tsRestHandler(contactContract.getContacts, async ({ body }) => {
-            const user = await this.userModel.findOne({
-                _id: body.userId,
-            });
-
-            const contacts: Contact[] = [];
-            for (const contact of user?.contacts ?? []) {
-                const contactUser = await this.userModel
-                    .findOne({ _id: contact._id })
-                    .lean();
-                if (contactUser) {
-                    contacts.push({ ...contact, ...contactUser });
-                }
-            }
-
             return {
                 status: 200,
-                body: contacts,
+                body: await this.contactService.getUserContacts(body.userId),
             };
         });
     }
