@@ -232,7 +232,7 @@ export function Dashboard(props: { user?: User }) {
                             <Chat />
                         </>
                     )}
-                    {calling && (
+                    {!stream && calling && (
                         <div className={"mx-auto my-auto"}>
                             <h2>Calling</h2>
                             <div className={"flex"}>
