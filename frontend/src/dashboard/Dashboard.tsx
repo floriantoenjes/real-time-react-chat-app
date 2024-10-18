@@ -15,6 +15,7 @@ import { IconButton } from "@mui/material";
 import {
     PhoneIcon,
     PhoneXMarkIcon,
+    VideoCameraIcon,
     XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { SocketContext } from "../shared/contexts/SocketContext";
@@ -146,12 +147,12 @@ export function Dashboard(props: { user?: User }) {
         });
     }, [stream]);
 
-    function answerCall() {
+    function answerCall(video: boolean) {
         if (!call) {
             return;
         }
 
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(
+        navigator.mediaDevices.getUserMedia({ video, audio: true }).then(
             (stream) => {
                 setReceiveCallingStream(stream);
                 call.answer(stream); // Answer the call with an A/V stream.
@@ -261,7 +262,11 @@ export function Dashboard(props: { user?: User }) {
                         <div className={"mx-auto my-auto"}>
                             <h2>Incoming call</h2>
                             <div className={"flex"}>
-                                <IconButton onClick={answerCall}>
+                                <IconButton onClick={() => answerCall(true)}>
+                                    <VideoCameraIcon className="w-8 h-8" />
+                                </IconButton>
+
+                                <IconButton onClick={() => answerCall(false)}>
                                     <PhoneIcon className="w-8 h-8" />
                                 </IconButton>
 

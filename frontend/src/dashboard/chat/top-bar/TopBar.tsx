@@ -112,7 +112,7 @@ export function TopBar() {
         setStream,
     } = useContext(PeerContext);
 
-    async function startVideoCall() {
+    async function startCall(video: boolean) {
         if (!selectedContact) {
             return;
         }
@@ -120,7 +120,7 @@ export function TopBar() {
         setCalling(true);
 
         navigator.mediaDevices
-            .getUserMedia({ video: true, audio: true })
+            .getUserMedia({ video, audio: true })
             .then(async (stream) => {
                 setCallingStream(stream);
                 console.log(peer, selectedContact.name);
@@ -195,7 +195,7 @@ export function TopBar() {
                     disabled={
                         !contactsOnlineStatus.get(selectedContact?._id ?? "")
                     }
-                    onClick={() => startVideoCall()}
+                    onClick={() => startCall(true)}
                 >
                     <VideoCameraIcon className={"w-6"} />
                 </IconButton>
@@ -204,6 +204,7 @@ export function TopBar() {
                     disabled={
                         !contactsOnlineStatus.get(selectedContact?._id ?? "")
                     }
+                    onClick={() => startCall(false)}
                 >
                     <PhoneIcon className={"w-6"} />
                 </IconButton>
