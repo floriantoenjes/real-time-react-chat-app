@@ -69,6 +69,14 @@ export class RealTimeChatGateway
         this.server.emit('message', { text: 'Hello from server' });
     }
 
+    @SubscribeMessage('typing')
+    handleTyping(
+        client: Socket,
+        payload: { userId: string; contactId: string },
+    ): void {
+        this.server.to(payload.contactId).emit('typing', payload.userId);
+    }
+
     // Method to send a message to a specific user using their room
     prepareSendMessage(userId: string) {
         return this.server.to(userId);

@@ -5,7 +5,7 @@ import {
     PhoneIcon,
     VideoCameraIcon,
 } from "@heroicons/react/24/outline";
-import { Drawer, IconButton, Menu, MenuItem } from "@mui/material";
+import { Drawer, Fade, IconButton, Menu, MenuItem } from "@mui/material";
 import React, { MouseEvent, useContext, useEffect, useState } from "react";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { useUserContext } from "../../../shared/contexts/UserContext";
@@ -15,6 +15,7 @@ import { ChevronLeftIcon } from "@heroicons/react/16/solid";
 import { useDiContext } from "../../../shared/contexts/DiContext";
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
 import { PeerContext } from "../../../shared/contexts/PeerContext";
+import { SocketContext } from "../../../shared/contexts/SocketContext";
 
 export function TopBar() {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -29,6 +30,8 @@ export function TopBar() {
     const [, setMessages] = useContext(MessageContext);
     const contactService = useDiContext().ContactService;
     const messageService = useDiContext().MessageService;
+    const [isTyping, setIsTyping] = useState<boolean>(false);
+    const [socket] = useContext(SocketContext);
 
     const open = Boolean(anchorEl);
     const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
@@ -166,6 +169,19 @@ export function TopBar() {
         }
     }, [peer]);
 
+    useEffect(() => {
+        if (socket) {
+            socket.on("typing", (contactId: string) => {
+                if (contactId === selectedContact?._id) {
+                    setIsTyping(true);
+                    setTimeout(() => {
+                        setIsTyping(false);
+                    }, 5000);
+                }
+            });
+        }
+    }, [socket]);
+
     return (
         <div
             className={
@@ -187,7 +203,12 @@ export function TopBar() {
                         selectedContact?._id ?? "",
                     )}
                 />
-                <p>{selectedContact?.name}</p>
+                <div>
+                    <p>{selectedContact?.name}</p>
+                    <Fade in={isTyping}>
+                        <p className={"text-xs absolute"}>is typing...</p>
+                    </Fade>
+                </div>
             </div>
             <div className={"flex"}>
                 <IconButton
