@@ -6,7 +6,11 @@ import { Dashboard } from "./dashboard/Dashboard";
 import { io, Socket } from "socket.io-client";
 import { SocketContext } from "./shared/contexts/SocketContext";
 import { UserContext } from "./shared/contexts/UserContext";
-import { BACKEND_URL, LOCAL_STORAGE_AUTH_KEY } from "./environment";
+import {
+    BACKEND_URL,
+    LOCAL_STORAGE_AUTH_KEY,
+    PEERJS_SERVER_HOST,
+} from "./environment";
 import { User } from "real-time-chat-backend/shared/user.contract";
 import { Register } from "./register/Register";
 import { useDiContext } from "./shared/contexts/DiContext";
@@ -133,9 +137,9 @@ function App() {
         console.log(peer, setPeer);
         if (user && !peer) {
             const newPeer = new Peer(user.username, {
-                host: "localhost",
+                host: PEERJS_SERVER_HOST,
                 port: 9000,
-                path: "/",
+                path: "/peerjs/myapp",
             });
             setPeer(newPeer);
 

@@ -287,10 +287,11 @@ export function Dashboard(props: { user?: User }) {
                         <>
                             <video ref={videoRef}></video>
                             <div className={"fixed call-bar"}>
-                                <PhoneXMarkIcon
-                                    className={"w-8 fill-red-600"}
-                                    onClick={hangUpCall}
-                                />
+                                <IconButton onClick={hangUpCall}>
+                                    <PhoneXMarkIcon
+                                        className={"w-8 fill-red-600"}
+                                    />
+                                </IconButton>
                             </div>
                         </>
                     )}
