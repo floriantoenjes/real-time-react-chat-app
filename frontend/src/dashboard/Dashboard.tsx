@@ -285,11 +285,13 @@ export function Dashboard(props: { user?: User }) {
 
                     {stream && (
                         <>
-                            <PhoneXMarkIcon
-                                className={"w-8"}
-                                onClick={hangUpCall}
-                            />
                             <video ref={videoRef}></video>
+                            <div className={"fixed call-bar"}>
+                                <PhoneXMarkIcon
+                                    className={"w-8 fill-red-600"}
+                                    onClick={hangUpCall}
+                                />
+                            </div>
                         </>
                     )}
                 </MessageContext.Provider>
