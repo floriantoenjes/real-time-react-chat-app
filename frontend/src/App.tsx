@@ -10,6 +10,7 @@ import {
     BACKEND_URL,
     LOCAL_STORAGE_AUTH_KEY,
     PEERJS_SERVER_HOST,
+    PEERJS_SERVER_PORT,
 } from "./environment";
 import { User } from "real-time-chat-backend/shared/user.contract";
 import { Register } from "./register/Register";
@@ -138,7 +139,7 @@ function App() {
         if (user && !peer) {
             const newPeer = new Peer(user.username, {
                 host: PEERJS_SERVER_HOST,
-                port: 9000,
+                port: PEERJS_SERVER_PORT,
                 path: "/peerjs/myapp",
             });
             setPeer(newPeer);
