@@ -7,6 +7,7 @@ export function Contact(props: {
     contact: ContactModel;
     selectedContact?: ContactModel | ContactGroup | undefined;
     onContactSelect?: () => void;
+    isOnline?: boolean;
 }) {
     return (
         <div
@@ -16,7 +17,12 @@ export function Contact(props: {
             }
             onClick={props.onContactSelect}
         >
-            <Avatar width={"3rem"} height={"3rem"} user={props.contact} />
+            <Avatar
+                width={"3rem"}
+                height={"3rem"}
+                user={props.contact}
+                isOnline={props.isOnline}
+            />
             <div className={"flex-col w-full"}>
                 <div className={"flex justify-between"}>
                     <div>{props.contact.name}</div>

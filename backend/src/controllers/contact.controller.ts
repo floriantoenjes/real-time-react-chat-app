@@ -4,108 +4,126 @@ import { InjectModel } from '@nestjs/mongoose';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { UserEntity } from '../schemas/user.schema';
 import { Contact, contactContract } from '../../shared/contact.contract';
+import { ContactService } from '../services/contact.service';
+import { RealTimeChatGateway } from '../gateways/socket.gateway';
 
 @Controller()
 export class ContactController {
-  constructor(
-    @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
-  ) {}
+    constructor(
+        @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
+        private readonly contactService: ContactService,
+        private readonly gateway: RealTimeChatGateway,
+    ) {}
 
-  @TsRestHandler(contactContract.getContacts)
-  async getContacts() {
-    return tsRestHandler(contactContract.getContacts, async ({ body }) => {
-      const user = await this.userModel.findOne({
-        _id: body.userId,
-      });
+    @TsRestHandler(contactContract.getContacts)
+    async getContacts() {
+        return tsRestHandler(contactContract.getContacts, async ({ body }) => {
+            return {
+                status: 200,
+                body: await this.contactService.getUserContacts(body.userId),
+            };
+        });
+    }
 
-      const contacts: Contact[] = [];
-      for (const contact of user?.contacts ?? []) {
-        const contactUser = await this.userModel
-          .findOne({ _id: contact._id })
-          .lean();
-        if (contactUser) {
-          contacts.push({ ...contact, ...contactUser });
-        }
-      }
+    @TsRestHandler(contactContract.addContact)
+    async addContact() {
+        return tsRestHandler(contactContract.addContact, async ({ body }) => {
+            const user = await this.userModel.findOne({ _id: body.userId });
+            const contact = await this.userModel.findOne({
+                _id: body.newContactId,
+            });
 
-      return {
-        status: 200,
-        body: contacts,
-      };
-    });
-  }
+            if (!user || !contact) {
+                return { status: 404, body: false };
+            }
 
-  @TsRestHandler(contactContract.addContact)
-  async addContact() {
-    return tsRestHandler(contactContract.addContact, async ({ body }) => {
-      const user = await this.userModel.findOne({ _id: body.userId });
-      const contact = await this.userModel.findOne({ _id: body.newContactId });
+            const newContact = {
+                _id: body.newContactId,
+                name: contact.username,
+                avatarFileName: contact.avatarFileName,
+            } as Contact;
 
-      if (!user || !contact) {
-        return { status: 404, body: false };
-      }
+            const contactAlreadyExists = user.contacts.find(
+                (uc) => uc._id === newContact._id,
+            );
+            if (contactAlreadyExists) {
+                return { status: 400, body: false };
+            }
 
-      const newContact = {
-        _id: body.newContactId,
-        name: contact.username,
-        avatarFileName: contact.avatarFileName,
-      } as Contact;
+            user.contacts.push(newContact);
+            user.markModified('contacts');
 
-      const contactAlreadyExists = user.contacts.find(
-        (uc) => uc._id === newContact._id,
-      );
-      if (contactAlreadyExists) {
-        return { status: 400, body: false };
-      }
+            await user.save();
 
-      user.contacts.push(newContact);
-      user.markModified('contacts');
+            return {
+                status: 201,
+                body: newContact,
+            };
+        });
+    }
 
-      await user.save();
+    @TsRestHandler(contactContract.removeContact)
+    async removeContact() {
+        return tsRestHandler(
+            contactContract.removeContact,
+            async ({ body }) => {
+                const user = await this.userModel.findOne({ _id: body.userId });
 
-      return {
-        status: 201,
-        body: newContact,
-      };
-    });
-  }
+                if (!user) {
+                    return { status: 404, body: false };
+                }
 
-  @TsRestHandler(contactContract.removeContact)
-  async removeContact() {
-    return tsRestHandler(contactContract.removeContact, async ({ body }) => {
-      const user = await this.userModel.findOne({ _id: body.userId });
+                const contact = user.contacts.find(
+                    (uc) => uc._id === body.contactId,
+                );
+                const contactGroup = user.contactGroups.find(
+                    (cg) => cg._id === body.contactId,
+                );
 
-      if (!user) {
-        return { status: 404, body: false };
-      }
+                if (!contact && !contactGroup) {
+                    return { status: 404, body: false };
+                }
 
-      const contact = user.contacts.find((uc) => uc._id === body.contactId);
-      const contactGroup = user.contactGroups.find(
-        (cg) => cg._id === body.contactId,
-      );
+                if (contact) {
+                    user.contacts = user.contacts.filter(
+                        (u) => u._id !== body.contactId,
+                    );
+                    user.markModified('contacts');
+                }
 
-      if (!contact && !contactGroup) {
-        return { status: 404, body: false };
-      }
+                if (contactGroup) {
+                    user.contactGroups = user.contactGroups.filter(
+                        (cg) => cg._id !== body.contactId,
+                    );
+                    user.markModified('contactGroups');
+                }
 
-      if (contact) {
-        user.contacts = user.contacts.filter((u) => u._id !== body.contactId);
-        user.markModified('contacts');
-      }
+                await user.save();
 
-      if (contactGroup) {
-        user.contactGroups = user.contactGroups.filter(
-          (cg) => cg._id !== body.contactId,
+                return {
+                    status: 204,
+                    body: true,
+                };
+            },
         );
-        user.markModified('contactGroups');
-      }
+    }
 
-      await user.save();
+    @TsRestHandler(contactContract.getContactsOnlineStatus)
+    async getContactsOnlineStatus() {
+        return tsRestHandler(
+            contactContract.getContactsOnlineStatus,
+            async ({ body }) => {
+                const onlineStatusMapObject = {};
+                for (const userId of body) {
+                    onlineStatusMapObject[userId] =
+                        this.gateway.isUserOnline(userId);
+                }
 
-      return {
-        status: 204,
-        body: true,
-      };
-    });
-  }
+                return {
+                    status: 200,
+                    body: onlineStatusMapObject,
+                };
+            },
+        );
+    }
 }

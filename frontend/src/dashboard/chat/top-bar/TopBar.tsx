@@ -5,8 +5,8 @@ import {
     PhoneIcon,
     VideoCameraIcon,
 } from "@heroicons/react/24/outline";
-import { Drawer, IconButton, Menu, MenuItem } from "@mui/material";
-import React, { MouseEvent, useContext, useState } from "react";
+import { Drawer, Fade, IconButton, Menu, MenuItem } from "@mui/material";
+import React, { MouseEvent, useContext, useEffect, useState } from "react";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
@@ -14,6 +14,8 @@ import { Contact } from "real-time-chat-backend/shared/contact.contract";
 import { ChevronLeftIcon } from "@heroicons/react/16/solid";
 import { useDiContext } from "../../../shared/contexts/DiContext";
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
+import { PeerContext } from "../../../shared/contexts/PeerContext";
+import { SocketContext } from "../../../shared/contexts/SocketContext";
 
 export function TopBar() {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -23,9 +25,13 @@ export function TopBar() {
         useContext(ContactsContext).contactGroups;
     const [selectedContact, setSelectedContact] =
         useContext(ContactsContext).selectedContact;
+    const [contactsOnlineStatus] =
+        useContext(ContactsContext).contactsOnlineStatus;
     const [, setMessages] = useContext(MessageContext);
     const contactService = useDiContext().ContactService;
     const messageService = useDiContext().MessageService;
+    const [isTyping, setIsTyping] = useState<boolean>(false);
+    const [socket] = useContext(SocketContext);
 
     const open = Boolean(anchorEl);
     const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
@@ -99,6 +105,83 @@ export function TopBar() {
             setState({ ...state, [anchor]: open });
         };
 
+    const {
+        setDataConnection,
+        setCallingStream,
+        setCalling,
+        peer,
+        call,
+        setCall,
+        setStream,
+    } = useContext(PeerContext);
+
+    async function startCall(video: boolean) {
+        if (!selectedContact) {
+            return;
+        }
+
+        setCalling(true);
+
+        navigator.mediaDevices
+            .getUserMedia({ video, audio: true })
+            .then(async (stream) => {
+                setCallingStream(stream);
+                console.log(peer, selectedContact.name);
+
+                if (!peer) {
+                    return;
+                }
+
+                const connection = peer.connect(selectedContact.name);
+                setDataConnection(connection);
+
+                connection.on("open", () => {
+                    const call = peer.call(selectedContact?.name, stream);
+                    setCall(call);
+                    call.on("stream", (remoteStream) => {
+                        // Show stream in some <video> element.
+                        setStream(remoteStream);
+                    });
+
+                    call.on("close", () => {
+                        setCall(null);
+                        stream.getTracks().forEach((track) => {
+                            track.stop();
+                        });
+                        setCalling(false);
+                    });
+
+                    connection.on("close", () => {
+                        setCall(null);
+                        stream.getTracks().forEach((track) => {
+                            track.stop();
+                        });
+                        setCalling(false);
+                    });
+                });
+            })
+            .catch((reason) => console.log(reason));
+    }
+
+    useEffect(() => {
+        if (!peer) {
+            return;
+        }
+    }, [peer]);
+
+    useEffect(() => {
+        if (socket) {
+            socket.on("typing", (contactId: string) => {
+                if (contactId === selectedContact?._id) {
+                    setIsTyping(true);
+                    setTimeout(() => {
+                        setIsTyping(false);
+                    }, 5000);
+                }
+            });
+        }
+    }, [socket]);
+
     return (
         <div
             className={
@@ -114,14 +197,36 @@ export function TopBar() {
                 className={"flex items-center"}
                 onClick={toggleDrawer("right", true)}
             >
-                <Avatar user={selectedContact ?? user} />
-                <p>{selectedContact?.name}</p>
+                <Avatar
+                    user={selectedContact ?? user}
+                    isOnline={contactsOnlineStatus.get(
+                        selectedContact?._id ?? "",
+                    )}
+                />
+                <div>
+                    <p>{selectedContact?.name}</p>
+                    <Fade in={isTyping}>
+                        <p className={"text-xs absolute"}>is typing...</p>
+                    </Fade>
+                </div>
             </div>
             <div className={"flex"}>
-                <IconButton className={"mr-3"}>
+                <IconButton
+                    className={"mr-3"}
+                    disabled={
+                        !contactsOnlineStatus.get(selectedContact?._id ?? "")
+                    }
+                    onClick={() => startCall(true)}
+                >
                     <VideoCameraIcon className={"w-6"} />
                 </IconButton>
-                <IconButton className={"mr-3"}>
+                <IconButton
+                    className={"mr-3"}
+                    disabled={
+                        !contactsOnlineStatus.get(selectedContact?._id ?? "")
+                    }
+                    onClick={() => startCall(false)}
+                >
                     <PhoneIcon className={"w-6"} />
                 </IconButton>
                 <IconButton>

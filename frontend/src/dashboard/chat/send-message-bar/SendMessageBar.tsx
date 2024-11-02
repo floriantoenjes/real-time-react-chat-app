@@ -12,6 +12,7 @@ import { MessageContext } from "../../../shared/contexts/MessageContext";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { useDiContext } from "../../../shared/contexts/DiContext";
 import { Message } from "@t/message.contract";
+import { SocketContext } from "../../../shared/contexts/SocketContext";
 
 export function SendMessageBar() {
     const [formData, setFormData] = useState<{ message: string }>({
@@ -32,6 +33,8 @@ export function SendMessageBar() {
     const handleInputChange = useHandleInputChange(setFormData);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [file, setFile] = useState<File>();
+    const [socket] = useContext(SocketContext);
+    let [isTyping, setIsTyping] = useState<boolean>(false);
 
     useEffect(() => {
         window.addEventListener("pointerup", endRecordAudio);
@@ -142,6 +145,21 @@ export function SendMessageBar() {
         await sendMessage(fileName, "audio");
     }
 
+    async function sendIsTyping() {
+        if (isTyping) {
+            return;
+        }
+        setIsTyping(true);
+        socket?.emit("typing", {
+            userId: user._id,
+            contactId: selectedContact?._id,
+        });
+
+        setTimeout(() => {
+            setIsTyping(false);
+        }, 5000);
+    }
+
     return (
         <div className={"send-message-bar fixed bottom-0 bg-white p-3 flex"}>
             <IconButton onClick={() => fileInputRef.current?.click()}>
@@ -159,7 +177,10 @@ export function SendMessageBar() {
                 value={formData?.message}
                 onKeyUp={sendOnEnterPressed}
                 name={"message"}
-                onChange={handleInputChange}
+                onChange={(evt) => {
+                    handleInputChange(evt);
+                    sendIsTyping();
+                }}
                 multiline={true}
                 // inputRef={(input) => input && input.focus()}
             ></TextField>

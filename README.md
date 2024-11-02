@@ -17,6 +17,9 @@ Right now users can...
 * receive messages and see if they have been read in real time.
 * edit their profiles, look at other user's profiles
 * send images
+* send audio messages
+* make video and voice calls
+* see the online status of their contacts in real time
 
 ### Technical Details
 
@@ -25,6 +28,7 @@ The backend...
 * talks via mongoose to a MongoDb cluster for data persistence.
 * serves the frontend as well
 * makes its WebSocket connections scalable by using a Redis instance
+* uses an S3 store to persist files
 
 The frontend...
 * is also written in TypeScript making use of React v18 as a framework.
@@ -39,7 +43,7 @@ Backend and frontend...
 * are processing real time updates with WebSocket connections via socket.io server and client.
 
 ### Next TODOs
-* Implement sending of audio files in chat
-* Implement Voice Calls
+* Fine tune sending of audio files in chat
+* Introduce rate limiting
 * Check JWTs for expiration
 * Implement backend validation

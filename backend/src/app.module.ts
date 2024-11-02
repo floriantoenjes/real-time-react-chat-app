@@ -19,6 +19,7 @@ import { jwtConstants } from './services/constants';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guards/auth.guard';
 import { FileController } from './controllers/file.controller';
+import { ContactService } from './services/contact.service';
 
 @Module({
     imports: [
@@ -56,6 +57,7 @@ import { FileController } from './controllers/file.controller';
     ],
     providers: [
         AppService,
+        ContactService,
         RealTimeChatGateway,
         UserService,
         ObjectStorageService,

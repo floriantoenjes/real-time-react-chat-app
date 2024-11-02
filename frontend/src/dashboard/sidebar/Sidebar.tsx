@@ -21,6 +21,7 @@ export function Sidebar() {
     const [selectedContact, setSelectedContact] =
         contactsContext.selectedContact;
     const [userContacts, setUserContacts] = contactsContext.contacts;
+    const [userContactsOnlineStatus] = contactsContext.contactsOnlineStatus;
     const [userContactGroups, setUserContactGroups] =
         contactsContext.contactGroups;
 
@@ -71,6 +72,7 @@ export function Sidebar() {
                     contact={c}
                     selectedContact={selectedContact}
                     onContactSelect={() => setSelectedContact(c)}
+                    isOnline={userContactsOnlineStatus.get(c._id)}
                 />
             ));
     }

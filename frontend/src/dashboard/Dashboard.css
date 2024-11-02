@@ -10,3 +10,13 @@
 .contact.active {
     background-color: #eee;
 }
+
+video {
+    max-height: 80%;
+    margin: 0 auto;
+}
+
+.call-bar {
+    left: calc(50% - 16px);
+    bottom: 10%;
+}
