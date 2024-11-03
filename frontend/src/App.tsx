@@ -11,6 +11,9 @@ import {
     LOCAL_STORAGE_AUTH_KEY,
     PEERJS_SERVER_HOST,
     PEERJS_SERVER_PORT,
+    TURN_SERVER_PASSWORD,
+    TURN_SERVER_URL,
+    TURN_SERVER_USERNAME,
 } from "./environment";
 import { User } from "real-time-chat-backend/shared/user.contract";
 import { Register } from "./register/Register";
@@ -139,8 +142,19 @@ function App() {
         if (user && !peer) {
             const newPeer = new Peer(user.username, {
                 host: PEERJS_SERVER_HOST,
-                port: PEERJS_SERVER_PORT,
+                port: +PEERJS_SERVER_PORT,
                 path: "/peerjs/myapp",
+                config: {
+                    iceServers: [
+                        // { url: "stun:stun.l.google.com:19302" }, // Public STUN server for initial connection
+                        {
+                            url: TURN_SERVER_URL,
+                            username: TURN_SERVER_USERNAME,
+                            credential: TURN_SERVER_PASSWORD,
+                        },
+                    ],
+                    iceTransportPolicy: "relay",
+                },
             });
             setPeer(newPeer);
 

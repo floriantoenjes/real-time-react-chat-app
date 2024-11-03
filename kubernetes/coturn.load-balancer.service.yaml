@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: coturn-tcp
+spec:
+  selector:
+    app: coturn
+  ports:
+    - port: 443               # Exposes port 443 for TURN over TLS
+      targetPort: 443          # Maps to the coturn container's TLS port
+      protocol: TCP
+  type: LoadBalancer

@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coturn-config
+data:
+  turnserver.conf: |
+    tls-listening-port=443
+    listening-port=443
+    no-udp
+    cert=/etc/coturn/tls/tls.crt
+    pkey=/etc/coturn/tls/tls.key
+    fingerprint
+    lt-cred-mech
+    realm=floriantoenjes.com
+    user=user:password
+    external-ip=external-ip/internal-service-cluster-ip
+    no-ipv6
+    verbose

@@ -47,3 +47,4 @@ Backend and frontend...
 * Introduce rate limiting
 * Check JWTs for expiration
 * Implement backend validation
+* add error handling to failing (video)-calls
