@@ -40,14 +40,14 @@ jobs:
       - id: docker-push-tagged
         name: Tag Docker image and push to Google Artifact Registry
         uses: docker/build-push-action@v2
-        env:
-          VITE_PEERJS_SERVER_HOST: ${{ secrets.VITE_PEERJS_SERVER_HOST }}
-          VITE_PEERJS_SERVER_PORT: ${{ secrets.VITE_PEERJS_SERVER_PORT }}
-          VITE_TURN_SERVER_URL: ${{ secrets.VITE_TURN_SERVER_URL }}
-          VITE_TURN_SERVER_USERNAME: ${{ secrets.VITE_TURN_SERVER_USERNAME }}
-          VITE_TURN_SERVER_PASSWORD: ${{ secrets.VITE_TURN_SERVER_PASSWORD }}
         with:
           push: true
           tags: |
             europe-west3-docker.pkg.dev/my-project-1470767799419/realtime-chat-repo/realtime-chat-gke:${{ steps.get-tag.outputs.short_ref }}
             europe-west3-docker.pkg.dev/my-project-1470767799419/realtime-chat-repo/realtime-chat-gke:latest
+          build-args: |
+            VITE_PEERJS_SERVER_HOST=${{ secrets.VITE_PEERJS_SERVER_HOST }}
+            VITE_PEERJS_SERVER_PORT=${{ secrets.VITE_PEERJS_SERVER_PORT }}
+            VITE_TURN_SERVER_URL=${{ secrets.VITE_TURN_SERVER_URL }}
+            VITE_TURN_SERVER_USERNAME=${{ secrets.VITE_TURN_SERVER_USERNAME }}
+            VITE_TURN_SERVER_PASSWORD=${{ secrets.VITE_TURN_SERVER_PASSWORD }}
