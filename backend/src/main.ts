@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { RedisIoAdapter } from './adapters/RedisIoAdapter';
 import { ExpressPeerServer } from 'peer';
 import * as express from 'express';
+import * as process from 'node:process';
 
 async function bootstrap() {
     console.log(
@@ -32,6 +33,7 @@ async function bootstrap() {
     const server = peerApp.listen(9000);
     const peerServer = ExpressPeerServer(server, {
         path: '/myapp',
+        redisUrl: process.env.redis ?? 'redis://localhost:6379',
     });
     peerApp.use('/peerjs', peerServer);
 }

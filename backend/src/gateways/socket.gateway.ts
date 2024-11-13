@@ -8,6 +8,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ContactService } from '../services/contact.service';
 import { User } from '../../shared/user.contract';
+import { createClient } from 'redis';
 
 @WebSocketGateway({
     cors: {
@@ -22,9 +23,27 @@ export class RealTimeChatGateway
     @WebSocketServer()
     server: Server;
 
+    private readonly pubClient: ReturnType<typeof createClient>;
+    private readonly subClient: ReturnType<typeof createClient>;
+
     private readonly onlineUsersSet: Set<string> = new Set<string>();
 
-    constructor(private readonly contactService: ContactService) {}
+    constructor(private readonly contactService: ContactService) {
+        this.pubClient = createClient({
+            url: process.env.redis ?? `redis://localhost:6379`,
+        });
+        this.subClient = this.pubClient.duplicate();
+
+        void this.pubClient.connect();
+        void this.subClient.connect();
+
+        void this.subClient.subscribe('userOnlineServerSync', (userId) =>
+            this.setContactOnline(userId),
+        );
+        void this.subClient.subscribe('userOfflineServerSync', (userId) =>
+            this.setContactOffline(userId),
+        );
+    }
 
     handleConnection(socket: Socket): void {
         // TODO: Check for JWT for security here
@@ -35,6 +54,7 @@ export class RealTimeChatGateway
         socket.join(userId);
 
         this.onlineUsersSet.add(userId);
+        void this.pubClient.publish('userOnlineServerSync', userId);
 
         this.contactService
             .getUsersThatHaveContact(userId)
@@ -52,6 +72,7 @@ export class RealTimeChatGateway
         socket.leave(userId);
 
         this.onlineUsersSet.delete(userId);
+        void this.pubClient.publish('userOfflineServerSync', userId);
 
         this.contactService
             .getUsersThatHaveContact(userId)
@@ -75,6 +96,16 @@ export class RealTimeChatGateway
         payload: { userId: string; contactId: string },
     ): void {
         this.server.to(payload.contactId).emit('typing', payload.userId);
+    }
+
+    setContactOnline(userId: string) {
+        console.log('userOnlineServerSync', this.onlineUsersSet);
+        this.onlineUsersSet.add(userId);
+    }
+
+    setContactOffline(userId: string) {
+        console.log('userOfflineServerSync', this.onlineUsersSet);
+        this.onlineUsersSet.delete(userId);
     }
 
     // Method to send a message to a specific user using their room
