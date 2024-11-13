@@ -22,7 +22,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           token_format: access_token
-          workload_identity_provider: my-provider
+          workload_identity_provider: ${{ secrets.GOOGLE_AUTH }}
           service_account: my-service-account@my-project-1470767799419.iam.gserviceaccount.com
           access_token_lifetime: 300s
 
