@@ -5,25 +5,25 @@ import { User } from '../../shared/user.contract';
 
 @Schema({ collection: 'users' })
 export class UserEntity implements User {
-  _id: any;
+    _id: any;
 
-  @Prop()
-  email: string;
+    @Prop()
+    email!: string;
 
-  @Prop({ select: false })
-  password: string;
+    @Prop({ select: false })
+    password!: string;
 
-  @Prop()
-  username: string;
+    @Prop()
+    username!: string;
 
-  @Prop()
-  contacts: Contact[];
+    @Prop()
+    contacts!: Contact[];
 
-  @Prop()
-  contactGroups: ContactGroup[];
+    @Prop()
+    contactGroups!: ContactGroup[];
 
-  @Prop()
-  avatarFileName?: string;
+    @Prop()
+    avatarFileName?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserEntity);

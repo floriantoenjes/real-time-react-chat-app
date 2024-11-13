@@ -21,7 +21,7 @@ export class RealTimeChatGateway
     implements OnGatewayConnection, OnGatewayDisconnect
 {
     @WebSocketServer()
-    server: Server;
+    server!: Server;
 
     private readonly pubClient: ReturnType<typeof createClient>;
     private readonly subClient: ReturnType<typeof createClient>;

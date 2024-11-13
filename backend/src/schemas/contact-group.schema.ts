@@ -3,17 +3,17 @@ import { MessageEntity } from './message.schema';
 import { ContactGroup } from '../../shared/contact-group.contract';
 
 export class ContactGroupEntity implements ContactGroup {
-  _id: any;
+    _id: any;
 
-  @Prop()
-  memberIds: string[];
+    @Prop()
+    memberIds!: string[];
 
-  @Prop()
-  name: string;
+    @Prop()
+    name!: string;
 
-  @Prop()
-  lastMessage: MessageEntity;
+    @Prop()
+    lastMessage!: MessageEntity;
 }
 
 export const ContactGroupSchema =
-  SchemaFactory.createForClass(ContactGroupEntity);
+    SchemaFactory.createForClass(ContactGroupEntity);

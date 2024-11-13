@@ -3,13 +3,13 @@ import { MessageEntity } from './message.schema';
 import { Contact } from '../../shared/contact.contract';
 
 export class ContactEntity implements Contact {
-  _id: any;
+    _id: any;
 
-  name: string;
+    name!: string;
 
-  lastMessage?: MessageEntity;
+    lastMessage?: MessageEntity;
 
-  avatarFileName?: string;
+    avatarFileName?: string;
 }
 
 export const ContactSchema = SchemaFactory.createForClass(ContactEntity);

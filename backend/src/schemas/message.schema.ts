@@ -3,28 +3,28 @@ import { Message } from '../../shared/message.contract';
 
 @Schema({ collection: 'messages' })
 export class MessageEntity implements Message {
-  _id: any;
+    _id: any;
 
-  @Prop()
-  fromUserId: string;
+    @Prop()
+    fromUserId!: string;
 
-  @Prop()
-  toUserId: string;
+    @Prop()
+    toUserId!: string;
 
-  @Prop()
-  at: Date;
+    @Prop()
+    at!: Date;
 
-  @Prop()
-  message: string;
+    @Prop()
+    message!: string;
 
-  @Prop()
-  read: boolean;
+    @Prop()
+    read!: boolean;
 
-  @Prop({ default: true })
-  sent: boolean = true;
+    @Prop({ default: true })
+    sent: boolean = true;
 
-  @Prop()
-  type: 'text' | 'image';
+    @Prop()
+    type!: 'text' | 'image';
 }
 
 export const MessageSchema = SchemaFactory.createForClass(MessageEntity);

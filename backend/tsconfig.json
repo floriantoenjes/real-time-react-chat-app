@@ -18,7 +18,8 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "isolatedModules": false
+    "isolatedModules": false,
+    "strict": true
   },
   "include": ["**/*.ts"]
 }
