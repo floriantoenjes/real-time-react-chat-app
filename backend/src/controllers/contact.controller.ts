@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
@@ -6,10 +6,15 @@ import { UserEntity } from '../schemas/user.schema';
 import { Contact, contactContract } from '../../shared/contact.contract';
 import { ContactService } from '../services/contact.service';
 import { RealTimeChatGateway } from '../gateways/socket.gateway';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { getUserContactsCacheKey } from '../cache/cache-keys';
 
 @Controller()
 export class ContactController {
     constructor(
+        @Inject(CACHE_MANAGER)
+        private readonly cache: Cache,
         @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
         private readonly contactService: ContactService,
         private readonly gateway: RealTimeChatGateway,
@@ -55,6 +60,8 @@ export class ContactController {
 
             await user.save();
 
+            await this.cache.del(getUserContactsCacheKey(body.userId));
+
             return {
                 status: 201,
                 body: newContact,
@@ -99,6 +106,8 @@ export class ContactController {
                 }
 
                 await user.save();
+
+                await this.cache.del(getUserContactsCacheKey(body.userId));
 
                 return {
                     status: 204,
