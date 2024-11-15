@@ -187,7 +187,7 @@ export function SendMessageBar() {
             <IconButton>
                 {formData.message.trim().length >= 1 && (
                     <PaperAirplaneIcon
-                        className={"w-8"}
+                        className={"send-message-button w-8"}
                         onPointerDown={async (event) => {
                             await sendMessage();
                             setFormData({ message: "" });
@@ -196,7 +196,7 @@ export function SendMessageBar() {
                 )}
                 {formData.message.trim().length === 0 && (
                     <MicrophoneIcon
-                        className={"w-8"}
+                        className={"send-audio-button w-8"}
                         onPointerDown={startRecordAudio}
                     />
                 )}

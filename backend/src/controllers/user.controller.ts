@@ -73,17 +73,19 @@ export class UserController {
     @TsRestHandler(userContract.loadAvatar)
     async loadAvatar() {
         return tsRestHandler(userContract.loadAvatar, async ({ params }) => {
-            const objectDataString = await this.objectStorageService.loadFile(
-                params.userId + '_avatar',
-            );
+            try {
+                const objectDataString =
+                    await this.objectStorageService.loadFile(
+                        params.userId + '_avatar',
+                    );
 
-            if (objectDataString) {
-                return {
-                    status: 200,
-                    body: objectDataString,
-                };
-            }
-
+                if (objectDataString) {
+                    return {
+                        status: 200,
+                        body: objectDataString,
+                    };
+                }
+            } catch (e) {}
             return {
                 status: 404,
                 body: false,

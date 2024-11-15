@@ -59,10 +59,18 @@ export function TopSection() {
                 <Avatar user={user} />
             </div>
             <div className={"block ml-auto mr-2"}>
-                <IconButton onClick={handleClick}>
+                <IconButton
+                    className={"user-menu-button"}
+                    onClick={handleClick}
+                >
                     <ChevronDownIcon className={"w-8"} />
                 </IconButton>
-                <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+                <Menu
+                    className={"user-menu"}
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                >
                     <MenuItem onClick={toggleDrawer("left", true, "group")}>
                         New group
                     </MenuItem>

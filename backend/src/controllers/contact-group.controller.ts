@@ -10,10 +10,7 @@ import {
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { User } from '../../shared/user.contract';
-import {
-    getContactGroupsCacheKey,
-    getUserContactsCacheKey,
-} from '../cache/cache-keys';
+import { getContactGroupsCacheKey } from '../cache/cache-keys';
 
 @Controller()
 export class ContactGroupController {

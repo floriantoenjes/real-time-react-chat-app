@@ -234,6 +234,7 @@ export function TopBar() {
                 </IconButton>
                 <IconButton
                     id="basic-button"
+                    name="chat-menu-button"
                     aria-controls={open ? "basic-menu" : undefined}
                     aria-haspopup="true"
                     aria-expanded={open ? "true" : undefined}

@@ -28,7 +28,8 @@ export class MessageController {
         private readonly gateway: RealTimeChatGateway,
         @InjectModel(MessageEntity.name)
         private messageModel: Model<MessageEntity>,
-        @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
+        @InjectModel(UserEntity.name)
+        private userModel: Model<UserEntity>,
         private readonly userService: UserService,
         private readonly objectStorageService: ObjectStorageService,
     ) {}

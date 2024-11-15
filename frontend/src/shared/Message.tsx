@@ -55,7 +55,7 @@ export function Message(props: { msg: MessageModel; user: User }) {
     }
 
     return (
-        <div className={"w-full flex"}>
+        <div className={"chat-message w-full flex"}>
             <div
                 className={
                     "border w-fit rounded p-3 m-3 max-w-96 flex" +

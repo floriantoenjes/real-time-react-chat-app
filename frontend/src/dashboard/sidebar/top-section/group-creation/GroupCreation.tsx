@@ -84,7 +84,7 @@ export function GroupCreation(props: { user: User; toggleDrawer: any }) {
                 </div>
                 <Autocomplete
                     multiple
-                    id="tags-readOnly"
+                    id="group-members-input"
                     options={contacts.map((c) => c.name)}
                     renderInput={(params) => (
                         <TextField {...params} label="Members" />
@@ -103,7 +103,11 @@ export function GroupCreation(props: { user: User; toggleDrawer: any }) {
                     ))}
                 </div>
                 {groupMembers.length > 0 && (
-                    <Fab className={"mt-auto mb-5"} onClick={createGroup}>
+                    <Fab
+                        name={"create-group-button"}
+                        className={"mt-auto mb-5"}
+                        onClick={createGroup}
+                    >
                         <ArrowRightIcon className={"w-8"} />
                     </Fab>
                 )}
