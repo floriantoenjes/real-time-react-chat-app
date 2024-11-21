@@ -12,7 +12,7 @@ data:
     fingerprint
     lt-cred-mech
     realm=floriantoenjes.com
-    user=user:password
-    external-ip=external-ip/internal-service-cluster-ip
+    user=<username>:<password>
+    external-ip=<external-ip>6/<internal-svc-ip>
     no-ipv6
     verbose

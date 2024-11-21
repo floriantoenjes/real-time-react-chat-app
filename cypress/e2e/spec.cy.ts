@@ -9,7 +9,7 @@ function signOut() {
 }
 
 describe("template spec", () => {
-  it("passes", () => {
+  it("should have basic functionality working", () => {
     const testUser = {
       email: "test@email.com",
       password: "password",

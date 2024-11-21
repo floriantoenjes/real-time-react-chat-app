@@ -1,14 +1,18 @@
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { MessageEntity } from './schemas/message.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserEntity } from './schemas/user.schema';
 import { ContactEntity } from './schemas/contact.schema';
 import * as bcrypt from 'bcrypt';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
     constructor(
+        @Inject(CACHE_MANAGER)
+        private readonly cache: Cache,
         @InjectModel(MessageEntity.name)
         private readonly messageModel: Model<MessageEntity>,
         @InjectModel(UserEntity.name)
@@ -16,6 +20,8 @@ export class AppService implements OnApplicationBootstrap {
     ) {}
 
     async onApplicationBootstrap() {
+        await this.cache.reset();
+
         await this.messageModel.deleteMany({});
         await this.userModel.deleteMany({});
 
