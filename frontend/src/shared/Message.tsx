@@ -1,17 +1,28 @@
 import { Message as MessageModel } from "real-time-chat-backend/shared/message.contract";
 import { User } from "real-time-chat-backend/shared/user.contract";
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { ContactsContext } from "./contexts/ContactsContext";
 import { CheckIcon } from "@heroicons/react/16/solid";
-import { Button } from "@mui/material";
+import { Button, duration } from "@mui/material";
 import { useDiContext } from "./contexts/DiContext";
+import { DateTime } from "luxon";
 
 export function Message(props: { msg: MessageModel; user: User }) {
     const [contacts] = useContext(ContactsContext).contacts;
     const fileService = useDiContext().FileService;
 
     const [image, setImage] = useState<string>();
-    const audioRef = useRef<HTMLAudioElement>(null);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    const [audioDuration, setAudioDuration] = useState<number>(0);
+    const [secondsPlayed, setSecondsPlayed] = useState<number>(0);
+    const [playing, setPlaying] = useState(false);
+    const played = useRef(0);
+    const playingRef = useRef(false);
+
+    useEffect(() => {
+        setAudioDuration(getAudioDuration(props.msg));
+    }, [props.msg]);
 
     let fromUsername = "";
     if (props.msg.fromUserId !== props.user._id) {
@@ -41,17 +52,52 @@ export function Message(props: { msg: MessageModel; user: User }) {
         );
 
         const file = new File([audio], "audio", { type: "audio/mp3" });
-        new Audio(URL.createObjectURL(file)).play().then();
-        // const current = audioRef.current;
-        // if (current) {
-        //     // const srcUrl = e.target.result;
-        //     const srcUrl = `data:audio/mp3;base64,` + audio;
-        //     console.log("srcUrl", srcUrl);
-        //     if (srcUrl) {
-        //         current.src = srcUrl.toString();
-        //         void current.play();
-        //     }
-        // }
+        if (secondsPlayed == 0) {
+            audioRef.current = new Audio(URL.createObjectURL(file));
+        }
+        audioRef.current!.play().then(() => {
+            setPlaying(true);
+            playingRef.current = true;
+
+            const playInterval = setInterval(() => {
+                if (!playingRef.current || played.current >= audioDuration) {
+                    clearInterval(playInterval);
+                    setPlaying(false);
+                    playingRef.current = false;
+                    if (played.current >= audioDuration) {
+                        setSecondsPlayed(0);
+                        played.current = 0;
+                    }
+                    return;
+                }
+
+                setSecondsPlayed((seconds) => seconds + 0.1);
+                played.current += 0.1;
+            }, 100);
+        });
+    }
+
+    function pauseAudio() {
+        setPlaying(false);
+        playingRef.current = false;
+        audioRef.current?.pause();
+    }
+
+    function splitAudioMessage(msg: MessageModel) {
+        const [type, storageId, dateInMilliSeconds, duration] =
+            msg.message.split("-");
+
+        return { storageId, dateInMilliSeconds, duration };
+    }
+
+    function formatAudioMessageText(msg: MessageModel) {
+        return DateTime.fromMillis(+splitAudioMessage(msg).dateInMilliSeconds)
+            .toJSDate()
+            .toLocaleString();
+    }
+
+    function getAudioDuration(msg: MessageModel) {
+        return Math.floor(+splitAudioMessage(msg).duration.substring(1));
     }
 
     return (
@@ -65,18 +111,64 @@ export function Message(props: { msg: MessageModel; user: User }) {
                 }
             >
                 <div className={"w-full"}>
-                    <p>
-                        {fromUsername}
-                        {props.msg.message}
-                    </p>
+                    {props.msg.type !== "audio" && (
+                        <p>
+                            {fromUsername}
+                            {props.msg.message}
+                        </p>
+                    )}
+                    {props.msg.type === "audio" && (
+                        <p>
+                            {fromUsername}
+                            {formatAudioMessageText(props.msg)}
+                            <div className={"my-3 h-1 bg-blue-500 relative"}>
+                                <i
+                                    className={
+                                        "absolute -mt-1 bg-blue-500 fill-blue-500 h-3 w-3 rounded-full"
+                                    }
+                                    style={{
+                                        left:
+                                            (100 / audioDuration) *
+                                                secondsPlayed +
+                                            "%",
+                                    }}
+                                ></i>
+                                <div className={"pt-2 flex justify-around"}>
+                                    <span>
+                                        {Math.floor(secondsPlayed / 60)
+                                            .toString()
+                                            .padStart(2, "0")}
+                                        :
+                                        {(Math.round(secondsPlayed) % 60)
+                                            .toString()
+                                            .padStart(2, "0")}
+                                    </span>{" "}
+                                    <span>-</span>
+                                    <span>
+                                        {Math.floor(audioDuration / 60)
+                                            .toString()
+                                            .padStart(2, "0")}
+                                        :
+                                        {(Math.round(audioDuration) % 60)
+                                            .toString()
+                                            .padStart(2, "0")}
+                                    </span>
+                                </div>
+                            </div>
+                        </p>
+                    )}
                     {!image && props.msg.type === "image" && (
                         <Button onClick={loadImage}>Show</Button>
                     )}
                     {image && <img src={`data:image/jpg;base64,${image}`} />}
                     {props.msg.type === "audio" && (
-                        <div>
-                            <Button onClick={playAudio}>Play</Button>
-                            <audio ref={audioRef} />
+                        <div className={"pl-0 pt-2"}>
+                            {!playing && (
+                                <Button onClick={playAudio}>Play</Button>
+                            )}
+                            {playing && (
+                                <Button onClick={pauseAudio}>Pause</Button>
+                            )}
                         </div>
                     )}
                 </div>

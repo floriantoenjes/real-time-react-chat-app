@@ -13,6 +13,7 @@ import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { useDiContext } from "../../../shared/contexts/DiContext";
 import { Message } from "@t/message.contract";
 import { SocketContext } from "../../../shared/contexts/SocketContext";
+import { DateTime } from "luxon";
 
 export function SendMessageBar() {
     const [formData, setFormData] = useState<{ message: string }>({
@@ -27,7 +28,7 @@ export function SendMessageBar() {
     const recorder = new MicRecorder({
         bitRate: 128,
     });
-    let isRecording = useRef(false);
+    let startOfRecording = useRef<Date | null>(null);
     let askedPermission = useRef(false);
 
     const handleInputChange = useHandleInputChange(setFormData);
@@ -124,17 +125,21 @@ export function SendMessageBar() {
             }
             await new Audio("sounds/start_record.mp3").play();
             void recorder.start();
-            isRecording.current = true;
+            startOfRecording.current = new Date();
         });
     }
 
     async function endRecordAudio() {
-        if (!isRecording.current) {
+        if (!startOfRecording.current) {
             return;
         }
-        isRecording.current = false;
+        const duration = DateTime.fromJSDate(new Date()).diff(
+            DateTime.fromJSDate(startOfRecording.current),
+            "seconds",
+        );
+        startOfRecording.current = null;
 
-        const fileName = `audio-${user._id}-${new Date().getTime()}`;
+        const fileName = `audio-${user._id}-${new Date().getTime()}-d${duration.as("seconds")}`;
         const [buffer, blob] = await recorder.stop().getMp3();
         const file = new File(buffer, fileName, {
             type: blob.type,
