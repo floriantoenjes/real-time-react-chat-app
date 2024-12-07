@@ -21,6 +21,9 @@ export function Message(props: { msg: MessageModel; user: User }) {
     const playingRef = useRef(false);
 
     useEffect(() => {
+        if (props.msg.type !== "audio") {
+            return;
+        }
         setAudioDuration(getAudioDuration(props.msg));
     }, [props.msg]);
 
@@ -118,10 +121,14 @@ export function Message(props: { msg: MessageModel; user: User }) {
                         </p>
                     )}
                     {props.msg.type === "audio" && (
-                        <p>
+                        <div>
                             {fromUsername}
                             {formatAudioMessageText(props.msg)}
-                            <div className={"my-3 h-1 bg-blue-500 relative"}>
+                            <div
+                                className={
+                                    "my-3 h-1 bg-blue-500 relative rounded-full"
+                                }
+                            >
                                 <i
                                     className={
                                         "absolute -mt-1 bg-blue-500 fill-blue-500 h-3 w-3 rounded-full"
@@ -155,7 +162,7 @@ export function Message(props: { msg: MessageModel; user: User }) {
                                     </span>
                                 </div>
                             </div>
-                        </p>
+                        </div>
                     )}
                     {!image && props.msg.type === "image" && (
                         <Button onClick={loadImage}>Show</Button>
