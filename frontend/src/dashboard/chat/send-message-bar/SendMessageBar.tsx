@@ -5,7 +5,7 @@ import {
     PaperAirplaneIcon,
     PlusIcon,
 } from "@heroicons/react/24/outline";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { checkEnterPressed, useHandleInputChange } from "../../../helpers";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
@@ -14,6 +14,7 @@ import { useDiContext } from "../../../shared/contexts/DiContext";
 import { Message } from "@t/message.contract";
 import { SocketContext } from "../../../shared/contexts/SocketContext";
 import { DateTime } from "luxon";
+import { StopIcon } from "@heroicons/react/24/solid";
 
 export function SendMessageBar() {
     const [formData, setFormData] = useState<{ message: string }>({
@@ -24,11 +25,17 @@ export function SendMessageBar() {
     const [user] = useUserContext();
     const [messages, setMessages] = useContext(MessageContext);
     const messageService = useDiContext().MessageService;
-    // @ts-ignore
-    const recorder = new MicRecorder({
-        bitRate: 128,
-    });
-    let startOfRecording = useRef<Date | null>(null);
+
+    const recorder = useMemo(
+        () =>
+            // @ts-ignore
+            new MicRecorder({
+                bitRate: 128,
+            }),
+        [],
+    );
+    let startOfRecordingRef = useRef<Date | null>(null);
+    const [startOfRecording, setStartOfRecording] = useState<Date | null>(null);
     let askedPermission = useRef(false);
 
     const handleInputChange = useHandleInputChange(setFormData);
@@ -36,14 +43,6 @@ export function SendMessageBar() {
     const [file, setFile] = useState<File>();
     const [socket] = useContext(SocketContext);
     let [isTyping, setIsTyping] = useState<boolean>(false);
-
-    useEffect(() => {
-        window.addEventListener("pointerup", endRecordAudio);
-
-        return () => {
-            window.removeEventListener("pointerup", endRecordAudio);
-        };
-    }, [recorder]);
 
     async function sendOnEnterPressed(event: any) {
         if (checkEnterPressed(event) && formData?.message.trim().length) {
@@ -119,25 +118,23 @@ export function SendMessageBar() {
 
     async function startRecordAudio() {
         navigator.mediaDevices.getUserMedia({ audio: true }).then(async () => {
-            if (!askedPermission.current) {
-                askedPermission.current = true;
-                return;
-            }
             await new Audio("sounds/start_record.mp3").play();
-            void recorder.start();
-            startOfRecording.current = new Date();
+            await recorder.start();
+            startOfRecordingRef.current = new Date();
+            setStartOfRecording(new Date());
         });
     }
 
     async function endRecordAudio() {
-        if (!startOfRecording.current) {
+        if (!startOfRecordingRef.current) {
             return;
         }
         const duration = DateTime.fromJSDate(new Date()).diff(
-            DateTime.fromJSDate(startOfRecording.current),
+            DateTime.fromJSDate(startOfRecordingRef.current),
             "seconds",
         );
-        startOfRecording.current = null;
+        startOfRecordingRef.current = null;
+        setStartOfRecording(null);
 
         const fileName = `audio-${user._id}-${new Date().getTime()}-d${duration.as("seconds")}`;
         const [buffer, blob] = await recorder.stop().getMp3();
@@ -184,28 +181,34 @@ export function SendMessageBar() {
                 name={"message"}
                 onChange={(evt) => {
                     handleInputChange(evt);
-                    sendIsTyping();
+                    void sendIsTyping();
                 }}
                 multiline={true}
                 // inputRef={(input) => input && input.focus()}
             ></TextField>
-            <IconButton>
-                {formData.message.trim().length >= 1 && (
-                    <PaperAirplaneIcon
-                        className={"send-message-button w-8"}
-                        onPointerDown={async (event) => {
-                            await sendMessage();
-                            setFormData({ message: "" });
-                        }}
+
+            {formData.message.trim().length >= 1 && (
+                <IconButton
+                    onPointerDown={async (event) => {
+                        await sendMessage();
+                        setFormData({ message: "" });
+                    }}
+                >
+                    <PaperAirplaneIcon className={"send-message-button w-8"} />
+                </IconButton>
+            )}
+            {formData.message.trim().length === 0 && !startOfRecording && (
+                <IconButton onPointerDown={startRecordAudio}>
+                    <MicrophoneIcon className={"send-audio-button w-8"} />
+                </IconButton>
+            )}
+            {formData.message.trim().length === 0 && startOfRecording && (
+                <IconButton onPointerDown={endRecordAudio}>
+                    <StopIcon
+                        className={"send-audio-button w-8 fill-red-500"}
                     />
-                )}
-                {formData.message.trim().length === 0 && (
-                    <MicrophoneIcon
-                        className={"send-audio-button w-8"}
-                        onPointerDown={startRecordAudio}
-                    />
-                )}
-            </IconButton>
+                </IconButton>
+            )}
         </div>
     );
 }
