@@ -93,7 +93,7 @@ export function Message(props: { msg: MessageModel; user: User }) {
         return { storageId, dateInMilliSeconds, duration };
     }
 
-    function formatAudioMessageText(msg: MessageModel) {
+    function getAudioMessageDate(msg: MessageModel) {
         return DateTime.fromMillis(+splitAudioMessage(msg).dateInMilliSeconds)
             .toJSDate()
             .toLocaleString();
@@ -114,19 +114,17 @@ export function Message(props: { msg: MessageModel; user: User }) {
                 }
             >
                 <div className={"w-full"}>
-                    {props.msg.type !== "audio" && (
-                        <p>
-                            {fromUsername}
-                            {props.msg.message}
-                        </p>
-                    )}
+                    <p>
+                        {fromUsername}
+                        {props.msg.type === "text" ? props.msg.message : ""}
+                    </p>
+
                     {props.msg.type === "audio" && (
                         <div>
                             {fromUsername}
-                            {formatAudioMessageText(props.msg)}
                             <div
                                 className={
-                                    "my-3 h-1 bg-blue-500 relative rounded-full"
+                                    "my-3 h-1 bg-blue-500 relative rounded-full w-40"
                                 }
                             >
                                 <i
@@ -140,7 +138,7 @@ export function Message(props: { msg: MessageModel; user: User }) {
                                             "%",
                                     }}
                                 ></i>
-                                <div className={"pt-2 flex justify-around"}>
+                                <div className={"pt-3 flex justify-around"}>
                                     <span>
                                         {Math.floor(secondsPlayed / 60)
                                             .toString()
@@ -165,11 +163,11 @@ export function Message(props: { msg: MessageModel; user: User }) {
                         </div>
                     )}
                     {!image && props.msg.type === "image" && (
-                        <Button onClick={loadImage}>Show</Button>
+                        <Button onClick={loadImage}>Show Image</Button>
                     )}
                     {image && <img src={`data:image/jpg;base64,${image}`} />}
                     {props.msg.type === "audio" && (
-                        <div className={"pl-0 pt-2"}>
+                        <div className={"pl-0 pt-4"}>
                             {!playing && (
                                 <Button onClick={playAudio}>Play</Button>
                             )}
