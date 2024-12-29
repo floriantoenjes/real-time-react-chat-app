@@ -3,7 +3,7 @@
 ## Florian's Chat (Real-Time Chat App - What's App style)
 
 ### Demo
-Feel free to sign up at <a href="http://whatsapp.floriantoenjes.com/">chat.floriantoenjes.com <a/>with a made-up email and a password of choice for demo purposes.
+The demo is currently down to save costs.
 
 <img src="./imgs/dashboard.png" style="width: 80%; ">
 
@@ -29,6 +29,7 @@ The backend...
 * serves the frontend as well
 * makes its WebSocket connections scalable by using a Redis instance
 * uses an S3 store to persist files
+* uses a PeerJS server which I forked and extended with pub/sub-functionality
 
 The frontend...
 * is also written in TypeScript making use of React v18 as a framework.
