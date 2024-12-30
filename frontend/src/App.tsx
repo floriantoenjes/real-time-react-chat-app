@@ -30,7 +30,6 @@ function initializeWebSocket<ListenEvents>(
 ) {
     // @ts-ignore
     let socketReconnectInterval: NodeJS.Timer;
-    console.log(user._id);
 
     const socket = io(BACKEND_URL, {
         query: { userId: user?._id },
@@ -101,8 +100,11 @@ function App() {
     const navigate = useNavigate();
     const [user, setUser] = useState<User>();
     const [socket, setSocket] = useState<Socket>();
+
     const authService = useDiContext().AuthService;
+    const loggingService = useDiContext().LoggingService;
     const userService = useDiContext().UserService;
+
     const setUserWithAvatarBytes =
         getSetUserWithAvatarBytesOptional(userService);
 
@@ -140,7 +142,6 @@ function App() {
         useState<MediaStream | null>(null);
 
     useEffect(() => {
-        console.log(peer, setPeer);
         if (user && !peer) {
             const newPeer = new Peer(user.username, {
                 host: PEERJS_SERVER_HOST,
@@ -161,14 +162,36 @@ function App() {
             setPeer(newPeer);
 
             newPeer.on("open", (id) => {
-                console.log("My peer ID is: " + id);
+                loggingService.log(`User ${user._id} received Peer-Id: ${id}`);
             });
 
             newPeer.on("error", (err) => {
-                console.error("Peer error:", err);
+                loggingService.error(
+                    `User ${user._id} received Error: ${err}`,
+                    undefined,
+                    err?.stack,
+                );
             });
         }
     }, [user?.username]);
+
+    useEffect(() => {
+        window.onerror = function (message, source, lineno, colno, error) {
+            loggingService.error(
+                `Uncaught Exception: ${message}`,
+                source,
+                error?.stack,
+            );
+        };
+
+        window.onunhandledrejection = function (event) {
+            loggingService.error(
+                `Unhandled Promise Rejection: ${event.reason}`,
+                "Unhandled Promise",
+                event.reason?.stack || null,
+            );
+        };
+    }, []);
 
     return (
         <UserContext.Provider value={[user, setUserWithAvatarBytes(setUser)]}>

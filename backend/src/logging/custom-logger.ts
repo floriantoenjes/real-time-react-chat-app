@@ -14,8 +14,8 @@ export class CustomLogger implements LoggerService {
                         fields: { app_name: 'nestjs-app' },
                         adapterName: 'udp',
                         adapterOptions: {
-                            host: 'localhost', // Graylog host
-                            port: 12201, // GELF input port configured in Graylog
+                            host: process.env.LOG_HOST ?? 'localhost', // Graylog host
+                            port: process.env.LOG_PORT ?? 12201, // GELF input port configured in Graylog
                         },
                     },
                 }),

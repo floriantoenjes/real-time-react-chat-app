@@ -108,7 +108,6 @@ export function Dashboard(props: { user?: User }) {
     }, [stream]);
 
     useEffect(() => {
-        console.log("call, stream", call, stream, calling);
         if (!call && stream) {
             shutdownCall();
         }
@@ -128,7 +127,6 @@ export function Dashboard(props: { user?: User }) {
                 });
 
                 call.on("close", () => {
-                    console.log("close");
                     hangUpCall();
                 });
             },

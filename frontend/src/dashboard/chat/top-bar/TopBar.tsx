@@ -28,8 +28,11 @@ export function TopBar() {
     const [contactsOnlineStatus] =
         useContext(ContactsContext).contactsOnlineStatus;
     const [, setMessages] = useContext(MessageContext);
+
     const contactService = useDiContext().ContactService;
+    const loggingService = useDiContext().LoggingService;
     const messageService = useDiContext().MessageService;
+
     const [isTyping, setIsTyping] = useState<boolean>(false);
     const [socket] = useContext(SocketContext);
 
@@ -138,7 +141,6 @@ export function TopBar() {
             .getUserMedia({ video, audio: true })
             .then(async (stream) => {
                 setCallingStream(stream);
-                console.log(peer, selectedContact.name);
 
                 if (!peer) {
                     return;
@@ -172,7 +174,9 @@ export function TopBar() {
                     });
                 });
             })
-            .catch((reason) => console.log(reason));
+            .catch((reason) =>
+                loggingService.error(reason, undefined, reason?.stack),
+            );
     }
 
     return (

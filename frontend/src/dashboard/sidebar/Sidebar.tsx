@@ -144,7 +144,6 @@ export function Sidebar() {
                         });
                         void addContact(evt);
                     }}
-                    onBlur={(evt) => console.log(evt)}
                     className={"w-full"}
                     freeSolo={true}
                     isOptionEqualToValue={(option, value) => option === value}
