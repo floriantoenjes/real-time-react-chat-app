@@ -76,16 +76,28 @@ export class UserService {
     }
 
     async refresh(accessToken: string, refreshToken?: string) {
-        const decodedJwt = this.jwtService.decode(accessToken);
-
-        const res = await this.findUserBy({ username: decodedJwt.username });
-        if (!res.body) {
-            return res;
-        }
-
         try {
             this.jwtService.verify(accessToken);
+
+            const decodedJwt = this.jwtService.decode(accessToken);
+
+            const res = await this.findUserBy({
+                username: decodedJwt?.username,
+            });
+            if (!res.body) {
+                return res;
+            }
+
+            return await this.respondWithNewTokens(res.body);
         } catch (error) {
+            if (!refreshToken) {
+                return { status: 401 as const, body: 'Unauthorized' };
+            }
+
+            this.jwtService.verify(refreshToken);
+
+            const decodedJwt = this.jwtService.decode(refreshToken);
+
             const refreshTokenFromDb = (
                 await this.userModel
                     .findOne({
@@ -94,28 +106,36 @@ export class UserService {
                     .lean()
             )?.refreshTokenEncrypted;
 
+            const res = await this.findUserBy({
+                username: decodedJwt?.username,
+            });
+            if (!res.body) {
+                return res;
+            }
+
             if (
                 !refreshTokenFromDb ||
-                (await bcrypt.hash(refreshTokenFromDb, this.SALT_OR_ROUNDS)) !==
-                    refreshToken
+                !(await bcrypt.compare(refreshToken, refreshTokenFromDb))
             ) {
                 return { status: 401 as const, body: 'Unauthorized' };
             }
-        }
 
-        const payload = { sub: res.body._id, username: res.body.username };
-        this.logger.debug(
-            `Refreshed access token for user ${res.body.username}`,
-        );
+            return await this.respondWithNewTokens(res.body);
+        }
+    }
+
+    private async respondWithNewTokens(user: User) {
+        const payload = { sub: user._id, username: user.username };
+        this.logger.debug(`Refreshed access token for user ${user.username}`);
 
         const refreshTokenNew = await this.jwtService.signAsync(payload, {
             expiresIn: '7d',
         });
-        this.userModel.updateOne(
-            { _id: res.body._id },
+        await this.userModel.updateOne(
+            { _id: user._id },
             {
                 $set: {
-                    refreshTokenEncrypted: bcrypt.hash(
+                    refreshTokenEncrypted: await bcrypt.hash(
                         refreshTokenNew,
                         this.SALT_OR_ROUNDS,
                     ),
@@ -126,7 +146,7 @@ export class UserService {
         return {
             status: 200 as const,
             body: {
-                user: res.body,
+                user,
                 access_token: await this.jwtService.signAsync(payload),
                 refresh_token: refreshTokenNew,
             },

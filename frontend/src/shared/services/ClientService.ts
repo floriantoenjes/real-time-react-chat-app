@@ -37,73 +37,9 @@ export class ClientService {
             return this.contractClientMap.get(contract);
         }
 
-        let accessToken = localStorage.getItem(LOCAL_STORAGE_AUTH_KEY);
-
-        const refreshAccessToken = async () => {
-            const response = await fetch(`${BACKEND_URL}/refresh`, {
-                method: "POST",
-                body: JSON.stringify({
-                    accessToken: accessToken,
-                    refreshToken: localStorage.getItem(
-                        LOCAL_STORAGE_REFRESH_TOKEN,
-                    ),
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to refresh access token");
-            }
-
-            const {
-                access_token: newAccessToken,
-                refresh_token: newRefreshToken,
-            } = await response.json();
-            accessToken = newAccessToken;
-            localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, newAccessToken);
-            localStorage.setItem(LOCAL_STORAGE_REFRESH_TOKEN, newRefreshToken);
-
-            return newAccessToken;
-        };
-
         const client = initClient(contract, {
             baseUrl: BACKEND_URL,
-            api: async (args) => {
-                const { path, method, headers, body, fetchOptions } = args;
-
-                const requestOptions: RequestInit = {
-                    method,
-                    headers: {
-                        ...headers,
-                        Authorization: `Bearer ${accessToken}`, // Always use the latest token
-                    },
-                    body: body ?? undefined,
-                    ...fetchOptions,
-                };
-
-                const response = await fetch(path, requestOptions);
-
-                if (response.status === 401) {
-                    console.log("Access token expired, attempting refresh...");
-                    const newAccessToken = await refreshAccessToken();
-
-                    // Retry the original request with the new token
-                    // @ts-ignore
-                    requestOptions!.headers!.Authorization = `Bearer ${newAccessToken}`;
-                    const refreshResponse = await fetch(path, requestOptions);
-
-                    return {
-                        status: refreshResponse.status,
-                        body: await refreshResponse.json(),
-                        headers: refreshResponse.headers,
-                    };
-                }
-
-                return {
-                    status: response.status,
-                    body: await response.json(),
-                    headers: response.headers,
-                };
-            },
+            api: this.getCustomFetchApi(),
         });
 
         this.contractClientMap.set(contract, client);
@@ -113,6 +49,80 @@ export class ClientService {
             throw new Error("TS-Rest client not found in Map!");
         }
         return clientInMap;
+    }
+
+    private getCustomFetchApi() {
+        return async (args: any) => {
+            const { path, method, headers, body, fetchOptions } = args;
+            const accessToken = localStorage.getItem(LOCAL_STORAGE_AUTH_KEY);
+
+            const requestOptions: RequestInit = {
+                method,
+                headers: {
+                    ...headers,
+                    Authorization: `Bearer ${accessToken}`, // Always use the latest token
+                },
+                body: body ?? undefined,
+                ...fetchOptions,
+            };
+
+            const response = await fetch(path, requestOptions);
+
+            if (response.status === 401) {
+                console.log("Access token expired, attempting refresh...");
+                const newAccessToken = await this.refreshAccessToken();
+
+                // Retry the original request with the new token
+                // @ts-ignore
+                requestOptions!.headers!.Authorization = `Bearer ${newAccessToken}`;
+                const refreshResponse = await fetch(path, requestOptions);
+
+                return {
+                    status: refreshResponse.status,
+                    body: await refreshResponse.json(),
+                    headers: refreshResponse.headers,
+                };
+            }
+
+            return {
+                status: response.status,
+                body: await response.json(),
+                headers: response.headers,
+            };
+        };
+    }
+
+    async refreshAccessToken() {
+        const response = await fetch(`${BACKEND_URL}/refresh`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                accessToken:
+                    localStorage.getItem(LOCAL_STORAGE_AUTH_KEY) ??
+                    "dummy-token",
+                refreshToken:
+                    localStorage.getItem(LOCAL_STORAGE_REFRESH_TOKEN) ??
+                    "dummy-refresh-token",
+            }),
+        });
+
+        if (!response.ok) {
+            localStorage.removeItem(LOCAL_STORAGE_AUTH_KEY);
+            localStorage.removeItem(LOCAL_STORAGE_REFRESH_TOKEN);
+
+            window.location.reload();
+            return;
+        }
+
+        const { access_token: newAccessToken, refresh_token: newRefreshToken } =
+            await response.json();
+
+        localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, newAccessToken);
+        localStorage.setItem(LOCAL_STORAGE_REFRESH_TOKEN, newRefreshToken);
+
+        return newAccessToken;
     }
 
     clearBearerTokenAndClients() {
