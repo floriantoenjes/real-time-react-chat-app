@@ -10,6 +10,9 @@ import { ContactService } from '../services/contact.service';
 import { User } from '../../shared/user.contract';
 import { createClient } from 'redis';
 import { CustomLogger } from '../logging/custom-logger';
+import { UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { jwtConstants } from '../services/constants';
 
 @WebSocketGateway({
     cors: {
@@ -31,6 +34,7 @@ export class RealTimeChatGateway
 
     constructor(
         private readonly contactService: ContactService,
+        private readonly jwtService: JwtService,
         private readonly logger: CustomLogger,
     ) {
         this.pubClient = createClient({
@@ -51,6 +55,20 @@ export class RealTimeChatGateway
 
     handleConnection(socket: Socket): void {
         // TODO: Check for JWT for security here
+        const token = socket.handshake?.auth?.Authorization?.split(' ')[1];
+        if (!token) {
+            socket.disconnect();
+            throw new UnauthorizedException('JWT token is missing');
+        }
+
+        try {
+            this.jwtService.verify(token, {
+                secret: jwtConstants.secret,
+            });
+        } catch (err) {
+            socket.disconnect();
+            throw new UnauthorizedException('Invalid JWT token');
+        }
 
         const userId = socket.handshake.query.userId as string;
         this.logger.log(`New connection: ${socket.id} for user: ${userId}`);

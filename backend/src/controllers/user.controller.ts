@@ -46,7 +46,10 @@ export class UserController {
     @Public()
     async refresh() {
         return tsRestHandler(userContract.refresh, async ({ body }) => {
-            return this.userService.refresh(body.accessToken);
+            return this.userService.refresh(
+                body.accessToken,
+                body.refreshToken,
+            );
         });
     }
 

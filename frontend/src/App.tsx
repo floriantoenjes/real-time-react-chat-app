@@ -9,6 +9,7 @@ import { UserContext } from "./shared/contexts/UserContext";
 import {
     BACKEND_URL,
     LOCAL_STORAGE_AUTH_KEY,
+    LOCAL_STORAGE_REFRESH_TOKEN,
     PEERJS_SERVER_HOST,
     PEERJS_SERVER_PORT,
     TURN_SERVER_PASSWORD,
@@ -34,6 +35,9 @@ function initializeWebSocket<ListenEvents>(
     const socket = io(BACKEND_URL, {
         query: { userId: user?._id },
         transports: ["websocket"],
+        auth: {
+            Authorization: `Bearer ${localStorage.getItem(LOCAL_STORAGE_AUTH_KEY)}`,
+        },
     });
     socket.connect();
     setSocket(socket);
@@ -71,7 +75,13 @@ function authenticateUserAndFetchAvatar(
     setUser: Dispatch<SetStateAction<User | undefined>>,
     signOut: () => void,
 ) {
-    if (!user && !!localStorage.getItem(LOCAL_STORAGE_AUTH_KEY)) {
+    if (
+        !user &&
+        !!(
+            localStorage.getItem(LOCAL_STORAGE_AUTH_KEY) ||
+            localStorage.getItem(LOCAL_STORAGE_REFRESH_TOKEN)
+        )
+    ) {
         authService
             .refresh()
             .then((loggedInUser) => {

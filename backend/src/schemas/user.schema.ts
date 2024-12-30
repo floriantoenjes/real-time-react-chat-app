@@ -24,6 +24,9 @@ export class UserEntity implements User {
 
     @Prop()
     avatarFileName?: string;
+
+    @Prop()
+    refreshTokenEncrypted?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserEntity);

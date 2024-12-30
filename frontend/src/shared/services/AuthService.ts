@@ -1,5 +1,8 @@
 import { UserService } from "./UserService";
-import { LOCAL_STORAGE_AUTH_KEY } from "../../environment";
+import {
+    LOCAL_STORAGE_AUTH_KEY,
+    LOCAL_STORAGE_REFRESH_TOKEN,
+} from "../../environment";
 import { ClientService } from "./ClientService";
 
 export class AuthService {
@@ -14,13 +17,14 @@ export class AuthService {
             return;
         }
         localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, body.access_token);
-        this.clientService.clearBearerTokenAndClients();
 
         return body.user;
     }
 
     async refresh() {
-        const jwt = localStorage.getItem(LOCAL_STORAGE_AUTH_KEY);
+        const jwt =
+            localStorage.getItem(LOCAL_STORAGE_AUTH_KEY) ??
+            localStorage.getItem(LOCAL_STORAGE_REFRESH_TOKEN);
         if (!jwt) {
             return;
         }
@@ -29,7 +33,7 @@ export class AuthService {
             return;
         }
         localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, res.access_token);
-        this.clientService.clearBearerTokenAndClients();
+        localStorage.setItem(LOCAL_STORAGE_REFRESH_TOKEN, res.refresh_token);
 
         return res.user;
     }

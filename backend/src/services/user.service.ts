@@ -12,6 +12,8 @@ import { CustomLogger } from '../logging/custom-logger';
 
 @Injectable()
 export class UserService {
+    private readonly SALT_OR_ROUNDS = 10;
+
     constructor(
         @Inject(CACHE_MANAGER)
         private readonly cache: Cache,
@@ -47,26 +49,20 @@ export class UserService {
             `Signed in user ${res.body.username} and id ${res.body._id}`,
         );
 
-        return {
-            status: 200 as const,
-            body: {
-                user: res.body,
-                access_token: await this.jwtService.signAsync(payload),
+        const refreshToken = await this.jwtService.signAsync(payload, {
+            expiresIn: '7d',
+        });
+
+        await this.userModel.updateOne(
+            { email },
+            {
+                $set: {
+                    refreshTokenEncrypted: await bcrypt.hash(
+                        refreshToken,
+                        this.SALT_OR_ROUNDS,
+                    ),
+                },
             },
-        };
-    }
-
-    async refresh(accessToken: string) {
-        const decodedJwt = this.jwtService.decode(accessToken);
-
-        const res = await this.findUserBy({ username: decodedJwt.username });
-        if (!res.body) {
-            return res;
-        }
-
-        const payload = { sub: res.body._id, username: res.body.username };
-        this.logger.debug(
-            `Refreshed access token for user ${res.body.username}`,
         );
 
         return {
@@ -74,6 +70,65 @@ export class UserService {
             body: {
                 user: res.body,
                 access_token: await this.jwtService.signAsync(payload),
+                refresh_token: refreshToken,
+            },
+        };
+    }
+
+    async refresh(accessToken: string, refreshToken?: string) {
+        const decodedJwt = this.jwtService.decode(accessToken);
+
+        const res = await this.findUserBy({ username: decodedJwt.username });
+        if (!res.body) {
+            return res;
+        }
+
+        try {
+            this.jwtService.verify(accessToken);
+        } catch (error) {
+            const refreshTokenFromDb = (
+                await this.userModel
+                    .findOne({
+                        username: decodedJwt.username,
+                    })
+                    .lean()
+            )?.refreshTokenEncrypted;
+
+            if (
+                !refreshTokenFromDb ||
+                (await bcrypt.hash(refreshTokenFromDb, this.SALT_OR_ROUNDS)) !==
+                    refreshToken
+            ) {
+                return { status: 401 as const, body: 'Unauthorized' };
+            }
+        }
+
+        const payload = { sub: res.body._id, username: res.body.username };
+        this.logger.debug(
+            `Refreshed access token for user ${res.body.username}`,
+        );
+
+        const refreshTokenNew = await this.jwtService.signAsync(payload, {
+            expiresIn: '7d',
+        });
+        this.userModel.updateOne(
+            { _id: res.body._id },
+            {
+                $set: {
+                    refreshTokenEncrypted: bcrypt.hash(
+                        refreshTokenNew,
+                        this.SALT_OR_ROUNDS,
+                    ),
+                },
+            },
+        );
+
+        return {
+            status: 200 as const,
+            body: {
+                user: res.body,
+                access_token: await this.jwtService.signAsync(payload),
+                refresh_token: refreshTokenNew,
             },
         };
     }
@@ -99,8 +154,7 @@ export class UserService {
     }
 
     async createUser(email: string, password: string, username: string) {
-        const saltOrRounds = 10;
-        const hash = await bcrypt.hash(password, saltOrRounds);
+        const hash = await bcrypt.hash(password, this.SALT_OR_ROUNDS);
 
         const createdUser = await this.userModel.create({
             email,

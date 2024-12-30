@@ -31,7 +31,9 @@ export class UserService {
 
     async refresh(
         accessToken: string,
-    ): Promise<{ user: User; access_token: string } | false> {
+    ): Promise<
+        { user: User; access_token: string; refresh_token: string } | false
+    > {
         const res = await this.clientService
             .getClient(userContract)
             .refresh({ body: { accessToken } });
