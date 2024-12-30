@@ -36,11 +36,10 @@ export function SendMessageBar() {
     );
     let startOfRecordingRef = useRef<Date | null>(null);
     const [startOfRecording, setStartOfRecording] = useState<Date | null>(null);
-    let askedPermission = useRef(false);
 
     const handleInputChange = useHandleInputChange(setFormData);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [file, setFile] = useState<File>();
+    const [, setFile] = useState<File>();
     const [socket] = useContext(SocketContext);
     let [isTyping, setIsTyping] = useState<boolean>(false);
 

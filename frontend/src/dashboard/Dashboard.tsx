@@ -19,18 +19,24 @@ import {
     XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { SocketContext } from "../shared/contexts/SocketContext";
+import Peer from "peerjs";
 
 export function Dashboard(props: { user?: User }) {
-    if (!props.user) {
+    const isLoggedIn = props.user;
+    if (!isLoggedIn) {
         return <Navigate to={"/"} />;
     }
 
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+
     const contactService = useRef(useDiContext().ContactService);
     const contactGroupService = useRef(useDiContext().ContactGroupService);
+
     const [contacts, setContacts] = useState<Contact[]>([]);
     const [contactsOnlineStatus, setContactsOnlineStatus] = useState<
         Map<string, boolean>
     >(new Map<string, boolean>());
+
     const [contactGroups, setContactGroups] = useState<ContactGroup[]>([]);
     const [selectedContact, setSelectedContact] = useState<Contact | undefined>(
         undefined,
@@ -38,66 +44,6 @@ export function Dashboard(props: { user?: User }) {
 
     const [messages, setMessages] = useState<Message[]>([]);
     const [socket] = useContext(SocketContext);
-
-    useEffect(() => {
-        (async () => {
-            if (!props.user?._id) {
-                return;
-            }
-
-            setContacts(
-                await contactService.current.getContacts(
-                    props.user._id.toString(),
-                ),
-            );
-
-            setContactGroups(
-                await contactGroupService.current.getContactGroups(
-                    props.user._id.toString(),
-                ),
-            );
-        })();
-    }, [props.user, contactService]);
-
-    useEffect(() => {
-        if (contacts) {
-            (async () => {
-                const res =
-                    await contactService.current.getContactsOnlineStatus(
-                        contacts.map((c) => c._id),
-                    );
-                if (res.status === 200) {
-                    const onlineStatusMap = new Map<string, boolean>();
-                    for (const userId of Object.keys(res.body)) {
-                        onlineStatusMap.set(userId, res.body[userId]);
-                    }
-                    setContactsOnlineStatus(onlineStatusMap);
-                }
-            })();
-        }
-    }, [contacts]);
-
-    useEffect(() => {
-        function setContactOnlineStatus(
-            contactId: string,
-            onlineStatus: boolean,
-        ) {
-            setContactsOnlineStatus((prevState) => {
-                prevState.set(contactId, onlineStatus);
-                return new Map(prevState);
-            });
-        }
-
-        if (socket) {
-            socket.on("contactOnline", (contactId: string) => {
-                setContactOnlineStatus(contactId, true);
-            });
-
-            socket.on("contactOffline", (contactId: string) => {
-                setContactOnlineStatus(contactId, false);
-            });
-        }
-    }, [socket]);
 
     const {
         calling,
@@ -111,41 +57,61 @@ export function Dashboard(props: { user?: User }) {
         setStream,
         callingStream,
         setCallingStream,
-        setReceiveCallingStream,
         receiveCallingStream,
+        setReceiveCallingStream,
     } = useContext(PeerContext);
+
+    useEffect(() => {
+        (async () => {
+            if (!props.user?._id) {
+                return;
+            }
+            setContacts(
+                await contactService.current.getContacts(
+                    props.user._id.toString(),
+                ),
+            );
+            setContactGroups(
+                await contactGroupService.current.getContactGroups(
+                    props.user._id.toString(),
+                ),
+            );
+        })();
+    }, [props.user, contactService]);
+
+    useEffect(() => {
+        if (!contacts) {
+            return;
+        }
+        (async () => {
+            await getContactsOnlineStatus();
+        })();
+    }, [contacts]);
+
+    useEffect(() => {
+        listenOnContactOnlineStatusChanges();
+    }, [socket]);
 
     useEffect(() => {
         if (!peer) {
             return;
         }
-        peer.on("connection", (connection) => {
-            setDataConnection(connection);
-            peer.on("call", (call) => {
-                setCall(call);
-            });
-
-            connection.on("close", () => {
-                setCall(null);
-            });
-        });
+        listenOnPeerConnections(peer);
     }, [peer]);
-
-    const videoRef = useRef<HTMLVideoElement | null>(null);
 
     useEffect(() => {
         if (!videoRef.current || !stream) {
             return;
         }
-        videoRef.current.srcObject = stream;
-        videoRef.current.addEventListener("loadedmetadata", () => {
-            if (!videoRef.current) {
-                return;
-            }
-
-            void videoRef.current.play();
-        });
+        showVideoStream(videoRef.current, stream);
     }, [stream]);
+
+    useEffect(() => {
+        console.log("call, stream", call, stream, calling);
+        if (!call && stream) {
+            shutdownCall();
+        }
+    }, [call]);
 
     function answerCall(video: boolean) {
         if (!call) {
@@ -171,6 +137,17 @@ export function Dashboard(props: { user?: User }) {
         );
     }
 
+    function showVideoStream(videoRef: HTMLVideoElement, stream: MediaStream) {
+        videoRef.srcObject = stream;
+        videoRef.addEventListener("loadedmetadata", () => {
+            if (!videoRef) {
+                return;
+            }
+
+            void videoRef.play();
+        });
+    }
+
     function hangUpCall() {
         if (!call) {
             return;
@@ -182,35 +159,111 @@ export function Dashboard(props: { user?: User }) {
         });
     }
 
-    useEffect(() => {
-        console.log("call, stream", call, stream, calling);
-        if (!call && stream) {
-            if (videoRef.current?.srcObject) {
-                // @ts-ignore
-                for (const track of videoRef.current.srcObject.getTracks()) {
+    function shutdownCall() {
+        if (videoRef.current?.srcObject) {
+            // @ts-ignore
+            for (const track of videoRef.current.srcObject.getTracks()) {
+                track.stop();
+            }
+            videoRef.current.srcObject = null;
+
+            if (stream) {
+                for (const track of stream.getTracks()) {
                     track.stop();
                 }
-                videoRef.current.srcObject = null;
-
-                if (stream) {
-                    for (const track of stream.getTracks()) {
-                        track.stop();
-                    }
-                }
-
-                setStream(null);
-
-                if (receiveCallingStream) {
-                    for (const track of receiveCallingStream?.getTracks()) {
-                        track.stop();
-                    }
-                    setReceiveCallingStream(null);
-                }
-
-                // peer?.destroy();
             }
+
+            setStream(null);
+
+            if (receiveCallingStream) {
+                for (const track of receiveCallingStream?.getTracks()) {
+                    track.stop();
+                }
+                setReceiveCallingStream(null);
+            }
+
+            // peer?.destroy();
         }
-    }, [call]);
+    }
+
+    function listenOnContactOnlineStatusChanges() {
+        function setContactOnlineStatusOnOrOffline(
+            contactId: string,
+            onlineStatus: boolean,
+        ) {
+            setContactsOnlineStatus((prevState) => {
+                prevState.set(contactId, onlineStatus);
+                return new Map(prevState);
+            });
+        }
+
+        if (socket) {
+            socket.on("contactOnline", (contactId: string) => {
+                setContactOnlineStatusOnOrOffline(contactId, true);
+            });
+
+            socket.on("contactOffline", (contactId: string) => {
+                setContactOnlineStatusOnOrOffline(contactId, false);
+            });
+        }
+    }
+
+    function listenOnPeerConnections(peer: Peer) {
+        peer.on("connection", (connection) => {
+            setDataConnection(connection);
+
+            peer.on("call", (call) => {
+                setCall(call);
+            });
+
+            connection.on("close", () => {
+                setCall(null);
+            });
+        });
+    }
+
+    async function getContactsOnlineStatus() {
+        const res = await contactService.current.getContactsOnlineStatus(
+            contacts.map((c) => c._id),
+        );
+        if (res.status === 200) {
+            const onlineStatusMap = new Map<string, boolean>();
+            for (const userId of Object.keys(res.body)) {
+                onlineStatusMap.set(userId, res.body[userId]);
+            }
+            setContactsOnlineStatus(onlineStatusMap);
+        }
+    }
+
+    function endCall() {
+        connection?.close({ flush: true });
+        if (!callingStream) {
+            return;
+        }
+        for (const track of callingStream?.getTracks()) {
+            track.stop();
+        }
+        setCallingStream(null);
+        call?.close();
+        setCall(null);
+        setCalling(false);
+    }
+
+    function isCalling() {
+        return !stream && calling;
+    }
+
+    function isBeingCalled() {
+        return !calling && call && !stream;
+    }
+
+    function isNeitherCallingNorBeingCalled() {
+        return !stream && !calling && !call;
+    }
+
+    function isInCall() {
+        return !!stream;
+    }
 
     return (
         <div className={"h-screen flex"}>
@@ -226,39 +279,27 @@ export function Dashboard(props: { user?: User }) {
                 }}
             >
                 <MessageContext.Provider value={[messages, setMessages]}>
-                    {!stream && !calling && !call && (
+                    {isNeitherCallingNorBeingCalled() && (
                         <>
                             <Sidebar />
                             <Chat />
                         </>
                     )}
-                    {!stream && calling && (
+                    {isCalling() && (
                         <div className={"mx-auto my-auto"}>
                             <h2>Calling</h2>
                             <div className={"flex"}>
                                 <IconButton>
                                     <XMarkIcon
                                         className="w-8 h-8"
-                                        onClick={() => {
-                                            connection?.close({ flush: true });
-                                            if (!callingStream) {
-                                                return;
-                                            }
-                                            for (const track of callingStream?.getTracks()) {
-                                                track.stop();
-                                            }
-                                            setCallingStream(null);
-                                            call?.close();
-                                            setCall(null);
-                                            setCalling(false);
-                                        }}
+                                        onClick={endCall}
                                     />
                                 </IconButton>
                             </div>
                         </div>
                     )}
 
-                    {!calling && call && !stream && (
+                    {isBeingCalled() && (
                         <div className={"mx-auto my-auto"}>
                             <h2>Incoming call</h2>
                             <div className={"flex"}>
@@ -283,7 +324,7 @@ export function Dashboard(props: { user?: User }) {
                         </div>
                     )}
 
-                    {stream && (
+                    {isInCall() && (
                         <>
                             <video ref={videoRef}></video>
                             <div className={"fixed call-bar"}>
