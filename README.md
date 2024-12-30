@@ -44,10 +44,8 @@ Backend and frontend...
 * are processing real time updates with WebSocket connections via socket.io server and client.
 
 ### Next TODOs
-* Fine tune sending of audio files in chat
 * Introduce rate limiting
 * Check JWTs for expiration
 * Implement backend validation
-* Improve error handling 
-* Add distributed logging to frontend as well
+* Improve error handling
 * Add i18n library
