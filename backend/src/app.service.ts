@@ -7,12 +7,14 @@ import { ContactEntity } from './schemas/contact.schema';
 import * as bcrypt from 'bcrypt';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { CustomLogger } from './logging/custom-logger';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
     constructor(
         @Inject(CACHE_MANAGER)
         private readonly cache: Cache,
+        private readonly logger: CustomLogger,
         @InjectModel(MessageEntity.name)
         private readonly messageModel: Model<MessageEntity>,
         @InjectModel(UserEntity.name)
@@ -22,8 +24,13 @@ export class AppService implements OnApplicationBootstrap {
     async onApplicationBootstrap() {
         await this.cache.reset();
 
+        this.logger.log('Deleting all messages...');
         await this.messageModel.deleteMany({});
+        this.logger.log('All messages have been deleted.');
+
+        this.logger.log('Deleting all users...');
         await this.userModel.deleteMany({});
+        this.logger.log('All users have been deleted.');
 
         if (await this.userModel.findOne()) {
             return;
@@ -83,6 +90,8 @@ export class AppService implements OnApplicationBootstrap {
 
         await user1Doc.save();
         await user2Doc.save();
+
+        this.logger.log('Done setting up initial users and contacts.');
     }
 
     getHello(): string {

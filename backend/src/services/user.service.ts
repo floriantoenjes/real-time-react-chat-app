@@ -8,12 +8,14 @@ import { JwtService } from '@nestjs/jwt';
 import { Cache } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { findUsersByCacheKey } from '../cache/cache-keys';
+import { CustomLogger } from '../logging/custom-logger';
 
 @Injectable()
 export class UserService {
     constructor(
         @Inject(CACHE_MANAGER)
         private readonly cache: Cache,
+        private readonly logger: CustomLogger,
         @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
         private readonly jwtService: JwtService,
     ) {}
@@ -36,10 +38,15 @@ export class UserService {
     async signIn(email: string, password: string) {
         const res = await this.findUserBy({ email, password });
         if (!res.body) {
+            this.logger.log(`User with email ${email} not found`);
             return res;
         }
 
         const payload = { sub: res.body._id, username: res.body.username };
+        this.logger.log(
+            `Signed in user ${res.body.username} and id ${res.body._id}`,
+        );
+
         return {
             status: 200 as const,
             body: {
@@ -58,6 +65,10 @@ export class UserService {
         }
 
         const payload = { sub: res.body._id, username: res.body.username };
+        this.logger.debug(
+            `Refreshed access token for user ${res.body.username}`,
+        );
+
         return {
             status: 200 as const,
             body: {
@@ -100,6 +111,8 @@ export class UserService {
         if (!createdUser) {
             return { status: 400 as const, body: null };
         }
+
+        this.logger.log(`Created user ${username}`);
 
         await this.cache.del(findUsersByCacheKey());
 

@@ -9,6 +9,7 @@ import { RealTimeChatGateway } from '../gateways/socket.gateway';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { getUserContactsCacheKey } from '../cache/cache-keys';
+import { CustomLogger } from '../logging/custom-logger';
 
 @Controller()
 export class ContactController {
@@ -17,6 +18,7 @@ export class ContactController {
         private readonly cache: Cache,
         @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
         private readonly contactService: ContactService,
+        private readonly logger: CustomLogger,
         private readonly gateway: RealTimeChatGateway,
     ) {}
 
@@ -52,6 +54,9 @@ export class ContactController {
                 (uc) => uc._id === newContact._id,
             );
             if (contactAlreadyExists) {
+                this.logger.warn(
+                    `User ${body.userId} tried to add already existing contact ${body.newContactId}`,
+                );
                 return { status: 400, body: false };
             }
 

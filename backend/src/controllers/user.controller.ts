@@ -17,10 +17,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ObjectStorageService } from '../services/object-storage.service';
 import { Public } from '../services/constants';
 import { Jimp } from 'jimp';
+import { CustomLogger } from '../logging/custom-logger';
 
 @Controller()
 export class UserController {
     constructor(
+        private readonly logger: CustomLogger,
         private readonly userService: UserService,
         private readonly objectStorageService: ObjectStorageService,
     ) {}
@@ -135,6 +137,8 @@ export class UserController {
             _id: body.userId,
             avatarFileName: fileName,
         });
+
+        this.logger.log(`Updated user avatar for ${body.userId}`);
 
         return {
             status: 200 as const,

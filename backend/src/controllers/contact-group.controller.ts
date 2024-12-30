@@ -11,12 +11,14 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { User } from '../../shared/user.contract';
 import { getContactGroupsCacheKey } from '../cache/cache-keys';
+import { CustomLogger } from '../logging/custom-logger';
 
 @Controller()
 export class ContactGroupController {
     constructor(
         @Inject(CACHE_MANAGER)
         private readonly cache: Cache,
+        private readonly logger: CustomLogger,
         @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
     ) {}
 
@@ -70,6 +72,9 @@ export class ContactGroupController {
                     (group) => group.name === newContactGroup.name,
                 );
                 if (contactAlreadyExists) {
+                    this.logger.warn(
+                        `User ${body.userId} tried to add already existing contact-group ${body.memberIds}`,
+                    );
                     return { status: 400, body: false };
                 }
 

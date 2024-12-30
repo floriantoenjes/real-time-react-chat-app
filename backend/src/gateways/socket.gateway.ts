@@ -9,6 +9,7 @@ import { Server, Socket } from 'socket.io';
 import { ContactService } from '../services/contact.service';
 import { User } from '../../shared/user.contract';
 import { createClient } from 'redis';
+import { CustomLogger } from '../logging/custom-logger';
 
 @WebSocketGateway({
     cors: {
@@ -28,7 +29,10 @@ export class RealTimeChatGateway
 
     private readonly onlineUsersSet: Set<string> = new Set<string>();
 
-    constructor(private readonly contactService: ContactService) {
+    constructor(
+        private readonly contactService: ContactService,
+        private readonly logger: CustomLogger,
+    ) {
         this.pubClient = createClient({
             url: process.env.redis ?? `redis://localhost:6379`,
         });
@@ -49,7 +53,7 @@ export class RealTimeChatGateway
         // TODO: Check for JWT for security here
 
         const userId = socket.handshake.query.userId as string;
-        console.log(`New connection: ${socket.id} for user: ${userId}`);
+        this.logger.log(`New connection: ${socket.id} for user: ${userId}`);
         // Join the socket to a room named after the userId
         socket.join(userId);
 
@@ -67,7 +71,9 @@ export class RealTimeChatGateway
 
     handleDisconnect(socket: Socket): void {
         const userId = socket.handshake.query.userId as string;
-        console.log(`Client disconnected: ${socket.id} for user: ${userId}`);
+        this.logger.log(
+            `Client disconnected: ${socket.id} for user: ${userId}`,
+        );
         // Leave the room when the socket disconnects
         socket.leave(userId);
 
@@ -85,7 +91,7 @@ export class RealTimeChatGateway
 
     @SubscribeMessage('message')
     handleMessage(client: Socket, payload: any): void {
-        console.log('Message received in gateway:', payload);
+        this.logger.debug('Message received in gateway: ' + payload);
         // Broadcast to all clients
         this.server.emit('message', { text: 'Hello from server' });
     }
@@ -99,12 +105,12 @@ export class RealTimeChatGateway
     }
 
     setContactOnline(userId: string) {
-        console.log('userOnlineServerSync', this.onlineUsersSet);
+        this.logger.debug(`New contact online: ${userId}`);
         this.onlineUsersSet.add(userId);
     }
 
     setContactOffline(userId: string) {
-        console.log('userOfflineServerSync', this.onlineUsersSet);
+        this.logger.debug(`New contact offline: ${userId}`);
         this.onlineUsersSet.delete(userId);
     }
 

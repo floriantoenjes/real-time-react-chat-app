@@ -23,6 +23,7 @@ import { ContactService } from './services/contact.service';
 import { CacheModule, CacheStore } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
 import * as process from 'node:process';
+import { CustomLogger } from './logging/custom-logger';
 
 @Module({
     imports: [
@@ -38,8 +39,6 @@ import * as process from 'node:process';
         }),
         MongooseModule.forFeature([
             { name: MessageEntity.name, schema: MessageSchema },
-            // { name: ContactEntity.name, schema: ContactSchema },
-            // { name: ContactGroup.name, schema: ContactGroupSchema },
             { name: UserEntity.name, schema: UserSchema },
         ]),
         JwtModule.register({
@@ -76,6 +75,7 @@ import * as process from 'node:process';
     providers: [
         AppService,
         ContactService,
+        CustomLogger,
         RealTimeChatGateway,
         UserService,
         ObjectStorageService,

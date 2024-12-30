@@ -4,6 +4,7 @@ import { RedisIoAdapter } from './adapters/RedisIoAdapter';
 import { ExpressPeerServer } from 'peer';
 import * as express from 'express';
 import * as process from 'node:process';
+import { CustomLogger } from './logging/custom-logger';
 
 async function bootstrap() {
     console.log(
@@ -20,6 +21,9 @@ async function bootstrap() {
     await redisIoAdapter.connectToRedis();
 
     app.useWebSocketAdapter(redisIoAdapter);
+
+    const customLogger = app.get(CustomLogger);
+    app.useLogger(customLogger);
 
     app.enableCors({
         origin: '*',

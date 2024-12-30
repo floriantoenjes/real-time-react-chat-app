@@ -49,5 +49,5 @@ Backend and frontend...
 * Check JWTs for expiration
 * Implement backend validation
 * Improve error handling 
-* Add distributed logging
+* Add distributed logging to frontend as well
 * Add i18n library
