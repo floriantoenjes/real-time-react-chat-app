@@ -18,14 +18,14 @@ export function Sidebar() {
     const userService = useDiContext().UserService;
     const contactsContext = useContext(ContactsContext);
     const contactService = useDiContext().ContactService;
+
     const [selectedContact, setSelectedContact] =
         contactsContext.selectedContact;
     const [userContacts, setUserContacts] = contactsContext.contacts;
     const [userContactsOnlineStatus] = contactsContext.contactsOnlineStatus;
-    const [userContactGroups, setUserContactGroups] =
-        contactsContext.contactGroups;
+    const [userContactGroups] = contactsContext.contactGroups;
 
-    const [formData, setFormData] = useState({
+    const [, setFormData] = useState({
         contactName: "",
     });
 
@@ -35,7 +35,7 @@ export function Sidebar() {
 
     const [autoCompleteKey, setAutoCompleteKey] = useState<boolean>(false);
 
-    useEffect(() => {
+    function loadUserContacts() {
         userService.getUsers().then((users) => {
             if (!users) {
                 return;
@@ -43,12 +43,16 @@ export function Sidebar() {
 
             setUsers(
                 users.filter(
-                    (u: any) =>
-                        u._id !== user._id &&
-                        !userContacts.find((uc) => uc._id === u._id),
+                    (contact: User) =>
+                        contact._id !== user._id &&
+                        !userContacts.find((uc) => uc._id === contact._id),
                 ),
             );
         });
+    }
+
+    useEffect(() => {
+        loadUserContacts();
     }, [userContacts]);
 
     function contactList() {
@@ -84,7 +88,7 @@ export function Sidebar() {
                 .includes(
                     !!evt.target.value
                         ? evt.target.value
-                        : evt.target.textContent ?? "",
+                        : (evt.target.textContent ?? ""),
                 )
         ) {
             return;

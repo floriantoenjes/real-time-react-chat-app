@@ -41,6 +41,28 @@ export function TopBar() {
         setAnchorEl(null);
     };
 
+    const {
+        setDataConnection,
+        setCallingStream,
+        setCalling,
+        peer,
+        setCall,
+        setStream,
+    } = useContext(PeerContext);
+
+    useEffect(() => {
+        if (socket) {
+            socket.on("typing", (contactId: string) => {
+                if (contactId === selectedContact?._id) {
+                    setIsTyping(true);
+                    setTimeout(() => {
+                        setIsTyping(false);
+                    }, 5000);
+                }
+            });
+        }
+    }, [socket]);
+
     function emptyChat() {
         if (!selectedContact) {
             return;
@@ -105,16 +127,6 @@ export function TopBar() {
             setState({ ...state, [anchor]: open });
         };
 
-    const {
-        setDataConnection,
-        setCallingStream,
-        setCalling,
-        peer,
-        call,
-        setCall,
-        setStream,
-    } = useContext(PeerContext);
-
     async function startCall(video: boolean) {
         if (!selectedContact) {
             return;
@@ -162,25 +174,6 @@ export function TopBar() {
             })
             .catch((reason) => console.log(reason));
     }
-
-    useEffect(() => {
-        if (!peer) {
-            return;
-        }
-    }, [peer]);
-
-    useEffect(() => {
-        if (socket) {
-            socket.on("typing", (contactId: string) => {
-                if (contactId === selectedContact?._id) {
-                    setIsTyping(true);
-                    setTimeout(() => {
-                        setIsTyping(false);
-                    }, 5000);
-                }
-            });
-        }
-    }, [socket]);
 
     return (
         <div

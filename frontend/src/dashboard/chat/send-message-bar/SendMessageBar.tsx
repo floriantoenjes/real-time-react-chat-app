@@ -15,6 +15,7 @@ import { Message } from "@t/message.contract";
 import { SocketContext } from "../../../shared/contexts/SocketContext";
 import { DateTime } from "luxon";
 import { StopIcon } from "@heroicons/react/24/solid";
+import { MessageAddons } from "../../../shared/enums/message";
 
 export function SendMessageBar() {
     const [formData, setFormData] = useState<{ message: string }>({
@@ -67,7 +68,7 @@ export function SendMessageBar() {
             ...messages,
             {
                 ...messageToSend,
-                _id: "temp-" + new Date().toString(),
+                _id: MessageAddons.TEMP_PREFIX + new Date().toString(),
                 at: new Date(),
                 read: false,
                 sent: false,

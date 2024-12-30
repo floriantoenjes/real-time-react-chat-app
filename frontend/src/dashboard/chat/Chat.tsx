@@ -8,6 +8,7 @@ import { useUserContext } from "../../shared/contexts/UserContext";
 import { MessageContext } from "../../shared/contexts/MessageContext";
 import { Message } from "real-time-chat-backend/shared/message.contract";
 import { useDiContext } from "../../shared/contexts/DiContext";
+import { MessageAddons } from "../../shared/enums/message";
 
 export function Chat() {
     const [selectedContact] = useContext(ContactsContext).selectedContact;
@@ -40,10 +41,14 @@ export function Chat() {
 
         if (socket) {
             socket.once("message", addMessage);
+
             socket.on("messageRead", (msgId: string) => {
                 setMessages((prevState) => {
                     const nowReadMsgIdx = prevState.findIndex((msg) => {
-                        return msg._id === msgId || msg._id.startsWith("temp-");
+                        return (
+                            msg._id === msgId ||
+                            msg._id.startsWith(MessageAddons.TEMP_PREFIX)
+                        );
                     });
                     if (!prevState[nowReadMsgIdx]) {
                         return prevState;

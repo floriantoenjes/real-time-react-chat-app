@@ -51,6 +51,11 @@ export function TopSection() {
             }
         };
 
+    function signOut() {
+        localStorage.removeItem(LOCAL_STORAGE_AUTH_KEY);
+        navigate(RoutesEnum.LOGIN);
+    }
+
     return (
         <div className={"flex items-center mb-3"}>
             <div
@@ -75,14 +80,7 @@ export function TopSection() {
                     <MenuItem onClick={toggleDrawer("left", true, "group")}>
                         New group
                     </MenuItem>
-                    <MenuItem
-                        onClick={() => {
-                            localStorage.removeItem(LOCAL_STORAGE_AUTH_KEY);
-                            navigate(RoutesEnum.LOGIN);
-                        }}
-                    >
-                        Sign out
-                    </MenuItem>
+                    <MenuItem onClick={signOut}>Sign out</MenuItem>
                 </Menu>
             </div>
             <Drawer
