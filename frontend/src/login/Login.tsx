@@ -4,6 +4,7 @@ import { useContext, useState } from "react";
 import { useHandleInputChange } from "../helpers";
 import { UserContext } from "../shared/contexts/UserContext";
 import { useDiContext } from "../shared/contexts/DiContext";
+import { RoutesEnum } from "../shared/enums/routes";
 
 export function Login(props: {}) {
     const navigate = useNavigate();
@@ -74,7 +75,7 @@ export function Login(props: {}) {
                                 Sign In
                             </Button>
                         </span>
-                        <Link to={"/register"}>or Sign Up</Link>
+                        <Link to={RoutesEnum.REGISTER}>or Sign Up</Link>
                     </div>
                 </form>
             </div>

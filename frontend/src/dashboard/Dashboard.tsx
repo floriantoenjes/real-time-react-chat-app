@@ -20,11 +20,12 @@ import {
 } from "@heroicons/react/24/outline";
 import { SocketContext } from "../shared/contexts/SocketContext";
 import Peer from "peerjs";
+import { RoutesEnum } from "../shared/enums/routes";
 
 export function Dashboard(props: { user?: User }) {
     const isLoggedIn = props.user;
     if (!isLoggedIn) {
-        return <Navigate to={"/"} />;
+        return <Navigate to={RoutesEnum.LOGIN} />;
     }
 
     const videoRef = useRef<HTMLVideoElement | null>(null);

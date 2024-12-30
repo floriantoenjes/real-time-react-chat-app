@@ -8,6 +8,7 @@ import { Avatar } from "../../../shared/Avatar";
 import { LOCAL_STORAGE_AUTH_KEY } from "../../../environment";
 import { UserProfile } from "./user-profile/UserProfile";
 import { GroupCreation } from "./group-creation/GroupCreation";
+import { RoutesEnum } from "../../../shared/enums/routes";
 
 export function TopSection() {
     const navigate = useNavigate();
@@ -77,7 +78,7 @@ export function TopSection() {
                     <MenuItem
                         onClick={() => {
                             localStorage.removeItem(LOCAL_STORAGE_AUTH_KEY);
-                            navigate("/");
+                            navigate(RoutesEnum.LOGIN);
                         }}
                     >
                         Sign out

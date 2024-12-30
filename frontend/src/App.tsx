@@ -22,14 +22,16 @@ import { getSetUserWithAvatarBytesOptional } from "./shared/helpers";
 import { AuthService } from "./shared/services/AuthService";
 import { PeerContext } from "./shared/contexts/PeerContext";
 import Peer, { DataConnection, MediaConnection } from "peerjs";
+import { RoutesEnum } from "./shared/enums/routes";
 
 function initializeWebSocket<ListenEvents>(
     setSocket: Dispatch<SetStateAction<Socket | undefined>>,
     user: User,
 ) {
     // @ts-ignore
-    let interval: NodeJS.Timer;
+    let socketReconnectInterval: NodeJS.Timer;
     console.log(user._id);
+
     const socket = io(BACKEND_URL, {
         query: { userId: user?._id },
         transports: ["websocket"],
@@ -43,19 +45,19 @@ function initializeWebSocket<ListenEvents>(
 
     socket.on("disconnect", function () {
         setSocket(undefined);
-        interval = setInterval(() => {
+        socketReconnectInterval = setInterval(() => {
             console.log("WebSocket disconnected. Reconnecting...");
             socket.connect();
             if (socket.connected) {
                 setSocket(socket);
                 console.log("WebSocket reconnected.");
-                clearInterval(interval);
+                clearInterval(socketReconnectInterval);
             }
         }, 1000);
     });
 
     return () => {
-        clearInterval(interval);
+        clearInterval(socketReconnectInterval);
         socket?.disconnect();
         setSocket(undefined);
     };
@@ -73,13 +75,13 @@ function authenticateUserAndFetchAvatar(
     if (!user && !!localStorage.getItem(LOCAL_STORAGE_AUTH_KEY)) {
         authService
             .refresh()
-            .then((user) => {
-                if (user) {
-                    setUserWithAvatarBytes(setUser)(user);
+            .then((loggedInUser) => {
+                if (loggedInUser) {
+                    setUserWithAvatarBytes(setUser)(loggedInUser);
                     return;
                 }
 
-                if (!user) {
+                if (!loggedInUser) {
                     signOut();
                 }
             })
@@ -114,14 +116,14 @@ function App() {
         );
 
         if (user?._id) {
-            navigate("/dashboard");
+            navigate(RoutesEnum.DASHBOARD);
             return initializeWebSocket(setSocket, user);
         }
     }, [user?._id]);
 
     function signOut() {
         localStorage.removeItem(LOCAL_STORAGE_AUTH_KEY);
-        navigate("/");
+        navigate(RoutesEnum.LOGIN);
     }
 
     const [calling, setCalling] = useState<boolean>(false);
@@ -190,10 +192,13 @@ function App() {
                     }}
                 >
                     <Routes>
-                        <Route path="/" element={<Login />} />
-                        <Route path="/register" element={<Register />} />
+                        <Route path={RoutesEnum.LOGIN} element={<Login />} />
                         <Route
-                            path="/dashboard"
+                            path={RoutesEnum.REGISTER}
+                            element={<Register />}
+                        />
+                        <Route
+                            path={RoutesEnum.DASHBOARD}
                             element={<Dashboard user={user} />}
                         />
                     </Routes>

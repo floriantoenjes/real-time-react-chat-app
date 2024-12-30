@@ -4,6 +4,7 @@ import { useContext } from "react";
 import { UserContext } from "../shared/contexts/UserContext";
 import { useForm } from "react-hook-form";
 import { useDiContext } from "../shared/contexts/DiContext";
+import { RoutesEnum } from "../shared/enums/routes";
 
 type SignUpData = {
     email: "";
@@ -32,7 +33,7 @@ export function Register(props: {}) {
         );
         if (user) {
             setUser(user);
-            navigate("/Dashboard");
+            navigate(RoutesEnum.DASHBOARD);
         }
     }
 
