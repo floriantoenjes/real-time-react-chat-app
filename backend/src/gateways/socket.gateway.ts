@@ -57,8 +57,9 @@ export class RealTimeChatGateway
         // TODO: Check for JWT for security here
         const token = socket.handshake?.auth?.Authorization?.split(' ')[1];
         if (!token) {
+            this.logger.warn(`No token for socket ${socket.id}`);
             socket.disconnect();
-            throw new UnauthorizedException('JWT token is missing');
+            return;
         }
 
         try {
@@ -66,12 +67,16 @@ export class RealTimeChatGateway
                 secret: jwtConstants.secret,
             });
         } catch (err) {
+            this.logger.warn(
+                `Unable to verify token ${token} for socket ${socket.id}`,
+            );
             socket.disconnect();
-            throw new UnauthorizedException('Invalid JWT token');
+            return;
         }
 
         const userId = socket.handshake.query.userId as string;
         this.logger.log(`New connection: ${socket.id} for user: ${userId}`);
+
         // Join the socket to a room named after the userId
         socket.join(userId);
 
