@@ -45,7 +45,6 @@ Backend and frontend...
 
 ### Next TODOs
 * Introduce rate limiting
-* Check JWTs for expiration
-* Implement backend validation
-* Improve error handling
+* Improve backend validation
+* Improve error handling in frontend
 * Add i18n library

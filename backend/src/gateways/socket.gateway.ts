@@ -10,7 +10,6 @@ import { ContactService } from '../services/contact.service';
 import { User } from '../../shared/user.contract';
 import { createClient } from 'redis';
 import { CustomLogger } from '../logging/custom-logger';
-import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from '../services/constants';
 
