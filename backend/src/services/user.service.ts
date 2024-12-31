@@ -94,7 +94,11 @@ export class UserService {
                 return { status: 401 as const, body: 'Unauthorized' };
             }
 
-            this.jwtService.verify(refreshToken);
+            try {
+                this.jwtService.verify(refreshToken);
+            } catch (e) {
+                return { status: 401 as const, body: 'Unauthorized' };
+            }
 
             const decodedJwt = this.jwtService.decode(refreshToken);
 
