@@ -69,8 +69,8 @@ export class UserService {
             status: 200 as const,
             body: {
                 user: res.body,
-                access_token: await this.jwtService.signAsync(payload),
-                refresh_token: refreshToken,
+                accessToken: await this.jwtService.signAsync(payload),
+                refreshToken: refreshToken,
             },
         };
     }
@@ -151,8 +151,8 @@ export class UserService {
             status: 200 as const,
             body: {
                 user,
-                access_token: await this.jwtService.signAsync(payload),
-                refresh_token: refreshTokenNew,
+                accessToken: await this.jwtService.signAsync(payload),
+                refreshToken: refreshTokenNew,
             },
         };
     }
@@ -187,14 +187,14 @@ export class UserService {
         });
 
         if (!createdUser) {
-            return { status: 400 as const, body: null };
+            return;
         }
 
         this.logger.log(`Created user ${username}`);
 
         await this.cache.del(findUsersByCacheKey());
 
-        return { status: 201 as const, body: createdUser };
+        return createdUser;
     }
 
     async updateUser(userPartial: Partial<User>) {

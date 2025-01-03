@@ -5,6 +5,10 @@ import { UserContext } from "../shared/contexts/UserContext";
 import { useForm } from "react-hook-form";
 import { useDiContext } from "../shared/contexts/DiContext";
 import { RoutesEnum } from "../shared/enums/routes";
+import {
+    LOCAL_STORAGE_AUTH_KEY,
+    LOCAL_STORAGE_REFRESH_TOKEN,
+} from "../environment";
 
 type SignUpData = {
     email: "";
@@ -26,13 +30,21 @@ export function Register(props: {}) {
     } = useForm<SignUpData>();
 
     async function signUp(formData: SignUpData) {
-        const user = await authService.signUp(
+        const signUpResponse = await authService.signUp(
             formData.email,
             formData.password,
             formData.username,
         );
-        if (user) {
-            setUser(user);
+        if (signUpResponse) {
+            localStorage.setItem(
+                LOCAL_STORAGE_AUTH_KEY,
+                signUpResponse.accessToken,
+            );
+            localStorage.setItem(
+                LOCAL_STORAGE_REFRESH_TOKEN,
+                signUpResponse.refreshToken,
+            );
+            setUser(signUpResponse.user);
             navigate(RoutesEnum.DASHBOARD);
         }
     }

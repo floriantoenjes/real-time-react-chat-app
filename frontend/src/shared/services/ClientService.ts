@@ -86,7 +86,9 @@ export class ClientService {
 
             return {
                 status: response.status,
-                body: await response.json(),
+                body: response.headers.get("content-type")?.includes("json")
+                    ? await response.json()
+                    : await response.text(),
                 headers: response.headers,
             };
         };
@@ -116,7 +118,7 @@ export class ClientService {
             return;
         }
 
-        const { access_token: newAccessToken, refresh_token: newRefreshToken } =
+        const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
             await response.json();
 
         localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, newAccessToken);

@@ -5,7 +5,10 @@ import "./TopSection.css";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 import { Avatar } from "../../../shared/Avatar";
-import { LOCAL_STORAGE_AUTH_KEY } from "../../../environment";
+import {
+    LOCAL_STORAGE_AUTH_KEY,
+    LOCAL_STORAGE_REFRESH_TOKEN,
+} from "../../../environment";
 import { UserProfile } from "./user-profile/UserProfile";
 import { GroupCreation } from "./group-creation/GroupCreation";
 import { RoutesEnum } from "../../../shared/enums/routes";
@@ -53,6 +56,7 @@ export function TopSection() {
 
     function signOut() {
         localStorage.removeItem(LOCAL_STORAGE_AUTH_KEY);
+        localStorage.removeItem(LOCAL_STORAGE_REFRESH_TOKEN);
         navigate(RoutesEnum.LOGIN);
     }
 

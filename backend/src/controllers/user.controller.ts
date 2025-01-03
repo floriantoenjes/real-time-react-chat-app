@@ -57,11 +57,33 @@ export class UserController {
     @Public()
     async signUp() {
         return tsRestHandler(userContract.signUp, async ({ body }) => {
-            return this.userService.createUser(
+            const newUser = await this.userService.createUser(
                 body.email,
                 body.password,
                 body.username,
             );
+
+            if (!newUser) {
+                throw Error(
+                    `New user with username ${body.username} could not be created`,
+                );
+            }
+
+            const signInResponse = await this.userService.signIn(
+                body.email,
+                body.password,
+            );
+            if (!signInResponse.body) {
+                throw new Error(
+                    `Newly registered user with id ${newUser._id} could not be signed in`,
+                );
+            }
+            const { accessToken, refreshToken } = signInResponse.body;
+
+            return {
+                status: 201,
+                body: { user: newUser, accessToken, refreshToken },
+            };
         });
     }
 

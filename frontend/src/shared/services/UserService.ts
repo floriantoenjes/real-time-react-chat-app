@@ -17,7 +17,7 @@ export class UserService {
     async signIn(
         email: string,
         password: string,
-    ): Promise<{ user: User; access_token: string } | false> {
+    ): Promise<{ user: User; accessToken: string } | false> {
         const res = await this.clientService.getClient(userContract).signIn({
             body: { email, password },
         });
@@ -32,7 +32,7 @@ export class UserService {
     async refresh(
         accessToken: string,
     ): Promise<
-        { user: User; access_token: string; refresh_token: string } | false
+        { user: User; accessToken: string; refreshToken: string } | false
     > {
         const res = await this.clientService
             .getClient(userContract)
@@ -45,11 +45,7 @@ export class UserService {
         return false;
     }
 
-    async signUp(
-        email: string,
-        password: string,
-        username: string,
-    ): Promise<User | false> {
+    async signUp(email: string, password: string, username: string) {
         const res = await this.clientService.getClient(userContract).signUp({
             body: { email, password, username },
         });

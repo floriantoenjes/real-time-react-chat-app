@@ -31,7 +31,7 @@ export const userContract = c.router({
         method: 'POST',
         path: '/login',
         responses: {
-            200: z.object({ user: UserSchema, access_token: z.string() }),
+            200: z.object({ user: UserSchema, accessToken: z.string() }),
         },
         body: z.object({
             email: z.string().email(),
@@ -45,8 +45,8 @@ export const userContract = c.router({
         responses: {
             200: z.object({
                 user: UserSchema,
-                access_token: z.string(),
-                refresh_token: z.string(),
+                accessToken: z.string(),
+                refreshToken: z.string(),
             }),
         },
         body: z.object({
@@ -59,7 +59,11 @@ export const userContract = c.router({
         method: 'POST',
         path: '/register',
         responses: {
-            201: UserSchema,
+            201: z.object({
+                user: UserSchema,
+                accessToken: z.string(),
+                refreshToken: z.string(),
+            }),
         },
         body: z.object({
             email: z.string().email(),

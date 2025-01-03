@@ -16,7 +16,7 @@ export class AuthService {
         if (!body) {
             return;
         }
-        localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, body.access_token);
+        localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, body.accessToken);
 
         return body.user;
     }
@@ -32,8 +32,8 @@ export class AuthService {
         if (!res) {
             return;
         }
-        localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, res.access_token);
-        localStorage.setItem(LOCAL_STORAGE_REFRESH_TOKEN, res.refresh_token);
+        localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, res.accessToken);
+        localStorage.setItem(LOCAL_STORAGE_REFRESH_TOKEN, res.refreshToken);
 
         return res.user;
     }
