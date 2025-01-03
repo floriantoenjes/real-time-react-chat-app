@@ -12,7 +12,7 @@ const clientService = new ClientService();
 const userService = new UserService(clientService);
 
 const container = {
-    AuthService: new AuthService(clientService, userService),
+    AuthService: new AuthService(userService),
     ContactGroupService: new ContactGroupService(clientService),
     ContactService: new ContactService(clientService, userService),
     FileService: new FileService(clientService),

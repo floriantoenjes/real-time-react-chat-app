@@ -36,14 +36,6 @@ export function Register(props: {}) {
             formData.username,
         );
         if (signUpResponse) {
-            localStorage.setItem(
-                LOCAL_STORAGE_AUTH_KEY,
-                signUpResponse.accessToken,
-            );
-            localStorage.setItem(
-                LOCAL_STORAGE_REFRESH_TOKEN,
-                signUpResponse.refreshToken,
-            );
             setUser(signUpResponse.user);
             navigate(RoutesEnum.DASHBOARD);
         }

@@ -1,5 +1,6 @@
 import { User, userContract } from "@t/user.contract";
 import { ClientService } from "./ClientService";
+import { AuthService } from "./AuthService";
 
 export class UserService {
     constructor(private clientService: ClientService) {}
@@ -14,10 +15,7 @@ export class UserService {
         return false;
     }
 
-    async signIn(
-        email: string,
-        password: string,
-    ): Promise<{ user: User; accessToken: string } | false> {
+    async signIn(email: string, password: string) {
         const res = await this.clientService.getClient(userContract).signIn({
             body: { email, password },
         });
@@ -51,6 +49,11 @@ export class UserService {
         });
 
         if (res.status === 201) {
+            AuthService.setSignInData(
+                res.body.accessToken,
+                res.body.refreshToken,
+            );
+
             return res.body;
         }
 

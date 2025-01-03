@@ -3,20 +3,26 @@ import {
     LOCAL_STORAGE_AUTH_KEY,
     LOCAL_STORAGE_REFRESH_TOKEN,
 } from "../../environment";
-import { ClientService } from "./ClientService";
 
 export class AuthService {
-    constructor(
-        private readonly clientService: ClientService,
-        private readonly userService: UserService,
-    ) {}
+    constructor(private readonly userService: UserService) {}
+
+    static setSignInData(accessToken: string, refreshToken: string) {
+        localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, accessToken);
+        localStorage.setItem(LOCAL_STORAGE_REFRESH_TOKEN, refreshToken);
+    }
+
+    static signOut() {
+        localStorage.removeItem(LOCAL_STORAGE_AUTH_KEY);
+        localStorage.removeItem(LOCAL_STORAGE_REFRESH_TOKEN);
+    }
 
     async signIn(email: string, password: string) {
         const body = await this.userService.signIn(email, password);
         if (!body) {
             return;
         }
-        localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, body.accessToken);
+        AuthService.setSignInData(body.accessToken, body.refreshToken);
 
         return body.user;
     }
@@ -32,8 +38,7 @@ export class AuthService {
         if (!res) {
             return;
         }
-        localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, res.accessToken);
-        localStorage.setItem(LOCAL_STORAGE_REFRESH_TOKEN, res.refreshToken);
+        AuthService.setSignInData(res.accessToken, res.refreshToken);
 
         return res.user;
     }

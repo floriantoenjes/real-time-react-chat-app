@@ -12,6 +12,7 @@ import {
 import { UserProfile } from "./user-profile/UserProfile";
 import { GroupCreation } from "./group-creation/GroupCreation";
 import { RoutesEnum } from "../../../shared/enums/routes";
+import { AuthService } from "../../../shared/services/AuthService";
 
 export function TopSection() {
     const navigate = useNavigate();
@@ -55,8 +56,7 @@ export function TopSection() {
         };
 
     function signOut() {
-        localStorage.removeItem(LOCAL_STORAGE_AUTH_KEY);
-        localStorage.removeItem(LOCAL_STORAGE_REFRESH_TOKEN);
+        AuthService.signOut();
         navigate(RoutesEnum.LOGIN);
     }
 

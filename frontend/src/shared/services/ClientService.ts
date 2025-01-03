@@ -10,6 +10,7 @@ import {
     LOCAL_STORAGE_AUTH_KEY,
     LOCAL_STORAGE_REFRESH_TOKEN,
 } from "../../environment";
+import { AuthService } from "./AuthService";
 
 type RecursiveProxyObj<T, TClientArgs extends InitClientArgs> = {
     [TKey in keyof T]: T[TKey] extends AppRoute
@@ -111,8 +112,7 @@ export class ClientService {
         });
 
         if (!response.ok) {
-            localStorage.removeItem(LOCAL_STORAGE_AUTH_KEY);
-            localStorage.removeItem(LOCAL_STORAGE_REFRESH_TOKEN);
+            AuthService.signOut();
 
             window.location.reload();
             return;
@@ -121,8 +121,7 @@ export class ClientService {
         const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
             await response.json();
 
-        localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, newAccessToken);
-        localStorage.setItem(LOCAL_STORAGE_REFRESH_TOKEN, newRefreshToken);
+        AuthService.setSignInData(newAccessToken, newRefreshToken);
 
         return newAccessToken;
     }

@@ -134,8 +134,7 @@ function App() {
     }, [user?._id]);
 
     function signOut() {
-        localStorage.removeItem(LOCAL_STORAGE_AUTH_KEY);
-        localStorage.removeItem(LOCAL_STORAGE_REFRESH_TOKEN);
+        AuthService.signOut();
         navigate(RoutesEnum.LOGIN);
     }
 
