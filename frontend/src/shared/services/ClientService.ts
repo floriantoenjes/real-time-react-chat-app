@@ -112,9 +112,7 @@ export class ClientService {
         });
 
         if (!response.ok) {
-            AuthService.signOut();
-
-            window.location.reload();
+            AuthService.signOut(() => window.location.reload());
             return;
         }
 

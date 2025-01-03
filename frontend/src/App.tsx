@@ -24,6 +24,9 @@ import { AuthService } from "./shared/services/AuthService";
 import { PeerContext } from "./shared/contexts/PeerContext";
 import Peer, { DataConnection, MediaConnection } from "peerjs";
 import { RoutesEnum } from "./shared/enums/routes";
+import { SnackbarProvider } from "./shared/contexts/SnackbarContext";
+import { Snackbar } from "@mui/material";
+import { SnackbarWrapper } from "./shared/components/SnackbarComponent";
 
 function initializeWebSocket<ListenEvents>(
     setSocket: Dispatch<SetStateAction<Socket | undefined>>,
@@ -134,8 +137,7 @@ function App() {
     }, [user?._id]);
 
     function signOut() {
-        AuthService.signOut();
-        navigate(RoutesEnum.LOGIN);
+        AuthService.signOut(() => navigate(RoutesEnum.LOGIN));
     }
 
     const [calling, setCalling] = useState<boolean>(false);
@@ -204,40 +206,48 @@ function App() {
     }, []);
 
     return (
-        <UserContext.Provider value={[user, setUserWithAvatarBytes(setUser)]}>
-            <SocketContext.Provider value={[socket, setSocket]}>
-                <PeerContext.Provider
-                    value={{
-                        calling,
-                        setCalling,
-                        callingStream,
-                        setCallingStream,
-                        peer,
-                        setPeer,
-                        connection,
-                        setDataConnection,
-                        call,
-                        setCall,
-                        stream,
-                        setStream,
-                        receiveCallingStream,
-                        setReceiveCallingStream,
-                    }}
-                >
-                    <Routes>
-                        <Route path={RoutesEnum.LOGIN} element={<Login />} />
-                        <Route
-                            path={RoutesEnum.REGISTER}
-                            element={<Register />}
-                        />
-                        <Route
-                            path={RoutesEnum.DASHBOARD}
-                            element={<Dashboard user={user} />}
-                        />
-                    </Routes>
-                </PeerContext.Provider>
-            </SocketContext.Provider>
-        </UserContext.Provider>
+        <SnackbarProvider>
+            <UserContext.Provider
+                value={[user, setUserWithAvatarBytes(setUser)]}
+            >
+                <SocketContext.Provider value={[socket, setSocket]}>
+                    <PeerContext.Provider
+                        value={{
+                            calling,
+                            setCalling,
+                            callingStream,
+                            setCallingStream,
+                            peer,
+                            setPeer,
+                            connection,
+                            setDataConnection,
+                            call,
+                            setCall,
+                            stream,
+                            setStream,
+                            receiveCallingStream,
+                            setReceiveCallingStream,
+                        }}
+                    >
+                        <Routes>
+                            <Route
+                                path={RoutesEnum.LOGIN}
+                                element={<Login />}
+                            />
+                            <Route
+                                path={RoutesEnum.REGISTER}
+                                element={<Register />}
+                            />
+                            <Route
+                                path={RoutesEnum.DASHBOARD}
+                                element={<Dashboard user={user} />}
+                            />
+                        </Routes>
+                        <SnackbarWrapper />
+                    </PeerContext.Provider>
+                </SocketContext.Provider>
+            </UserContext.Provider>
+        </SnackbarProvider>
     );
 }
 

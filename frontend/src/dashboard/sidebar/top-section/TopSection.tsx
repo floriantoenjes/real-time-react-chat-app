@@ -56,8 +56,7 @@ export function TopSection() {
         };
 
     function signOut() {
-        AuthService.signOut();
-        navigate(RoutesEnum.LOGIN);
+        AuthService.signOut(() => navigate(RoutesEnum.LOGIN));
     }
 
     return (

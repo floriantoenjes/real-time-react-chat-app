@@ -3,6 +3,7 @@ import {
     LOCAL_STORAGE_AUTH_KEY,
     LOCAL_STORAGE_REFRESH_TOKEN,
 } from "../../environment";
+import { snackbarService } from "../contexts/SnackbarContext";
 
 export class AuthService {
     constructor(private readonly userService: UserService) {}
@@ -12,9 +13,11 @@ export class AuthService {
         localStorage.setItem(LOCAL_STORAGE_REFRESH_TOKEN, refreshToken);
     }
 
-    static signOut() {
+    static signOut(callback: () => void) {
         localStorage.removeItem(LOCAL_STORAGE_AUTH_KEY);
         localStorage.removeItem(LOCAL_STORAGE_REFRESH_TOKEN);
+        callback();
+        snackbarService.showSnackbar("You have been logged out successfully");
     }
 
     async signIn(email: string, password: string) {
