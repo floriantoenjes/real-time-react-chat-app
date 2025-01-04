@@ -11,6 +11,7 @@ export const SnackbarWrapper = () => {
             open={snackbar.isOpen}
             autoHideDuration={6000}
             onClose={hideSnackbar}
+            ClickAwayListenerProps={{ onClickAway: () => null }}
             anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         >
             <Alert

@@ -2,6 +2,7 @@ import { Contact, contactContract } from "@t/contact.contract";
 import { UserService } from "./UserService";
 import { UserFactory } from "../factories/user.factory";
 import { ClientService } from "./ClientService";
+import { SnackbarLevels, snackbarService } from "../contexts/SnackbarContext";
 
 export class ContactService {
     constructor(
@@ -31,9 +32,22 @@ export class ContactService {
     }
 
     async addContact(userId: string, newContactId: string) {
-        return await this.clientService
+        const response = await this.clientService
             .getClient(contactContract)
             .addContact({ body: { userId, newContactId } });
+        if (response.status !== 201) {
+            snackbarService.showSnackbar(
+                "Error adding contact",
+                SnackbarLevels.ERROR,
+            );
+            return;
+        }
+
+        snackbarService.showSnackbar(
+            `${response.body.name} has been added as a contact`,
+            SnackbarLevels.SUCCESS,
+        );
+        return response.body;
     }
 
     async deleteContact(userId: string, contactId: string) {

@@ -100,16 +100,16 @@ export function Sidebar() {
         if (!searchedUser) {
             return;
         }
-        const newContactRes = await contactService.addContact(
+        const newContact = await contactService.addContact(
             user._id,
             searchedUser._id,
         );
-        if (newContactRes.status !== 201) {
+        if (!newContact) {
             return;
         }
 
         setUserContacts((prevState) => {
-            return [...prevState, newContactRes.body];
+            return [...prevState, newContact];
         });
 
         setFormData({ contactName: "" });

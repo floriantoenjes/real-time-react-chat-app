@@ -82,9 +82,14 @@ export class UserService {
         height: number,
         userId: string,
     ) {
-        await this.clientService.getClient(userContract).uploadAvatar({
-            body: { avatar: file, userId, x, y, width, height },
-        });
+        const res = await this.clientService
+            .getClient(userContract)
+            .uploadAvatar({
+                body: { avatar: file, userId, x, y, width, height },
+            });
+        if (res.status !== 201) {
+            throw new Error("Error uploading avatar");
+        }
     }
 
     async loadAvatar(userId: string) {

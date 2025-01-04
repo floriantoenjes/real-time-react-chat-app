@@ -8,6 +8,10 @@ import { Avatar } from "../../../../shared/Avatar";
 import { useDiContext } from "../../../../shared/contexts/DiContext";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { getSetUserWithAvatarBytes } from "../../../../shared/helpers";
+import {
+    SnackbarLevels,
+    snackbarService,
+} from "../../../../shared/contexts/SnackbarContext";
 
 export function UserProfile(props: { toggleDrawer: any }) {
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -44,6 +48,18 @@ export function UserProfile(props: { toggleDrawer: any }) {
                     avatarFileName: user._id + "_avatar",
                 });
                 props.toggleDrawer("left", false)();
+                snackbarService.showSnackbar(
+                    "Your profile picture has been updated",
+                    SnackbarLevels.SUCCESS,
+                );
+            })
+            .catch((error) => {
+                props.toggleDrawer("left", false)();
+                snackbarService.showSnackbar(
+                    "Your profile picture could not be updated",
+                    SnackbarLevels.ERROR,
+                );
+                throw error;
             });
     }
 

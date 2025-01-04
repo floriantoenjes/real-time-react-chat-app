@@ -16,6 +16,10 @@ import { useDiContext } from "../../../shared/contexts/DiContext";
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
 import { PeerContext } from "../../../shared/contexts/PeerContext";
 import { SocketContext } from "../../../shared/contexts/SocketContext";
+import {
+    SnackbarLevels,
+    snackbarService,
+} from "../../../shared/contexts/SnackbarContext";
 
 export function TopBar() {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -71,9 +75,22 @@ export function TopBar() {
             return;
         }
 
-        messageService.deleteMessages(user._id, selectedContact._id);
-        setMessages([]);
-        handleClose();
+        messageService
+            .deleteMessages(user._id, selectedContact._id)
+            .then(() => {
+                snackbarService.showSnackbar(
+                    "Chat messages have been deleted",
+                    SnackbarLevels.SUCCESS,
+                );
+                setMessages([]);
+                handleClose();
+            })
+            .catch(() => {
+                snackbarService.showSnackbar(
+                    "Chat messages could not be deleted",
+                    SnackbarLevels.ERROR,
+                );
+            });
     }
 
     async function deleteChat() {
@@ -81,7 +98,15 @@ export function TopBar() {
             return;
         }
 
-        messageService.deleteMessages(user._id, selectedContact._id);
+        try {
+            await messageService.deleteMessages(user._id, selectedContact._id);
+        } catch (error) {
+            snackbarService.showSnackbar(
+                "Chat messages could not be deleted",
+                SnackbarLevels.ERROR,
+            );
+            return;
+        }
 
         const deletionRes = await contactService.deleteContact(
             user._id,
@@ -89,6 +114,10 @@ export function TopBar() {
         );
 
         if (deletionRes.status !== 204) {
+            snackbarService.showSnackbar(
+                "Error deleting contact",
+                SnackbarLevels.ERROR,
+            );
             return;
         }
 
@@ -100,6 +129,11 @@ export function TopBar() {
         );
 
         setSelectedContact(undefined);
+
+        snackbarService.showSnackbar(
+            `${selectedContact.name} is no longer a contact`,
+            SnackbarLevels.SUCCESS,
+        );
     }
 
     const [, setAnchorElDrawer] = useState<null | HTMLElement>(null);

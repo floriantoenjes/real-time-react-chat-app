@@ -18,10 +18,13 @@ export class MessageService {
         return [];
     }
 
-    deleteMessages(fromUserId: string, toUserId: string) {
-        void this.clientService
+    async deleteMessages(fromUserId: string, toUserId: string) {
+        const res = await this.clientService
             .getClient(messageContract)
             .deleteMessages({ body: { fromUserId, toUserId } });
+        if (res.status !== 200) {
+            throw new Error("Error deleting messages");
+        }
     }
 
     sendMessage(

@@ -1,11 +1,13 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState } from "react";
 
-let snackbarRef: (
-    message: string,
-    type: "success" | "info" | "warning" | "error",
-) => void; // Singleton reference
+let snackbarRef: (message: string, type: SnackbarLevels) => void; // Singleton reference
 
-export type SnackbarLevels = "success" | "info" | "warning" | "error";
+export enum SnackbarLevels {
+    SUCCESS = "success",
+    INFO = "info",
+    WARNING = "warning",
+    ERROR = "error",
+}
 
 export const SnackbarContext = createContext({
     snackbar: {
@@ -29,12 +31,10 @@ export const SnackbarProvider = ({
     });
 
     const showSnackbar = (message: string, type: SnackbarLevels) => {
-        setSnackbar({ message, type, isOpen: true });
-
-        // Auto-hide snackbar after 3 seconds
+        setSnackbar({ message, type, isOpen: false });
         setTimeout(() => {
-            setSnackbar((prev) => ({ ...prev, isOpen: false }));
-        }, 6000);
+            setSnackbar({ message, type, isOpen: true });
+        });
     };
 
     const hideSnackbar = () =>
@@ -54,7 +54,10 @@ export const SnackbarProvider = ({
 
 // Global snackbar service singleton
 export const snackbarService = {
-    showSnackbar: (message: string, type: SnackbarLevels = "info") => {
+    showSnackbar: (
+        message: string,
+        type: SnackbarLevels = SnackbarLevels.INFO,
+    ) => {
         if (snackbarRef) {
             snackbarRef(message, type);
         } else {

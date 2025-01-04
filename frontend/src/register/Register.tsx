@@ -6,9 +6,9 @@ import { useForm } from "react-hook-form";
 import { useDiContext } from "../shared/contexts/DiContext";
 import { RoutesEnum } from "../shared/enums/routes";
 import {
-    LOCAL_STORAGE_AUTH_KEY,
-    LOCAL_STORAGE_REFRESH_TOKEN,
-} from "../environment";
+    SnackbarLevels,
+    snackbarService,
+} from "../shared/contexts/SnackbarContext";
 
 type SignUpData = {
     email: "";
@@ -38,6 +38,10 @@ export function Register(props: {}) {
         if (signUpResponse) {
             setUser(signUpResponse.user);
             navigate(RoutesEnum.DASHBOARD);
+            snackbarService.showSnackbar(
+                "Your account has been created and you have been signed in.",
+                SnackbarLevels.SUCCESS,
+            );
         }
     }
 
