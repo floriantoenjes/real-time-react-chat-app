@@ -24,8 +24,11 @@ import { AuthService } from "./shared/services/AuthService";
 import { PeerContext } from "./shared/contexts/PeerContext";
 import Peer, { DataConnection, MediaConnection } from "peerjs";
 import { RoutesEnum } from "./shared/enums/routes";
-import { SnackbarProvider } from "./shared/contexts/SnackbarContext";
-import { Snackbar } from "@mui/material";
+import {
+    SnackbarLevels,
+    SnackbarProvider,
+    snackbarService,
+} from "./shared/contexts/SnackbarContext";
 import { SnackbarWrapper } from "./shared/components/SnackbarComponent";
 
 function initializeWebSocket<ListenEvents>(
@@ -34,6 +37,11 @@ function initializeWebSocket<ListenEvents>(
 ) {
     // @ts-ignore
     let socketReconnectInterval: NodeJS.Timer;
+    // @ts-ignore
+    let heartbeatInterval: NodeJS.Timer;
+
+    let missedPings = 0;
+    const MAX_MISSED_PINGS = 3;
 
     const socket = io(BACKEND_URL, {
         query: { userId: user?._id },
@@ -46,13 +54,36 @@ function initializeWebSocket<ListenEvents>(
     setSocket(socket);
 
     socket.on("connect", function () {
+        snackbarService.showSnackbar(
+            "The connection to the server has been reestablished",
+            SnackbarLevels.SUCCESS,
+        );
         console.log("WebSocket connected", socket);
+
+        heartbeatInterval = setInterval(() => {
+            if (missedPings >= MAX_MISSED_PINGS) {
+                socket.disconnect();
+            }
+            socket.emit("ping");
+            missedPings += 1;
+        }, 3000);
     });
 
+    socket.on("pong", () => (missedPings = 0));
+
     socket.on("disconnect", function () {
+        clearInterval(heartbeatInterval);
         setSocket(undefined);
+        snackbarService.showSnackbar(
+            "The connection to the server has been lost. Reconnecting...",
+            SnackbarLevels.WARNING,
+        );
         socketReconnectInterval = setInterval(() => {
             console.log("WebSocket disconnected. Reconnecting...");
+            socket.auth = {
+                Authorization:
+                    "Bearer " + localStorage.getItem(LOCAL_STORAGE_AUTH_KEY),
+            };
             socket.connect();
             if (socket.connected) {
                 setSocket(socket);
@@ -188,7 +219,15 @@ function App() {
     }, [user?.username]);
 
     useEffect(() => {
+        const internalFetchErrorMessageToBeIgnored = "Failed to fetch";
+
         window.onerror = function (message, source, lineno, colno, error) {
+            if (
+                error &&
+                error.message.includes(internalFetchErrorMessageToBeIgnored)
+            ) {
+                return;
+            }
             loggingService.error(
                 `Uncaught Exception: ${message}`,
                 source,
@@ -197,6 +236,13 @@ function App() {
         };
 
         window.onunhandledrejection = function (event) {
+            if (
+                event.reason
+                    .toString()
+                    .includes(internalFetchErrorMessageToBeIgnored)
+            ) {
+                return;
+            }
             loggingService.error(
                 `Unhandled Promise Rejection: ${event.reason}`,
                 "Unhandled Promise",

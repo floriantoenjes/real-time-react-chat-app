@@ -166,7 +166,7 @@ export class UserController {
         this.logger.log(`Updated user avatar for ${body.userId}`);
 
         return {
-            status: 200 as const,
+            status: 201 as const,
             body: true,
         };
     }

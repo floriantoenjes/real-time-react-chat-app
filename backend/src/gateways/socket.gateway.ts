@@ -118,6 +118,11 @@ export class RealTimeChatGateway
         this.server.emit('message', { text: 'Hello from server' });
     }
 
+    @SubscribeMessage('ping')
+    pong(client: Socket, payload: any): void {
+        client.emit('pong');
+    }
+
     @SubscribeMessage('typing')
     handleTyping(
         client: Socket,
