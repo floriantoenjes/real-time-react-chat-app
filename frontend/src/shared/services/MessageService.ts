@@ -11,11 +11,11 @@ export class MessageService {
                 body: { userId, contactId },
             });
 
-        if (messages.status === 200) {
-            return messages.body;
+        if (messages.status !== 200) {
+            throw new Error("Error getting messages");
         }
 
-        return [];
+        return messages.body;
     }
 
     async deleteMessages(fromUserId: string, toUserId: string) {

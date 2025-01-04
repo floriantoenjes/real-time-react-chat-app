@@ -54,10 +54,6 @@ function initializeWebSocket<ListenEvents>(
     setSocket(socket);
 
     socket.on("connect", function () {
-        snackbarService.showSnackbar(
-            "The connection to the server has been reestablished",
-            SnackbarLevels.SUCCESS,
-        );
         console.log("WebSocket connected", socket);
 
         heartbeatInterval = setInterval(() => {
@@ -89,6 +85,10 @@ function initializeWebSocket<ListenEvents>(
                 setSocket(socket);
                 console.log("WebSocket reconnected.");
                 clearInterval(socketReconnectInterval);
+                snackbarService.showSnackbar(
+                    "The connection to the server has been reestablished",
+                    SnackbarLevels.SUCCESS,
+                );
             }
         }, 1000);
     });
@@ -226,6 +226,7 @@ function App() {
                 error &&
                 error.message.includes(internalFetchErrorMessageToBeIgnored)
             ) {
+                snackbarService.showSnackbar("You seem to be offline.");
                 return;
             }
             loggingService.error(
@@ -241,6 +242,7 @@ function App() {
                     .toString()
                     .includes(internalFetchErrorMessageToBeIgnored)
             ) {
+                snackbarService.showSnackbar("You seem to be offline.");
                 return;
             }
             loggingService.error(

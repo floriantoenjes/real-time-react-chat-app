@@ -80,7 +80,9 @@ export class ClientService {
 
                 return {
                     status: refreshResponse.status,
-                    body: await refreshResponse.json(),
+                    body: response.headers.get("content-type")?.includes("json")
+                        ? await response.json()
+                        : await response.text(),
                     headers: refreshResponse.headers,
                 };
             }
