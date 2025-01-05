@@ -27,27 +27,25 @@ export class UserService {
         const usersInCache = await this.cache.get<User[]>(cacheKey);
 
         if (usersInCache) {
-            return this.returnEntityOrNotFound<User[]>(usersInCache);
+            return usersInCache;
         }
 
         let users = await this.userModel.find(filter ?? {});
 
         await this.cache.set(cacheKey, users);
 
-        return this.returnEntityOrNotFound<User[]>(users);
+        return users;
     }
 
     async signIn(email: string, password: string) {
-        const res = await this.findUserBy({ email, password });
-        if (!res.body) {
+        const user = await this.findUserBy({ email, password });
+        if (!user) {
             this.logger.log(`User with email ${email} not found`);
-            return res;
+            return;
         }
 
-        const payload = { sub: res.body._id, username: res.body.username };
-        this.logger.log(
-            `Signed in user ${res.body.username} and id ${res.body._id}`,
-        );
+        const payload = { sub: user._id, username: user.username };
+        this.logger.log(`Signed in user ${user.username} and id ${user._id}`);
 
         const refreshToken = await this.jwtService.signAsync(payload, {
             expiresIn: '7d',
@@ -66,12 +64,9 @@ export class UserService {
         );
 
         return {
-            status: 200 as const,
-            body: {
-                user: res.body,
-                accessToken: await this.jwtService.signAsync(payload),
-                refreshToken: refreshToken,
-            },
+            user: user,
+            accessToken: await this.jwtService.signAsync(payload),
+            refreshToken: refreshToken,
         };
     }
 
@@ -81,23 +76,23 @@ export class UserService {
 
             const decodedJwt = this.jwtService.decode(accessToken);
 
-            const res = await this.findUserBy({
+            const user = await this.findUserBy({
                 username: decodedJwt?.username,
             });
-            if (!res.body) {
-                return res;
+            if (!user) {
+                return;
             }
 
-            return await this.respondWithNewTokens(res.body);
+            return await this.respondWithNewTokens(user);
         } catch (error) {
             if (!refreshToken) {
-                return { status: 401 as const, body: 'Unauthorized' };
+                return;
             }
 
             try {
                 this.jwtService.verify(refreshToken);
             } catch (e) {
-                return { status: 401 as const, body: 'Unauthorized' };
+                return;
             }
 
             const decodedJwt = this.jwtService.decode(refreshToken);
@@ -110,21 +105,21 @@ export class UserService {
                     .lean()
             )?.refreshTokenEncrypted;
 
-            const res = await this.findUserBy({
+            const user = await this.findUserBy({
                 username: decodedJwt?.username,
             });
-            if (!res.body) {
-                return res;
+            if (!user) {
+                return;
             }
 
             if (
                 !refreshTokenFromDb ||
                 !(await bcrypt.compare(refreshToken, refreshTokenFromDb))
             ) {
-                return { status: 401 as const, body: 'Unauthorized' };
+                return;
             }
 
-            return await this.respondWithNewTokens(res.body);
+            return await this.respondWithNewTokens(user);
         }
     }
 
@@ -148,12 +143,9 @@ export class UserService {
         );
 
         return {
-            status: 200 as const,
-            body: {
-                user,
-                accessToken: await this.jwtService.signAsync(payload),
-                refreshToken: refreshTokenNew,
-            },
+            user,
+            accessToken: await this.jwtService.signAsync(payload),
+            refreshToken: refreshTokenNew,
         };
     }
 
@@ -174,7 +166,7 @@ export class UserService {
             user.password = '';
         }
 
-        return this.returnEntityOrNotFound(user);
+        return user;
     }
 
     async createUser(email: string, password: string, username: string) {
@@ -198,29 +190,15 @@ export class UserService {
     }
 
     async updateUser(userPartial: Partial<User>) {
-        const res = await this.findUserBy({
+        const user = await this.findUserBy({
             _id: new Types.ObjectId(userPartial._id),
         });
-        if (res.status === 404) {
-            return res;
+        if (!user) {
+            return;
         }
 
         await this.cache.del(findUsersByCacheKey());
 
         return this.userModel.updateOne({ _id: userPartial._id }, userPartial);
-    }
-
-    private returnEntityOrNotFound<T>(entity: T | null) {
-        if (!entity) {
-            return {
-                status: 404 as const,
-                body: null,
-            };
-        }
-
-        return {
-            status: 200 as const,
-            body: entity,
-        };
     }
 }

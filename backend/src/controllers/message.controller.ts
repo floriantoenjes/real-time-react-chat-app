@@ -37,15 +37,13 @@ export class MessageController {
     @TsRestHandler(messageContract.getMessages)
     async getMessages() {
         return tsRestHandler(messageContract.getMessages, async ({ body }) => {
-            const userResponse = await this.userService.findUserBy({
+            const user = await this.userService.findUserBy({
                 _id: body.userId,
             });
 
-            if (!userResponse.body) {
-                return userResponse;
+            if (!user) {
+                return { status: 404, body: false };
             }
-
-            const user = userResponse.body;
 
             let messages: Message[];
             const isContactGroup = !!this.getContactGroup(user, body.contactId);

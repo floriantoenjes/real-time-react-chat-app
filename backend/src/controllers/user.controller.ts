@@ -18,6 +18,7 @@ import { ObjectStorageService } from '../services/object-storage.service';
 import { Public } from '../services/constants';
 import { Jimp } from 'jimp';
 import { CustomLogger } from '../logging/custom-logger';
+import { returnEntityOrNotFound } from './utils/controller-utils';
 
 @Controller()
 export class UserController {
@@ -30,7 +31,7 @@ export class UserController {
     @TsRestHandler(userContract.getAll)
     async getAll() {
         return tsRestHandler(userContract.getAll, async () => {
-            return this.userService.findUsersBy();
+            return returnEntityOrNotFound(await this.userService.findUsersBy());
         });
     }
 
@@ -38,7 +39,9 @@ export class UserController {
     @Public()
     async signIn() {
         return tsRestHandler(userContract.signIn, async ({ body }) => {
-            return this.userService.signIn(body.email, body.password);
+            return returnEntityOrNotFound(
+                await this.userService.signIn(body.email, body.password),
+            );
         });
     }
 
@@ -46,10 +49,14 @@ export class UserController {
     @Public()
     async refresh() {
         return tsRestHandler(userContract.refresh, async ({ body }) => {
-            return this.userService.refresh(
+            const userAndFreshTokens = await this.userService.refresh(
                 body.accessToken,
                 body.refreshToken,
             );
+            if (!userAndFreshTokens) {
+                return { status: 401, body: 'Unauthorized' };
+            }
+            return { status: 200, body: userAndFreshTokens };
         });
     }
 
@@ -73,12 +80,12 @@ export class UserController {
                 body.email,
                 body.password,
             );
-            if (!signInResponse.body) {
+            if (!signInResponse) {
                 throw new Error(
                     `Newly registered user with id ${newUser._id} could not be signed in`,
                 );
             }
-            const { accessToken, refreshToken } = signInResponse.body;
+            const { accessToken, refreshToken } = signInResponse;
 
             return {
                 status: 201,
@@ -92,7 +99,11 @@ export class UserController {
         return tsRestHandler(
             userContract.searchUserByUsername,
             async ({ body }) => {
-                return this.userService.findUserBy({ username: body.username });
+                return returnEntityOrNotFound(
+                    await this.userService.findUserBy({
+                        username: body.username,
+                    }),
+                );
             },
         );
     }

@@ -224,7 +224,8 @@ function App() {
         window.onerror = function (message, source, lineno, colno, error) {
             if (
                 error &&
-                error.message.includes(internalFetchErrorMessageToBeIgnored)
+                (error.message.includes(internalFetchErrorMessageToBeIgnored) ||
+                    error.message.includes("NetworkError"))
             ) {
                 snackbarService.showSnackbar("You seem to be offline.");
                 return;
@@ -240,7 +241,8 @@ function App() {
             if (
                 event.reason
                     .toString()
-                    .includes(internalFetchErrorMessageToBeIgnored)
+                    .includes(internalFetchErrorMessageToBeIgnored) ||
+                event.reason.toString().includes("NetworkError")
             ) {
                 snackbarService.showSnackbar("You seem to be offline.");
                 return;
