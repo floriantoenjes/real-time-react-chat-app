@@ -35,11 +35,11 @@ type RootTranslation = {
 	 */
 	SIGN_IN: string
 	/**
-	 * S​i​g​n​ ​U​p
+	 * S​i​g​n​ ​u​p
 	 */
 	SIGN_UP: string
 	/**
-	 * S​i​g​n​ ​O​u​t
+	 * S​i​g​n​ ​o​u​t
 	 */
 	SIGN_OUT: string
 	/**
@@ -55,7 +55,7 @@ type RootTranslation = {
 	 */
 	ADD_CONTACT: string
 	/**
-	 * C​r​e​a​t​e​ ​n​e​w​ ​G​r​o​u​p
+	 * C​r​e​a​t​e​ ​n​e​w​ ​g​r​o​u​p
 	 */
 	CREATE_GROUP: string
 	/**
@@ -63,9 +63,17 @@ type RootTranslation = {
 	 */
 	EDIT_PROFILE: string
 	/**
-	 * E​n​t​e​r​ ​a​ ​m​e​s​s​a​g​e​.
+	 * E​n​t​e​r​ ​a​ ​m​e​s​s​a​g​e
 	 */
 	ENTER_A_MESSAGE: string
+	/**
+	 * D​e​l​e​t​e​ ​m​e​s​s​a​g​e​s
+	 */
+	EMPTY_CHAT: string
+	/**
+	 * D​e​l​e​t​e​ ​c​h​a​t
+	 */
+	DELETE_CHAT: string
 }
 
 export type TranslationFunctions = {
@@ -90,11 +98,11 @@ export type TranslationFunctions = {
 	 */
 	SIGN_IN: () => LocalizedString
 	/**
-	 * Sign Up
+	 * Sign up
 	 */
 	SIGN_UP: () => LocalizedString
 	/**
-	 * Sign Out
+	 * Sign out
 	 */
 	SIGN_OUT: () => LocalizedString
 	/**
@@ -110,7 +118,7 @@ export type TranslationFunctions = {
 	 */
 	ADD_CONTACT: () => LocalizedString
 	/**
-	 * Create new Group
+	 * Create new group
 	 */
 	CREATE_GROUP: () => LocalizedString
 	/**
@@ -118,9 +126,17 @@ export type TranslationFunctions = {
 	 */
 	EDIT_PROFILE: () => LocalizedString
 	/**
-	 * Enter a message.
+	 * Enter a message
 	 */
 	ENTER_A_MESSAGE: () => LocalizedString
+	/**
+	 * Delete messages
+	 */
+	EMPTY_CHAT: () => LocalizedString
+	/**
+	 * Delete chat
+	 */
+	DELETE_CHAT: () => LocalizedString
 }
 
 export type Formatters = {}

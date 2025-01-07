@@ -13,7 +13,9 @@ const de = {
     ADD_CONTACT: "Kontakt suchen und hinzufügen",
     CREATE_GROUP: "Neue Gruppe erstellen",
     EDIT_PROFILE: "Profil bearbeiten",
-    ENTER_A_MESSAGE: "Gib eine Nachricht ein.",
+    ENTER_A_MESSAGE: "Gib eine Nachricht ein",
+    EMPTY_CHAT: "Chat leeren",
+    DELETE_CHAT: "Chat löschen",
 } satisfies Translation;
 
 export default de;

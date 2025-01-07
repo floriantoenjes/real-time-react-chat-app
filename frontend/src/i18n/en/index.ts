@@ -6,14 +6,16 @@ const en = {
     PASSWORD: "Password",
     CONFIRM_PASSWORD: "Confirm Password",
     SIGN_IN: "Sign in",
-    SIGN_UP: "Sign Up",
-    SIGN_OUT: "Sign Out",
+    SIGN_UP: "Sign up",
+    SIGN_OUT: "Sign out",
     USERNAME: "Username",
     OR: "or",
     ADD_CONTACT: "Search and add a contact",
-    CREATE_GROUP: "Create new Group",
+    CREATE_GROUP: "Create new group",
     EDIT_PROFILE: "Edit your Profile",
-    ENTER_A_MESSAGE: "Enter a message.",
+    ENTER_A_MESSAGE: "Enter a message",
+    EMPTY_CHAT: "Delete messages",
+    DELETE_CHAT: "Delete chat",
 } satisfies BaseTranslation;
 
 export default en;

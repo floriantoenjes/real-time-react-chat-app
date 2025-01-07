@@ -20,8 +20,10 @@ import {
     SnackbarLevels,
     snackbarService,
 } from "../../../shared/contexts/SnackbarContext";
+import { useI18nContext } from "../../../i18n/i18n-react";
 
 export function TopBar() {
+    const { LL } = useI18nContext();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [user] = useUserContext();
     const [contacts, setContacts] = useContext(ContactsContext).contacts;
@@ -282,8 +284,8 @@ export function TopBar() {
                         "aria-labelledby": "basic-button",
                     }}
                 >
-                    <MenuItem onClick={emptyChat}>Chat leeren</MenuItem>
-                    <MenuItem onClick={deleteChat}>Chat löschen</MenuItem>
+                    <MenuItem onClick={emptyChat}>{LL.EMPTY_CHAT()}</MenuItem>
+                    <MenuItem onClick={deleteChat}>{LL.DELETE_CHAT()}</MenuItem>
                 </Menu>
             </div>
             {selectedContact && (
