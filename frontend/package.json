@@ -26,6 +26,7 @@
     "react-image-file-resizer": "^0.4.8",
     "react-router-dom": "^6.28.0",
     "socket.io-client": "^4.8.1",
+    "typesafe-i18n": "^5.26.2",
     "typescript": "^5.6.3",
     "web-vitals": "^4.2.4",
     "zod": "^3.23.8"
@@ -34,7 +35,8 @@
     "start": "vite --open",
     "build": "vite build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "typesafe-i18n": "typesafe-i18n"
   },
   "eslintConfig": {
     "extends": [

@@ -12,8 +12,10 @@ import { Contact } from "../../shared/Contact";
 import { TopSection } from "./top-section/TopSection";
 import { User } from "@t/user.contract";
 import { useDiContext } from "../../shared/contexts/DiContext";
+import { useI18nContext } from "../../i18n/i18n-react";
 
 export function Sidebar() {
+    const { LL } = useI18nContext();
     const [user, ,] = useUserContext();
     const userService = useDiContext().UserService;
     const contactsContext = useContext(ContactsContext);
@@ -158,7 +160,7 @@ export function Sidebar() {
                                     <MagnifyingGlassIcon
                                         className={"w-4 inline mr-2"}
                                     />
-                                    Suchen oder neuen Chat beginnen
+                                    {LL.ADD_CONTACT()}
                                 </div>
                             }
                         />

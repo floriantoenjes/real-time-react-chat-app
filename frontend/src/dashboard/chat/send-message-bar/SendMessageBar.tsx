@@ -5,7 +5,7 @@ import {
     PaperAirplaneIcon,
     PlusIcon,
 } from "@heroicons/react/24/outline";
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useMemo, useRef, useState } from "react";
 import { checkEnterPressed, useHandleInputChange } from "../../../helpers";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
@@ -16,8 +16,10 @@ import { SocketContext } from "../../../shared/contexts/SocketContext";
 import { DateTime } from "luxon";
 import { StopIcon } from "@heroicons/react/24/solid";
 import { MessageAddons } from "../../../shared/enums/message";
+import { useI18nContext } from "../../../i18n/i18n-react";
 
 export function SendMessageBar() {
+    const { LL } = useI18nContext();
     const [formData, setFormData] = useState<{ message: string }>({
         message: "",
     });
@@ -175,7 +177,7 @@ export function SendMessageBar() {
             />
             <TextField
                 className={"w-full"}
-                label={"Gib eine Nachricht ein."}
+                label={LL.ENTER_A_MESSAGE()}
                 value={formData?.message}
                 onKeyUp={sendOnEnterPressed}
                 name={"message"}

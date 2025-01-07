@@ -5,16 +5,14 @@ import "./TopSection.css";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 import { Avatar } from "../../../shared/Avatar";
-import {
-    LOCAL_STORAGE_AUTH_KEY,
-    LOCAL_STORAGE_REFRESH_TOKEN,
-} from "../../../environment";
 import { UserProfile } from "./user-profile/UserProfile";
 import { GroupCreation } from "./group-creation/GroupCreation";
 import { RoutesEnum } from "../../../shared/enums/routes";
 import { AuthService } from "../../../shared/services/AuthService";
+import { useI18nContext } from "../../../i18n/i18n-react";
 
 export function TopSection() {
+    const { LL } = useI18nContext();
     const navigate = useNavigate();
     const [user] = useUserContext();
 
@@ -81,9 +79,9 @@ export function TopSection() {
                     onClose={handleClose}
                 >
                     <MenuItem onClick={toggleDrawer("left", true, "group")}>
-                        New group
+                        {LL.CREATE_GROUP()}
                     </MenuItem>
-                    <MenuItem onClick={signOut}>Sign out</MenuItem>
+                    <MenuItem onClick={signOut}>{LL.SIGN_OUT()}</MenuItem>
                 </Menu>
             </div>
             <Drawer

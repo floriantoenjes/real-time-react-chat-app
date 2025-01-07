@@ -12,8 +12,10 @@ import {
     SnackbarLevels,
     snackbarService,
 } from "../../../../shared/contexts/SnackbarContext";
+import { useI18nContext } from "../../../../i18n/i18n-react";
 
 export function UserProfile(props: { toggleDrawer: any }) {
+    const { LL } = useI18nContext();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [user, setUser] = useUserContext();
     const [file, setFile] = useState<File>();
@@ -75,7 +77,7 @@ export function UserProfile(props: { toggleDrawer: any }) {
                     <IconButton onClick={props.toggleDrawer("left", false)}>
                         <ArrowLeftIcon className={"w-8"} />
                     </IconButton>
-                    <h4 className={"ml-3"}>Profil bearbeiten</h4>
+                    <h4 className={"ml-3"}>{LL.EDIT_PROFILE()}</h4>
                 </div>
             </div>
             <div className={"flex flex-col justify-between items-center h-3/4"}>

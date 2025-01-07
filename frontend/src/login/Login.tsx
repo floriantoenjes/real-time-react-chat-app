@@ -1,14 +1,13 @@
 import { Button, TextField } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
-import { useContext, useState } from "react";
+import { Link } from "react-router-dom";
+import { useState } from "react";
 import { useHandleInputChange } from "../helpers";
-import { UserContext } from "../shared/contexts/UserContext";
 import { useDiContext } from "../shared/contexts/DiContext";
 import { RoutesEnum } from "../shared/enums/routes";
+import { useI18nContext } from "../i18n/i18n-react";
 
 export function Login(props: {}) {
-    const navigate = useNavigate();
-    const [, setUser] = useContext(UserContext);
+    const { LL } = useI18nContext();
     const authService = useDiContext().AuthService;
 
     const [formData, setFormData] = useState(
@@ -50,7 +49,7 @@ export function Login(props: {}) {
                         <TextField
                             name="email"
                             type="email"
-                            label="E-Mail"
+                            label={LL.EMAIL()}
                             onChange={handleInputChange}
                             value={formData.email}
                         />
@@ -59,7 +58,7 @@ export function Login(props: {}) {
                         <TextField
                             name="password"
                             type="password"
-                            label="Password"
+                            label={LL.PASSWORD()}
                             onChange={handleInputChange}
                             value={formData.password}
                         />
@@ -72,10 +71,12 @@ export function Login(props: {}) {
                                 autoFocus={true}
                                 type={"submit"}
                             >
-                                Sign In
+                                {LL.SIGN_IN()}
                             </Button>
                         </span>
-                        <Link to={RoutesEnum.REGISTER}>or Sign Up</Link>
+                        <Link to={RoutesEnum.REGISTER}>
+                            {LL.OR()} {LL.SIGN_UP()}
+                        </Link>
                     </div>
                 </form>
             </div>

@@ -30,6 +30,9 @@ import {
     snackbarService,
 } from "./shared/contexts/SnackbarContext";
 import { SnackbarWrapper } from "./shared/components/SnackbarComponent";
+import { detectLocale, navigatorDetector } from "typesafe-i18n/detectors";
+import { loadLocaleAsync } from "./i18n/i18n-util.async";
+import TypesafeI18n from "./i18n/i18n-react";
 
 function initializeWebSocket<ListenEvents>(
     setSocket: Dispatch<SetStateAction<Socket | undefined>>,
@@ -141,6 +144,9 @@ function authenticateUserAndFetchAvatar(
 }
 
 function App() {
+    const locale = detectLocale("en", ["en"], navigatorDetector);
+    const [localesLoaded, setLocalesLoaded] = useState(false);
+
     const navigate = useNavigate();
     const [user, setUser] = useState<User>();
     const [socket, setSocket] = useState<Socket>();
@@ -151,6 +157,10 @@ function App() {
 
     const setUserWithAvatarBytes =
         getSetUserWithAvatarBytesOptional(userService);
+
+    useEffect(() => {
+        loadLocaleAsync(locale).then(() => setLocalesLoaded(true));
+    }, [locale]);
 
     useEffect(() => {
         authenticateUserAndFetchAvatar(
@@ -255,49 +265,55 @@ function App() {
         };
     }, []);
 
+    if (!localesLoaded) {
+        return null;
+    }
+
     return (
-        <SnackbarProvider>
-            <UserContext.Provider
-                value={[user, setUserWithAvatarBytes(setUser)]}
-            >
-                <SocketContext.Provider value={[socket, setSocket]}>
-                    <PeerContext.Provider
-                        value={{
-                            calling,
-                            setCalling,
-                            callingStream,
-                            setCallingStream,
-                            peer,
-                            setPeer,
-                            connection,
-                            setDataConnection,
-                            call,
-                            setCall,
-                            stream,
-                            setStream,
-                            receiveCallingStream,
-                            setReceiveCallingStream,
-                        }}
-                    >
-                        <Routes>
-                            <Route
-                                path={RoutesEnum.LOGIN}
-                                element={<Login />}
-                            />
-                            <Route
-                                path={RoutesEnum.REGISTER}
-                                element={<Register />}
-                            />
-                            <Route
-                                path={RoutesEnum.DASHBOARD}
-                                element={<Dashboard user={user} />}
-                            />
-                        </Routes>
-                        <SnackbarWrapper />
-                    </PeerContext.Provider>
-                </SocketContext.Provider>
-            </UserContext.Provider>
-        </SnackbarProvider>
+        <TypesafeI18n locale={locale}>
+            <SnackbarProvider>
+                <UserContext.Provider
+                    value={[user, setUserWithAvatarBytes(setUser)]}
+                >
+                    <SocketContext.Provider value={[socket, setSocket]}>
+                        <PeerContext.Provider
+                            value={{
+                                calling,
+                                setCalling,
+                                callingStream,
+                                setCallingStream,
+                                peer,
+                                setPeer,
+                                connection,
+                                setDataConnection,
+                                call,
+                                setCall,
+                                stream,
+                                setStream,
+                                receiveCallingStream,
+                                setReceiveCallingStream,
+                            }}
+                        >
+                            <Routes>
+                                <Route
+                                    path={RoutesEnum.LOGIN}
+                                    element={<Login />}
+                                />
+                                <Route
+                                    path={RoutesEnum.REGISTER}
+                                    element={<Register />}
+                                />
+                                <Route
+                                    path={RoutesEnum.DASHBOARD}
+                                    element={<Dashboard user={user} />}
+                                />
+                            </Routes>
+                            <SnackbarWrapper />
+                        </PeerContext.Provider>
+                    </SocketContext.Provider>
+                </UserContext.Provider>
+            </SnackbarProvider>
+        </TypesafeI18n>
     );
 }
 
