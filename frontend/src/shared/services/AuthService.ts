@@ -4,6 +4,8 @@ import {
     LOCAL_STORAGE_REFRESH_TOKEN,
 } from "../../environment";
 import { snackbarService } from "../contexts/SnackbarContext";
+import { User } from "@t/user.contract";
+import React, { Dispatch, SetStateAction } from "react";
 
 export class AuthService {
     constructor(private readonly userService: UserService) {}
@@ -13,10 +15,12 @@ export class AuthService {
         localStorage.setItem(LOCAL_STORAGE_REFRESH_TOKEN, refreshToken);
     }
 
-    static signOut(callback: () => void) {
+    static signOut(callback?: () => void) {
         localStorage.removeItem(LOCAL_STORAGE_AUTH_KEY);
         localStorage.removeItem(LOCAL_STORAGE_REFRESH_TOKEN);
-        callback();
+        if (callback) {
+            callback();
+        }
         snackbarService.showSnackbar("You have been logged out successfully");
     }
 
@@ -48,5 +52,41 @@ export class AuthService {
 
     async signUp(email: string, password: string, username: string) {
         return this.userService.signUp(email, password, username);
+    }
+
+    async authenticateUserAndFetchAvatar(
+        user: User | undefined,
+        setUserWithAvatarBytes: (
+            setUser: React.Dispatch<React.SetStateAction<User | undefined>>,
+        ) => (user: React.SetStateAction<User | undefined>) => void,
+        setUser: Dispatch<SetStateAction<User | undefined>>,
+    ) {
+        const hasAnAuthToken = !!(
+            localStorage.getItem(LOCAL_STORAGE_AUTH_KEY) ||
+            localStorage.getItem(LOCAL_STORAGE_REFRESH_TOKEN)
+        );
+
+        if (user) {
+            setUserWithAvatarBytes(setUser)(user);
+            return;
+        }
+
+        if (!hasAnAuthToken) {
+            return;
+        }
+
+        try {
+            const loggedInUser = await this.refresh();
+            if (loggedInUser) {
+                setUserWithAvatarBytes(setUser)(loggedInUser);
+                return;
+            }
+
+            if (!loggedInUser) {
+                AuthService.signOut();
+            }
+        } catch (e) {
+            AuthService.signOut();
+        }
     }
 }
