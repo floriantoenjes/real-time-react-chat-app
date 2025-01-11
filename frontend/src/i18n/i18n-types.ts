@@ -74,6 +74,10 @@ type RootTranslation = {
 	 * D​e​l​e​t​e​ ​c​h​a​t
 	 */
 	DELETE_CHAT: string
+	/**
+	 * Y​o​u​ ​s​e​e​m​ ​t​o​ ​b​e​ ​o​f​f​l​i​n​e​.
+	 */
+	OFFLINE_HINT: string
 }
 
 export type TranslationFunctions = {
@@ -137,6 +141,10 @@ export type TranslationFunctions = {
 	 * Delete chat
 	 */
 	DELETE_CHAT: () => LocalizedString
+	/**
+	 * You seem to be offline.
+	 */
+	OFFLINE_HINT: () => LocalizedString
 }
 
 export type Formatters = {}

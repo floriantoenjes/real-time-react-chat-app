@@ -16,6 +16,7 @@ const en = {
     ENTER_A_MESSAGE: "Enter a message",
     EMPTY_CHAT: "Delete messages",
     DELETE_CHAT: "Delete chat",
+    OFFLINE_HINT: "You seem to be offline.",
 } satisfies BaseTranslation;
 
 export default en;

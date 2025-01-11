@@ -16,6 +16,7 @@ const de = {
     ENTER_A_MESSAGE: "Gib eine Nachricht ein",
     EMPTY_CHAT: "Chat leeren",
     DELETE_CHAT: "Chat löschen",
+    OFFLINE_HINT: "Du scheinst offline zu sein",
 } satisfies Translation;
 
 export default de;
