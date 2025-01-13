@@ -78,6 +78,18 @@ type RootTranslation = {
 	 * Y​o​u​ ​s​e​e​m​ ​t​o​ ​b​e​ ​o​f​f​l​i​n​e​.
 	 */
 	OFFLINE_HINT: string
+	/**
+	 * C​h​a​n​g​e​ ​l​a​n​g​u​a​g​e
+	 */
+	CHANGE_LANGUAGE: string
+	/**
+	 * C​l​o​s​e
+	 */
+	CLOSE: string
+	/**
+	 * A​r​c​h​i​v​e​d
+	 */
+	ARCHIVED: string
 }
 
 export type TranslationFunctions = {
@@ -145,6 +157,18 @@ export type TranslationFunctions = {
 	 * You seem to be offline.
 	 */
 	OFFLINE_HINT: () => LocalizedString
+	/**
+	 * Change language
+	 */
+	CHANGE_LANGUAGE: () => LocalizedString
+	/**
+	 * Close
+	 */
+	CLOSE: () => LocalizedString
+	/**
+	 * Archived
+	 */
+	ARCHIVED: () => LocalizedString
 }
 
 export type Formatters = {}

@@ -179,7 +179,7 @@ export function Sidebar() {
                         className={"text-start w-full"}
                         startIcon={<ArrowDownOnSquareIcon className={"h-8"} />}
                     >
-                        Archiviert
+                        {LL.ARCHIVED()}
                     </Button>
                 </div>
                 <div className={"border"}>{contactList()}</div>

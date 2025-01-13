@@ -53,7 +53,6 @@ export class RealTimeChatGateway
     }
 
     handleConnection(socket: Socket): void {
-        // TODO: Check for JWT for security here
         const token = socket.handshake?.auth?.Authorization?.split(' ')[1];
         if (!token) {
             this.logger.warn(`No token for socket ${socket.id}`);

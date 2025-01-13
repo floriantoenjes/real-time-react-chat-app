@@ -17,6 +17,9 @@ const de = {
     EMPTY_CHAT: "Chat leeren",
     DELETE_CHAT: "Chat löschen",
     OFFLINE_HINT: "Du scheinst offline zu sein",
+    CHANGE_LANGUAGE: "Sprache wechseln",
+    CLOSE: "Schließen",
+    ARCHIVED: "Archiviert",
 } satisfies Translation;
 
 export default de;

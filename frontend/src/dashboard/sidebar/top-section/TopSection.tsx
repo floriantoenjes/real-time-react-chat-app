@@ -10,6 +10,7 @@ import { GroupCreation } from "./group-creation/GroupCreation";
 import { RoutesEnum } from "../../../shared/enums/routes";
 import { AuthService } from "../../../shared/services/AuthService";
 import { useI18nContext } from "../../../i18n/i18n-react";
+import { LanguageModal } from "./language-modal/LanguageModal";
 
 export function TopSection() {
     const { LL } = useI18nContext();
@@ -34,6 +35,8 @@ export function TopSection() {
 
     const [section, setSection] = useState("");
 
+    const [modalOpen, setModalOpen] = useState(false);
+
     const toggleDrawer =
         (anchor: string, open: boolean, section?: string) =>
         (event: React.KeyboardEvent | React.MouseEvent) => {
@@ -57,45 +60,58 @@ export function TopSection() {
         AuthService.signOut(() => navigate(RoutesEnum.LOGIN));
     }
 
+    function showLanguageModal() {
+        setModalOpen(true);
+    }
+
     return (
-        <div className={"flex items-center mb-3"}>
-            <div
-                className={"ml-3 cursor-pointer"}
-                onClick={toggleDrawer("left", true, "profile")}
-            >
-                <Avatar user={user} />
-            </div>
-            <div className={"block ml-auto mr-2"}>
-                <IconButton
-                    className={"user-menu-button"}
-                    onClick={handleClick}
+        <>
+            <div className={"flex items-center mb-3"}>
+                <div
+                    className={"ml-3 cursor-pointer"}
+                    onClick={toggleDrawer("left", true, "profile")}
                 >
-                    <ChevronDownIcon className={"w-8"} />
-                </IconButton>
-                <Menu
-                    className={"user-menu"}
-                    anchorEl={anchorEl}
-                    open={open}
-                    onClose={handleClose}
+                    <Avatar user={user} />
+                </div>
+                <div className={"block ml-auto mr-2"}>
+                    <IconButton
+                        className={"user-menu-button"}
+                        onClick={handleClick}
+                    >
+                        <ChevronDownIcon className={"w-8"} />
+                    </IconButton>
+                    <Menu
+                        className={"user-menu"}
+                        anchorEl={anchorEl}
+                        open={open}
+                        onClose={handleClose}
+                    >
+                        <MenuItem onClick={toggleDrawer("left", true, "group")}>
+                            {LL.CREATE_GROUP()}
+                        </MenuItem>
+                        <MenuItem onClick={showLanguageModal}>
+                            {LL.CHANGE_LANGUAGE()}
+                        </MenuItem>
+                        <MenuItem onClick={signOut}>{LL.SIGN_OUT()}</MenuItem>
+                    </Menu>
+                </div>
+                <Drawer
+                    anchor={"left"}
+                    open={state["left"]}
+                    onClose={toggleDrawer("left", false)}
                 >
-                    <MenuItem onClick={toggleDrawer("left", true, "group")}>
-                        {LL.CREATE_GROUP()}
-                    </MenuItem>
-                    <MenuItem onClick={signOut}>{LL.SIGN_OUT()}</MenuItem>
-                </Menu>
+                    {section === "group" && (
+                        <GroupCreation
+                            user={user}
+                            toggleDrawer={toggleDrawer}
+                        />
+                    )}
+                    {section === "profile" && (
+                        <UserProfile toggleDrawer={toggleDrawer} />
+                    )}
+                </Drawer>
             </div>
-            <Drawer
-                anchor={"left"}
-                open={state["left"]}
-                onClose={toggleDrawer("left", false)}
-            >
-                {section === "group" && (
-                    <GroupCreation user={user} toggleDrawer={toggleDrawer} />
-                )}
-                {section === "profile" && (
-                    <UserProfile toggleDrawer={toggleDrawer} />
-                )}
-            </Drawer>
-        </div>
+            <LanguageModal modalOpen={modalOpen} setModalOpen={setModalOpen} />
+        </>
     );
 }
