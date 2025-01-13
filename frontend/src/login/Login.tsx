@@ -44,7 +44,7 @@ export function Login(props: {}) {
                     }}
                     className="my-auto"
                 >
-                    <h4 className="text-center">Login</h4>
+                    <h4 className="text-center">{LL.SIGN_IN()}</h4>
                     <div className="my-3">
                         <TextField
                             name="email"

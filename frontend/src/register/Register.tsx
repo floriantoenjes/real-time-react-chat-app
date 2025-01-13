@@ -9,6 +9,7 @@ import {
     SnackbarLevels,
     snackbarService,
 } from "../shared/contexts/SnackbarContext";
+import { useI18nContext } from "../i18n/i18n-react";
 
 type SignUpData = {
     email: "";
@@ -18,6 +19,7 @@ type SignUpData = {
 };
 
 export function Register(props: {}) {
+    const { LL } = useI18nContext();
     const navigate = useNavigate();
     const [, setUser] = useContext(UserContext);
     const authService = useDiContext().AuthService;
@@ -49,25 +51,25 @@ export function Register(props: {}) {
         <div className="h-screen flex justify-center items-center">
             <div className="Login flex justify-center items-center">
                 <form onSubmit={handleSubmit(signUp)} className="my-auto">
-                    <h4 className="text-center">Register</h4>
+                    <h4 className="text-center">{LL.SIGN_UP()}</h4>
                     <div className="my-3">
                         <TextField
                             type="email"
-                            label="E-Mail"
+                            label={LL.EMAIL()}
                             {...register("email", { required: true })}
                         />
                     </div>
                     <div className="mb-3">
                         <TextField
                             type="password"
-                            label="Password"
+                            label={LL.PASSWORD()}
                             {...register("password", { required: true })}
                         />
                     </div>
                     <div className="mb-3">
                         <TextField
                             type="password"
-                            label="Confirm Password"
+                            label={LL.CONFIRM_PASSWORD()}
                             {...register("passwordConfirm", {
                                 required: true,
                                 validate: (value, formValues) =>
@@ -78,7 +80,7 @@ export function Register(props: {}) {
                     <div className="mb-3">
                         <TextField
                             type="text"
-                            label="Username"
+                            label={LL.USERNAME()}
                             {...register("username", { required: true })}
                         />
                     </div>
@@ -90,10 +92,12 @@ export function Register(props: {}) {
                                 autoFocus={true}
                                 type={"submit"}
                             >
-                                Sign Up
+                                {LL.SIGN_UP()}
                             </Button>
                         </span>
-                        <Link to={"/"}>or Sign In</Link>
+                        <Link to={"/"}>
+                            {LL.OR()} {LL.SIGN_IN()}
+                        </Link>
                     </div>
                 </form>
             </div>
