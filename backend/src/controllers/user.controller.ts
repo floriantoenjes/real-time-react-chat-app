@@ -15,7 +15,7 @@ import { userContract } from '../../shared/user.contract';
 import { UserService } from '../services/user.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ObjectStorageService } from '../services/object-storage.service';
-import { Public } from '../services/constants';
+import { Public } from '../services/auth-constants';
 import { Jimp } from 'jimp';
 import { CustomLogger } from '../logging/custom-logger';
 import { returnEntityOrNotFound } from './utils/controller-utils';

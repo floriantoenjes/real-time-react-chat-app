@@ -3,7 +3,7 @@ import { User } from "real-time-chat-backend/shared/user.contract";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { ContactsContext } from "./contexts/ContactsContext";
 import { CheckIcon } from "@heroicons/react/16/solid";
-import { Button, duration } from "@mui/material";
+import { Button } from "@mui/material";
 import { useDiContext } from "./contexts/DiContext";
 import { DateTime } from "luxon";
 
@@ -121,7 +121,6 @@ export function Message(props: { msg: MessageModel; user: User }) {
 
                     {props.msg.type === "audio" && (
                         <div>
-                            {fromUsername}
                             <div
                                 className={
                                     "my-3 h-1 bg-blue-500 relative rounded-full w-40"

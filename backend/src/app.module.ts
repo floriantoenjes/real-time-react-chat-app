@@ -15,7 +15,6 @@ import { join } from 'path';
 import { ConfigModule } from '@nestjs/config';
 import { ObjectStorageService } from './services/object-storage.service';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from './services/constants';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guards/auth.guard';
 import { FileController } from './controllers/file.controller';
@@ -25,6 +24,10 @@ import { redisStore } from 'cache-manager-redis-yet';
 import * as process from 'node:process';
 import { CustomLogger } from './logging/custom-logger';
 import { LoggingController } from './controllers/logging.controller';
+import { RedisPubSubFactory } from './factories/redisPubSubFactory';
+import { jwtConstants } from './services/auth-constants';
+import { OnlineStatusService } from './services/online-status.service';
+import { PubSubFactoryToken } from './interfaces/pub-sub.factory.interface';
 
 @Module({
     imports: [
@@ -81,6 +84,8 @@ import { LoggingController } from './controllers/logging.controller';
         RealTimeChatGateway,
         UserService,
         ObjectStorageService,
+        OnlineStatusService,
+        { provide: PubSubFactoryToken, useClass: RedisPubSubFactory },
         {
             provide: APP_GUARD,
             useClass: AuthGuard,

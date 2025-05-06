@@ -5,11 +5,11 @@ import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { UserEntity } from '../schemas/user.schema';
 import { Contact, contactContract } from '../../shared/contact.contract';
 import { ContactService } from '../services/contact.service';
-import { RealTimeChatGateway } from '../gateways/socket.gateway';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { getUserContactsCacheKey } from '../cache/cache-keys';
 import { CustomLogger } from '../logging/custom-logger';
+import { OnlineStatusService } from 'src/services/online-status.service';
 
 @Controller()
 export class ContactController {
@@ -19,7 +19,7 @@ export class ContactController {
         @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
         private readonly contactService: ContactService,
         private readonly logger: CustomLogger,
-        private readonly gateway: RealTimeChatGateway,
+        private readonly onlineStatusService: OnlineStatusService,
     ) {}
 
     @TsRestHandler(contactContract.getContacts)
@@ -92,6 +92,12 @@ export class ContactController {
                     (cg) => cg._id === body.contactId,
                 );
 
+                if (contact && contactGroup) {
+                    throw new Error(
+                        'It should only be contact or contact group, not both!',
+                    );
+                }
+
                 if (!contact && !contactGroup) {
                     return { status: 404, body: false };
                 }
@@ -130,7 +136,7 @@ export class ContactController {
                 const onlineStatusMapObject = {};
                 for (const userId of body) {
                     onlineStatusMapObject[userId] =
-                        this.gateway.isUserOnline(userId);
+                        this.onlineStatusService.isUserOnline(userId);
                 }
 
                 return {

@@ -1,7 +1,7 @@
 import { Controller, Get, Res } from '@nestjs/common';
 import { AppService } from './app.service';
 import { RealTimeChatGateway } from './gateways/socket.gateway';
-import { Public } from './services/constants';
+import { Public } from './services/auth-constants';
 
 @Controller()
 export class AppController {
