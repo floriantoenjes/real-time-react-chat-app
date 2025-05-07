@@ -1,15 +1,15 @@
 export const PubSubFactoryToken = 'PubSubFactoryToken';
 
-export interface PubSubFactoryInterface<PubClientReturn> {
+export interface PubSubFactoryInterface {
     getPubAndSubClients(): {
-        pubClient: PubClient<PubClientReturn>;
+        pubClient: PubClient;
         subClient: SubClient;
         connectionPromise: Promise<unknown>;
     };
 }
 
-export interface PubClient<T> {
-    publish(channel: string, message: string): Promise<T>;
+export interface PubClient {
+    publish(channel: string, message: string): Promise<any>;
 }
 
 export interface SubClient {

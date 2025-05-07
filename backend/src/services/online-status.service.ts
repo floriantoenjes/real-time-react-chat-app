@@ -7,9 +7,14 @@ import {
     SubClient,
 } from '../interfaces/pub-sub.factory.interface';
 
+enum ServerSyncEvent {
+    UserOnline = 'userOnlineServerSync',
+    UserOffline = 'userOfflineServerSync',
+}
+
 @Injectable()
 export class OnlineStatusService {
-    private readonly pubClient: PubClient<unknown>;
+    private readonly pubClient: PubClient;
     private readonly subClient: SubClient;
 
     private readonly onlineUsersSet: Set<string> = new Set<string>();
@@ -17,7 +22,7 @@ export class OnlineStatusService {
     constructor(
         private readonly logger: CustomLogger,
         @Inject(PubSubFactoryToken)
-        readonly pubSubFactory: PubSubFactoryInterface<unknown>,
+        readonly pubSubFactory: PubSubFactoryInterface,
     ) {
         const { pubClient, subClient, connectionPromise } =
             pubSubFactory.getPubAndSubClients();
@@ -25,11 +30,13 @@ export class OnlineStatusService {
         this.subClient = subClient;
 
         connectionPromise.then(() => {
-            void this.subClient.subscribe('userOnlineServerSync', (userId) =>
-                this.setContactOnline(userId),
+            void this.subClient.subscribe(
+                ServerSyncEvent.UserOnline,
+                (userId) => this.setContactOnline(userId),
             );
-            void this.subClient.subscribe('userOfflineServerSync', (userId) =>
-                this.setContactOffline(userId),
+            void this.subClient.subscribe(
+                ServerSyncEvent.UserOffline,
+                (userId) => this.setContactOffline(userId),
             );
         });
     }
@@ -39,7 +46,7 @@ export class OnlineStatusService {
         this.onlineUsersSet.add(userId);
 
         if (publishOnlineStatus) {
-            void this.pubClient.publish('userOnlineServerSync', userId);
+            void this.pubClient.publish(ServerSyncEvent.UserOnline, userId);
         }
     }
 
@@ -48,7 +55,7 @@ export class OnlineStatusService {
         this.onlineUsersSet.delete(userId);
 
         if (publishOfflineStatus) {
-            void this.pubClient.publish('userOfflineServerSync', userId);
+            void this.pubClient.publish(ServerSyncEvent.UserOffline, userId);
         }
     }
 

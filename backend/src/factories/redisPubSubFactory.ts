@@ -7,9 +7,9 @@ import {
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class RedisPubSubFactory implements PubSubFactoryInterface<number> {
+export class RedisPubSubFactory implements PubSubFactoryInterface {
     getPubAndSubClients(): {
-        pubClient: PubClient<number>;
+        pubClient: PubClient;
         subClient: SubClient;
         connectionPromise: Promise<unknown>;
     } {
@@ -24,7 +24,7 @@ export class RedisPubSubFactory implements PubSubFactoryInterface<number> {
             connectionPromise: Promise.all([
                 pubClient.connect(),
                 subClient.connect(),
-            ]),
+            ]).then(() => console.log('Redis pub sub connected!')),
         };
     }
 }
