@@ -26,8 +26,7 @@ export class OnlineStatusService {
     ) {
         const { pubClient, subClient, connectionPromise } =
             pubSubFactory.getPubAndSubClients();
-        this.pubClient = pubClient;
-        this.subClient = subClient;
+        [this.pubClient, this.subClient] = [pubClient, subClient] as const;
 
         connectionPromise.then(() => {
             void this.subClient.subscribe(

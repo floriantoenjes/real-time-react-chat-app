@@ -3,6 +3,7 @@ import { UserService } from "./UserService";
 import { UserFactory } from "../factories/user.factory";
 import { ClientService } from "./ClientService";
 import { SnackbarLevels, snackbarService } from "../contexts/SnackbarContext";
+import { ContactGroup } from "@t/contact-group.contract";
 
 export class ContactService {
     constructor(
@@ -50,10 +51,10 @@ export class ContactService {
         return response.body;
     }
 
-    async deleteContact(userId: string, contactId: string) {
+    async deleteContact(userId: string, contact: Contact | ContactGroup) {
         return await this.clientService
             .getClient(contactContract)
-            .removeContact({ body: { userId, contactId } });
+            .removeContact({ body: { userId, contactId: contact._id } });
     }
 
     async getContactsOnlineStatus(contactIds: string[]) {

@@ -30,11 +30,11 @@ export class ContactGroupService {
             });
     }
 
-    async deleteContactGroup(userId: string, contactGroupId: string) {
+    async deleteContactGroup(userId: string, contactGroup: ContactGroup) {
         return await this.clientService
             .getClient(contactGroupContract)
             .removeContactGroup({
-                body: { userId, contactGroupId },
+                body: { userId, contactGroupId: contactGroup._id },
             });
     }
 }

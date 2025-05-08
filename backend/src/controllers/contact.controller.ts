@@ -80,7 +80,6 @@ export class ContactController {
             contactContract.removeContact,
             async ({ body }) => {
                 const user = await this.userModel.findOne({ _id: body.userId });
-
                 if (!user) {
                     return { status: 404, body: false };
                 }
@@ -88,33 +87,14 @@ export class ContactController {
                 const contact = user.contacts.find(
                     (uc) => uc._id === body.contactId,
                 );
-                const contactGroup = user.contactGroups.find(
-                    (cg) => cg._id === body.contactId,
-                );
-
-                if (contact && contactGroup) {
-                    throw new Error(
-                        'It should only be contact or contact group, not both!',
-                    );
-                }
-
-                if (!contact && !contactGroup) {
+                if (!contact) {
                     return { status: 404, body: false };
                 }
 
-                if (contact) {
-                    user.contacts = user.contacts.filter(
-                        (u) => u._id !== body.contactId,
-                    );
-                    user.markModified('contacts');
-                }
-
-                if (contactGroup) {
-                    user.contactGroups = user.contactGroups.filter(
-                        (cg) => cg._id !== body.contactId,
-                    );
-                    user.markModified('contactGroups');
-                }
+                user.contacts = user.contacts.filter(
+                    (u) => u._id !== body.contactId,
+                );
+                user.markModified('contacts');
 
                 await user.save();
 

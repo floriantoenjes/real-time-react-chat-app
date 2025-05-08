@@ -36,6 +36,7 @@ export function TopBar() {
     const [, setMessages] = useContext(MessageContext);
 
     const contactService = useDiContext().ContactService;
+    const contactGroupService = useDiContext().ContactGroupService;
     const loggingService = useDiContext().LoggingService;
     const messageService = useDiContext().MessageService;
 
@@ -110,17 +111,33 @@ export function TopBar() {
             return;
         }
 
-        const deletionRes = await contactService.deleteContact(
-            user._id,
-            selectedContact._id,
-        );
-
-        if (deletionRes.status !== 204) {
-            snackbarService.showSnackbar(
-                "Error deleting contact",
-                SnackbarLevels.ERROR,
+        const isAContactGroup = "memberIds" in selectedContact;
+        if (isAContactGroup) {
+            const deletionRes = await contactGroupService.deleteContactGroup(
+                user._id,
+                selectedContact,
             );
-            return;
+
+            if (deletionRes.status !== 204) {
+                snackbarService.showSnackbar(
+                    "Error deleting contact group",
+                    SnackbarLevels.ERROR,
+                );
+                return;
+            }
+        } else {
+            const deletionRes = await contactService.deleteContact(
+                user._id,
+                selectedContact,
+            );
+
+            if (deletionRes.status !== 204) {
+                snackbarService.showSnackbar(
+                    "Error deleting contact",
+                    SnackbarLevels.ERROR,
+                );
+                return;
+            }
         }
 
         setContacts(
