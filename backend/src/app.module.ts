@@ -36,7 +36,7 @@ import { PubSubFactoryToken } from './interfaces/pub-sub.factory.interface';
             serveRoot: '/frontend',
             rootPath: join(__dirname, '..', '..', '..', 'frontend/dist'),
         }),
-        MongooseModule.forRoot(process.env.uri ?? 'mongodb://localhost', {
+        MongooseModule.forRoot(process.env.uri ?? '', {
             user: process.env.user,
             pass: process.env.pass,
             dbName: 'real-time-chat',
@@ -56,7 +56,7 @@ import { PubSubFactoryToken } from './interfaces/pub-sub.factory.interface';
             useFactory: async () => {
                 const store = await redisStore({
                     socket: {
-                        host: process.env.REDIS_HOST ?? 'localhost',
+                        host: process.env.REDIS_HOST,
                         port: 6379,
                     },
                 });

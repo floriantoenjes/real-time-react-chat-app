@@ -1,12 +1,13 @@
 import { Injectable, LoggerService } from '@nestjs/common';
 import * as winston from 'winston';
 import * as WinstonGelfTransport from 'winston-gelf';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class CustomLogger implements LoggerService {
     private logger: winston.Logger;
 
-    constructor() {
+    constructor(private readonly configService: ConfigService) {
         this.logger = winston.createLogger({
             transports: [
                 new WinstonGelfTransport({
@@ -14,8 +15,8 @@ export class CustomLogger implements LoggerService {
                         fields: { app_name: 'nestjs-app' },
                         adapterName: 'udp',
                         adapterOptions: {
-                            host: process.env.LOG_HOST ?? 'localhost', // Graylog host
-                            port: process.env.LOG_PORT ?? 12201, // GELF input port configured in Graylog
+                            host: configService.get('LOG_HOST'), // Graylog host
+                            port: configService.get('LOG_PORT'), // GELF input port configured in Graylog
                         },
                     },
                 }),

@@ -37,7 +37,7 @@ async function bootstrap() {
     const server = peerApp.listen(9000);
     const peerServer = ExpressPeerServer(server, {
         path: '/myapp',
-        redisUrl: process.env.redis ?? 'redis://localhost:6379',
+        redisUrl: process.env.redis,
     });
     peerApp.use('/peerjs', peerServer);
 }
