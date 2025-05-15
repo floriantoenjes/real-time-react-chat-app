@@ -46,5 +46,3 @@ Backend and frontend...
 ### Next TODOs
 * Introduce rate limiting
 * Improve backend validation
-* Improve error handling in frontend
-* Add i18n library
