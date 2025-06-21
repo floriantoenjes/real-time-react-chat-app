@@ -5,11 +5,7 @@ import {
     initClient,
     InitClientArgs,
 } from "@ts-rest/core";
-import {
-    BACKEND_URL,
-    LOCAL_STORAGE_AUTH_KEY,
-    LOCAL_STORAGE_REFRESH_TOKEN,
-} from "../../environment";
+import { BACKEND_URL } from "../../environment";
 import { AuthService } from "./AuthService";
 
 type RecursiveProxyObj<T, TClientArgs extends InitClientArgs> = {
@@ -29,9 +25,7 @@ export class ClientService {
         T,
         {
             baseUrl: string;
-            baseHeaders: {
-                Authorization: string;
-            };
+            credentials: "include";
         }
     > {
         if (this.contractClientMap.get(contract)) {
@@ -41,6 +35,7 @@ export class ClientService {
         const client = initClient(contract, {
             baseUrl: BACKEND_URL,
             api: this.getCustomFetchApi(),
+            credentials: "include",
         });
 
         this.contractClientMap.set(contract, client);
@@ -55,13 +50,11 @@ export class ClientService {
     private getCustomFetchApi() {
         return async (args: any) => {
             const { path, method, headers, body, fetchOptions } = args;
-            const accessToken = localStorage.getItem(LOCAL_STORAGE_AUTH_KEY);
 
             const requestOptions: RequestInit = {
                 method,
                 headers: {
                     ...headers,
-                    Authorization: `Bearer ${accessToken}`, // Always use the latest token
                 },
                 body: body ?? undefined,
                 ...fetchOptions,
@@ -71,11 +64,10 @@ export class ClientService {
 
             if (response.status === 401) {
                 console.log("Access token expired, attempting refresh...");
-                const newAccessToken = await this.refreshAccessToken();
+                await this.refreshAccessToken();
 
                 // Retry the original request with the new token
                 // @ts-ignore
-                requestOptions!.headers!.Authorization = `Bearer ${newAccessToken}`;
                 const refreshResponse = await fetch(path, requestOptions);
 
                 return {
@@ -103,27 +95,20 @@ export class ClientService {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-                accessToken:
-                    localStorage.getItem(LOCAL_STORAGE_AUTH_KEY) ??
-                    "dummy-token",
-                refreshToken:
-                    localStorage.getItem(LOCAL_STORAGE_REFRESH_TOKEN) ??
-                    "dummy-refresh-token",
-            }),
+            credentials: "include",
         });
 
         if (!response.ok) {
-            AuthService.signOut(() => window.location.reload());
+            await fetch(`${BACKEND_URL}/logout`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({}),
+                credentials: "include",
+            });
             return;
         }
 
-        const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
-            await response.json();
-
-        AuthService.setSignInData(newAccessToken, newRefreshToken);
-
-        return newAccessToken;
+        AuthService.setSignInData();
     }
 
     clearBearerTokenAndClients() {

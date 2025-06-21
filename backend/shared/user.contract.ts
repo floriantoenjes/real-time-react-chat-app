@@ -33,8 +33,6 @@ export const userContract = c.router({
         responses: {
             200: z.object({
                 user: UserSchema,
-                accessToken: z.string(),
-                refreshToken: z.string(),
             }),
         },
         body: z.object({
@@ -43,20 +41,24 @@ export const userContract = c.router({
         }),
         summary: 'Sign in',
     },
+    signOut: {
+        method: 'POST',
+        path: '/logout',
+        responses: {
+            204: z.object({}),
+        },
+        body: z.object({}),
+        summary: 'Sign out',
+    },
     refresh: {
         method: 'POST',
         path: '/refresh',
         responses: {
             200: z.object({
                 user: UserSchema,
-                accessToken: z.string(),
-                refreshToken: z.string(),
             }),
         },
-        body: z.object({
-            accessToken: z.string(),
-            refreshToken: z.string().optional(),
-        }),
+        body: z.object({}),
         summary: 'Refresh sign in via JWT',
     },
     signUp: {

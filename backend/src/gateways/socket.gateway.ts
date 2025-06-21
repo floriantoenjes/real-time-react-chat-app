@@ -56,7 +56,7 @@ export class RealTimeChatGateway
     }
 
     canSocketBeAuthenticated(socket: Socket): boolean {
-        const token = socket.handshake?.auth?.Authorization?.split(' ')[1];
+        const token = socket.handshake.headers.cookie?.split('accessToken=')[1];
         if (!token) {
             this.logger.warn(`No token for socket ${socket.id}`);
             socket.disconnect();
@@ -68,7 +68,7 @@ export class RealTimeChatGateway
                 secret: jwtConstants.secret,
             });
             return true;
-        } catch (err) {
+        } catch (err: unknown) {
             this.logger.warn(
                 `Unable to verify token ${token} for socket ${socket.id}`,
             );
@@ -105,7 +105,7 @@ export class RealTimeChatGateway
     }
 
     @SubscribeMessage('ping')
-    pong(client: Socket, payload: any): void {
+    pong(client: Socket): void {
         client.emit('pong');
     }
 

@@ -5,6 +5,7 @@ import { ExpressPeerServer } from 'peer';
 import * as express from 'express';
 import * as process from 'node:process';
 import { CustomLogger } from './logging/custom-logger';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
     console.log(
@@ -21,14 +22,16 @@ async function bootstrap() {
     await redisIoAdapter.connectToRedis();
 
     app.useWebSocketAdapter(redisIoAdapter);
+    app.use(cookieParser());
 
     const customLogger = app.get(CustomLogger);
     app.useLogger(customLogger);
 
     app.enableCors({
-        origin: '*',
+        origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
         allowedHeaders: 'Content-Type, Accept, Authorization',
+        credentials: true,
     });
     await app.listen(4200);
 

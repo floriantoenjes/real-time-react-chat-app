@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import { io, Socket } from "socket.io-client";
 import { User } from "@t/user.contract";
-import { BACKEND_URL, LOCAL_STORAGE_AUTH_KEY } from "../../environment";
+import { BACKEND_URL } from "../../environment";
 import { SnackbarLevels, snackbarService } from "./SnackbarContext";
 import { RoutesEnum } from "../enums/routes";
 import { UserContext } from "./UserContext";
@@ -29,9 +29,6 @@ function initializeWebSocket<ListenEvents>(
     const socket = io(BACKEND_URL, {
         query: { userId: user?._id },
         transports: ["websocket"],
-        auth: {
-            Authorization: `Bearer ${localStorage.getItem(LOCAL_STORAGE_AUTH_KEY)}`,
-        },
     });
     socket.connect();
     setSocket(socket);
@@ -59,10 +56,6 @@ function initializeWebSocket<ListenEvents>(
         );
         socketReconnectInterval = setInterval(() => {
             console.log("WebSocket disconnected. Reconnecting...");
-            socket.auth = {
-                Authorization:
-                    "Bearer " + localStorage.getItem(LOCAL_STORAGE_AUTH_KEY),
-            };
             socket.connect();
             if (socket.connected) {
                 setSocket(socket);

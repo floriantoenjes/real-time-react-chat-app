@@ -27,14 +27,14 @@ export class UserService {
         return false;
     }
 
-    async refresh(
-        accessToken: string,
-    ): Promise<
-        { user: User; accessToken: string; refreshToken: string } | false
-    > {
-        const res = await this.clientService
-            .getClient(userContract)
-            .refresh({ body: { accessToken } });
+    async signOut() {
+        const res = await this.clientService.getClient(userContract).signOut();
+
+        return res.status === 204;
+    }
+
+    async refresh(): Promise<{ user: User } | false> {
+        const res = await this.clientService.getClient(userContract).refresh();
 
         if (res.status === 200) {
             return res.body;
@@ -49,10 +49,7 @@ export class UserService {
         });
 
         if (res.status === 201) {
-            AuthService.setSignInData(
-                res.body.accessToken,
-                res.body.refreshToken,
-            );
+            AuthService.setSignInData();
 
             return res.body;
         }

@@ -11,11 +11,13 @@ import { RoutesEnum } from "../../../shared/enums/routes";
 import { AuthService } from "../../../shared/services/AuthService";
 import { useI18nContext } from "../../../i18n/i18n-react";
 import { LanguageModal } from "./language-modal/LanguageModal";
+import { useDiContext } from "../../../shared/contexts/DiContext";
 
 export function TopSection() {
     const { LL } = useI18nContext();
     const navigate = useNavigate();
     const [user] = useUserContext();
+    const authService = useDiContext().AuthService;
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -57,7 +59,7 @@ export function TopSection() {
         };
 
     function signOut() {
-        AuthService.signOut(() => navigate(RoutesEnum.LOGIN));
+        void authService.signOut(() => navigate(RoutesEnum.LOGIN));
     }
 
     function showLanguageModal() {

@@ -12,7 +12,7 @@ import { ContactGroupController } from './controllers/contact-group.controller';
 import { UserService } from './services/user.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ObjectStorageService } from './services/object-storage.service';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
@@ -25,7 +25,6 @@ import * as process from 'node:process';
 import { CustomLogger } from './logging/custom-logger';
 import { LoggingController } from './controllers/logging.controller';
 import { RedisPubSubFactory } from './factories/redisPubSubFactory';
-import { jwtConstants } from './services/auth-constants';
 import { OnlineStatusService } from './services/online-status.service';
 import { PubSubFactoryToken } from './interfaces/pub-sub.factory.interface';
 
@@ -45,12 +44,16 @@ import { PubSubFactoryToken } from './interfaces/pub-sub.factory.interface';
             { name: MessageEntity.name, schema: MessageSchema },
             { name: UserEntity.name, schema: UserSchema },
         ]),
-        JwtModule.register({
-            global: true,
-            secret: jwtConstants.secret,
-            signOptions: {
-                expiresIn: '600s',
-            },
+        JwtModule.registerAsync({
+            useFactory: (configService: ConfigService) => ({
+                global: true,
+                secret: configService.get('JWT_SECRET'),
+                signOptions: {
+                    expiresIn: '600s',
+                },
+            }),
+            inject: [ConfigService],
+            imports: [ConfigModule.forRoot()],
         }),
         CacheModule.registerAsync({
             useFactory: async () => {

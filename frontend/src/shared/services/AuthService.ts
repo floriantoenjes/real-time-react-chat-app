@@ -1,23 +1,29 @@
 import { UserService } from "./UserService";
-import {
-    LOCAL_STORAGE_AUTH_KEY,
-    LOCAL_STORAGE_REFRESH_TOKEN,
-} from "../../environment";
-import { snackbarService } from "../contexts/SnackbarContext";
+import { SnackbarLevels, snackbarService } from "../contexts/SnackbarContext";
 import { User } from "@t/user.contract";
 import React, { Dispatch, SetStateAction } from "react";
 
 export class AuthService {
+    public static readonly LOCAL_STORAGE_SIGNED_IN_FLAG = "signedIn";
+
     constructor(private readonly userService: UserService) {}
 
-    static setSignInData(accessToken: string, refreshToken: string) {
-        localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, accessToken);
-        localStorage.setItem(LOCAL_STORAGE_REFRESH_TOKEN, refreshToken);
+    static setSignInData() {
+        localStorage.setItem(
+            AuthService.LOCAL_STORAGE_SIGNED_IN_FLAG,
+            JSON.stringify(true),
+        );
     }
 
-    static signOut(callback?: () => void) {
-        localStorage.removeItem(LOCAL_STORAGE_AUTH_KEY);
-        localStorage.removeItem(LOCAL_STORAGE_REFRESH_TOKEN);
+    async signOut(callback?: () => void) {
+        if (!(await this.userService.signOut())) {
+            snackbarService.showSnackbar(
+                "An error occured. You have not been logged out.",
+                SnackbarLevels.ERROR,
+            );
+            return;
+        }
+        localStorage.removeItem(AuthService.LOCAL_STORAGE_SIGNED_IN_FLAG);
         if (callback) {
             callback();
         }
@@ -29,23 +35,24 @@ export class AuthService {
         if (!body) {
             return;
         }
-        AuthService.setSignInData(body.accessToken, body.refreshToken);
+
+        AuthService.setSignInData();
 
         return body.user;
     }
 
     async refresh() {
-        const jwt =
-            localStorage.getItem(LOCAL_STORAGE_AUTH_KEY) ??
-            localStorage.getItem(LOCAL_STORAGE_REFRESH_TOKEN);
-        if (!jwt) {
+        const signedIn = localStorage.getItem(
+            AuthService.LOCAL_STORAGE_SIGNED_IN_FLAG,
+        );
+        if (!signedIn) {
             return;
         }
-        const res = await this.userService.refresh(jwt);
+        const res = await this.userService.refresh();
         if (!res) {
             return;
         }
-        AuthService.setSignInData(res.accessToken, res.refreshToken);
+        AuthService.setSignInData();
 
         return res.user;
     }
@@ -61,9 +68,8 @@ export class AuthService {
         ) => (user: React.SetStateAction<User | undefined>) => void,
         setUser: Dispatch<SetStateAction<User | undefined>>,
     ) {
-        const hasAnAuthToken = !!(
-            localStorage.getItem(LOCAL_STORAGE_AUTH_KEY) ||
-            localStorage.getItem(LOCAL_STORAGE_REFRESH_TOKEN)
+        const hasAnAuthToken = localStorage.getItem(
+            AuthService.LOCAL_STORAGE_SIGNED_IN_FLAG,
         );
 
         if (user) {
@@ -83,10 +89,10 @@ export class AuthService {
             }
 
             if (!loggedInUser) {
-                AuthService.signOut();
+                void this.signOut();
             }
         } catch (e) {
-            AuthService.signOut();
+            void this.signOut();
         }
     }
 }

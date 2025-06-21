@@ -1,6 +1,8 @@
 import {
     Body,
     Controller,
+    Req,
+    Res,
     UploadedFile,
     UseInterceptors,
 } from '@nestjs/common';
@@ -19,6 +21,7 @@ import { Public } from '../services/auth-constants';
 import { Jimp } from 'jimp';
 import { CustomLogger } from '../logging/custom-logger';
 import { returnEntityOrNotFound } from './utils/controller-utils';
+import { Request, Response } from 'express';
 
 @Controller()
 export class UserController {
@@ -37,26 +40,90 @@ export class UserController {
 
     @TsRestHandler(userContract.signIn)
     @Public()
-    async signIn() {
+    async signIn(@Res({ passthrough: true }) res: Response) {
         return tsRestHandler(userContract.signIn, async ({ body }) => {
-            return returnEntityOrNotFound(
-                await this.userService.signIn(body.email, body.password),
+            const signInResult = await this.userService.signIn(
+                body.email,
+                body.password,
             );
+
+            const secureCookieOptions = {
+                secure: true,
+                httpOnly: true,
+                sameSite: 'lax' as const,
+                maxAge: 3_600_000,
+            };
+
+            res.cookie(
+                'accessToken',
+                signInResult?.accessToken,
+                secureCookieOptions,
+            );
+
+            res.cookie('refreshToken', signInResult?.refreshToken, {
+                ...secureCookieOptions,
+                path: '/refresh',
+            });
+
+            return returnEntityOrNotFound(signInResult);
+        });
+    }
+
+    @TsRestHandler(userContract.signOut)
+    async signOut(@Res({ passthrough: true }) res: Response) {
+        return tsRestHandler(userContract.signOut, async () => {
+            const secureCookieOptions = {
+                secure: true,
+                httpOnly: true,
+                sameSite: 'lax' as const,
+                maxAge: 0,
+            };
+
+            res.cookie('accessToken', '', secureCookieOptions);
+
+            res.cookie('refreshToken', '', {
+                ...secureCookieOptions,
+                path: '/refresh',
+            });
+
+            return { status: 204, body: {} };
         });
     }
 
     @TsRestHandler(userContract.refresh)
     @Public()
-    async refresh() {
-        return tsRestHandler(userContract.refresh, async ({ body }) => {
+    async refresh(
+        @Req() req: Request,
+        @Res({ passthrough: true }) res: Response,
+    ) {
+        return tsRestHandler(userContract.refresh, async () => {
             const userAndFreshTokens = await this.userService.refresh(
-                body.accessToken,
-                body.refreshToken,
+                req.cookies.accessToken,
+                req.cookies.refreshToken,
             );
             if (!userAndFreshTokens) {
                 return { status: 401, body: 'Unauthorized' };
             }
-            return { status: 200, body: userAndFreshTokens };
+
+            const secureCookieOptions = {
+                secure: true,
+                httpOnly: true,
+                sameSite: 'lax' as const,
+                maxAge: 3_600_000,
+            };
+
+            res.cookie(
+                'accessToken',
+                userAndFreshTokens?.accessToken,
+                secureCookieOptions,
+            );
+
+            res.cookie('refreshToken', userAndFreshTokens?.refreshToken, {
+                ...secureCookieOptions,
+                path: '/refresh',
+            });
+
+            return { status: 200, body: { user: userAndFreshTokens.user } };
         });
     }
 
@@ -124,6 +191,7 @@ export class UserController {
                     };
                 }
             } catch (e) {}
+
             return {
                 status: 404,
                 body: false,
