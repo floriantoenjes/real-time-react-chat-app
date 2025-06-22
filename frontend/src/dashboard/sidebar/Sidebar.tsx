@@ -45,7 +45,7 @@ export function Sidebar() {
 
     useEffect(() => {
         setContacts(contactList());
-    }, [nameFilter, userContacts]);
+    }, [nameFilter, userContacts, userContactGroups]);
 
     function loadUserContacts() {
         userService.getUsers().then((users) => {
@@ -87,15 +87,17 @@ export function Sidebar() {
 
                 return 0;
             })
-            .map((c) => (
-                <Contact
-                    key={c.name}
-                    contact={c}
-                    selectedContact={selectedContact}
-                    onContactSelect={() => setSelectedContact(c)}
-                    isOnline={userContactsOnlineStatus.get(c._id)}
-                />
-            ));
+            .map((c) => {
+                return (
+                    <Contact
+                        key={c.name}
+                        contact={c}
+                        selectedContact={selectedContact}
+                        onContactSelect={() => setSelectedContact(c)}
+                        isOnline={userContactsOnlineStatus.get(c._id)}
+                    />
+                );
+            });
     }
 
     async function addContact(evt: any) {

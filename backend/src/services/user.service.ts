@@ -22,7 +22,7 @@ export class UserService {
         private readonly jwtService: JwtService,
     ) {}
 
-    async findUsersBy(filter?: any) {
+    async findUsersBy(filter?: Partial<{ [k in keyof UserEntity]: any }>) {
         const cacheKey = findUsersByCacheKey(filter);
         const usersInCache = await this.cache.get<User[]>(cacheKey);
 

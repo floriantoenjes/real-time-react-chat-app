@@ -3,7 +3,6 @@ import {
     ArrowRightStartOnRectangleIcon,
     ChevronDownIcon,
     GlobeAltIcon,
-    LanguageIcon,
     PlusIcon,
 } from "@heroicons/react/24/outline";
 import React, { useState } from "react";
@@ -78,7 +77,10 @@ export function TopSection() {
                     );
                 }
 
-                snackbarService.showSnackbar(LL.LOGGED_OUT());
+                snackbarService.showSnackbar(
+                    LL.LOGGED_OUT(),
+                    SnackbarLevels.SUCCESS,
+                );
             });
     }
 
