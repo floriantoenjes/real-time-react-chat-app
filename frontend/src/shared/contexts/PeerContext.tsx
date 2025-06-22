@@ -67,36 +67,42 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
         useState<MediaStream | null>(null);
 
     useEffect(() => {
-        if (user && !peer) {
-            const newPeer = new Peer(user.username, {
-                host: PEERJS_SERVER_HOST,
-                port: +PEERJS_SERVER_PORT,
-                path: "/peerjs/myapp",
-                config: {
-                    iceServers: [
-                        // { url: "stun:stun.l.google.com:19302" }, // Public STUN server for initial connection
-                        {
-                            url: TURN_SERVER_URL,
-                            username: TURN_SERVER_USERNAME,
-                            credential: TURN_SERVER_PASSWORD,
-                        },
-                    ],
-                    iceTransportPolicy: "relay",
-                },
-            });
-            setPeer(newPeer);
+        try {
+            if (user && !peer) {
+                const newPeer = new Peer(user.username, {
+                    host: PEERJS_SERVER_HOST,
+                    port: +PEERJS_SERVER_PORT,
+                    path: "/peerjs/myapp",
+                    config: {
+                        iceServers: [
+                            // { url: "stun:stun.l.google.com:19302" }, // Public STUN server for initial connection
+                            {
+                                url: TURN_SERVER_URL,
+                                username: TURN_SERVER_USERNAME,
+                                credential: TURN_SERVER_PASSWORD,
+                            },
+                        ],
+                        iceTransportPolicy: "relay",
+                    },
+                });
+                setPeer(newPeer);
 
-            newPeer.on("open", (id) => {
-                loggingService.log(`User ${user._id} received Peer-Id: ${id}`);
-            });
+                newPeer.on("open", (id) => {
+                    loggingService.log(
+                        `User ${user._id} received Peer-Id: ${id}`,
+                    );
+                });
 
-            newPeer.on("error", (err) => {
-                loggingService.error(
-                    `User ${user._id} received Error: ${err}`,
-                    undefined,
-                    err?.stack,
-                );
-            });
+                newPeer.on("error", (err) => {
+                    loggingService.error(
+                        `User ${user._id} received Error: ${err}`,
+                        undefined,
+                        err?.stack,
+                    );
+                });
+            }
+        } catch (e) {
+            console.log("Could not connect to Peer server!");
         }
     }, [user?.username]);
 

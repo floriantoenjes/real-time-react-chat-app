@@ -5,7 +5,6 @@ import { UserEntity } from '../schemas/user.schema';
 import { Model } from 'mongoose';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { getUserContactsCacheKey } from '../cache/cache-keys';
 
 @Injectable()
 export class ContactService {
@@ -16,12 +15,6 @@ export class ContactService {
     ) {}
 
     async getUserContacts(userId: string) {
-        const cacheKey = getUserContactsCacheKey(userId);
-        const cachedUserContacts = await this.cache.get<Contact[]>(cacheKey);
-        if (cachedUserContacts) {
-            return cachedUserContacts;
-        }
-
         const user = await this.userModel.findOne({
             _id: userId,
         });
@@ -32,11 +25,13 @@ export class ContactService {
                 .findOne({ _id: contact._id })
                 .lean();
             if (contactUser) {
-                contacts.push({ ...contact, ...contactUser });
+                contacts.push({
+                    ...contact,
+                    ...contactUser,
+                    lastMessage: contact.lastMessage,
+                });
             }
         }
-
-        await this.cache.set(cacheKey, contacts);
 
         return contacts;
     }

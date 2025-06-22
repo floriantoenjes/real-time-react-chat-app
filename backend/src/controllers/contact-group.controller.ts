@@ -9,8 +9,6 @@ import {
 } from '../../shared/contact-group.contract';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { User } from '../../shared/user.contract';
-import { getContactGroupsCacheKey } from '../cache/cache-keys';
 import { CustomLogger } from '../logging/custom-logger';
 
 @Controller()
@@ -27,18 +25,11 @@ export class ContactGroupController {
         return tsRestHandler(
             contactGroupContract.getContactGroups,
             async ({ body }) => {
-                const cacheKey = getContactGroupsCacheKey(body.userId);
-                const cachedUser = await this.cache.get<User>(cacheKey);
-                let user: User | null;
-                if (!cachedUser) {
-                    user = await this.userModel
-                        .findOne({
-                            _id: body.userId,
-                        })
-                        .lean();
-                } else {
-                    user = cachedUser;
-                }
+                const user = await this.userModel
+                    .findOne({
+                        _id: body.userId,
+                    })
+                    .lean();
 
                 return {
                     status: 200,
@@ -91,8 +82,6 @@ export class ContactGroupController {
                     await member.save();
                 }
 
-                await this.cache.del(getContactGroupsCacheKey(body.userId));
-
                 return {
                     status: 201,
                     body: newContactGroup,
@@ -126,8 +115,6 @@ export class ContactGroupController {
                 user.markModified('contactGroups');
 
                 await user.save();
-
-                await this.cache.del(getContactGroupsCacheKey(body.userId));
 
                 return {
                     status: 204,

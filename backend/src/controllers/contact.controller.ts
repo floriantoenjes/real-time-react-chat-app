@@ -7,7 +7,6 @@ import { Contact, contactContract } from '../../shared/contact.contract';
 import { ContactService } from '../services/contact.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { getUserContactsCacheKey } from '../cache/cache-keys';
 import { CustomLogger } from '../logging/custom-logger';
 import { OnlineStatusService } from 'src/services/online-status.service';
 
@@ -65,8 +64,6 @@ export class ContactController {
 
             await user.save();
 
-            await this.cache.del(getUserContactsCacheKey(body.userId));
-
             return {
                 status: 201,
                 body: newContact,
@@ -97,8 +94,6 @@ export class ContactController {
                 user.markModified('contacts');
 
                 await user.save();
-
-                await this.cache.del(getUserContactsCacheKey(body.userId));
 
                 return {
                     status: 204,

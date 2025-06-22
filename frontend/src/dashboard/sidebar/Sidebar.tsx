@@ -46,7 +46,7 @@ export function Sidebar() {
         if (socket) {
             socket.once("message", updateLastMessage);
         }
-    }, [socket, user.username, lastMessage]);
+    }, [socket, user.username, lastMessage, userContacts]);
 
     const [, setFormData] = useState({
         contactName: "",
@@ -83,6 +83,12 @@ export function Sidebar() {
             );
         });
     }
+
+    useEffect(() => {
+        contactService
+            .getContacts(user._id)
+            .then((contacts) => setUserContacts(contacts));
+    }, [user]);
 
     useEffect(() => {
         loadUserContacts();
