@@ -30,7 +30,7 @@ export class UserService {
             return usersInCache;
         }
 
-        let users = await this.userModel.find(filter ?? {});
+        const users = await this.userModel.find(filter ?? {});
 
         await this.cache.set(cacheKey, users);
 

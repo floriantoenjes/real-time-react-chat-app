@@ -13,6 +13,8 @@ import {
     SnackbarLevels,
     snackbarService,
 } from "../../shared/contexts/SnackbarContext";
+import { SocketContext } from "../../shared/contexts/SocketContext";
+import { Message } from "@t/message.contract";
 
 export function Sidebar() {
     const { LL } = useI18nContext();
@@ -26,6 +28,25 @@ export function Sidebar() {
     const [userContacts, setUserContacts] = contactsContext.contacts;
     const [userContactsOnlineStatus] = contactsContext.contactsOnlineStatus;
     const [userContactGroups] = contactsContext.contactGroups;
+    const [socket] = useContext(SocketContext);
+    const [lastMessage, setLastMessage] = useState<Message>();
+
+    useEffect(() => {
+        function updateLastMessage(message: Message) {
+            const userContactWithNewMessage = userContacts.find(
+                (uc) => uc._id === message.fromUserId,
+            );
+            if (userContactWithNewMessage) {
+                userContactWithNewMessage.lastMessage = message;
+                setUserContacts([...userContacts]);
+            }
+            setLastMessage(message);
+        }
+
+        if (socket) {
+            socket.once("message", updateLastMessage);
+        }
+    }, [socket, user.username, lastMessage]);
 
     const [, setFormData] = useState({
         contactName: "",
