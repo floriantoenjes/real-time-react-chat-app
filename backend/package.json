@@ -40,7 +40,7 @@
     "cache-manager-redis-yet": "^5.1.5",
     "cookie-parser": "^1.4.7",
     "jimp": "^1.6.0",
-    "mongoose": "^8.8.1",
+    "mongoose": "8.9.5",
     "peer": "file:libs/peer/peer-1.0.6.tgz",
     "redis": "^4.7.0",
     "reflect-metadata": "^0.2.2",
