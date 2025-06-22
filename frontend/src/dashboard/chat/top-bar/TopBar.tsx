@@ -82,7 +82,7 @@ export function TopBar() {
             .deleteMessages(user._id, selectedContact._id)
             .then(() => {
                 snackbarService.showSnackbar(
-                    "Chat messages have been deleted",
+                    LL.CHAT_MESSAGES_DELETED(),
                     SnackbarLevels.SUCCESS,
                 );
                 setMessages([]);
@@ -90,7 +90,7 @@ export function TopBar() {
             })
             .catch(() => {
                 snackbarService.showSnackbar(
-                    "Chat messages could not be deleted",
+                    LL.ERROR.COULD_NOT_DELETE_CHAT_MESSAGES(),
                     SnackbarLevels.ERROR,
                 );
             });
@@ -105,7 +105,7 @@ export function TopBar() {
             await messageService.deleteMessages(user._id, selectedContact._id);
         } catch (error) {
             snackbarService.showSnackbar(
-                "Chat messages could not be deleted",
+                LL.ERROR.COULD_NOT_DELETE_CHAT_MESSAGES(),
                 SnackbarLevels.ERROR,
             );
             return;
@@ -120,7 +120,7 @@ export function TopBar() {
 
             if (deletionRes.status !== 204) {
                 snackbarService.showSnackbar(
-                    "Error deleting contact group",
+                    LL.ERROR.COULD_NOT_DELETE_CONTACT_GROUP(),
                     SnackbarLevels.ERROR,
                 );
                 return;
@@ -133,7 +133,7 @@ export function TopBar() {
 
             if (deletionRes.status !== 204) {
                 snackbarService.showSnackbar(
-                    "Error deleting contact",
+                    LL.ERROR.COULD_NOT_DELETE_CONTACT(),
                     SnackbarLevels.ERROR,
                 );
                 return;
@@ -150,7 +150,7 @@ export function TopBar() {
         setSelectedContact(undefined);
 
         snackbarService.showSnackbar(
-            `${selectedContact.name} is no longer a contact`,
+            LL.CONTACT_REMOVED({ name: selectedContact.name }),
             SnackbarLevels.SUCCESS,
         );
     }

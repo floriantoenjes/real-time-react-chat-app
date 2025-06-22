@@ -13,10 +13,13 @@ import { SnackbarLevels, snackbarService } from "./SnackbarContext";
 import { RoutesEnum } from "../enums/routes";
 import { UserContext } from "./UserContext";
 import { useNavigate } from "react-router-dom";
+import { useI18nContext } from "../../i18n/i18n-react";
+import { TranslationFunctions } from "../../i18n/i18n-types";
 
 function initializeWebSocket<ListenEvents>(
     setSocket: Dispatch<SetStateAction<Socket | undefined>>,
     user: User,
+    LL: TranslationFunctions,
 ) {
     // @ts-ignore
     let socketReconnectInterval: NodeJS.Timer;
@@ -34,8 +37,6 @@ function initializeWebSocket<ListenEvents>(
     setSocket(socket);
 
     socket.on("connect", function () {
-        console.log("WebSocket connected", socket);
-
         heartbeatInterval = setInterval(() => {
             if (missedPings >= MAX_MISSED_PINGS) {
                 socket.disconnect();
@@ -51,18 +52,16 @@ function initializeWebSocket<ListenEvents>(
         clearInterval(heartbeatInterval);
         setSocket(undefined);
         snackbarService.showSnackbar(
-            "The connection to the server has been lost. Reconnecting...",
+            LL.WS_CONNECTION_LOST(),
             SnackbarLevels.WARNING,
         );
         socketReconnectInterval = setInterval(() => {
-            console.log("WebSocket disconnected. Reconnecting...");
             socket.connect();
             if (socket.connected) {
                 setSocket(socket);
-                console.log("WebSocket reconnected.");
                 clearInterval(socketReconnectInterval);
                 snackbarService.showSnackbar(
-                    "The connection to the server has been reestablished",
+                    LL.WS_CONNECTION_REESTABLISHED(),
                     SnackbarLevels.SUCCESS,
                 );
             }
@@ -83,13 +82,14 @@ export const SocketContext = createContext<
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     const navigate = useNavigate();
     const [user] = useContext(UserContext);
+    const { LL } = useI18nContext();
 
     const [socket, setSocket] = useState<Socket>();
 
     useEffect(() => {
         if (user?._id) {
             navigate(RoutesEnum.DASHBOARD);
-            return initializeWebSocket(setSocket, user);
+            return initializeWebSocket(setSocket, user, LL);
         }
     }, [user?._id]);
 

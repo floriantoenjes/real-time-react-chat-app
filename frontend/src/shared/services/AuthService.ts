@@ -17,17 +17,13 @@ export class AuthService {
 
     async signOut(callback?: () => void) {
         if (!(await this.userService.signOut())) {
-            snackbarService.showSnackbar(
-                "An error occured. You have not been logged out.",
-                SnackbarLevels.ERROR,
-            );
-            return;
+            return false;
         }
         localStorage.removeItem(AuthService.LOCAL_STORAGE_SIGNED_IN_FLAG);
         if (callback) {
             callback();
         }
-        snackbarService.showSnackbar("You have been logged out successfully");
+        return true;
     }
 
     async signIn(email: string, password: string) {

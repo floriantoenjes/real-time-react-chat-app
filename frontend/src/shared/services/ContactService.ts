@@ -33,22 +33,9 @@ export class ContactService {
     }
 
     async addContact(userId: string, newContactId: string) {
-        const response = await this.clientService
+        return this.clientService
             .getClient(contactContract)
             .addContact({ body: { userId, newContactId } });
-        if (response.status !== 201) {
-            snackbarService.showSnackbar(
-                "Error adding contact",
-                SnackbarLevels.ERROR,
-            );
-            return;
-        }
-
-        snackbarService.showSnackbar(
-            `${response.body.name} has been added as a contact`,
-            SnackbarLevels.SUCCESS,
-        );
-        return response.body;
     }
 
     async deleteContact(userId: string, contact: Contact | ContactGroup) {

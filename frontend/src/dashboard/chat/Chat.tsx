@@ -13,6 +13,7 @@ import {
     SnackbarLevels,
     snackbarService,
 } from "../../shared/contexts/SnackbarContext";
+import { useI18nContext } from "../../i18n/i18n-react";
 
 export function Chat() {
     const [selectedContact] = useContext(ContactsContext).selectedContact;
@@ -20,6 +21,7 @@ export function Chat() {
     const [messages, setMessages] = useContext(MessageContext);
     const [socket] = useContext(SocketContext);
     const messageService = useDiContext().MessageService;
+    const { LL } = useI18nContext();
 
     useEffect(() => {
         async function fetchMessages() {
@@ -35,7 +37,7 @@ export function Chat() {
                 setMessages(messages);
             } catch (error) {
                 snackbarService.showSnackbar(
-                    "Could not fetch messages.",
+                    LL.ERROR.COULD_NOT_FETCH_MESSAGES(),
                     SnackbarLevels.ERROR,
                 );
                 throw error;

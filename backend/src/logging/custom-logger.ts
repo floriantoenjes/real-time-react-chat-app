@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
 export class CustomLogger implements LoggerService {
     private logger: winston.Logger;
 
-    constructor(private readonly configService: ConfigService) {
+    constructor(readonly configService: ConfigService) {
         this.logger = winston.createLogger({
             transports: [
                 new WinstonGelfTransport({

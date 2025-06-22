@@ -51,14 +51,14 @@ export function UserProfile(props: { toggleDrawer: any }) {
                 });
                 props.toggleDrawer("left", false)();
                 snackbarService.showSnackbar(
-                    "Your profile picture has been updated",
+                    LL.AVATAR_UPDATED(),
                     SnackbarLevels.SUCCESS,
                 );
             })
             .catch((error) => {
                 props.toggleDrawer("left", false)();
                 snackbarService.showSnackbar(
-                    "Your profile picture could not be updated",
+                    LL.ERROR.AVATAR_NOT_UPDATED(),
                     SnackbarLevels.ERROR,
                 );
                 throw error;

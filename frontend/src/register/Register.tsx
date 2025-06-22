@@ -41,7 +41,7 @@ export function Register(props: {}) {
             setUser(signUpResponse.user);
             navigate(RoutesEnum.DASHBOARD);
             snackbarService.showSnackbar(
-                "Your account has been created and you have been signed in.",
+                LL.REGISTERED_AND_SIGNED_IN(),
                 SnackbarLevels.SUCCESS,
             );
         }

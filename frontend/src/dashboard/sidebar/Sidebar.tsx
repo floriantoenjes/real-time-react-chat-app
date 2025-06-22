@@ -13,6 +13,10 @@ import { TopSection } from "./top-section/TopSection";
 import { User } from "@t/user.contract";
 import { useDiContext } from "../../shared/contexts/DiContext";
 import { useI18nContext } from "../../i18n/i18n-react";
+import {
+    SnackbarLevels,
+    snackbarService,
+} from "../../shared/contexts/SnackbarContext";
 
 export function Sidebar() {
     const { LL } = useI18nContext();
@@ -102,16 +106,25 @@ export function Sidebar() {
         if (!searchedUser) {
             return;
         }
-        const newContact = await contactService.addContact(
+        const newContactResponse = await contactService.addContact(
             user._id,
             searchedUser._id,
         );
-        if (!newContact) {
+        if (newContactResponse.status !== 201) {
+            snackbarService.showSnackbar(
+                LL.ERROR.COULD_NOT_ADD_CONTACT(),
+                SnackbarLevels.ERROR,
+            );
             return;
         }
 
+        snackbarService.showSnackbar(
+            LL.CONTACT_ADDED({ name: newContactResponse.body.name }),
+            SnackbarLevels.SUCCESS,
+        );
+
         setUserContacts((prevState) => {
-            return [...prevState, newContact];
+            return [...prevState, newContactResponse.body];
         });
 
         setFormData({ contactName: "" });
@@ -174,14 +187,14 @@ export function Sidebar() {
                 </div>
             </div>
             <div className={"border"}>
-                <div className={"border"}>
-                    <Button
-                        className={"text-start w-full"}
-                        startIcon={<ArrowDownOnSquareIcon className={"h-8"} />}
-                    >
-                        {LL.ARCHIVED()}
-                    </Button>
-                </div>
+                {/*<div className={"border"}>*/}
+                {/*    <Button*/}
+                {/*        className={"text-start w-full"}*/}
+                {/*        startIcon={<ArrowDownOnSquareIcon className={"h-8"} />}*/}
+                {/*    >*/}
+                {/*        {LL.ARCHIVED()}*/}
+                {/*    </Button>*/}
+                {/*</div>*/}
                 <div className={"border"}>{contactList()}</div>
             </div>
         </div>

@@ -1,5 +1,11 @@
 import { Drawer, IconButton, Menu, MenuItem } from "@mui/material";
-import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import {
+    ArrowRightStartOnRectangleIcon,
+    ChevronDownIcon,
+    GlobeAltIcon,
+    LanguageIcon,
+    PlusIcon,
+} from "@heroicons/react/24/outline";
 import React, { useState } from "react";
 import "./TopSection.css";
 import { useUserContext } from "../../../shared/contexts/UserContext";
@@ -8,10 +14,13 @@ import { Avatar } from "../../../shared/Avatar";
 import { UserProfile } from "./user-profile/UserProfile";
 import { GroupCreation } from "./group-creation/GroupCreation";
 import { RoutesEnum } from "../../../shared/enums/routes";
-import { AuthService } from "../../../shared/services/AuthService";
 import { useI18nContext } from "../../../i18n/i18n-react";
 import { LanguageModal } from "./language-modal/LanguageModal";
 import { useDiContext } from "../../../shared/contexts/DiContext";
+import {
+    SnackbarLevels,
+    snackbarService,
+} from "../../../shared/contexts/SnackbarContext";
 
 export function TopSection() {
     const { LL } = useI18nContext();
@@ -59,7 +68,18 @@ export function TopSection() {
         };
 
     function signOut() {
-        void authService.signOut(() => navigate(RoutesEnum.LOGIN));
+        void authService
+            .signOut(() => navigate(RoutesEnum.LOGIN))
+            .then((logoutSuccess) => {
+                if (!logoutSuccess) {
+                    return snackbarService.showSnackbar(
+                        LL.ERROR.COULD_NOT_LOGOUT(),
+                        SnackbarLevels.ERROR,
+                    );
+                }
+
+                snackbarService.showSnackbar(LL.LOGGED_OUT());
+            });
     }
 
     function showLanguageModal() {
@@ -89,12 +109,19 @@ export function TopSection() {
                         onClose={handleClose}
                     >
                         <MenuItem onClick={toggleDrawer("left", true, "group")}>
+                            <PlusIcon className={"w-4 mr-2"} />
                             {LL.CREATE_GROUP()}
                         </MenuItem>
                         <MenuItem onClick={showLanguageModal}>
+                            <GlobeAltIcon className={"w-4 mr-2"} />
                             {LL.CHANGE_LANGUAGE()}
                         </MenuItem>
-                        <MenuItem onClick={signOut}>{LL.SIGN_OUT()}</MenuItem>
+                        <MenuItem onClick={signOut}>
+                            <ArrowRightStartOnRectangleIcon
+                                className={"w-4 mr-2"}
+                            />
+                            {LL.SIGN_OUT()}
+                        </MenuItem>
                     </Menu>
                 </div>
                 <Drawer
