@@ -40,6 +40,7 @@ export function LanguageModal(props: {
                         const selectedLocale = event.target.value as Locales;
                         loadLocaleAsync(selectedLocale).then(() => {
                             setLocale(selectedLocale);
+                            localStorage.setItem("language", selectedLocale);
                         });
                     }}
                 >

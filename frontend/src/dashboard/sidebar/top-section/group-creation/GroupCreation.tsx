@@ -6,12 +6,14 @@ import { ContactsContext } from "../../../../shared/contexts/ContactsContext";
 import { Contact } from "../../../../shared/Contact";
 import { User } from "@t/user.contract";
 import { useDiContext } from "../../../../shared/contexts/DiContext";
+import { useI18nContext } from "../../../../i18n/i18n-react";
 
 export function GroupCreation(props: { user: User; toggleDrawer: any }) {
     const contactsContext = useContext(ContactsContext);
     const [contacts] = contactsContext.contacts;
     const [, setContactGroups] = contactsContext.contactGroups;
     const contactGroupService = useDiContext().ContactGroupService;
+    const { LL } = useI18nContext();
 
     const [groupMembers, setGroupMembers] = useState<string[]>([]);
 
@@ -80,14 +82,14 @@ export function GroupCreation(props: { user: User; toggleDrawer: any }) {
                     <IconButton onClick={props.toggleDrawer("left", false)}>
                         <ArrowLeftIcon className={"w-8"} />
                     </IconButton>
-                    <h4 className={"ml-3"}>Gruppenmitglieder hinzufügen</h4>
+                    <h4 className={"ml-3"}>{LL.ADD_GROUP_MEMBERS()}</h4>
                 </div>
                 <Autocomplete
                     multiple
                     id="group-members-input"
                     options={contacts.map((c) => c.name)}
                     renderInput={(params) => (
-                        <TextField {...params} label="Members" />
+                        <TextField {...params} label={LL.MEMBERS()} />
                     )}
                     onChange={onChangeMembers}
                     value={groupMembers}

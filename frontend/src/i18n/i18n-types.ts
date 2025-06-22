@@ -51,13 +51,25 @@ type RootTranslation = {
 	 */
 	OR: string
 	/**
-	 * S​e​a​r​c​h​ ​a​n​d​ ​a​d​d​ ​a​ ​c​o​n​t​a​c​t
+	 * a​d​d
+	 */
+	ADD: string
+	/**
+	 * F​i​l​t​e​r​ ​f​o​r​ ​o​r​ ​a​d​d​ ​a​ ​c​o​n​t​a​c​t
 	 */
 	ADD_CONTACT: string
 	/**
 	 * C​r​e​a​t​e​ ​n​e​w​ ​g​r​o​u​p
 	 */
 	CREATE_GROUP: string
+	/**
+	 * A​d​d​ ​g​r​o​u​p​ ​m​e​m​b​e​r​s
+	 */
+	ADD_GROUP_MEMBERS: string
+	/**
+	 * M​e​m​b​e​r​s
+	 */
+	MEMBERS: string
 	/**
 	 * E​d​i​t​ ​y​o​u​r​ ​P​r​o​f​i​l​e
 	 */
@@ -194,13 +206,25 @@ export type TranslationFunctions = {
 	 */
 	OR: () => LocalizedString
 	/**
-	 * Search and add a contact
+	 * add
+	 */
+	ADD: () => LocalizedString
+	/**
+	 * Filter for or add a contact
 	 */
 	ADD_CONTACT: () => LocalizedString
 	/**
 	 * Create new group
 	 */
 	CREATE_GROUP: () => LocalizedString
+	/**
+	 * Add group members
+	 */
+	ADD_GROUP_MEMBERS: () => LocalizedString
+	/**
+	 * Members
+	 */
+	MEMBERS: () => LocalizedString
 	/**
 	 * Edit your Profile
 	 */

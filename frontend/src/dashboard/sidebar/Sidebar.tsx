@@ -1,12 +1,8 @@
-import { Autocomplete, Button, TextField } from "@mui/material";
-import {
-    ArrowDownOnSquareIcon,
-    FunnelIcon,
-    MagnifyingGlassIcon,
-} from "@heroicons/react/24/outline";
-import { useContext, useEffect, useState } from "react";
+import { Autocomplete, TextField } from "@mui/material";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { ReactElement, useContext, useEffect, useState } from "react";
 import { ContactsContext } from "../../shared/contexts/ContactsContext";
-import { checkEnterPressed, useHandleInputChange } from "../../helpers";
+import { useHandleInputChange } from "../../helpers";
 import { useUserContext } from "../../shared/contexts/UserContext";
 import { Contact } from "../../shared/Contact";
 import { TopSection } from "./top-section/TopSection";
@@ -39,7 +35,17 @@ export function Sidebar() {
 
     const handleInputChange = useHandleInputChange(setFormData);
 
-    const [autoCompleteKey, setAutoCompleteKey] = useState<boolean>(false);
+    const [autoCompleteKey, setAutoCompleteKey] = useState<string>("false");
+
+    const [nameFilter, setNameFilter] = useState<string | undefined>();
+
+    const [contacts, setContacts] = useState<ReactElement[]>([]);
+
+    const ADD_CONTACT_MARK = ` (${LL.ADD()})`;
+
+    useEffect(() => {
+        setContacts(contactList());
+    }, [nameFilter, userContacts]);
 
     function loadUserContacts() {
         userService.getUsers().then((users) => {
@@ -64,6 +70,11 @@ export function Sidebar() {
     function contactList() {
         return userContacts
             .concat(userContactGroups)
+            .filter((contact) =>
+                nameFilter !== undefined
+                    ? contact.name.toLowerCase().match(nameFilter.toLowerCase())
+                    : true,
+            )
             .sort((uc1, uc2) => {
                 const uc1MessageDate = uc1.lastMessage?.at;
                 const uc2MessageDate = uc2.lastMessage?.at;
@@ -88,21 +99,17 @@ export function Sidebar() {
     }
 
     async function addContact(evt: any) {
-        if (
-            !users
-                .map((u) => u.username)
-                .includes(
-                    !!evt.target.value
-                        ? evt.target.value
-                        : (evt.target.textContent ?? ""),
-                )
-        ) {
+        const contactName = evt.target.textContent.replace(
+            ADD_CONTACT_MARK,
+            "",
+        );
+
+        if (!users.map((u) => u.username).includes(contactName ?? "")) {
             return;
         }
 
-        const searchedUser = await userService.searchForUserByUsername(
-            !!evt.target.value ? evt.target.value : evt.target.textContent,
-        );
+        const searchedUser =
+            await userService.searchForUserByUsername(contactName);
         if (!searchedUser) {
             return;
         }
@@ -128,7 +135,8 @@ export function Sidebar() {
         });
 
         setFormData({ contactName: "" });
-        setAutoCompleteKey(!autoCompleteKey);
+        setAutoCompleteKey((!JSON.parse(autoCompleteKey)).toString());
+        setNameFilter("");
     }
 
     return (
@@ -143,24 +151,23 @@ export function Sidebar() {
             <div className={"flex"}>
                 <Autocomplete
                     options={users.map((u) => u.username)}
+                    getOptionLabel={(option) => option + ADD_CONTACT_MARK}
                     onChange={(evt) => {
                         setFormData({
                             contactName: (evt.target as any).textValue,
                         });
                         void addContact(evt);
                     }}
-                    onKeyUp={(evt) => {
-                        if (!checkEnterPressed(evt)) {
+                    onInputChange={(evt: any) => {
+                        if (evt.target.textContent) {
+                            setNameFilter(evt.target.textContent);
                             return;
                         }
-
-                        setFormData({
-                            contactName: (evt.target as any).textValue,
-                        });
-                        void addContact(evt);
+                        setNameFilter(evt.target.value);
                     }}
                     className={"w-full"}
                     freeSolo={true}
+                    key={autoCompleteKey}
                     isOptionEqualToValue={(option, value) => option === value}
                     renderInput={(params) => (
                         <TextField
@@ -179,12 +186,6 @@ export function Sidebar() {
                         />
                     )}
                 />
-
-                <div className={"border"}>
-                    <Button className={"h-full"}>
-                        <FunnelIcon className={"h-8"} />
-                    </Button>
-                </div>
             </div>
             <div className={"border"}>
                 {/*<div className={"border"}>*/}
@@ -195,7 +196,7 @@ export function Sidebar() {
                 {/*        {LL.ARCHIVED()}*/}
                 {/*    </Button>*/}
                 {/*</div>*/}
-                <div className={"border"}>{contactList()}</div>
+                <div className={"border"}>{contacts}</div>
             </div>
         </div>
     );

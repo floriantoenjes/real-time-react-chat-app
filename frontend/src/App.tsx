@@ -19,7 +19,9 @@ import { SocketProvider } from "./shared/contexts/SocketContext";
 import { GlobalErrorHandlerContext } from "./shared/contexts/GlobalErrorHandlerContext";
 
 function App() {
-    const locale = detectLocale("en", ["en", "de"], navigatorDetector);
+    const locale =
+        (localStorage.getItem("language") as "en" | "de") ??
+        detectLocale("en", ["en", "de"], navigatorDetector);
     const [localesLoaded, setLocalesLoaded] = useState(false);
     const [user, setUser] = useState<User>();
 
