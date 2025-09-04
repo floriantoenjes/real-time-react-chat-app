@@ -4,6 +4,14 @@ import { ClientService } from "./ClientService";
 export class MessageService {
     constructor(private readonly clientService: ClientService) {}
 
+    async getMessageById(messageId: string) {
+        return this.clientService.getClient(messageContract).getMessageById({
+            body: {
+                messageId,
+            },
+        });
+    }
+
     async getMessages(userId: string, contactId: string) {
         const messages = await this.clientService
             .getClient(messageContract)

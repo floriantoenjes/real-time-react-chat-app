@@ -1,5 +1,4 @@
 import { Prop, SchemaFactory } from '@nestjs/mongoose';
-import { MessageEntity } from './message.schema';
 import { ContactGroup } from '../../shared/contact-group.contract';
 
 export class ContactGroupEntity implements ContactGroup {
@@ -12,7 +11,7 @@ export class ContactGroupEntity implements ContactGroup {
     name!: string;
 
     @Prop()
-    lastMessage!: MessageEntity;
+    lastMessage!: string;
 }
 
 export const ContactGroupSchema =

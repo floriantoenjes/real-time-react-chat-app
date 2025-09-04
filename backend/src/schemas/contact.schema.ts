@@ -1,5 +1,4 @@
 import { SchemaFactory } from '@nestjs/mongoose';
-import { MessageEntity } from './message.schema';
 import { Contact } from '../../shared/contact.contract';
 
 export class ContactEntity implements Contact {
@@ -7,7 +6,7 @@ export class ContactEntity implements Contact {
 
     name!: string;
 
-    lastMessage?: MessageEntity;
+    lastMessage?: string;
 
     avatarFileName?: string;
 }

@@ -37,7 +37,7 @@ export function Sidebar() {
                 (uc) => uc._id === message.fromUserId,
             );
             if (userContactWithNewMessage) {
-                userContactWithNewMessage.lastMessage = message;
+                userContactWithNewMessage.lastMessage = message._id;
                 setUserContacts([...userContacts]);
             }
             setLastMessage(message);

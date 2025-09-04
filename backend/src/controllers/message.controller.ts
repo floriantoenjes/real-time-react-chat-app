@@ -21,6 +21,7 @@ import { UserService } from '../services/user.service';
 import { User } from '../../shared/user.contract';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ObjectStorageService } from '../services/object-storage.service';
+import { undefined } from 'zod';
 
 @Controller()
 export class MessageController {
@@ -33,6 +34,24 @@ export class MessageController {
         private readonly userService: UserService,
         private readonly objectStorageService: ObjectStorageService,
     ) {}
+
+    @TsRestHandler(messageContract.getMessageById)
+    async getMessageById() {
+        return tsRestHandler(
+            messageContract.getMessageById,
+            async ({ body }) => {
+                const message = await this.messageModel
+                    .findById(body.messageId)
+                    .lean();
+
+                if (!message) {
+                    return { status: 404, body: undefined };
+                }
+
+                return { status: 200, body: { message } };
+            },
+        );
+    }
 
     @TsRestHandler(messageContract.getMessages)
     async getMessages() {
@@ -149,7 +168,7 @@ export class MessageController {
                 (uc) => uc._id === body.toUserId,
             );
             if (userContact) {
-                userContact.lastMessage = newlyCreatedMessage;
+                userContact.lastMessage = newlyCreatedMessage._id.toString();
                 user.markModified('contacts');
                 void user.save();
             }
@@ -161,7 +180,8 @@ export class MessageController {
                 (c) => c._id === user._id.toString(),
             );
             if (receiver && receiverContact) {
-                receiverContact.lastMessage = newlyCreatedMessage;
+                receiverContact.lastMessage =
+                    newlyCreatedMessage._id.toString();
                 receiver.markModified('contacts');
                 void receiver.save();
             }

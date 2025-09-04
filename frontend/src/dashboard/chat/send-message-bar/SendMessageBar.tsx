@@ -90,7 +90,9 @@ export function SendMessageBar() {
                 (c) => c._id === selectedContact._id,
             );
             if (contact && res.status === 201) {
-                contact.lastMessage = res.body;
+                contact.lastMessage = res.body._id;
+
+                return [...prevState];
             }
 
             return prevState;
