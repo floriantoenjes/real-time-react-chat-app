@@ -1,4 +1,4 @@
-<img src="./imgs/florians_chat.jpg" height="300px" width="300px">
+<img src="./imgs/florians_chat.jpg" height="300px" width="400px">
 
 ## Florian's Chat (Real-Time Chat App - What's App style)
 
