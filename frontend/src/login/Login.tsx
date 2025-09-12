@@ -35,7 +35,12 @@ export function Login(props: {}) {
     const handleInputChange = useHandleInputChange(setFormData);
 
     return (
-        <div className="h-screen flex justify-center items-center">
+        <div className="h-screen flex justify-center items-center flex-col">
+            <img
+                src={"public/assets/florians-chat.jpg"}
+                width={400}
+                alt={"Florians Chat logo"}
+            />
             <div className="Login flex justify-center items-center p-3">
                 <form
                     onSubmit={(event) => {
@@ -52,6 +57,7 @@ export function Login(props: {}) {
                             label={LL.EMAIL()}
                             onChange={handleInputChange}
                             value={formData.email}
+                            className={"w-80"}
                         />
                     </div>
                     <div className="mb-3">
@@ -61,6 +67,7 @@ export function Login(props: {}) {
                             label={LL.PASSWORD()}
                             onChange={handleInputChange}
                             value={formData.password}
+                            className={"w-80"}
                         />
                     </div>
 

@@ -48,7 +48,12 @@ export function Register(props: {}) {
     }
 
     return (
-        <div className="h-screen flex justify-center items-center">
+        <div className="h-screen flex justify-center items-center flex-col">
+            <img
+                src={"public/assets/florians-chat.jpg"}
+                width={400}
+                alt={"Florians Chat logo"}
+            />
             <div className="Login flex justify-center items-center">
                 <form onSubmit={handleSubmit(signUp)} className="my-auto">
                     <h4 className="text-center">{LL.SIGN_UP()}</h4>
@@ -57,6 +62,7 @@ export function Register(props: {}) {
                             type="email"
                             label={LL.EMAIL()}
                             {...register("email", { required: true })}
+                            className={"w-80"}
                         />
                     </div>
                     <div className="mb-3">
@@ -64,6 +70,7 @@ export function Register(props: {}) {
                             type="password"
                             label={LL.PASSWORD()}
                             {...register("password", { required: true })}
+                            className={"w-80"}
                         />
                     </div>
                     <div className="mb-3">
@@ -75,6 +82,7 @@ export function Register(props: {}) {
                                 validate: (value, formValues) =>
                                     value === formValues.password,
                             })}
+                            className={"w-80"}
                         />
                     </div>
                     <div className="mb-3">
@@ -82,6 +90,7 @@ export function Register(props: {}) {
                             type="text"
                             label={LL.USERNAME()}
                             {...register("username", { required: true })}
+                            className={"w-80"}
                         />
                     </div>
 
