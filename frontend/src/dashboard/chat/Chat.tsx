@@ -14,6 +14,7 @@ import {
     snackbarService,
 } from "../../shared/contexts/SnackbarContext";
 import { useI18nContext } from "../../i18n/i18n-react";
+import { SocketMessageTypes } from "@t/socket-message-types.enum";
 
 export function Chat() {
     const [selectedContact] = useContext(ContactsContext).selectedContact;
@@ -55,9 +56,9 @@ export function Chat() {
         }
 
         if (socket) {
-            socket.once("message", addMessage);
+            socket.once(SocketMessageTypes.message, addMessage);
 
-            socket.on("messageRead", (msgId: string) => {
+            socket.on(SocketMessageTypes.messageRead, (msgId: string) => {
                 setMessages((prevState) => {
                     const nowReadMsgIdx = prevState.findIndex((msg) => {
                         return (

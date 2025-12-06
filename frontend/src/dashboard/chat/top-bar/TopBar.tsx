@@ -21,6 +21,7 @@ import {
     snackbarService,
 } from "../../../shared/contexts/SnackbarContext";
 import { useI18nContext } from "../../../i18n/i18n-react";
+import { SocketMessageTypes } from "@t/socket-message-types.enum";
 
 export function TopBar() {
     const { LL } = useI18nContext();
@@ -63,7 +64,7 @@ export function TopBar() {
     useEffect(() => {
         if (socket) {
             socket.on(
-                "typing",
+                SocketMessageTypes.typing,
                 (body: { userId: string; isTyping: boolean }) => {
                     if (body.userId === selectedContact?._id) {
                         setIsTyping(body.isTyping);

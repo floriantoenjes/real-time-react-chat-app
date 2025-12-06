@@ -15,6 +15,7 @@ import { UserContext } from "./UserContext";
 import { useNavigate } from "react-router-dom";
 import { useI18nContext } from "../../i18n/i18n-react";
 import { TranslationFunctions } from "../../i18n/i18n-types";
+import { SocketMessageTypes } from "@t/socket-message-types.enum";
 
 function initializeWebSocket<ListenEvents>(
     setSocket: Dispatch<SetStateAction<Socket | undefined>>,
@@ -41,12 +42,12 @@ function initializeWebSocket<ListenEvents>(
             if (missedPings >= MAX_MISSED_PINGS) {
                 socket.disconnect();
             }
-            socket.emit("ping");
+            socket.emit(SocketMessageTypes.ping);
             missedPings += 1;
         }, 3000);
     });
 
-    socket.on("pong", () => (missedPings = 0));
+    socket.on(SocketMessageTypes.pong, () => (missedPings = 0));
 
     socket.on("disconnect", function () {
         clearInterval(heartbeatInterval);

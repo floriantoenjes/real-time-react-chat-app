@@ -22,6 +22,7 @@ import { User } from '../../shared/user.contract';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ObjectStorageService } from '../services/object-storage.service';
 import { undefined } from 'zod';
+import { SocketMessageTypes } from '../../shared/socket-message-types.enum';
 
 @Controller()
 export class MessageController {
@@ -94,7 +95,7 @@ export class MessageController {
                     );
                     this.gateway
                         .prepareSendMessage(message.fromUserId)
-                        ?.emit('messageRead', message._id);
+                        ?.emit(SocketMessageTypes.messageRead, message._id);
                 }
             }
 
@@ -206,7 +207,7 @@ export class MessageController {
 
                 this.gateway
                     .prepareSendMessage(updatedMsg.fromUserId)
-                    ?.emit('messageRead', updatedMsg._id);
+                    ?.emit(SocketMessageTypes.messageRead, updatedMsg._id);
 
                 return { status: 200, body: true };
             },
@@ -247,7 +248,7 @@ export class MessageController {
     ) {
         this.gateway
             .prepareSendMessage(userSocketId)
-            ?.emit('message', messageToSend);
+            ?.emit(SocketMessageTypes.message, messageToSend);
     }
 
     private getContactGroup(user: User, contactGroupId: string) {

@@ -15,6 +15,7 @@ import {
 } from "../../shared/contexts/SnackbarContext";
 import { SocketContext } from "../../shared/contexts/SocketContext";
 import { Message } from "@t/message.contract";
+import { SocketMessageTypes } from "@t/socket-message-types.enum";
 
 export function Sidebar() {
     const { LL } = useI18nContext();
@@ -44,7 +45,7 @@ export function Sidebar() {
         }
 
         if (socket) {
-            socket.once("message", updateLastMessage);
+            socket.once(SocketMessageTypes.message, updateLastMessage);
         }
     }, [socket, user.username, lastMessage, userContacts]);
 

@@ -17,6 +17,7 @@ import { DateTime } from "luxon";
 import { StopIcon } from "@heroicons/react/24/solid";
 import { MessageAddons } from "../../../shared/enums/message";
 import { useI18nContext } from "../../../i18n/i18n-react";
+import { SocketMessageTypes } from "@t/socket-message-types.enum";
 
 export function SendMessageBar() {
     const { LL } = useI18nContext();
@@ -61,7 +62,7 @@ export function SendMessageBar() {
             return;
         }
 
-        socket?.emit("typing", {
+        socket?.emit(SocketMessageTypes.typing, {
             userId: user._id,
             contactId: selectedContact?._id,
             isTyping: false,
@@ -162,7 +163,7 @@ export function SendMessageBar() {
             return;
         }
         setIsTyping(true);
-        socket?.emit("typing", {
+        socket?.emit(SocketMessageTypes.typing, {
             userId: user._id,
             contactId: selectedContact?._id,
             isTyping: true,

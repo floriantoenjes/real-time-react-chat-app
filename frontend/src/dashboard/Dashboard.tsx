@@ -13,6 +13,7 @@ import { Sidebar } from "./sidebar/Sidebar";
 import { Chat } from "./chat/Chat";
 import { ContactsContext } from "../shared/contexts/ContactsContext";
 import { PeerProvider } from "../shared/contexts/PeerContext";
+import { SocketMessageTypes } from "@t/socket-message-types.enum";
 
 export function Dashboard(props: { user?: User }) {
     const isLoggedIn = props.user;
@@ -81,13 +82,16 @@ export function Dashboard(props: { user?: User }) {
         }
 
         if (socket) {
-            socket.on("contactOnline", (contactId: string) => {
+            socket.on(SocketMessageTypes.contactOnline, (contactId: string) => {
                 setContactOnlineStatusOnOrOffline(contactId, true);
             });
 
-            socket.on("contactOffline", (contactId: string) => {
-                setContactOnlineStatusOnOrOffline(contactId, false);
-            });
+            socket.on(
+                SocketMessageTypes.contactOffline,
+                (contactId: string) => {
+                    setContactOnlineStatusOnOrOffline(contactId, false);
+                },
+            );
         }
     }
 

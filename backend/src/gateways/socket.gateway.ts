@@ -12,6 +12,7 @@ import { CustomLogger } from '../logging/custom-logger';
 import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from '../services/auth-constants';
 import { OnlineStatusService } from 'src/services/online-status.service';
+import { SocketMessageTypes } from '../../shared/socket-message-types.enum';
 
 @WebSocketGateway({
     cors: {
@@ -51,7 +52,7 @@ export class RealTimeChatGateway
             .then((contacts: User[]) => {
                 this.server
                     .to(contacts.map((c) => c._id.toString()))
-                    .emit('contactOnline', userId);
+                    .emit(SocketMessageTypes.contactOnline, userId);
             });
     }
 
@@ -93,28 +94,30 @@ export class RealTimeChatGateway
             .then((contacts: User[]) => {
                 this.server
                     .to(contacts.map((c) => c._id.toString()))
-                    .emit('contactOffline', userId);
+                    .emit(SocketMessageTypes.contactOffline, userId);
             });
     }
 
-    @SubscribeMessage('message')
+    @SubscribeMessage(SocketMessageTypes.message)
     handleMessage(client: Socket, payload: any): void {
         this.logger.debug('Message received in gateway: ' + payload);
         // Broadcast to all clients
-        this.server.emit('message', { text: 'Hello from server' });
+        this.server.emit(SocketMessageTypes.message, {
+            text: 'Hello from server',
+        });
     }
 
-    @SubscribeMessage('ping')
+    @SubscribeMessage(SocketMessageTypes.ping)
     pong(client: Socket): void {
-        client.emit('pong');
+        client.emit(SocketMessageTypes.pong);
     }
 
-    @SubscribeMessage('typing')
+    @SubscribeMessage(SocketMessageTypes.typing)
     handleTyping(
         client: Socket,
         payload: { userId: string; contactId: string; isTyping: boolean },
     ): void {
-        this.server.to(payload.contactId).emit('typing', {
+        this.server.to(payload.contactId).emit(SocketMessageTypes.typing, {
             userId: payload.userId,
             isTyping: payload.isTyping,
         });
