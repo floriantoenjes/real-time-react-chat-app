@@ -8,7 +8,6 @@ import { User } from "real-time-chat-backend/shared/user.contract";
 import { Register } from "./register/Register";
 import { useDiContext } from "./shared/contexts/DiContext";
 import { getSetUserWithAvatarBytesOptional } from "./shared/helpers";
-import { PeerProvider } from "./shared/contexts/PeerContext";
 import { RoutesEnum } from "./shared/enums/routes";
 import { SnackbarProvider } from "./shared/contexts/SnackbarContext";
 import { SnackbarWrapper } from "./shared/components/SnackbarComponent";
@@ -55,23 +54,21 @@ function App() {
                         value={[user, setUserWithAvatarBytes(setUser)]}
                     >
                         <SocketProvider>
-                            <PeerProvider>
-                                <Routes>
-                                    <Route
-                                        path={RoutesEnum.LOGIN}
-                                        element={<Login />}
-                                    />
-                                    <Route
-                                        path={RoutesEnum.REGISTER}
-                                        element={<Register />}
-                                    />
-                                    <Route
-                                        path={RoutesEnum.DASHBOARD}
-                                        element={<Dashboard user={user} />}
-                                    />
-                                </Routes>
-                                <SnackbarWrapper />
-                            </PeerProvider>
+                            <Routes>
+                                <Route
+                                    path={RoutesEnum.LOGIN}
+                                    element={<Login />}
+                                />
+                                <Route
+                                    path={RoutesEnum.REGISTER}
+                                    element={<Register />}
+                                />
+                                <Route
+                                    path={RoutesEnum.DASHBOARD}
+                                    element={<Dashboard user={user} />}
+                                />
+                            </Routes>
+                            <SnackbarWrapper />
                         </SocketProvider>
                     </UserContext.Provider>
                 </SnackbarProvider>

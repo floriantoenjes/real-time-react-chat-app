@@ -4,6 +4,7 @@ import React, {
     SetStateAction,
     useContext,
     useEffect,
+    useRef,
     useState,
 } from "react";
 import Peer, { DataConnection, MediaConnection } from "peerjs";
@@ -16,6 +17,13 @@ import {
 } from "../../environment";
 import { UserContext } from "./UserContext";
 import { useDiContext } from "./DiContext";
+import { IconButton } from "@mui/material";
+import {
+    PhoneIcon,
+    PhoneXMarkIcon,
+    VideoCameraIcon,
+    XMarkIcon,
+} from "@heroicons/react/24/outline";
 
 export const PeerContext = createContext<{
     calling: boolean;
@@ -66,6 +74,8 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
     const [receiveCallingStream, setReceiveCallingStream] =
         useState<MediaStream | null>(null);
 
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+
     useEffect(() => {
         try {
             if (user && !peer) {
@@ -106,26 +116,212 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }, [user?.username]);
 
+    useEffect(() => {
+        if (!peer) {
+            return;
+        }
+        listenOnPeerConnections(peer);
+    }, [peer]);
+
+    useEffect(() => {
+        if (!videoRef.current || !stream) {
+            return;
+        }
+        showVideoStream(videoRef.current, stream);
+    }, [stream]);
+
+    useEffect(() => {
+        if (!call && stream) {
+            shutdownCall();
+        }
+    }, [call]);
+
+    function answerCall(video: boolean) {
+        if (!call) {
+            return;
+        }
+
+        navigator.mediaDevices.getUserMedia({ video, audio: true }).then(
+            (stream) => {
+                setReceiveCallingStream(stream);
+                call.answer(stream); // Answer the call with an A/V stream.
+                call.on("stream", (remoteStream) => {
+                    setStream(remoteStream);
+                });
+
+                call.on("close", () => {
+                    hangUpCall();
+                });
+            },
+            (err) => {
+                console.error("Failed to get local stream", err);
+            },
+        );
+    }
+
+    function showVideoStream(videoRef: HTMLVideoElement, stream: MediaStream) {
+        videoRef.srcObject = stream;
+        videoRef.addEventListener("loadedmetadata", () => {
+            if (!videoRef) {
+                return;
+            }
+
+            void videoRef.play();
+        });
+    }
+
+    function hangUpCall() {
+        if (!call) {
+            return;
+        }
+
+        call.close();
+        setTimeout(() => {
+            setCall(null);
+        });
+    }
+
+    function shutdownCall() {
+        if (videoRef.current?.srcObject) {
+            // @ts-ignore
+            for (const track of videoRef.current.srcObject.getTracks()) {
+                track.stop();
+            }
+            videoRef.current.srcObject = null;
+
+            if (stream) {
+                for (const track of stream.getTracks()) {
+                    track.stop();
+                }
+            }
+
+            setStream(null);
+
+            if (receiveCallingStream) {
+                for (const track of receiveCallingStream?.getTracks()) {
+                    track.stop();
+                }
+                setReceiveCallingStream(null);
+            }
+
+            // peer?.destroy();
+        }
+    }
+
+    function listenOnPeerConnections(peer: Peer) {
+        peer.on("connection", (connection) => {
+            setDataConnection(connection);
+
+            peer.on("call", (call) => {
+                setCall(call);
+            });
+
+            connection.on("close", () => {
+                setCall(null);
+            });
+        });
+    }
+
+    function endCall() {
+        connection?.close({ flush: true });
+        if (!callingStream) {
+            return;
+        }
+        for (const track of callingStream?.getTracks()) {
+            track.stop();
+        }
+        setCallingStream(null);
+        call?.close();
+        setCall(null);
+        setCalling(false);
+    }
+
+    function isCalling() {
+        return !stream && calling;
+    }
+
+    function isBeingCalled() {
+        return !calling && call && !stream;
+    }
+
+    function isNeitherCallingNorBeingCalled() {
+        return !stream && !calling && !call;
+    }
+
+    function isInCall() {
+        return !!stream;
+    }
+
     return (
-        <PeerContext.Provider
-            value={{
-                calling,
-                setCalling,
-                callingStream,
-                setCallingStream,
-                peer,
-                setPeer,
-                connection,
-                setDataConnection,
-                call,
-                setCall,
-                stream,
-                setStream,
-                receiveCallingStream,
-                setReceiveCallingStream,
-            }}
-        >
-            {children}
-        </PeerContext.Provider>
+        <>
+            {isNeitherCallingNorBeingCalled() && (
+                <PeerContext.Provider
+                    value={{
+                        calling,
+                        setCalling,
+                        callingStream,
+                        setCallingStream,
+                        peer,
+                        setPeer,
+                        connection,
+                        setDataConnection,
+                        call,
+                        setCall,
+                        stream,
+                        setStream,
+                        receiveCallingStream,
+                        setReceiveCallingStream,
+                    }}
+                >
+                    {children}
+                </PeerContext.Provider>
+            )}
+            {isCalling() && (
+                <div className={"mx-auto my-auto"}>
+                    <h2>Calling</h2>
+                    <div className={"flex"}>
+                        <IconButton>
+                            <XMarkIcon className="w-8 h-8" onClick={endCall} />
+                        </IconButton>
+                    </div>
+                </div>
+            )}
+
+            {isBeingCalled() && (
+                <div className={"mx-auto my-auto"}>
+                    <h2>Incoming call</h2>
+                    <div className={"flex"}>
+                        <IconButton onClick={() => answerCall(true)}>
+                            <VideoCameraIcon className="w-8 h-8" />
+                        </IconButton>
+
+                        <IconButton onClick={() => answerCall(false)}>
+                            <PhoneIcon className="w-8 h-8" />
+                        </IconButton>
+
+                        <IconButton>
+                            <XMarkIcon
+                                className="w-8 h-8"
+                                onClick={() => {
+                                    connection?.close();
+                                    hangUpCall();
+                                }}
+                            />
+                        </IconButton>
+                    </div>
+                </div>
+            )}
+
+            {isInCall() && (
+                <>
+                    <video ref={videoRef}></video>
+                    <div className={"fixed call-bar"}>
+                        <IconButton onClick={hangUpCall}>
+                            <PhoneXMarkIcon className={"w-8 fill-red-600"} />
+                        </IconButton>
+                    </div>
+                </>
+            )}
+        </>
     );
 };

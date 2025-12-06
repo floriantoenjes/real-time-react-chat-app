@@ -44,5 +44,6 @@ Backend and frontend...
 * are processing real time updates with WebSocket connections via socket.io server and client.
 
 ### Next TODOs
-* Introduce rate limiting
+* Introduce throttling
 * Improve backend validation
+* Clear the "is typing" hint when the message has been sent

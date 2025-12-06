@@ -1,26 +1,18 @@
 import "./Dashboard.css";
-import { Sidebar } from "./sidebar/Sidebar";
-import { Chat } from "./chat/Chat";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { ContactsContext } from "../shared/contexts/ContactsContext";
-import { MessageContext } from "../shared/contexts/MessageContext";
 import { User } from "real-time-chat-backend/shared/user.contract";
 import { Contact } from "real-time-chat-backend/shared/contact.contract";
 import { Message } from "real-time-chat-backend/shared/message.contract";
 import { ContactGroup } from "real-time-chat-backend/shared/contact-group.contract";
 import { useDiContext } from "../shared/contexts/DiContext";
-import { PeerContext } from "../shared/contexts/PeerContext";
-import { IconButton } from "@mui/material";
-import {
-    PhoneIcon,
-    PhoneXMarkIcon,
-    VideoCameraIcon,
-    XMarkIcon,
-} from "@heroicons/react/24/outline";
 import { SocketContext } from "../shared/contexts/SocketContext";
-import Peer from "peerjs";
 import { RoutesEnum } from "../shared/enums/routes";
+import { MessageContext } from "../shared/contexts/MessageContext";
+import { Sidebar } from "./sidebar/Sidebar";
+import { Chat } from "./chat/Chat";
+import { ContactsContext } from "../shared/contexts/ContactsContext";
+import { PeerProvider } from "../shared/contexts/PeerContext";
 
 export function Dashboard(props: { user?: User }) {
     const isLoggedIn = props.user;
@@ -28,39 +20,23 @@ export function Dashboard(props: { user?: User }) {
         return <Navigate to={RoutesEnum.LOGIN} />;
     }
 
-    const videoRef = useRef<HTMLVideoElement | null>(null);
+    const [contactsOnlineStatus, setContactsOnlineStatus] = useState<
+        Map<string, boolean>
+    >(new Map<string, boolean>());
+
+    const [selectedContact, setSelectedContact] = useState<Contact | undefined>(
+        undefined,
+    );
 
     const contactService = useRef(useDiContext().ContactService);
     const contactGroupService = useRef(useDiContext().ContactGroupService);
 
     const [contacts, setContacts] = useState<Contact[]>([]);
-    const [contactsOnlineStatus, setContactsOnlineStatus] = useState<
-        Map<string, boolean>
-    >(new Map<string, boolean>());
 
     const [contactGroups, setContactGroups] = useState<ContactGroup[]>([]);
-    const [selectedContact, setSelectedContact] = useState<Contact | undefined>(
-        undefined,
-    );
 
     const [messages, setMessages] = useState<Message[]>([]);
     const [socket] = useContext(SocketContext);
-
-    const {
-        calling,
-        setCalling,
-        peer,
-        connection,
-        setDataConnection,
-        call,
-        setCall,
-        stream,
-        setStream,
-        callingStream,
-        setCallingStream,
-        receiveCallingStream,
-        setReceiveCallingStream,
-    } = useContext(PeerContext);
 
     useEffect(() => {
         (async () => {
@@ -93,98 +69,6 @@ export function Dashboard(props: { user?: User }) {
         listenOnContactOnlineStatusChanges();
     }, [socket]);
 
-    useEffect(() => {
-        if (!peer) {
-            return;
-        }
-        listenOnPeerConnections(peer);
-    }, [peer]);
-
-    useEffect(() => {
-        if (!videoRef.current || !stream) {
-            return;
-        }
-        showVideoStream(videoRef.current, stream);
-    }, [stream]);
-
-    useEffect(() => {
-        if (!call && stream) {
-            shutdownCall();
-        }
-    }, [call]);
-
-    function answerCall(video: boolean) {
-        if (!call) {
-            return;
-        }
-
-        navigator.mediaDevices.getUserMedia({ video, audio: true }).then(
-            (stream) => {
-                setReceiveCallingStream(stream);
-                call.answer(stream); // Answer the call with an A/V stream.
-                call.on("stream", (remoteStream) => {
-                    setStream(remoteStream);
-                });
-
-                call.on("close", () => {
-                    hangUpCall();
-                });
-            },
-            (err) => {
-                console.error("Failed to get local stream", err);
-            },
-        );
-    }
-
-    function showVideoStream(videoRef: HTMLVideoElement, stream: MediaStream) {
-        videoRef.srcObject = stream;
-        videoRef.addEventListener("loadedmetadata", () => {
-            if (!videoRef) {
-                return;
-            }
-
-            void videoRef.play();
-        });
-    }
-
-    function hangUpCall() {
-        if (!call) {
-            return;
-        }
-
-        call.close();
-        setTimeout(() => {
-            setCall(null);
-        });
-    }
-
-    function shutdownCall() {
-        if (videoRef.current?.srcObject) {
-            // @ts-ignore
-            for (const track of videoRef.current.srcObject.getTracks()) {
-                track.stop();
-            }
-            videoRef.current.srcObject = null;
-
-            if (stream) {
-                for (const track of stream.getTracks()) {
-                    track.stop();
-                }
-            }
-
-            setStream(null);
-
-            if (receiveCallingStream) {
-                for (const track of receiveCallingStream?.getTracks()) {
-                    track.stop();
-                }
-                setReceiveCallingStream(null);
-            }
-
-            // peer?.destroy();
-        }
-    }
-
     function listenOnContactOnlineStatusChanges() {
         function setContactOnlineStatusOnOrOffline(
             contactId: string,
@@ -207,20 +91,6 @@ export function Dashboard(props: { user?: User }) {
         }
     }
 
-    function listenOnPeerConnections(peer: Peer) {
-        peer.on("connection", (connection) => {
-            setDataConnection(connection);
-
-            peer.on("call", (call) => {
-                setCall(call);
-            });
-
-            connection.on("close", () => {
-                setCall(null);
-            });
-        });
-    }
-
     async function getContactsOnlineStatus() {
         const res = await contactService.current.getContactsOnlineStatus(
             contacts.map((c) => c._id),
@@ -232,36 +102,6 @@ export function Dashboard(props: { user?: User }) {
             }
             setContactsOnlineStatus(onlineStatusMap);
         }
-    }
-
-    function endCall() {
-        connection?.close({ flush: true });
-        if (!callingStream) {
-            return;
-        }
-        for (const track of callingStream?.getTracks()) {
-            track.stop();
-        }
-        setCallingStream(null);
-        call?.close();
-        setCall(null);
-        setCalling(false);
-    }
-
-    function isCalling() {
-        return !stream && calling;
-    }
-
-    function isBeingCalled() {
-        return !calling && call && !stream;
-    }
-
-    function isNeitherCallingNorBeingCalled() {
-        return !stream && !calling && !call;
-    }
-
-    function isInCall() {
-        return !!stream;
     }
 
     return (
@@ -277,65 +117,14 @@ export function Dashboard(props: { user?: User }) {
                     selectedContact: [selectedContact, setSelectedContact],
                 }}
             >
-                <MessageContext.Provider value={[messages, setMessages]}>
-                    {isNeitherCallingNorBeingCalled() && (
-                        <>
+                <>
+                    <MessageContext.Provider value={[messages, setMessages]}>
+                        <PeerProvider>
                             <Sidebar />
                             <Chat />
-                        </>
-                    )}
-                    {isCalling() && (
-                        <div className={"mx-auto my-auto"}>
-                            <h2>Calling</h2>
-                            <div className={"flex"}>
-                                <IconButton>
-                                    <XMarkIcon
-                                        className="w-8 h-8"
-                                        onClick={endCall}
-                                    />
-                                </IconButton>
-                            </div>
-                        </div>
-                    )}
-
-                    {isBeingCalled() && (
-                        <div className={"mx-auto my-auto"}>
-                            <h2>Incoming call</h2>
-                            <div className={"flex"}>
-                                <IconButton onClick={() => answerCall(true)}>
-                                    <VideoCameraIcon className="w-8 h-8" />
-                                </IconButton>
-
-                                <IconButton onClick={() => answerCall(false)}>
-                                    <PhoneIcon className="w-8 h-8" />
-                                </IconButton>
-
-                                <IconButton>
-                                    <XMarkIcon
-                                        className="w-8 h-8"
-                                        onClick={() => {
-                                            connection?.close();
-                                            hangUpCall();
-                                        }}
-                                    />
-                                </IconButton>
-                            </div>
-                        </div>
-                    )}
-
-                    {isInCall() && (
-                        <>
-                            <video ref={videoRef}></video>
-                            <div className={"fixed call-bar"}>
-                                <IconButton onClick={hangUpCall}>
-                                    <PhoneXMarkIcon
-                                        className={"w-8 fill-red-600"}
-                                    />
-                                </IconButton>
-                            </div>
-                        </>
-                    )}
-                </MessageContext.Provider>
+                        </PeerProvider>
+                    </MessageContext.Provider>
+                </>
             </ContactsContext.Provider>
         </div>
     );
