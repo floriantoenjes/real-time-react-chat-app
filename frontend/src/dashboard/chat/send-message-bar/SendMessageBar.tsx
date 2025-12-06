@@ -61,6 +61,12 @@ export function SendMessageBar() {
             return;
         }
 
+        socket?.emit("typing", {
+            userId: user._id,
+            contactId: selectedContact?._id,
+            isTyping: false,
+        });
+
         const messageToSend = {
             message,
             fromUserId: user._id,
@@ -159,6 +165,7 @@ export function SendMessageBar() {
         socket?.emit("typing", {
             userId: user._id,
             contactId: selectedContact?._id,
+            isTyping: true,
         });
 
         setTimeout(() => {

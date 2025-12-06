@@ -62,14 +62,17 @@ export function TopBar() {
 
     useEffect(() => {
         if (socket) {
-            socket.on("typing", (contactId: string) => {
-                if (contactId === selectedContact?._id) {
-                    setIsTyping(true);
-                    setTimeout(() => {
-                        setIsTyping(false);
-                    }, 5000);
-                }
-            });
+            socket.on(
+                "typing",
+                (body: { userId: string; isTyping: boolean }) => {
+                    if (body.userId === selectedContact?._id) {
+                        setIsTyping(body.isTyping);
+                        setTimeout(() => {
+                            setIsTyping(false);
+                        }, 5000);
+                    }
+                },
+            );
         }
     }, [socket]);
 

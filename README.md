@@ -46,4 +46,3 @@ Backend and frontend...
 ### Next TODOs
 * Introduce throttling
 * Improve backend validation
-* Clear the "is typing" hint when the message has been sent

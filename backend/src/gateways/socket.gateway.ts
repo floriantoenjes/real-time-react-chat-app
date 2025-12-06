@@ -112,9 +112,12 @@ export class RealTimeChatGateway
     @SubscribeMessage('typing')
     handleTyping(
         client: Socket,
-        payload: { userId: string; contactId: string },
+        payload: { userId: string; contactId: string; isTyping: boolean },
     ): void {
-        this.server.to(payload.contactId).emit('typing', payload.userId);
+        this.server.to(payload.contactId).emit('typing', {
+            userId: payload.userId,
+            isTyping: payload.isTyping,
+        });
     }
 
     // Method to send a message to a specific user using their room
