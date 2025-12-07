@@ -83,6 +83,8 @@ export function Chat() {
             <SendMessageBar />
         </div>
     ) : (
-        <div></div>
+        <div className={"w-full flex justify-center items-center"}>
+            <h2 className={"text-2xl"}>Welcome to Florians Chat!</h2>
+        </div>
     );
 }

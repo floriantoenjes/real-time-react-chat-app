@@ -172,7 +172,7 @@ export function Sidebar() {
     return (
         <div
             className={
-                "sidebar h-screen border" +
+                "sidebar h-screen border bg-white" +
                 (selectedContact ? " hidden md:block" : "")
             }
         >

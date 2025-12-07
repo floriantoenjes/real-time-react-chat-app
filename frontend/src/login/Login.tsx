@@ -50,7 +50,7 @@ export function Login(props: {}) {
     return (
         <div className="h-screen flex justify-center items-center flex-col">
             <img
-                src={"public/assets/florians-chat.jpg"}
+                src={"imgs/florians-chat.jpg"}
                 width={400}
                 alt={"Florians Chat logo"}
                 style={{ marginLeft: "-1.5rem" }}

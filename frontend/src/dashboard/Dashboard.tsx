@@ -109,7 +109,7 @@ export function Dashboard(props: { user?: User }) {
     }
 
     return (
-        <div className={"h-screen flex"}>
+        <div className={"h-screen flex bg-gray-100"}>
             <ContactsContext.Provider
                 value={{
                     contacts: [contacts, setContacts],

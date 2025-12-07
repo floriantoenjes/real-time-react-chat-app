@@ -32,7 +32,6 @@ export function Register(props: {}) {
     const {
         register,
         handleSubmit,
-        watch,
         formState: { errors },
     } = useForm<SignUpData>();
 
@@ -42,20 +41,22 @@ export function Register(props: {}) {
             formData.password,
             formData.username,
         );
-        if (signUpResponse) {
-            setUser(signUpResponse.user);
-            navigate(RoutesEnum.DASHBOARD);
-            snackbarService.showSnackbar(
-                LL.REGISTERED_AND_SIGNED_IN(),
-                SnackbarLevels.SUCCESS,
-            );
+        if (!signUpResponse) {
+            // TODO: snackbarService.showSnackbar();
+            return;
         }
+        setUser(signUpResponse.user);
+        navigate(RoutesEnum.DASHBOARD);
+        snackbarService.showSnackbar(
+            LL.REGISTERED_AND_SIGNED_IN(),
+            SnackbarLevels.SUCCESS,
+        );
     }
 
     return (
         <div className="h-screen flex justify-center items-center flex-col">
             <img
-                src={"public/assets/florians-chat.jpg"}
+                src={"imgs/florians-chat.jpg"}
                 width={400}
                 alt={"Florians Chat logo"}
                 style={{ marginLeft: "-1.5rem" }}

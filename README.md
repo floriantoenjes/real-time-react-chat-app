@@ -1,6 +1,6 @@
 <img src="./imgs/florians-chat.jpg" height="300px" width="400px">
 
-## Florian's Chat (Real-Time Chat App - What's App style)
+## Florians Chat (Real-Time Chat App - What's App style)
 
 ### Demo
 The demo is currently down to save costs.
