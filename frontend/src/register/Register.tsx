@@ -1,6 +1,6 @@
-import { Button, TextField } from "@mui/material";
+import { Button, IconButton, TextField } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { UserContext } from "../shared/contexts/UserContext";
 import { useForm } from "react-hook-form";
 import { useDiContext } from "../shared/contexts/DiContext";
@@ -10,6 +10,8 @@ import {
     snackbarService,
 } from "../shared/contexts/SnackbarContext";
 import { useI18nContext } from "../i18n/i18n-react";
+import { GlobeAltIcon } from "@heroicons/react/24/outline";
+import { LanguageModal } from "../dashboard/sidebar/top-section/language-modal/LanguageModal";
 
 type SignUpData = {
     email: "";
@@ -23,6 +25,9 @@ export function Register(props: {}) {
     const navigate = useNavigate();
     const [, setUser] = useContext(UserContext);
     const authService = useDiContext().AuthService;
+
+    const [modalOpen, setModalOpen] = useState(false);
+    const locale = useI18nContext().locale;
 
     const {
         register,
@@ -53,10 +58,22 @@ export function Register(props: {}) {
                 src={"public/assets/florians-chat.jpg"}
                 width={400}
                 alt={"Florians Chat logo"}
+                style={{ marginLeft: "-1.5rem" }}
             />
             <div className="Login flex justify-center items-center">
                 <form onSubmit={handleSubmit(signUp)} className="my-auto">
-                    <h4 className="text-center">{LL.SIGN_UP()}</h4>
+                    <div className={"flex items-center"}>
+                        <h4 className="text-center">{LL.SIGN_UP()}</h4>
+                        <div className={"ml-auto"}>
+                            {locale.toUpperCase()}
+                            <IconButton
+                                onClick={() => setModalOpen(true)}
+                                color={"primary"}
+                            >
+                                <GlobeAltIcon className={"w-6"} />
+                            </IconButton>
+                        </div>
+                    </div>
                     <div className="my-3">
                         <TextField
                             type="email"
@@ -110,6 +127,7 @@ export function Register(props: {}) {
                     </div>
                 </form>
             </div>
+            <LanguageModal modalOpen={modalOpen} setModalOpen={setModalOpen} />
         </div>
     );
 }

@@ -166,6 +166,10 @@ type RootTranslation = {
 		 */
 		COULD_NOT_DELETE_CONTACT: string
 	}
+	/**
+	 * E​m​a​i​l​ ​o​r​ ​p​a​s​s​w​o​r​d​ ​i​n​c​o​r​r​e​c​t
+	 */
+	EMAIL_OR_PASSWORD_INCORRECT: string
 }
 
 export type TranslationFunctions = {
@@ -319,6 +323,10 @@ export type TranslationFunctions = {
 		 */
 		COULD_NOT_DELETE_CONTACT: () => LocalizedString
 	}
+	/**
+	 * Email or password incorrect
+	 */
+	EMAIL_OR_PASSWORD_INCORRECT: () => LocalizedString
 }
 
 export type Formatters = {}

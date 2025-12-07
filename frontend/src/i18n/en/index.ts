@@ -43,6 +43,7 @@ const en = {
         COULD_NOT_DELETE_CONTACT_GROUP: "Error deleting contact group",
         COULD_NOT_DELETE_CONTACT: "Error deleting contact",
     },
+    EMAIL_OR_PASSWORD_INCORRECT: "Email or password incorrect",
 } satisfies BaseTranslation;
 
 export default en;

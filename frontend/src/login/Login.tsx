@@ -1,14 +1,22 @@
-import { Button, TextField } from "@mui/material";
+import { Button, IconButton, TextField } from "@mui/material";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useHandleInputChange } from "../helpers";
 import { useDiContext } from "../shared/contexts/DiContext";
 import { RoutesEnum } from "../shared/enums/routes";
 import { useI18nContext } from "../i18n/i18n-react";
+import {
+    SnackbarLevels,
+    snackbarService,
+} from "../shared/contexts/SnackbarContext";
+import { LanguageModal } from "../dashboard/sidebar/top-section/language-modal/LanguageModal";
+import { GlobeAltIcon } from "@heroicons/react/24/outline";
 
 export function Login(props: {}) {
     const { LL } = useI18nContext();
     const authService = useDiContext().AuthService;
+    const [modalOpen, setModalOpen] = useState(false);
+    const locale = useI18nContext().locale;
 
     const [formData, setFormData] = useState(
         import.meta.env.PROD
@@ -27,9 +35,14 @@ export function Login(props: {}) {
             formData.email,
             formData.password,
         );
-        if (user) {
-            window.location.reload();
+        if (!user) {
+            snackbarService.showSnackbar(
+                LL.EMAIL_OR_PASSWORD_INCORRECT(),
+                SnackbarLevels.WARNING,
+            );
+            return;
         }
+        window.location.reload();
     }
 
     const handleInputChange = useHandleInputChange(setFormData);
@@ -40,6 +53,7 @@ export function Login(props: {}) {
                 src={"public/assets/florians-chat.jpg"}
                 width={400}
                 alt={"Florians Chat logo"}
+                style={{ marginLeft: "-1.5rem" }}
             />
             <div className="Login flex justify-center items-center p-3">
                 <form
@@ -49,7 +63,18 @@ export function Login(props: {}) {
                     }}
                     className="my-auto"
                 >
-                    <h4 className="text-center">{LL.SIGN_IN()}</h4>
+                    <div className="flex items-center">
+                        <h4 className="text-center">{LL.SIGN_IN()}</h4>
+                        <div className={"ml-auto"}>
+                            {locale.toUpperCase()}
+                            <IconButton
+                                onClick={() => setModalOpen(true)}
+                                color={"primary"}
+                            >
+                                <GlobeAltIcon className={"w-6"} />
+                            </IconButton>
+                        </div>
+                    </div>
                     <div className="my-3">
                         <TextField
                             name="email"
@@ -87,6 +112,7 @@ export function Login(props: {}) {
                     </div>
                 </form>
             </div>
+            <LanguageModal modalOpen={modalOpen} setModalOpen={setModalOpen} />
         </div>
     );
 }

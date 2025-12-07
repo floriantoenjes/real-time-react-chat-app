@@ -44,6 +44,7 @@ const de = {
         COULD_NOT_DELETE_CONTACT_GROUP: "Gruppe konnte nicht entfernt werden",
         COULD_NOT_DELETE_CONTACT: "Kontakt konnte nicht entfernt werden",
     },
+    EMAIL_OR_PASSWORD_INCORRECT: "E-Mail oder Passwort sind inkorrekt",
 } satisfies Translation;
 
 export default de;
