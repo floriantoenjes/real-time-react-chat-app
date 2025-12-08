@@ -30,7 +30,7 @@ export class MessageService {
         const res = await this.clientService
             .getClient(messageContract)
             .deleteMessages({ body: { fromUserId, toUserId } });
-        if (res.status !== 200) {
+        if (res.status !== 204) {
             throw new Error("Error deleting messages");
         }
     }

@@ -1,7 +1,5 @@
 import React, {
     createContext,
-    Dispatch,
-    SetStateAction,
     useContext,
     useEffect,
     useRef,
@@ -24,37 +22,12 @@ import {
     VideoCameraIcon,
     XMarkIcon,
 } from "@heroicons/react/24/outline";
+import { Contact } from "real-time-chat-backend/shared/contact.contract";
 
 export const PeerContext = createContext<{
-    calling: boolean;
-    setCalling: Dispatch<SetStateAction<boolean>>;
-    callingStream: MediaStream | null;
-    setCallingStream: Dispatch<SetStateAction<MediaStream | null>>;
-    receiveCallingStream: MediaStream | null;
-    setReceiveCallingStream: Dispatch<SetStateAction<MediaStream | null>>;
-    peer: Peer | null;
-    setPeer: Dispatch<SetStateAction<Peer | null>>;
-    connection: DataConnection | null;
-    setDataConnection: Dispatch<SetStateAction<DataConnection | null>>;
-    call: MediaConnection | null;
-    setCall: Dispatch<SetStateAction<MediaConnection | null>>;
-    stream: MediaStream | null;
-    setStream: Dispatch<SetStateAction<MediaStream | null>>;
+    startCall: (selectedContact: Contact, video: boolean) => Promise<void>;
 }>({
-    calling: false,
-    setCalling: (value) => {},
-    callingStream: null,
-    setCallingStream: () => {},
-    receiveCallingStream: null,
-    setReceiveCallingStream: () => {},
-    peer: null,
-    setPeer: (value) => {},
-    connection: null,
-    setDataConnection: () => {},
-    call: null,
-    setCall: () => {},
-    stream: null,
-    setStream: () => {},
+    startCall: async () => {},
 });
 
 export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
@@ -252,27 +225,55 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
         return !!stream;
     }
 
+    async function startCall(selectedContact: Contact, video: boolean) {
+        setCalling(true);
+
+        navigator.mediaDevices
+            .getUserMedia({ video, audio: true })
+            .then(async (stream) => {
+                setCallingStream(stream);
+
+                if (!peer) {
+                    return;
+                }
+
+                const connection = peer.connect(selectedContact.name);
+                setDataConnection(connection);
+
+                connection.on("open", () => {
+                    const call = peer.call(selectedContact.name, stream);
+                    setCall(call);
+                    call.on("stream", (remoteStream) => {
+                        // Show stream in some <video> element.
+                        setStream(remoteStream);
+                    });
+
+                    call.on("close", () => {
+                        setCall(null);
+                        stream.getTracks().forEach((track) => {
+                            track.stop();
+                        });
+                        setCalling(false);
+                    });
+
+                    connection.on("close", () => {
+                        setCall(null);
+                        stream.getTracks().forEach((track) => {
+                            track.stop();
+                        });
+                        setCalling(false);
+                    });
+                });
+            })
+            .catch((reason) =>
+                loggingService.error(reason, undefined, reason?.stack),
+            );
+    }
+
     return (
         <>
             {isNeitherCallingNorBeingCalled() && (
-                <PeerContext.Provider
-                    value={{
-                        calling,
-                        setCalling,
-                        callingStream,
-                        setCallingStream,
-                        peer,
-                        setPeer,
-                        connection,
-                        setDataConnection,
-                        call,
-                        setCall,
-                        stream,
-                        setStream,
-                        receiveCallingStream,
-                        setReceiveCallingStream,
-                    }}
-                >
+                <PeerContext.Provider value={{ startCall }}>
                     {children}
                 </PeerContext.Provider>
             )}

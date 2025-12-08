@@ -22,66 +22,50 @@ import {
 } from "../../../shared/contexts/SnackbarContext";
 import { useI18nContext } from "../../../i18n/i18n-react";
 import { SocketMessageTypes } from "@t/socket-message-types.enum";
+import { ContactGroup } from "@t/contact-group.contract";
 
-export function TopBar() {
+export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
     const { LL } = useI18nContext();
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [user] = useUserContext();
     const [contacts, setContacts] = useContext(ContactsContext).contacts;
     const [contactGroups, setContactGroups] =
         useContext(ContactsContext).contactGroups;
-    const [selectedContact, setSelectedContact] =
-        useContext(ContactsContext).selectedContact;
+    const selectedContact = props.selectedContact;
+    const [, setSelectedContact] = useContext(ContactsContext).selectedContact;
     const [contactsOnlineStatus] =
         useContext(ContactsContext).contactsOnlineStatus;
     const [, setMessages] = useContext(MessageContext);
+    const { startCall } = useContext(PeerContext);
+    const [socket] = useContext(SocketContext);
 
     const contactService = useDiContext().ContactService;
     const contactGroupService = useDiContext().ContactGroupService;
-    const loggingService = useDiContext().LoggingService;
     const messageService = useDiContext().MessageService;
 
-    const [isTyping, setIsTyping] = useState<boolean>(false);
-    const [socket] = useContext(SocketContext);
-
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
-    const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
-    const {
-        setDataConnection,
-        setCallingStream,
-        setCalling,
-        peer,
-        setCall,
-        setStream,
-    } = useContext(PeerContext);
+    const [, setAnchorElDrawer] = useState<null | HTMLElement>(null);
+    const [state, setState] = useState(false);
+    const [isTyping, setIsTyping] = useState<boolean>(false);
 
     useEffect(() => {
-        if (socket) {
-            socket.on(
-                SocketMessageTypes.typing,
-                (body: { userId: string; isTyping: boolean }) => {
-                    if (body.userId === selectedContact?._id) {
-                        setIsTyping(body.isTyping);
-                        setTimeout(() => {
-                            setIsTyping(false);
-                        }, 5000);
-                    }
-                },
-            );
+        if (!socket) {
+            return;
         }
+        socket.on(
+            SocketMessageTypes.typing,
+            (body: { userId: string; isTyping: boolean }) => {
+                if (body.userId === selectedContact._id) {
+                    setIsTyping(body.isTyping);
+                    setTimeout(() => {
+                        setIsTyping(false);
+                    }, 5000);
+                }
+            },
+        );
     }, [socket]);
 
     function emptyChat() {
-        if (!selectedContact) {
-            return;
-        }
-
         messageService
             .deleteMessages(user._id, selectedContact._id)
             .then(() => {
@@ -101,10 +85,12 @@ export function TopBar() {
     }
 
     async function deleteChat() {
-        if (!selectedContact) {
-            return;
-        }
+        deleteChatMessages(selectedContact).then(() =>
+            deleteChatContact(selectedContact),
+        );
+    }
 
+    async function deleteChatMessages(selectedContact: Contact | ContactGroup) {
         try {
             await messageService.deleteMessages(user._id, selectedContact._id);
         } catch (error) {
@@ -112,9 +98,10 @@ export function TopBar() {
                 LL.ERROR.COULD_NOT_DELETE_CHAT_MESSAGES(),
                 SnackbarLevels.ERROR,
             );
-            return;
         }
+    }
 
+    async function deleteChatContact(selectedContact: Contact | ContactGroup) {
         const isAContactGroup = "memberIds" in selectedContact;
         if (isAContactGroup) {
             const deletionRes = await contactGroupService.deleteContactGroup(
@@ -145,12 +132,11 @@ export function TopBar() {
         }
 
         setContacts(
-            contacts.filter((cs: Contact) => cs._id !== selectedContact?._id),
+            contacts.filter((cs: Contact) => cs._id !== selectedContact._id),
         );
         setContactGroups(
             contactGroups.filter((cg) => cg._id !== selectedContact._id),
         );
-
         setSelectedContact(undefined);
 
         snackbarService.showSnackbar(
@@ -159,22 +145,12 @@ export function TopBar() {
         );
     }
 
-    const [, setAnchorElDrawer] = useState<null | HTMLElement>(null);
-
-    const [state, setState] = useState({
-        top: false,
-        left: false,
-        bottom: false,
-        right: false,
-    });
-
     const handleCloseDrawer = () => {
         setAnchorElDrawer(null);
     };
 
     const toggleDrawer =
-        (anchor: string, open: boolean, section?: string) =>
-        (event: React.KeyboardEvent | React.MouseEvent) => {
+        (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
             handleCloseDrawer();
             if (
                 event?.type === "keydown" &&
@@ -184,57 +160,15 @@ export function TopBar() {
                 return;
             }
 
-            setState({ ...state, [anchor]: open });
+            setState(open);
         };
 
-    async function startCall(video: boolean) {
-        if (!selectedContact) {
-            return;
-        }
-
-        setCalling(true);
-
-        navigator.mediaDevices
-            .getUserMedia({ video, audio: true })
-            .then(async (stream) => {
-                setCallingStream(stream);
-
-                if (!peer) {
-                    return;
-                }
-
-                const connection = peer.connect(selectedContact.name);
-                setDataConnection(connection);
-
-                connection.on("open", () => {
-                    const call = peer.call(selectedContact?.name, stream);
-                    setCall(call);
-                    call.on("stream", (remoteStream) => {
-                        // Show stream in some <video> element.
-                        setStream(remoteStream);
-                    });
-
-                    call.on("close", () => {
-                        setCall(null);
-                        stream.getTracks().forEach((track) => {
-                            track.stop();
-                        });
-                        setCalling(false);
-                    });
-
-                    connection.on("close", () => {
-                        setCall(null);
-                        stream.getTracks().forEach((track) => {
-                            track.stop();
-                        });
-                        setCalling(false);
-                    });
-                });
-            })
-            .catch((reason) =>
-                loggingService.error(reason, undefined, reason?.stack),
-            );
-    }
+    const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
 
     return (
         <div
@@ -247,18 +181,15 @@ export function TopBar() {
                     <ChevronLeftIcon className={"w-8"} />
                 </IconButton>
             </div>
-            <div
-                className={"flex items-center"}
-                onClick={toggleDrawer("right", true)}
-            >
+            <div className={"flex items-center"} onClick={toggleDrawer(true)}>
                 <Avatar
                     user={selectedContact ?? user}
                     isOnline={contactsOnlineStatus.get(
-                        selectedContact?._id ?? "",
+                        selectedContact._id ?? "",
                     )}
                 />
                 <div>
-                    <p>{selectedContact?.name}</p>
+                    <p>{selectedContact.name}</p>
                     <Fade in={isTyping}>
                         <p className={"text-xs absolute"}>is typing...</p>
                     </Fade>
@@ -268,18 +199,18 @@ export function TopBar() {
                 <IconButton
                     className={"mr-3"}
                     disabled={
-                        !contactsOnlineStatus.get(selectedContact?._id ?? "")
+                        !contactsOnlineStatus.get(selectedContact._id ?? "")
                     }
-                    onClick={() => startCall(true)}
+                    onClick={() => startCall(selectedContact, true)}
                 >
                     <VideoCameraIcon className={"w-6"} />
                 </IconButton>
                 <IconButton
                     className={"mr-3"}
                     disabled={
-                        !contactsOnlineStatus.get(selectedContact?._id ?? "")
+                        !contactsOnlineStatus.get(selectedContact._id ?? "")
                     }
-                    onClick={() => startCall(false)}
+                    onClick={() => startCall(selectedContact, false)}
                 >
                     <PhoneIcon className={"w-6"} />
                 </IconButton>
@@ -312,8 +243,8 @@ export function TopBar() {
             {selectedContact && (
                 <Drawer
                     anchor={"right"}
-                    open={state["right"]}
-                    onClose={toggleDrawer("right", false)}
+                    open={state}
+                    onClose={toggleDrawer(false)}
                 >
                     <div className={"drawer h-full"}>
                         <div className={"drawer-head"}>
@@ -325,9 +256,7 @@ export function TopBar() {
                                 <h4 className={"ml-3"}>
                                     {selectedContact.name}
                                 </h4>
-                                <IconButton
-                                    onClick={toggleDrawer("right", false)}
-                                >
+                                <IconButton onClick={toggleDrawer(false)}>
                                     <ArrowRightIcon className={"w-8"} />
                                 </IconButton>
                             </div>

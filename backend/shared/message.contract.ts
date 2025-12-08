@@ -44,7 +44,7 @@ export const messageContract = c.router({
         method: 'DELETE',
         path: '/messages',
         responses: {
-            200: z.boolean(),
+            204: z.boolean(),
         },
         body: z.object({
             fromUserId: z.string(),

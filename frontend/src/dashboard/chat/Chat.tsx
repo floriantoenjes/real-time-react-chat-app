@@ -78,9 +78,9 @@ export function Chat() {
 
     return selectedContact ? (
         <div className={"h-screen w-full overflow-y-scroll"}>
-            <TopBar />
+            <TopBar selectedContact={selectedContact} />
             <MainChat />
-            <SendMessageBar />
+            <SendMessageBar selectedContact={selectedContact} />
         </div>
     ) : (
         <div className={"w-full flex justify-center items-center"}>

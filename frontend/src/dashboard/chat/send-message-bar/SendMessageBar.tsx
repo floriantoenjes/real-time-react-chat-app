@@ -18,13 +18,17 @@ import { StopIcon } from "@heroicons/react/24/solid";
 import { MessageAddons } from "../../../shared/enums/message";
 import { useI18nContext } from "../../../i18n/i18n-react";
 import { SocketMessageTypes } from "@t/socket-message-types.enum";
+import { Contact } from "@t/contact.contract";
+import { ContactGroup } from "@t/contact-group.contract";
 
-export function SendMessageBar() {
+export function SendMessageBar(props: {
+    selectedContact: Contact | ContactGroup;
+}) {
     const { LL } = useI18nContext();
     const [formData, setFormData] = useState<{ message: string }>({
         message: "",
     });
-    const [selectedContact] = useContext(ContactsContext).selectedContact;
+    const selectedContact = props.selectedContact;
     const [, setContacts] = useContext(ContactsContext).contacts;
     const [user] = useUserContext();
     const [messages, setMessages] = useContext(MessageContext);
@@ -58,10 +62,6 @@ export function SendMessageBar() {
         message: string = formData.message.trim(),
         type: Message["type"] = "text",
     ) {
-        if (!selectedContact) {
-            return;
-        }
-
         socket?.emit(SocketMessageTypes.typing, {
             userId: user._id,
             contactId: selectedContact?._id,

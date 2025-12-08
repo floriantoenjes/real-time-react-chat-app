@@ -121,7 +121,7 @@ export class MessageController {
                     fromUserId: body.toUserId,
                 });
 
-                return { status: 200, body: true };
+                return { status: 204, body: true };
             },
         );
     }

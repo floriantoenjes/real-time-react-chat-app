@@ -86,9 +86,9 @@ export class RealTimeChatGateway
         // Leave the room when the socket disconnects
         socket.leave(userId);
 
-        this.onlineStatusService.setContactOnline(userId, true);
+        this.onlineStatusService.setContactOffline(userId, true);
 
-        // TODO: make sure that signing out of the frontend triggers offline-update too
+        // TODO: make sure that signing out of the frontend triggers offline-update as well
         this.contactService
             .getUsersThatHaveContact(userId)
             .then((contacts: User[]) => {
