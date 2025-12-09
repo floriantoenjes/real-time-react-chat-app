@@ -67,7 +67,7 @@ export function Sidebar() {
 
     useEffect(() => {
         setContacts(contactList());
-    }, [nameFilter, userContacts, userContactGroups]);
+    }, [nameFilter, userContacts, userContactGroups, userContactsOnlineStatus]);
 
     function loadUserContacts() {
         userService.getUsers().then((users) => {

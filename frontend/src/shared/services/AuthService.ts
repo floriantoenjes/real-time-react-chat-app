@@ -1,5 +1,4 @@
 import { UserService } from "./UserService";
-import { SnackbarLevels, snackbarService } from "../contexts/SnackbarContext";
 import { User } from "@t/user.contract";
 import React, { Dispatch, SetStateAction } from "react";
 
@@ -23,6 +22,7 @@ export class AuthService {
         if (callback) {
             callback();
         }
+
         return true;
     }
 

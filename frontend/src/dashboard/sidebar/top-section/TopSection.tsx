@@ -5,7 +5,7 @@ import {
     GlobeAltIcon,
     PlusIcon,
 } from "@heroicons/react/24/outline";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import "./TopSection.css";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { useNavigate } from "react-router-dom";
@@ -20,11 +20,13 @@ import {
     SnackbarLevels,
     snackbarService,
 } from "../../../shared/contexts/SnackbarContext";
+import { SocketContext } from "../../../shared/contexts/SocketContext";
 
 export function TopSection() {
     const { LL } = useI18nContext();
     const navigate = useNavigate();
     const [user] = useUserContext();
+    const [socket] = useContext(SocketContext);
     const authService = useDiContext().AuthService;
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -68,7 +70,11 @@ export function TopSection() {
 
     function signOut() {
         void authService
-            .signOut(() => navigate(RoutesEnum.LOGIN))
+            .signOut(() => {
+                socket?.off("disconnect");
+                socket?.disconnect();
+                navigate(RoutesEnum.LOGIN);
+            })
             .then((logoutSuccess) => {
                 if (!logoutSuccess) {
                     return snackbarService.showSnackbar(
