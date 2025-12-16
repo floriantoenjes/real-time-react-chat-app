@@ -23,6 +23,8 @@ import {
     XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { Contact } from "real-time-chat-backend/shared/contact.contract";
+import { Avatar } from "../Avatar";
+import { ContactsContext } from "./ContactsContext";
 
 export const PeerContext = createContext<{
     startCall: (selectedContact: Contact, video: boolean) => Promise<void>;
@@ -46,6 +48,8 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
     );
     const [receiveCallingStream, setReceiveCallingStream] =
         useState<MediaStream | null>(null);
+    const [contacts] = useContext(ContactsContext).contacts;
+    const [selectedContact] = useContext(ContactsContext).selectedContact;
 
     const videoRef = useRef<HTMLVideoElement | null>(null);
 
@@ -270,6 +274,18 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
             );
     }
 
+    function callingPeerAvatar(contact?: Contact) {
+        return contact ? (
+            <div className={"flex justify-center"}>
+                <Avatar height={"5rem"} width={"5rem"} user={contact} />
+            </div>
+        ) : (
+            <></>
+        );
+    }
+
+    const callingContact = contacts.find((c) => c.name === connection?.peer);
+
     return (
         <>
             {isNeitherCallingNorBeingCalled() && (
@@ -279,10 +295,17 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
             )}
             {isCalling() && (
                 <div className={"mx-auto my-auto"}>
-                    <h2>Calling</h2>
-                    <div className={"flex"}>
+                    <h2 className={"text-center"}>Calling</h2>
+                    <h2 className={"text-2xl text-center"}>
+                        {callingPeerAvatar(selectedContact)}
+                        {selectedContact?.name}
+                    </h2>
+                    <div className={"flex justify-center"}>
                         <IconButton>
-                            <XMarkIcon className="w-8 h-8" onClick={endCall} />
+                            <XMarkIcon
+                                className="w-8 h-8 text-red-600"
+                                onClick={endCall}
+                            />
                         </IconButton>
                     </div>
                 </div>
@@ -290,19 +313,27 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
 
             {isBeingCalled() && (
                 <div className={"mx-auto my-auto"}>
-                    <h2>Incoming call</h2>
+                    <h2>Incoming call from</h2>
+                    <h2 className={"text-2xl text-center"}>
+                        <div className={"mx-auto"}>
+                            <div className={"mx-auto flex justify-center"}>
+                                {callingPeerAvatar(callingContact)}
+                            </div>
+                        </div>
+                        {connection?.peer}
+                    </h2>
                     <div className={"flex"}>
                         <IconButton onClick={() => answerCall(true)}>
-                            <VideoCameraIcon className="w-8 h-8" />
+                            <VideoCameraIcon className="w-8 h-8 fill-yellow-500" />
                         </IconButton>
 
                         <IconButton onClick={() => answerCall(false)}>
-                            <PhoneIcon className="w-8 h-8" />
+                            <PhoneIcon className="w-8 h-8 fill-green-500" />
                         </IconButton>
 
                         <IconButton>
                             <XMarkIcon
-                                className="w-8 h-8"
+                                className="w-8 h-8 text-red-600"
                                 onClick={() => {
                                     connection?.close();
                                     hangUpCall();
@@ -314,14 +345,26 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
             )}
 
             {isInCall() && (
-                <>
+                <div className={"flex flex-col justify-center w-full"}>
+                    <div className={"flex flex-col"}>
+                        <div className={"mx-auto"}>
+                            <h2>in a call with</h2>
+                            <h2 className={"text-2xl text-center"}>
+                                <div className={"mx-auto flex justify-center"}>
+                                    {!stream?.getVideoTracks().length &&
+                                        callingPeerAvatar(callingContact)}
+                                </div>
+                                {connection?.peer}
+                            </h2>
+                        </div>
+                    </div>
                     <video ref={videoRef}></video>
-                    <div className={"fixed call-bar"}>
+                    <div className={"flex  justify-center call-bar"}>
                         <IconButton onClick={hangUpCall}>
                             <PhoneXMarkIcon className={"w-8 fill-red-600"} />
                         </IconButton>
                     </div>
-                </>
+                </div>
             )}
         </>
     );
