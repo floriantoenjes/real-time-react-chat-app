@@ -28,6 +28,8 @@ import { RedisPubSubFactory } from './factories/redisPubSubFactory';
 import { OnlineStatusService } from './services/online-status.service';
 import { PubSubFactoryToken } from './interfaces/pub-sub.factory.interface';
 import { CoturnController } from './controllers/coturn.controller';
+import { ContactGroupService } from './services/contact-group.service';
+import { MessageService } from './services/message.service';
 
 @Module({
     imports: [
@@ -85,11 +87,13 @@ import { CoturnController } from './controllers/coturn.controller';
     providers: [
         AppService,
         ContactService,
+        ContactGroupService,
         CustomLogger,
-        RealTimeChatGateway,
-        UserService,
+        MessageService,
         ObjectStorageService,
         OnlineStatusService,
+        RealTimeChatGateway,
+        UserService,
         { provide: PubSubFactoryToken, useClass: RedisPubSubFactory },
         {
             provide: APP_GUARD,

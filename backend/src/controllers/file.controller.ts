@@ -12,9 +12,9 @@ export class FileController {
         return tsRestHandler(fileContract.loadFile, async ({ body }) => {
             const obj = await this.objectStorageService.loadFile(body.fileName);
             if (!obj) {
-                return { status: 404, body: false };
+                return { status: 404 as const, body: false };
             }
-            return { status: 200, body: obj };
+            return { status: 200 as const, body: obj };
         });
     }
 }

@@ -3,6 +3,13 @@ import { z } from 'zod';
 
 const c = initContract();
 
+export const MessageTypeSchema = z
+    .literal('text')
+    .or(z.literal('image'))
+    .or(z.literal('audio'));
+
+export type MessageType = z.infer<typeof MessageTypeSchema>;
+
 export const MessageSchema = z.object({
     _id: z.string(),
     fromUserId: z.string(),
@@ -11,7 +18,7 @@ export const MessageSchema = z.object({
     message: z.string().max(4096),
     read: z.boolean().default(false),
     sent: z.boolean().default(true),
-    type: z.literal('text').or(z.literal('image')).or(z.literal('audio')),
+    type: MessageTypeSchema,
 });
 
 export type Message = z.infer<typeof MessageSchema>;
@@ -62,10 +69,7 @@ export const messageContract = c.router({
             toUserId: z.string(),
             message: z.string(),
             fromUserId: z.string(),
-            type: z
-                .literal('text')
-                .or(z.literal('image'))
-                .or(z.literal('audio')),
+            type: MessageTypeSchema,
         }),
         summary: 'Send a message',
     },

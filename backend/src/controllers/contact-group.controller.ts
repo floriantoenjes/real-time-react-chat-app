@@ -1,40 +1,18 @@
-import { Controller, Inject } from '@nestjs/common';
-import { Model, Types } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
+import { Controller } from '@nestjs/common';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
-import { UserEntity } from '../schemas/user.schema';
-import {
-    ContactGroup,
-    contactGroupContract,
-} from '../../shared/contact-group.contract';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
-import { CustomLogger } from '../logging/custom-logger';
+import { contactGroupContract } from '../../shared/contact-group.contract';
+import { ContactGroupService } from '../services/contact-group.service';
 
 @Controller()
 export class ContactGroupController {
-    constructor(
-        @Inject(CACHE_MANAGER)
-        private readonly cache: Cache,
-        private readonly logger: CustomLogger,
-        @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
-    ) {}
+    constructor(private readonly contactGroupService: ContactGroupService) {}
 
     @TsRestHandler(contactGroupContract.getContactGroups)
     async getContactGroups() {
         return tsRestHandler(
             contactGroupContract.getContactGroups,
             async ({ body }) => {
-                const user = await this.userModel
-                    .findOne({
-                        _id: body.userId,
-                    })
-                    .lean();
-
-                return {
-                    status: 200,
-                    body: user?.contactGroups ?? [],
-                };
+                return this.contactGroupService.getContactGroups(body.userId);
             },
         );
     }
@@ -44,48 +22,11 @@ export class ContactGroupController {
         return tsRestHandler(
             contactGroupContract.addContactGroup,
             async ({ body }) => {
-                const user = await this.userModel.findOne({ _id: body.userId });
-                const members = await this.userModel.find({
-                    _id: { $in: body.memberIds },
-                });
-
-                if (!user || !members.length) {
-                    return { status: 404, body: false };
-                }
-
-                const newContactGroup = {
-                    _id: new Types.ObjectId().toString(),
-                    memberIds: body.memberIds,
-                    name: body.name,
-                } as ContactGroup;
-
-                const contactAlreadyExists = user.contactGroups.find(
-                    (group) => group.name === newContactGroup.name,
+                return this.contactGroupService.addContactGroup(
+                    body.userId,
+                    body.name,
+                    body.memberIds,
                 );
-                if (contactAlreadyExists) {
-                    this.logger.warn(
-                        `User ${body.userId} tried to add already existing contact-group ${body.memberIds}`,
-                    );
-                    return { status: 400, body: false };
-                }
-
-                for (const member of [user, ...members]) {
-                    member.contactGroups.push({
-                        ...newContactGroup,
-                        memberIds: [user, ...members]
-                            .map((m) => m._id)
-                            .filter((mid) => mid !== member._id)
-                            .map((mid) => mid.toString()),
-                    });
-                    member.markModified('contactGroups');
-
-                    await member.save();
-                }
-
-                return {
-                    status: 201,
-                    body: newContactGroup,
-                };
             },
         );
     }
@@ -95,31 +36,10 @@ export class ContactGroupController {
         return tsRestHandler(
             contactGroupContract.removeContactGroup,
             async ({ body }) => {
-                const user = await this.userModel.findOne({ _id: body.userId });
-
-                if (!user) {
-                    return { status: 404, body: false };
-                }
-
-                if (
-                    user.contactGroups.find(
-                        (uc) => uc._id === body.contactGroupId,
-                    ) === undefined
-                ) {
-                    return { status: 404, body: false };
-                }
-
-                user.contactGroups = user.contactGroups.filter(
-                    (group) => group._id !== body.contactGroupId,
+                return this.contactGroupService.removeContactGroup(
+                    body.userId,
+                    body.contactGroupId,
                 );
-                user.markModified('contactGroups');
-
-                await user.save();
-
-                return {
-                    status: 204,
-                    body: true,
-                };
             },
         );
     }

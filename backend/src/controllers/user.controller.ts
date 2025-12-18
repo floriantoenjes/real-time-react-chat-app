@@ -1,7 +1,6 @@
 import {
     Body,
     Controller,
-    Inject,
     Req,
     Res,
     UploadedFile,
@@ -23,14 +22,10 @@ import { Jimp } from 'jimp';
 import { CustomLogger } from '../logging/custom-logger';
 import { returnEntityOrNotFound } from './utils/controller-utils';
 import { Request, Response } from 'express';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
 
 @Controller()
 export class UserController {
     constructor(
-        @Inject(CACHE_MANAGER)
-        private readonly cache: Cache,
         private readonly logger: CustomLogger,
         private readonly userService: UserService,
         private readonly objectStorageService: ObjectStorageService,
