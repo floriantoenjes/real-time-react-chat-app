@@ -27,6 +27,7 @@ import { LoggingController } from './controllers/logging.controller';
 import { RedisPubSubFactory } from './factories/redisPubSubFactory';
 import { OnlineStatusService } from './services/online-status.service';
 import { PubSubFactoryToken } from './interfaces/pub-sub.factory.interface';
+import { CoturnController } from './controllers/coturn.controller';
 
 @Module({
     imports: [
@@ -75,6 +76,7 @@ import { PubSubFactoryToken } from './interfaces/pub-sub.factory.interface';
         AppController,
         ContactController,
         ContactGroupController,
+        CoturnController,
         FileController,
         LoggingController,
         MessageController,

@@ -9,9 +9,7 @@ import Peer, { DataConnection, MediaConnection } from "peerjs";
 import {
     PEERJS_SERVER_HOST,
     PEERJS_SERVER_PORT,
-    TURN_SERVER_PASSWORD,
     TURN_SERVER_URL,
-    TURN_SERVER_USERNAME,
 } from "../../environment";
 import { UserContext } from "./UserContext";
 import { useDiContext } from "./DiContext";
@@ -35,6 +33,7 @@ export const PeerContext = createContext<{
 export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
     const [user] = useContext(UserContext);
     const loggingService = useDiContext().LoggingService;
+    const coturnService = useDiContext().CoturnService;
 
     const [calling, setCalling] = useState<boolean>(false);
     const [peer, setPeer] = useState<Peer | null>(null);
@@ -56,36 +55,38 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
     useEffect(() => {
         try {
             if (user && !peer) {
-                const newPeer = new Peer(user.username, {
-                    host: PEERJS_SERVER_HOST,
-                    port: +PEERJS_SERVER_PORT,
-                    path: "/peerjs/myapp",
-                    config: {
-                        iceServers: [
-                            // { url: "stun:stun.l.google.com:19302" }, // Public STUN server for initial connection
-                            {
-                                url: TURN_SERVER_URL,
-                                username: TURN_SERVER_USERNAME,
-                                credential: TURN_SERVER_PASSWORD,
-                            },
-                        ],
-                        iceTransportPolicy: "relay",
-                    },
-                });
-                setPeer(newPeer);
+                coturnService.getCredentials(user._id).then((credentials) => {
+                    const newPeer = new Peer(user.username, {
+                        host: PEERJS_SERVER_HOST,
+                        port: +PEERJS_SERVER_PORT,
+                        path: "/peerjs/myapp",
+                        config: {
+                            iceServers: [
+                                // { url: "stun:stun.l.google.com:19302" }, // Public STUN server for initial connection
+                                {
+                                    url: TURN_SERVER_URL,
+                                    username: credentials.username,
+                                    credential: credentials.password,
+                                },
+                            ],
+                            iceTransportPolicy: "relay",
+                        },
+                    });
+                    setPeer(newPeer);
 
-                newPeer.on("open", (id) => {
-                    loggingService.log(
-                        `User ${user._id} received Peer-Id: ${id}`,
-                    );
-                });
+                    newPeer.on("open", (id) => {
+                        loggingService.log(
+                            `User ${user._id} received Peer-Id: ${id}`,
+                        );
+                    });
 
-                newPeer.on("error", (err) => {
-                    loggingService.error(
-                        `User ${user._id} received Error: ${err}`,
-                        undefined,
-                        err?.stack,
-                    );
+                    newPeer.on("error", (err) => {
+                        loggingService.error(
+                            `User ${user._id} received Error: ${err}`,
+                            undefined,
+                            err?.stack,
+                        );
+                    });
                 });
             }
         } catch (e) {

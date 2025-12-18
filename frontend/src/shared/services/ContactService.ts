@@ -2,7 +2,6 @@ import { Contact, contactContract } from "@t/contact.contract";
 import { UserService } from "./UserService";
 import { UserFactory } from "../factories/user.factory";
 import { ClientService } from "./ClientService";
-import { SnackbarLevels, snackbarService } from "../contexts/SnackbarContext";
 import { ContactGroup } from "@t/contact-group.contract";
 
 export class ContactService {
