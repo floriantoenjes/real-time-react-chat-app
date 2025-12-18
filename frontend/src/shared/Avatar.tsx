@@ -26,6 +26,7 @@ export function Avatar(props: {
                 maxHeight: props.height ?? "2.5rem",
                 backgroundColor: "lightblue",
                 borderRadius: "50%",
+                position: "relative",
             }}
         >
             {props.isOnline && (

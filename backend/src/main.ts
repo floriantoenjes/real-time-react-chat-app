@@ -44,4 +44,4 @@ async function bootstrap() {
     });
     peerApp.use('/peerjs', peerServer);
 }
-bootstrap();
+void bootstrap();
