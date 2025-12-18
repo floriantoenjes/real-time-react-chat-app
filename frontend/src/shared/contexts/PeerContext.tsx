@@ -278,7 +278,12 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
     function callingPeerAvatar(contact?: Contact) {
         return contact ? (
             <div className={"flex justify-center"}>
-                <Avatar height={"5rem"} width={"5rem"} user={contact} />
+                <Avatar
+                    height={"5rem"}
+                    width={"5rem"}
+                    noMargin={true}
+                    user={contact}
+                />
             </div>
         ) : (
             <></>

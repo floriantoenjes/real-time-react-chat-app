@@ -8,12 +8,17 @@ export function Avatar(props: {
     user: User | Contact;
     squared?: boolean;
     isOnline?: boolean;
+    noMargin?: boolean;
 }) {
     useEffect(() => {}, [props.user?.avatarBase64]);
 
     return (
         <div
-            className={"mr-3 flex justify-center items-center relative"}
+            className={
+                "flex justify-center items-center relative" + props.noMargin
+                    ? ""
+                    : "mr - 3"
+            }
             style={{
                 minWidth: props.width ?? "2.5rem",
                 minHeight: props.height ?? "2.5rem",
