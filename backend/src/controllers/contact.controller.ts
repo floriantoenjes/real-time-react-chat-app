@@ -11,7 +11,7 @@ export class ContactController {
     async getContacts() {
         return tsRestHandler(contactContract.getContacts, async ({ body }) => {
             return {
-                status: 200,
+                status: 200 as const,
                 body: await this.contactService.getUserContacts(body.userId),
             };
         });

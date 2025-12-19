@@ -16,20 +16,13 @@ import {
 import { userContract } from '../../shared/user.contract';
 import { UserService } from '../services/user.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ObjectStorageService } from '../services/object-storage.service';
 import { Public } from '../services/auth-constants';
-import { Jimp } from 'jimp';
-import { CustomLogger } from '../logging/custom-logger';
 import { returnEntityOrNotFound } from './utils/controller-utils';
 import { Request, Response } from 'express';
 
 @Controller()
 export class UserController {
-    constructor(
-        private readonly logger: CustomLogger,
-        private readonly userService: UserService,
-        private readonly objectStorageService: ObjectStorageService,
-    ) {}
+    constructor(private readonly userService: UserService) {}
 
     @TsRestHandler(userContract.getAll)
     async getAll() {
@@ -178,24 +171,7 @@ export class UserController {
     @TsRestHandler(userContract.loadAvatar)
     async loadAvatar() {
         return tsRestHandler(userContract.loadAvatar, async ({ params }) => {
-            try {
-                const objectDataString =
-                    await this.objectStorageService.loadFile(
-                        params.userId + '_avatar',
-                    );
-
-                if (objectDataString) {
-                    return {
-                        status: 200,
-                        body: objectDataString,
-                    };
-                }
-            } catch (e) {}
-
-            return {
-                status: 404,
-                body: false,
-            };
+            return this.userService.loadAvatar(params.userId);
         });
     }
 
@@ -214,39 +190,19 @@ export class UserController {
             height: number;
         },
     ) {
-        body.userId = body.userId.replaceAll('"', '');
-        const fileName = body.userId + '_avatar';
+        const userId = body.userId.replaceAll('"', '');
+        const x = +body.x;
+        const y = +body.y;
+        const width = +body.width;
+        const height = +body.height;
 
-        async function crop(
-            image: Awaited<ReturnType<typeof Jimp.fromBuffer>>,
-        ) {
-            // Read the image.
-            image.crop({
-                x: +body.x,
-                y: +body.y,
-                w: +body.width,
-                h: +body.height,
-            });
-            image.resize({ w: 512, h: 512 });
-            // Save and overwrite the image
-        }
-        const img = await Jimp.fromBuffer(avatar.buffer);
-        await crop(img);
-
-        const jpeg = await img.getBuffer('image/jpeg', { quality: 60 });
-
-        await this.objectStorageService.uploadFile(jpeg, fileName);
-
-        await this.userService.updateUser({
-            _id: body.userId,
-            avatarFileName: fileName,
-        });
-
-        this.logger.log(`Updated user avatar for ${body.userId}`);
-
-        return {
-            status: 201 as const,
-            body: true,
-        };
+        return this.userService.updateUserAvatar(
+            userId,
+            x,
+            y,
+            width,
+            height,
+            avatar,
+        );
     }
 }

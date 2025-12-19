@@ -9,6 +9,8 @@ import { Cache } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { findUsersByCacheKey } from '../cache/cache-keys';
 import { CustomLogger } from '../logging/custom-logger';
+import { Jimp } from 'jimp';
+import { ObjectStorageService } from './object-storage.service';
 
 @Injectable()
 export class UserService {
@@ -20,6 +22,7 @@ export class UserService {
         private readonly logger: CustomLogger,
         @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
         private readonly jwtService: JwtService,
+        private readonly objectStorageService: ObjectStorageService,
     ) {}
 
     async findUsersBy(filter?: Partial<{ [k in keyof UserEntity]: any }>) {
@@ -200,5 +203,68 @@ export class UserService {
         await this.cache.del(findUsersByCacheKey());
 
         return this.userModel.updateOne({ _id: userPartial._id }, userPartial);
+    }
+
+    async loadAvatar(userId) {
+        try {
+            const objectDataString = await this.objectStorageService.loadFile(
+                userId + '_avatar',
+            );
+
+            if (objectDataString) {
+                return {
+                    status: 200 as const,
+                    body: objectDataString,
+                };
+            }
+        } catch (e) {}
+
+        return {
+            status: 404 as const,
+            body: false,
+        };
+    }
+
+    async updateUserAvatar(
+        userId: string,
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        avatar: Express.Multer.File,
+    ) {
+        const fileName = userId + '_avatar';
+
+        async function crop(
+            image: Awaited<ReturnType<typeof Jimp.fromBuffer>>,
+        ) {
+            // Read the image.
+            image.crop({
+                x: x,
+                y: y,
+                w: width,
+                h: height,
+            });
+            image.resize({ w: 512, h: 512 });
+            // Save and overwrite the image
+        }
+        const img = await Jimp.fromBuffer(avatar.buffer);
+        await crop(img);
+
+        const jpeg = await img.getBuffer('image/jpeg', { quality: 60 });
+
+        await this.objectStorageService.uploadFile(jpeg, fileName);
+
+        await this.updateUser({
+            _id: userId,
+            avatarFileName: fileName,
+        });
+
+        this.logger.log(`Updated user avatar for ${userId}`);
+
+        return {
+            status: 201 as const,
+            body: true,
+        };
     }
 }

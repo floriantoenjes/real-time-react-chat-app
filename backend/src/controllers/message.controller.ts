@@ -82,6 +82,8 @@ export class MessageController {
             userId: string;
         },
     ) {
-        return this.messageService.uploadFileAsMessage(body.userId, file);
+        const userId = body.userId.replaceAll('"', '');
+
+        return this.messageService.uploadFileAsMessage(userId, file);
     }
 }

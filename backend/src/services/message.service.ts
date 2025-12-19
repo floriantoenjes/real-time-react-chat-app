@@ -170,8 +170,6 @@ export class MessageService {
     }
 
     async uploadFileAsMessage(userId: string, file: Express.Multer.File) {
-        userId = userId.replaceAll('"', '');
-
         if (!(await this.userModel.findOne({ _id: userId }))) {
             return { status: 404 };
         }
