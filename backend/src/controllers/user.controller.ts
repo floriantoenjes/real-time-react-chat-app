@@ -1,4 +1,5 @@
 import {
+    BadRequestException,
     Body,
     Controller,
     Req,
@@ -124,11 +125,14 @@ export class UserController {
     @Public()
     async signUp() {
         return tsRestHandler(userContract.signUp, async ({ body }) => {
-            const newUser = await this.userService.createUser(
-                body.email,
-                body.password,
-                body.username,
-            );
+            const newUser = await this.userService
+                .createUser(body.email, body.password, body.username)
+                .catch(() => {
+                    throw new BadRequestException(
+                        { message: 'Already exists' },
+                        `New user with username ${body.username} could not be created`,
+                    );
+                });
 
             if (!newUser) {
                 throw Error(

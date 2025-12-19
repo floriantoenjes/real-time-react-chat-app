@@ -54,7 +54,11 @@ export class UserService {
             return res.body;
         }
 
-        return false;
+        if (res.status === 400 && res.body.message === "Already exists") {
+            throw new Error("Already exists");
+        }
+
+        throw new Error("Error during sign up");
     }
 
     async searchForUserByUsername(username: string): Promise<User | false> {

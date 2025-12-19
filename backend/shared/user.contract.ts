@@ -70,6 +70,7 @@ export const userContract = c.router({
                 accessToken: z.string(),
                 refreshToken: z.string(),
             }),
+            400: z.object({ message: z.literal('Already exists') }),
         },
         body: z.object({
             email: z.string().email(),

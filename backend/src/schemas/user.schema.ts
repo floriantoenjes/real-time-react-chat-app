@@ -7,7 +7,7 @@ import { User } from '../../shared/user.contract';
 export class UserEntity implements User {
     _id: any;
 
-    @Prop()
+    @Prop({ unique: true })
     email!: string;
 
     @Prop({ select: false })

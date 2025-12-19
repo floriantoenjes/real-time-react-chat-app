@@ -29,6 +29,8 @@ export function Register(props: {}) {
     const [modalOpen, setModalOpen] = useState(false);
     const locale = useI18nContext().locale;
 
+    const [passwordsDontMatch, setPasswordsDontMatch] = useState(false);
+
     const {
         register,
         handleSubmit,
@@ -36,21 +38,34 @@ export function Register(props: {}) {
     } = useForm<SignUpData>();
 
     async function signUp(formData: SignUpData) {
-        const signUpResponse = await authService.signUp(
-            formData.email,
-            formData.password,
-            formData.username,
-        );
-        if (!signUpResponse) {
-            // TODO: snackbarService.showSnackbar();
-            return;
+        try {
+            const signUpResponse = await authService.signUp(
+                formData.email,
+                formData.password,
+                formData.username,
+            );
+
+            setUser(signUpResponse.user);
+            navigate(RoutesEnum.DASHBOARD);
+            snackbarService.showSnackbar(
+                LL.REGISTERED_AND_SIGNED_IN(),
+                SnackbarLevels.SUCCESS,
+            );
+        } catch (e: any) {
+            if (e?.message === "Already exists") {
+                snackbarService.showSnackbar(
+                    "This email is already taken",
+                    SnackbarLevels.WARNING,
+                );
+                return;
+            } else {
+                snackbarService.showSnackbar(
+                    "There was an error during sign up",
+                    SnackbarLevels.ERROR,
+                );
+                return;
+            }
         }
-        setUser(signUpResponse.user);
-        navigate(RoutesEnum.DASHBOARD);
-        snackbarService.showSnackbar(
-            LL.REGISTERED_AND_SIGNED_IN(),
-            SnackbarLevels.SUCCESS,
-        );
     }
 
     return (
@@ -97,10 +112,21 @@ export function Register(props: {}) {
                             label={LL.CONFIRM_PASSWORD()}
                             {...register("passwordConfirm", {
                                 required: true,
-                                validate: (value, formValues) =>
-                                    value === formValues.password,
+                                validate: (value, formValues) => {
+                                    const passwordsMatch =
+                                        value === formValues.password;
+
+                                    setPasswordsDontMatch(!passwordsMatch);
+                                    return passwordsMatch;
+                                },
                             })}
                             className={"w-80"}
+                            error={passwordsDontMatch}
+                            helperText={
+                                passwordsDontMatch
+                                    ? "Passwords don't match"
+                                    : ""
+                            }
                         />
                     </div>
                     <div className="mb-3">
