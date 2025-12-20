@@ -4,6 +4,10 @@ import { UserEntity } from '../schemas/user.schema';
 import { Model, Types } from 'mongoose';
 import { CustomLogger } from '../logging/custom-logger';
 import { ContactGroup } from '../../shared/contact-group.contract';
+import { UserNotFoundException } from '../errors/user-not-found.exception';
+import { MembersNotFoundException } from '../errors/members-not-found.exception';
+import { ContactGroupAlreadyExistsException } from '../errors/contact-group-already-exists.exception';
+import { ContactGroupNotFoundException } from '../errors/contact-group-not-found.exception';
 
 @Injectable()
 export class ContactGroupService {
@@ -27,12 +31,16 @@ export class ContactGroupService {
 
     async addContactGroup(userId: string, name: string, memberIds: string[]) {
         const user = await this.userModel.findOne({ _id: userId });
+        if (!user) {
+            throw new UserNotFoundException();
+        }
+
         const members = await this.userModel.find({
             _id: { $in: memberIds },
         });
 
-        if (!user || !members.length) {
-            return { status: 404 as const, body: false };
+        if (!members.length) {
+            throw new MembersNotFoundException();
         }
 
         const newContactGroup = {
@@ -48,7 +56,7 @@ export class ContactGroupService {
             this.logger.warn(
                 `User ${userId} tried to add already existing contact-group ${memberIds}`,
             );
-            return { status: 400 as const, body: false };
+            throw new ContactGroupAlreadyExistsException();
         }
 
         for (const member of [user, ...members]) {
@@ -74,14 +82,14 @@ export class ContactGroupService {
         const user = await this.userModel.findOne({ _id: userId });
 
         if (!user) {
-            return { status: 404 as const, body: false };
+            throw new UserNotFoundException();
         }
 
         if (
             user.contactGroups.find((uc) => uc._id === contactGroupId) ===
             undefined
         ) {
-            return { status: 404 as const, body: false };
+            throw new ContactGroupNotFoundException();
         }
 
         user.contactGroups = user.contactGroups.filter(

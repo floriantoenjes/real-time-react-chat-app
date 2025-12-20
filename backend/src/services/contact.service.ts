@@ -5,6 +5,9 @@ import { UserEntity } from '../schemas/user.schema';
 import { Model } from 'mongoose';
 import { CustomLogger } from '../logging/custom-logger';
 import { OnlineStatusService } from './online-status.service';
+import { UserNotFoundException } from '../errors/user-not-found.exception';
+import { ContactNotFoundException } from '../errors/contact-not-found.exception';
+import { ContactAlreadyExistsException } from '../errors/contact-already-exists.exception';
 
 @Injectable()
 export class ContactService {
@@ -19,18 +22,25 @@ export class ContactService {
             _id: userId,
         });
 
+        if (!user) {
+            throw new UserNotFoundException();
+        }
+
         const contacts: Contact[] = [];
-        for (const contact of user?.contacts ?? []) {
+        for (const contact of user.contacts ?? []) {
             const contactUser = await this.userModel
                 .findOne({ _id: contact._id })
                 .lean();
-            if (contactUser) {
-                contacts.push({
-                    ...contact,
-                    ...contactUser,
-                    lastMessage: contact.lastMessage,
-                });
+
+            if (!contactUser) {
+                throw new ContactNotFoundException();
             }
+
+            contacts.push({
+                ...contact,
+                ...contactUser,
+                lastMessage: contact.lastMessage,
+            });
         }
 
         return contacts;
@@ -46,12 +56,17 @@ export class ContactService {
 
     async addContact(userId: string, newContactId: string) {
         const user = await this.userModel.findOne({ _id: userId });
+
+        if (!user) {
+            throw new UserNotFoundException();
+        }
+
         const contact = await this.userModel.findOne({
             _id: newContactId,
         });
 
-        if (!user || !contact) {
-            return { status: 404 as const, body: false };
+        if (!contact) {
+            throw new ContactNotFoundException();
         }
 
         const newContact = {
@@ -67,7 +82,7 @@ export class ContactService {
             this.logger.warn(
                 `User ${userId} tried to add already existing contact ${newContactId}`,
             );
-            return { status: 400 as const, body: false };
+            throw new ContactAlreadyExistsException();
         }
 
         user.contacts.push(newContact);
@@ -84,12 +99,12 @@ export class ContactService {
     async removeContact(userId: string, contactId: string) {
         const user = await this.userModel.findOne({ _id: userId });
         if (!user) {
-            return { status: 404 as const, body: false };
+            throw new UserNotFoundException();
         }
 
         const contact = user.contacts.find((uc) => uc._id === contactId);
         if (!contact) {
-            return { status: 404 as const, body: false };
+            throw new ContactNotFoundException();
         }
 
         user.contacts = user.contacts.filter((u) => u._id !== contactId);

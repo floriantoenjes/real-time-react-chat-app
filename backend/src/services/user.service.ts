@@ -11,6 +11,9 @@ import { findUsersByCacheKey } from '../cache/cache-keys';
 import { CustomLogger } from '../logging/custom-logger';
 import { Jimp } from 'jimp';
 import { ObjectStorageService } from './object-storage.service';
+import { EmailAlreadyTakenException } from '../errors/email-already-taken.exception';
+import { UserNotFoundException } from '../errors/user-not-found.exception';
+import { UnauthorizedException } from '../errors/unauthorized.exception';
 
 @Injectable()
 export class UserService {
@@ -44,7 +47,7 @@ export class UserService {
         const user = await this.findUserBy({ email, password });
         if (!user) {
             this.logger.log(`User with email ${email} not found`);
-            return;
+            throw new UserNotFoundException();
         }
 
         const payload = { sub: user._id, username: user.username };
@@ -83,13 +86,13 @@ export class UserService {
                 username: decodedJwt?.username,
             });
             if (!user) {
-                return;
+                throw new UserNotFoundException();
             }
 
             return await this.respondWithNewTokens(user);
         } catch (error) {
             if (!refreshToken) {
-                return;
+                throw new UnauthorizedException();
             }
 
             try {
@@ -112,14 +115,14 @@ export class UserService {
                 username: decodedJwt?.username,
             });
             if (!user) {
-                return;
+                throw new UserNotFoundException();
             }
 
             if (
                 !refreshTokenFromDb ||
                 !(await bcrypt.compare(refreshToken, refreshTokenFromDb))
             ) {
-                return;
+                throw new UnauthorizedException();
             }
 
             return await this.respondWithNewTokens(user);
@@ -173,23 +176,23 @@ export class UserService {
     }
 
     async createUser(email: string, password: string, username: string) {
-        const hash = await bcrypt.hash(password, this.SALT_OR_ROUNDS);
+        try {
+            const hash = await bcrypt.hash(password, this.SALT_OR_ROUNDS);
 
-        const createdUser = await this.userModel.create({
-            email,
-            password: hash,
-            username,
-        });
+            const createdUser = await this.userModel.create({
+                email,
+                password: hash,
+                username,
+            });
 
-        if (!createdUser) {
-            return;
+            this.logger.log(`Created user "${username}"`);
+
+            await this.cache.del(findUsersByCacheKey());
+
+            return createdUser;
+        } catch (e) {
+            throw new EmailAlreadyTakenException();
         }
-
-        this.logger.log(`Created user ${username}`);
-
-        await this.cache.del(findUsersByCacheKey());
-
-        return createdUser;
     }
 
     async updateUser(userPartial: Partial<User>) {
@@ -197,7 +200,7 @@ export class UserService {
             _id: new Types.ObjectId(userPartial._id),
         });
         if (!user) {
-            return;
+            throw new UserNotFoundException();
         }
 
         await this.cache.del(findUsersByCacheKey());

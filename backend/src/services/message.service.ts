@@ -9,6 +9,8 @@ import { SocketMessageTypes } from '../../shared/socket-message-types.enum';
 import { RealTimeChatGateway } from '../gateways/socket.gateway';
 import { ObjectStorageService } from './object-storage.service';
 import { User } from '../../shared/user.contract';
+import { MessageNotFoundException } from '../errors/message-not-found.exception';
+import { UserNotFoundException } from '../errors/user-not-found.exception';
 
 @Injectable()
 export class MessageService {
@@ -26,7 +28,7 @@ export class MessageService {
         const message = await this.messageModel.findById(messageId).lean();
 
         if (!message) {
-            return { status: 404 as const, body: undefined };
+            throw new MessageNotFoundException();
         }
 
         return { status: 200 as const, body: { message } };
@@ -38,7 +40,7 @@ export class MessageService {
         });
 
         if (!user) {
-            return { status: 404 as const, body: false };
+            throw new UserNotFoundException();
         }
 
         let messages: Message[];
@@ -110,10 +112,7 @@ export class MessageService {
             .findById(fromUserId)
             .select('+password');
         if (!user) {
-            return {
-                status: 404 as const,
-                body: false,
-            };
+            throw new UserNotFoundException();
         }
         const newlyCreatedMessage = await this.messageModel.create(newMessage);
 
@@ -157,7 +156,7 @@ export class MessageService {
             _id: msgId,
         });
         if (!msg) {
-            return { status: 404 as const };
+            throw new MessageNotFoundException();
         }
         msg.read = true;
         const updatedMsg = await msg.save();
@@ -171,7 +170,7 @@ export class MessageService {
 
     async uploadFileAsMessage(userId: string, file: Express.Multer.File) {
         if (!(await this.userModel.findOne({ _id: userId }))) {
-            return { status: 404 };
+            throw new UserNotFoundException();
         }
 
         await this.objectStorageService.uploadFile(
