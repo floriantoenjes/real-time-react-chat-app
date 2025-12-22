@@ -29,7 +29,9 @@ async function bootstrap() {
     const customLogger = new CustomLogger(app.get(ConfigService));
     app.useLogger(customLogger);
 
-    app.useGlobalFilters(new GlobalExceptionFilter());
+    app.useGlobalFilters(
+        new GlobalExceptionFilter(new CustomLogger(app.get(ConfigService))),
+    );
 
     app.enableCors({
         origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',

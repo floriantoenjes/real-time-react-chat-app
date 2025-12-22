@@ -7,6 +7,8 @@ import {
 } from "@ts-rest/core";
 import { BACKEND_URL } from "../../environment";
 import { AuthService } from "./AuthService";
+import { snackbarService } from "../contexts/SnackbarContext";
+import { Errors } from "@t/enums/errors.enum";
 
 type RecursiveProxyObj<T, TClientArgs extends InitClientArgs> = {
     [TKey in keyof T]: T[TKey] extends AppRoute
@@ -70,6 +72,8 @@ export class ClientService {
                 // @ts-ignore
                 const refreshResponse = await fetch(path, requestOptions);
 
+                await this.handleErrors(response);
+
                 return {
                     status: refreshResponse.status,
                     body: response.headers.get("content-type")?.includes("json")
@@ -79,6 +83,8 @@ export class ClientService {
                 };
             }
 
+            await this.handleErrors(response);
+
             return {
                 status: response.status,
                 body: response.headers.get("content-type")?.includes("json")
@@ -87,6 +93,17 @@ export class ClientService {
                 headers: response.headers,
             };
         };
+    }
+
+    private async handleErrors(response: Response) {
+        if (!response.ok) {
+            const errorObj = await response.json();
+            switch (errorObj.errorCode) {
+                case Errors.GENERAL_001:
+                    snackbarService.showSnackbar(errorObj.message);
+                    break;
+            }
+        }
     }
 
     async refreshAccessToken() {
