@@ -11,9 +11,10 @@ import { findUsersByCacheKey } from '../cache/cache-keys';
 import { CustomLogger } from '../logging/custom-logger';
 import { Jimp } from 'jimp';
 import { ObjectStorageService } from './object-storage.service';
-import { EmailAlreadyTakenException } from '../errors/email-already-taken.exception';
-import { UserNotFoundException } from '../errors/user-not-found.exception';
-import { UnauthorizedException } from '../errors/unauthorized.exception';
+import { EmailAlreadyTakenException } from '../errors/internal/email-already-taken.exception';
+import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
+import { UnauthorizedException } from '../errors/internal/unauthorized.exception';
+import { ObjectNotFoundException } from '../errors/internal/object-not-found.exception';
 
 @Injectable()
 export class UserService {
@@ -26,7 +27,9 @@ export class UserService {
         @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
         private readonly jwtService: JwtService,
         private readonly objectStorageService: ObjectStorageService,
-    ) {}
+    ) {
+        this.logger.setContext(UserService.name);
+    }
 
     async findUsersBy(filter?: Partial<{ [k in keyof UserEntity]: any }>) {
         const cacheKey = findUsersByCacheKey(filter);
@@ -76,7 +79,10 @@ export class UserService {
         };
     }
 
-    async refresh(accessToken: string, refreshToken?: string) {
+    async refresh(
+        accessToken: string,
+        refreshToken?: string,
+    ): Promise<{ user: User; accessToken: string; refreshToken: string }> {
         try {
             this.jwtService.verify(accessToken);
 
@@ -90,15 +96,15 @@ export class UserService {
             }
 
             return await this.respondWithNewTokens(user);
-        } catch (error) {
+        } catch (error: any) {
             if (!refreshToken) {
                 throw new UnauthorizedException();
             }
 
             try {
                 this.jwtService.verify(refreshToken);
-            } catch (e) {
-                return;
+            } catch (error: any) {
+                throw new UnauthorizedException();
             }
 
             const decodedJwt = this.jwtService.decode(refreshToken);
@@ -190,7 +196,7 @@ export class UserService {
             await this.cache.del(findUsersByCacheKey());
 
             return createdUser;
-        } catch (e) {
+        } catch (error: any) {
             throw new EmailAlreadyTakenException();
         }
     }
@@ -220,7 +226,9 @@ export class UserService {
                     body: objectDataString,
                 };
             }
-        } catch (e) {}
+        } catch (error: any) {
+            throw new ObjectNotFoundException();
+        }
 
         return {
             status: 404 as const,

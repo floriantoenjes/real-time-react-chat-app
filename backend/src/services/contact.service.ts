@@ -5,9 +5,9 @@ import { UserEntity } from '../schemas/user.schema';
 import { Model } from 'mongoose';
 import { CustomLogger } from '../logging/custom-logger';
 import { OnlineStatusService } from './online-status.service';
-import { UserNotFoundException } from '../errors/user-not-found.exception';
-import { ContactNotFoundException } from '../errors/contact-not-found.exception';
-import { ContactAlreadyExistsException } from '../errors/contact-already-exists.exception';
+import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
+import { ContactNotFoundException } from '../errors/internal/contact-not-found.exception';
+import { ContactAlreadyExistsException } from '../errors/internal/contact-already-exists.exception';
 
 @Injectable()
 export class ContactService {
@@ -15,7 +15,9 @@ export class ContactService {
         private readonly logger: CustomLogger,
         private readonly onlineStatusService: OnlineStatusService,
         @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
-    ) {}
+    ) {
+        this.logger.setContext(ContactService.name);
+    }
 
     async getUserContacts(userId: string) {
         const user = await this.userModel.findOne({

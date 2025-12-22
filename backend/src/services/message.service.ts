@@ -9,8 +9,8 @@ import { SocketMessageTypes } from '../../shared/socket-message-types.enum';
 import { RealTimeChatGateway } from '../gateways/socket.gateway';
 import { ObjectStorageService } from './object-storage.service';
 import { User } from '../../shared/user.contract';
-import { MessageNotFoundException } from '../errors/message-not-found.exception';
-import { UserNotFoundException } from '../errors/user-not-found.exception';
+import { MessageNotFoundException } from '../errors/internal/message-not-found.exception';
+import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
 
 @Injectable()
 export class MessageService {

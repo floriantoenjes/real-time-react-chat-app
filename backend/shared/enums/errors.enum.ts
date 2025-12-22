@@ -1,4 +1,6 @@
 export enum Errors {
+    GENERAL_001 = 'GENERAL_001',
+
     AUTH_001 = 'AUTH_001',
     AUTH_002 = 'AUTH_002',
     AUTH_003 = 'AUTH_003',
@@ -12,4 +14,9 @@ export enum Errors {
     CONTACT_GROUP_001 = 'CONTACT_GROUP_001',
     CONTACT_GROUP_002 = 'CONTACT_GROUP_002',
     CONTACT_GROUP_003 = 'CONTACT_GROUP_003',
+
+    SIGN_IN_001 = 'SIGN_IN_001',
+
+    SIGN_UP_001 = 'SIGN_UP_001',
+    SIGN_IN_002 = 'SIGN_IN_002',
 }

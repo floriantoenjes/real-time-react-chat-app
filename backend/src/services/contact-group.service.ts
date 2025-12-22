@@ -4,17 +4,19 @@ import { UserEntity } from '../schemas/user.schema';
 import { Model, Types } from 'mongoose';
 import { CustomLogger } from '../logging/custom-logger';
 import { ContactGroup } from '../../shared/contact-group.contract';
-import { UserNotFoundException } from '../errors/user-not-found.exception';
-import { MembersNotFoundException } from '../errors/members-not-found.exception';
-import { ContactGroupAlreadyExistsException } from '../errors/contact-group-already-exists.exception';
-import { ContactGroupNotFoundException } from '../errors/contact-group-not-found.exception';
+import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
+import { MembersNotFoundException } from '../errors/internal/members-not-found.exception';
+import { ContactGroupAlreadyExistsException } from '../errors/internal/contact-group-already-exists.exception';
+import { ContactGroupNotFoundException } from '../errors/internal/contact-group-not-found.exception';
 
 @Injectable()
 export class ContactGroupService {
     constructor(
         private readonly logger: CustomLogger,
         @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
-    ) {}
+    ) {
+        this.logger.setContext(ContactGroupService.name);
+    }
 
     async getContactGroups(userId: string) {
         const user = await this.userModel

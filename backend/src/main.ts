@@ -4,8 +4,10 @@ import { RedisIoAdapter } from './adapters/RedisIoAdapter';
 import { ExpressPeerServer } from 'peer';
 import * as express from 'express';
 import * as process from 'node:process';
-import { CustomLogger } from './logging/custom-logger';
 import * as cookieParser from 'cookie-parser';
+import { CustomLogger } from './logging/custom-logger';
+import { ConfigService } from '@nestjs/config';
+import { GlobalExceptionFilter } from './errors/filters/global-exception.filter';
 
 async function bootstrap() {
     console.log(
@@ -24,8 +26,10 @@ async function bootstrap() {
     app.useWebSocketAdapter(redisIoAdapter);
     app.use(cookieParser());
 
-    const customLogger = app.get(CustomLogger);
+    const customLogger = new CustomLogger(app.get(ConfigService));
     app.useLogger(customLogger);
+
+    app.useGlobalFilters(new GlobalExceptionFilter());
 
     app.enableCors({
         origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
