@@ -9,10 +9,6 @@ import { MessageContext } from "../../shared/contexts/MessageContext";
 import { Message } from "real-time-chat-backend/shared/message.contract";
 import { useDiContext } from "../../shared/contexts/DiContext";
 import { MessageAddons } from "../../shared/enums/message";
-import {
-    SnackbarLevels,
-    snackbarService,
-} from "../../shared/contexts/SnackbarContext";
 import { useI18nContext } from "../../i18n/i18n-react";
 import { SocketMessageTypes } from "@t/socket-message-types.enum";
 
@@ -30,19 +26,15 @@ export function Chat() {
                 return;
             }
 
-            try {
-                const messages = await messageService.getMessages(
-                    user._id,
-                    selectedContact._id,
-                );
-                setMessages(messages);
-            } catch (error) {
-                snackbarService.showSnackbar(
-                    LL.ERROR.COULD_NOT_FETCH_MESSAGES(),
-                    SnackbarLevels.ERROR,
-                );
-                throw error;
+            const messages = await messageService.getMessages(
+                user._id,
+                selectedContact._id,
+            );
+            if (!messages) {
+                return;
             }
+
+            setMessages(messages);
         }
         void fetchMessages();
     }, [user, selectedContact, setMessages, messageService, socket?.connected]);

@@ -5,10 +5,6 @@ import { useHandleInputChange } from "../helpers";
 import { useDiContext } from "../shared/contexts/DiContext";
 import { RoutesEnum } from "../shared/enums/routes";
 import { useI18nContext } from "../i18n/i18n-react";
-import {
-    SnackbarLevels,
-    snackbarService,
-} from "../shared/contexts/SnackbarContext";
 import { LanguageModal } from "../dashboard/sidebar/top-section/language-modal/LanguageModal";
 import { GlobeAltIcon } from "@heroicons/react/24/outline";
 
@@ -36,10 +32,6 @@ export function Login(props: {}) {
             formData.password,
         );
         if (!user) {
-            snackbarService.showSnackbar(
-                LL.EMAIL_OR_PASSWORD_INCORRECT(),
-                SnackbarLevels.WARNING,
-            );
             return;
         }
         window.location.reload();

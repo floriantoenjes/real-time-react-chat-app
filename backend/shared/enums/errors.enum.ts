@@ -1,3 +1,4 @@
+// TODO: differentiate between internal and external errors here
 export enum Errors {
     GENERAL_001 = 'GENERAL_001',
 
@@ -16,7 +17,9 @@ export enum Errors {
     CONTACT_GROUP_003 = 'CONTACT_GROUP_003',
 
     SIGN_IN_001 = 'SIGN_IN_001',
+    SIGN_IN_002 = 'SIGN_IN_002',
 
     SIGN_UP_001 = 'SIGN_UP_001',
-    SIGN_IN_002 = 'SIGN_IN_002',
 }
+
+export type ErrorTypes = Record<Errors, string>;

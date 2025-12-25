@@ -15,9 +15,8 @@ export function Avatar(props: {
     return (
         <div
             className={
-                "flex justify-center items-center relative" + props.noMargin
-                    ? ""
-                    : "mr - 3"
+                "flex justify-center items-center relative " +
+                (props.noMargin ? "" : "mr-3")
             }
             style={{
                 minWidth: props.width ?? "2.5rem",

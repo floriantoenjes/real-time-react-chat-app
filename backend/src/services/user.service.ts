@@ -11,7 +11,7 @@ import { findUsersByCacheKey } from '../cache/cache-keys';
 import { CustomLogger } from '../logging/custom-logger';
 import { Jimp } from 'jimp';
 import { ObjectStorageService } from './object-storage.service';
-import { EmailAlreadyTakenException } from '../errors/internal/email-already-taken.exception';
+import { EmailAlreadyTakenException } from '../errors/external/email-already-taken.exception';
 import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
 import { UnauthorizedException } from '../errors/internal/unauthorized.exception';
 import { ObjectNotFoundException } from '../errors/internal/object-not-found.exception';

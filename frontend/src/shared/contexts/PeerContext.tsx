@@ -56,6 +56,10 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
         try {
             if (user && !peer) {
                 coturnService.getCredentials(user._id).then((credentials) => {
+                    if (!credentials) {
+                        return;
+                    }
+
                     const newPeer = new Peer(user.username, {
                         host: PEERJS_SERVER_HOST,
                         port: +PEERJS_SERVER_PORT,

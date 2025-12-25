@@ -79,6 +79,7 @@ export class UserController {
     }
 
     @TsRestHandler(userContract.signOut)
+    @Public()
     async signOut(@Res({ passthrough: true }) res: Response) {
         return tsRestHandler(userContract.signOut, async () => {
             const secureCookieOptions = {

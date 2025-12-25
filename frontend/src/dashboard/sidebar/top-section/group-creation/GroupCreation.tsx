@@ -67,10 +67,10 @@ export function GroupCreation(props: { user: User; toggleDrawer: any }) {
                     ),
                 mappedMembers.map((mm) => mm._id),
             )
-            .then((res) => {
+            .then((result) => {
                 props.toggleDrawer("left", false)({} as React.KeyboardEvent);
-                if (res.status === 201) {
-                    setContactGroups((prevState) => [...prevState, res.body]);
+                if (result) {
+                    setContactGroups((prevState) => [...prevState, result]);
                 }
             });
     }

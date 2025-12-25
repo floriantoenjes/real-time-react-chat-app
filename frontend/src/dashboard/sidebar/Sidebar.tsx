@@ -148,10 +148,6 @@ export function Sidebar() {
             searchedUser._id,
         );
         if (newContactResponse.status !== 201) {
-            snackbarService.showSnackbar(
-                LL.ERROR.COULD_NOT_ADD_CONTACT(),
-                SnackbarLevels.ERROR,
-            );
             return;
         }
 

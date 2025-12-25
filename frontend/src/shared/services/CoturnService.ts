@@ -10,7 +10,7 @@ export class CoturnService {
             .getCredentials({ body: { userId } });
 
         if (response.status !== 200) {
-            throw new Error(`Error creating coturn credentials!`);
+            return false;
         }
 
         return response.body;
