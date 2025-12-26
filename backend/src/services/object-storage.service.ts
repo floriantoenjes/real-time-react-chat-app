@@ -8,29 +8,29 @@ export class ObjectStorageService {
     private s3: S3;
 
     constructor(readonly configService: ConfigService) {
-        const s3Config: any = {};
+        const s3ConfigKeys = {
+            S3_URL: '',
+            S3_REGION: '',
+            S3_DEBUG: '',
+            S3_ACCESS_KEY_ID: '',
+            S3_SECRET_ACCESS_KEY: '',
+        };
 
-        for (const configKey of [
-            'S3_URL',
-            'S3_REGION',
-            'S3_DEBUG',
-            'S3_ACCESS_KEY_ID',
-            'S3_SECRET_ACCESS_KEY',
-        ]) {
+        for (const configKey of Object.keys(s3ConfigKeys)) {
             const configValue = this.configService.get(configKey);
             if (!configValue) {
                 throw new Error(`Config value "${configKey}" is not set!`);
             }
-            s3Config[configKey] = configValue;
+            s3ConfigKeys[configKey] = configValue;
         }
 
         this.s3 = new S3({
-            endpoint: s3Config.S3_URL,
-            forcePathStyle: !!s3Config.S3_DEBUG,
-            region: s3Config.S3_REGION,
+            endpoint: s3ConfigKeys.S3_URL,
+            forcePathStyle: !!s3ConfigKeys.S3_DEBUG,
+            region: s3ConfigKeys.S3_REGION,
             credentials: {
-                accessKeyId: s3Config.S3_ACCESS_KEY,
-                secretAccessKey: s3Config.S3_SECRET_ACCESS_KEY,
+                accessKeyId: s3ConfigKeys.S3_ACCESS_KEY_ID,
+                secretAccessKey: s3ConfigKeys.S3_SECRET_ACCESS_KEY,
             },
         });
     }

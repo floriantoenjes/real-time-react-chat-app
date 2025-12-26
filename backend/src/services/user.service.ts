@@ -13,7 +13,7 @@ import { Jimp } from 'jimp';
 import { ObjectStorageService } from './object-storage.service';
 import { EmailAlreadyTakenException } from '../errors/external/email-already-taken.exception';
 import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
-import { UnauthorizedException } from '../errors/internal/unauthorized.exception';
+import { UnauthorizedException } from '../errors/external/unauthorized.exception';
 import { ObjectNotFoundException } from '../errors/internal/object-not-found.exception';
 
 @Injectable()
@@ -227,6 +227,7 @@ export class UserService {
                 };
             }
         } catch (error: any) {
+            this.logger.error(error);
             throw new ObjectNotFoundException();
         }
 

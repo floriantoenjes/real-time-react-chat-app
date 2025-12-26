@@ -1,8 +1,8 @@
 import { AppHttpException } from '../app-http.exception';
-import { Errors } from '../../../shared/enums/errors.enum';
+import { InternalErrors } from '../../../shared/enums/errors.enum';
 
 export class ContactAlreadyExistsException extends AppHttpException {
     constructor() {
-        super(Errors.CONTACT_002, 'Contact already exists');
+        super(InternalErrors.CONTACT_002, 'Contact already exists');
     }
 }
