@@ -227,7 +227,6 @@ export class UserService {
                 };
             }
         } catch (error: any) {
-            this.logger.error(error);
             throw new ObjectNotFoundException();
         }
 
