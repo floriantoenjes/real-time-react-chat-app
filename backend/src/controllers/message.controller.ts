@@ -14,10 +14,16 @@ import {
 import { messageContract } from '../../shared/message.contract';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MessageService } from '../services/message.service';
+import { CustomLogger } from '../logging/custom-logger';
 
 @Controller()
 export class MessageController {
-    constructor(private readonly messageService: MessageService) {}
+    constructor(
+        private readonly logger: CustomLogger,
+        private readonly messageService: MessageService,
+    ) {
+        this.logger.setContext(MessageController.name);
+    }
 
     @TsRestHandler(messageContract.getMessageById)
     async getMessageById() {

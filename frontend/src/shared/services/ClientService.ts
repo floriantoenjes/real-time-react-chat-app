@@ -7,6 +7,10 @@ import {
 } from "@ts-rest/core";
 import { BACKEND_URL } from "../../environment";
 import { AuthService } from "./AuthService";
+import { SnackbarLevels, snackbarService } from "../contexts/SnackbarContext";
+import { errorsEn } from "../../errors/i18n/errors-en";
+import { getErrorTranslation } from "../../errors/i18n/error-i18n.utils";
+import { Locales } from "../../i18n/i18n-types";
 
 type RecursiveProxyObj<T, TClientArgs extends InitClientArgs> = {
     [TKey in keyof T]: T[TKey] extends AppRoute
@@ -61,6 +65,11 @@ export class ClientService {
             };
 
             const response = await fetch(path, requestOptions);
+            const responseBody = response.headers
+                .get("content-type")
+                ?.includes("json")
+                ? await response.json()
+                : await response.text();
 
             if (response.status === 401) {
                 console.log("Access token expired, attempting refresh...");
@@ -70,23 +79,35 @@ export class ClientService {
                 // @ts-ignore
                 const refreshResponse = await fetch(path, requestOptions);
 
+                await this.handleErrors(responseBody);
+
                 return {
                     status: refreshResponse.status,
-                    body: response.headers.get("content-type")?.includes("json")
-                        ? await response.json()
-                        : await response.text(),
+                    body: responseBody,
                     headers: refreshResponse.headers,
                 };
             }
 
+            await this.handleErrors(responseBody);
+
             return {
                 status: response.status,
-                body: response.headers.get("content-type")?.includes("json")
-                    ? await response.json()
-                    : await response.text(),
+                body: responseBody,
                 headers: response.headers,
             };
         };
+    }
+
+    private async handleErrors(errorObj: any) {
+        if (errorObj.errorCode in errorsEn) {
+            snackbarService.showSnackbar(
+                getErrorTranslation(
+                    errorObj.errorCode,
+                    (localStorage.getItem("language") as Locales) ?? "en",
+                ),
+                SnackbarLevels.ERROR,
+            );
+        }
     }
 
     async refreshAccessToken() {

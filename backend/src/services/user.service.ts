@@ -11,6 +11,10 @@ import { findUsersByCacheKey } from '../cache/cache-keys';
 import { CustomLogger } from '../logging/custom-logger';
 import { Jimp } from 'jimp';
 import { ObjectStorageService } from './object-storage.service';
+import { EmailAlreadyTakenException } from '../errors/external/email-already-taken.exception';
+import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
+import { UnauthorizedException } from '../errors/external/unauthorized.exception';
+import { ObjectNotFoundException } from '../errors/internal/object-not-found.exception';
 
 @Injectable()
 export class UserService {
@@ -23,7 +27,9 @@ export class UserService {
         @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
         private readonly jwtService: JwtService,
         private readonly objectStorageService: ObjectStorageService,
-    ) {}
+    ) {
+        this.logger.setContext(UserService.name);
+    }
 
     async findUsersBy(filter?: Partial<{ [k in keyof UserEntity]: any }>) {
         const cacheKey = findUsersByCacheKey(filter);
@@ -44,7 +50,7 @@ export class UserService {
         const user = await this.findUserBy({ email, password });
         if (!user) {
             this.logger.log(`User with email ${email} not found`);
-            return;
+            throw new UserNotFoundException();
         }
 
         const payload = { sub: user._id, username: user.username };
@@ -73,7 +79,10 @@ export class UserService {
         };
     }
 
-    async refresh(accessToken: string, refreshToken?: string) {
+    async refresh(
+        accessToken: string,
+        refreshToken?: string,
+    ): Promise<{ user: User; accessToken: string; refreshToken: string }> {
         try {
             this.jwtService.verify(accessToken);
 
@@ -83,19 +92,19 @@ export class UserService {
                 username: decodedJwt?.username,
             });
             if (!user) {
-                return;
+                throw new UserNotFoundException();
             }
 
             return await this.respondWithNewTokens(user);
-        } catch (error) {
+        } catch (error: any) {
             if (!refreshToken) {
-                return;
+                throw new UnauthorizedException();
             }
 
             try {
                 this.jwtService.verify(refreshToken);
-            } catch (e) {
-                return;
+            } catch (error: any) {
+                throw new UnauthorizedException();
             }
 
             const decodedJwt = this.jwtService.decode(refreshToken);
@@ -112,14 +121,14 @@ export class UserService {
                 username: decodedJwt?.username,
             });
             if (!user) {
-                return;
+                throw new UserNotFoundException();
             }
 
             if (
                 !refreshTokenFromDb ||
                 !(await bcrypt.compare(refreshToken, refreshTokenFromDb))
             ) {
-                return;
+                throw new UnauthorizedException();
             }
 
             return await this.respondWithNewTokens(user);
@@ -173,23 +182,23 @@ export class UserService {
     }
 
     async createUser(email: string, password: string, username: string) {
-        const hash = await bcrypt.hash(password, this.SALT_OR_ROUNDS);
+        try {
+            const hash = await bcrypt.hash(password, this.SALT_OR_ROUNDS);
 
-        const createdUser = await this.userModel.create({
-            email,
-            password: hash,
-            username,
-        });
+            const createdUser = await this.userModel.create({
+                email,
+                password: hash,
+                username,
+            });
 
-        if (!createdUser) {
-            return;
+            this.logger.log(`Created user "${username}"`);
+
+            await this.cache.del(findUsersByCacheKey());
+
+            return createdUser;
+        } catch (error: any) {
+            throw new EmailAlreadyTakenException();
         }
-
-        this.logger.log(`Created user ${username}`);
-
-        await this.cache.del(findUsersByCacheKey());
-
-        return createdUser;
     }
 
     async updateUser(userPartial: Partial<User>) {
@@ -197,7 +206,7 @@ export class UserService {
             _id: new Types.ObjectId(userPartial._id),
         });
         if (!user) {
-            return;
+            throw new UserNotFoundException();
         }
 
         await this.cache.del(findUsersByCacheKey());
@@ -217,7 +226,9 @@ export class UserService {
                     body: objectDataString,
                 };
             }
-        } catch (e) {}
+        } catch (error: any) {
+            throw new ObjectNotFoundException();
+        }
 
         return {
             status: 404 as const,

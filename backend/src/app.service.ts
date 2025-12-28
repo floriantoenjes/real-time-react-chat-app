@@ -19,7 +19,9 @@ export class AppService implements OnApplicationBootstrap {
         private readonly messageModel: Model<MessageEntity>,
         @InjectModel(UserEntity.name)
         private readonly userModel: Model<UserEntity>,
-    ) {}
+    ) {
+        this.logger.setContext(AppService.name);
+    }
 
     async onApplicationBootstrap() {
         await this.cache.reset();

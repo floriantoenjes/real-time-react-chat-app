@@ -99,13 +99,14 @@ export function Dashboard(props: { user?: User }) {
         const res = await contactService.current.getContactsOnlineStatus(
             contacts.map((c) => c._id),
         );
-        if (res.status === 200) {
-            const onlineStatusMap = new Map<string, boolean>();
-            for (const userId of Object.keys(res.body)) {
-                onlineStatusMap.set(userId, res.body[userId]);
-            }
-            setContactsOnlineStatus(onlineStatusMap);
+        if (res.status !== 200) {
+            return;
         }
+        const onlineStatusMap = new Map<string, boolean>();
+        for (const userId of Object.keys(res.body)) {
+            onlineStatusMap.set(userId, res.body[userId]);
+        }
+        setContactsOnlineStatus(onlineStatusMap);
     }
 
     return (

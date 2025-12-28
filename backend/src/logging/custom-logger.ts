@@ -1,11 +1,12 @@
-import { Injectable, LoggerService } from '@nestjs/common';
+import { Injectable, LoggerService, Scope } from '@nestjs/common';
 import * as winston from 'winston';
-import * as WinstonGelfTransport from 'winston-gelf';
 import { ConfigService } from '@nestjs/config';
 
-@Injectable()
+@Injectable({ scope: Scope.TRANSIENT })
 export class CustomLogger implements LoggerService {
     private logger: winston.Logger;
+
+    private context?: string;
 
     constructor(readonly configService: ConfigService) {
         this.logger = winston.createLogger({
@@ -24,23 +25,27 @@ export class CustomLogger implements LoggerService {
         });
     }
 
-    log(message: string, context?: string) {
-        this.logger.info({ message, context });
+    setContext(context: string) {
+        this.context = context;
     }
 
-    error(message: string, trace?: string, context?: string) {
-        this.logger.error({ message, trace, context });
+    log(message: string) {
+        this.logger.info({ message, context: this.context });
     }
 
-    warn(message: string, context?: string) {
-        this.logger.warn({ message, context });
+    error(message: string, trace?: string) {
+        this.logger.error({ message, trace, context: this.context });
     }
 
-    debug(message: string, context?: string) {
-        this.logger.debug({ message, context });
+    warn(message: string) {
+        this.logger.warn({ message, context: this.context });
     }
 
-    verbose(message: string, context?: string) {
-        this.logger.verbose({ message, context });
+    debug(message: string) {
+        this.logger.debug({ message, context: this.context });
+    }
+
+    verbose(message: string) {
+        this.logger.verbose({ message, context: this.context });
     }
 }

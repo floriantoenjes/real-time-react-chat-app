@@ -38,34 +38,22 @@ export function Register(props: {}) {
     } = useForm<SignUpData>();
 
     async function signUp(formData: SignUpData) {
-        try {
-            const signUpResponse = await authService.signUp(
-                formData.email,
-                formData.password,
-                formData.username,
-            );
+        const signUpResponse = await authService.signUp(
+            formData.email,
+            formData.password,
+            formData.username,
+        );
 
-            setUser(signUpResponse.user);
-            navigate(RoutesEnum.DASHBOARD);
-            snackbarService.showSnackbar(
-                LL.REGISTERED_AND_SIGNED_IN(),
-                SnackbarLevels.SUCCESS,
-            );
-        } catch (e: any) {
-            if (e?.message === "Already exists") {
-                snackbarService.showSnackbar(
-                    "This email is already taken",
-                    SnackbarLevels.WARNING,
-                );
-                return;
-            } else {
-                snackbarService.showSnackbar(
-                    "There was an error during sign up",
-                    SnackbarLevels.ERROR,
-                );
-                return;
-            }
+        if (!signUpResponse) {
+            return;
         }
+
+        setUser(signUpResponse.user);
+        navigate(RoutesEnum.DASHBOARD);
+        snackbarService.showSnackbar(
+            LL.REGISTERED_AND_SIGNED_IN(),
+            SnackbarLevels.SUCCESS,
+        );
     }
 
     return (
