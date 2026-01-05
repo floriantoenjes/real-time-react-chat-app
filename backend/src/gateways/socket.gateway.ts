@@ -32,7 +32,9 @@ export class RealTimeChatGateway
         private readonly jwtService: JwtService,
         private readonly logger: CustomLogger,
         private readonly onlineStatusService: OnlineStatusService,
-    ) {}
+    ) {
+        this.logger.setContext(RealTimeChatGateway.name);
+    }
 
     handleConnection(socket: Socket): void {
         if (!this.canSocketBeAuthenticated(socket)) {

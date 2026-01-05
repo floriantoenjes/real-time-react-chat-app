@@ -20,7 +20,7 @@ export class MessageService {
             });
 
         if (messages.status !== 200) {
-            throw new Error("Error getting messages");
+            return false;
         }
 
         return messages.body;
@@ -31,7 +31,7 @@ export class MessageService {
             .getClient(messageContract)
             .deleteMessages({ body: { fromUserId, toUserId } });
         if (res.status !== 204) {
-            throw new Error("Error deleting messages");
+            return false;
         }
     }
 

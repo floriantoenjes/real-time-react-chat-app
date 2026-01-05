@@ -54,11 +54,7 @@ export class UserService {
             return res.body;
         }
 
-        if (res.status === 400 && res.body.message === "Already exists") {
-            throw new Error("Already exists");
-        }
-
-        throw new Error("Error during sign up");
+        return false;
     }
 
     async searchForUserByUsername(username: string): Promise<User | false> {
@@ -88,9 +84,8 @@ export class UserService {
             .uploadAvatar({
                 body: { avatar: file, userId, x, y, width, height },
             });
-        if (res.status !== 201) {
-            throw new Error("Error uploading avatar");
-        }
+
+        return res.status === 201;
     }
 
     async loadAvatar(userId: string) {

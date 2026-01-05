@@ -76,12 +76,7 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
                 setMessages([]);
                 handleClose();
             })
-            .catch(() => {
-                snackbarService.showSnackbar(
-                    LL.ERROR.COULD_NOT_DELETE_CHAT_MESSAGES(),
-                    SnackbarLevels.ERROR,
-                );
-            });
+            .catch();
     }
 
     async function deleteChat() {
@@ -91,29 +86,17 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
     }
 
     async function deleteChatMessages(selectedContact: Contact | ContactGroup) {
-        try {
-            await messageService.deleteMessages(user._id, selectedContact._id);
-        } catch (error) {
-            snackbarService.showSnackbar(
-                LL.ERROR.COULD_NOT_DELETE_CHAT_MESSAGES(),
-                SnackbarLevels.ERROR,
-            );
-        }
+        await messageService.deleteMessages(user._id, selectedContact._id);
     }
 
     async function deleteChatContact(selectedContact: Contact | ContactGroup) {
         const isAContactGroup = "memberIds" in selectedContact;
         if (isAContactGroup) {
-            const deletionRes = await contactGroupService.deleteContactGroup(
+            const deletionResult = await contactGroupService.deleteContactGroup(
                 user._id,
                 selectedContact,
             );
-
-            if (deletionRes.status !== 204) {
-                snackbarService.showSnackbar(
-                    LL.ERROR.COULD_NOT_DELETE_CONTACT_GROUP(),
-                    SnackbarLevels.ERROR,
-                );
+            if (deletionResult) {
                 return;
             }
         } else {
@@ -123,10 +106,6 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
             );
 
             if (deletionRes.status !== 204) {
-                snackbarService.showSnackbar(
-                    LL.ERROR.COULD_NOT_DELETE_CONTACT(),
-                    SnackbarLevels.ERROR,
-                );
                 return;
             }
         }
