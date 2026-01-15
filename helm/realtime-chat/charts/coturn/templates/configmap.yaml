@@ -11,7 +11,7 @@ data:
     pkey=/etc/coturn/tls/tls.key
     fingerprint
     realm={{ .Values.realm }}
-    external-ip={{ .Values.externalIp }}/{{ include "coturn.fullname" . }}
+    external-ip={{ .Values.externalIp }}/{{ .Values.clusterIp }}
     no-ipv6
     verbose
 

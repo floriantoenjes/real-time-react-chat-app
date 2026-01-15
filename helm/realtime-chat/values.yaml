@@ -189,3 +189,4 @@ coturn:
   realm: floriantoenjes.com
   externalIp: 127.0.0.1
   secretName: wildcard-cert
+  clusterIp: 10.104.196.154
