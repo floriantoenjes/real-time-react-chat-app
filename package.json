@@ -1,6 +1,6 @@
 {
   "name": "real-time-chat-app",
-  "version": "1.5.1",
+  "version": "1.7.5",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,6 +10,8 @@
     "start": "node backend/dist/src/main",
     "test": "echo \"Error: no test specified\" && exit 1",
     "docker:build": "npm run build && docker build -t florians-realtime-chat:$npm_package_version .",
+    "docker:build-configured": "npm run build && docker build --build-arg VITE_PEERJS_SERVER_HOST=peer.floriantoenjes.com --build-arg VITE_PEERJS_SERVER_PORT=443 --build-arg VITE_TURN_SERVER_URL=turns:turn.floriantoenjes.com -t florians-realtime-chat:$npm_package_version .",
+    "minikube:build": "npm run docker:build-configured && minikube image load florians-realtime-chat:$npm_package_version",
     "cy:open": "cypress open"
   },
   "dependencies": {

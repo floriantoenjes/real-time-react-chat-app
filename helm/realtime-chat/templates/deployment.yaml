@@ -1,0 +1,106 @@
+{{- $JWT_SECRET := .Values.JWT_SECRET | required ".Values.JWT_SECRET is required." -}}
+{{- $COTURN_SECRET := .Values.coturn.secret | required ".Values.coturn.secret is required." -}}
+{{- $S3_ACCESS_KEY_ID := .Values.S3_ACCESS_KEY_ID | required ".Values.S3_ACCESS_KEY_ID is required." -}}
+{{- $S3_SECRET_ACCESS_KEY := .Values.S3_SECRET_ACCESS_KEY | required ".Values.S3_SECRET_ACCESS_KEY is required." -}}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "realtime-chat.fullname" . }}
+  labels:
+    {{- include "realtime-chat.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "realtime-chat.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "realtime-chat.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            - name: uri
+              value: "mongodb://realtime-chat-mongodb:27017"
+            - name: redis
+              value: "redis://realtime-chat-redis:6379"
+            - name: REDIS_HOST
+              value: 'realtime-chat-redis'
+            - name: S3_URL
+              value: "http://realtime-chat-s3mock:9090"
+            - name: S3_DEBUG
+              value: "true"
+            - name: S3_REGION
+              value: "fra1"
+            - name: S3_BUCKET_NAME
+              value: "realtime-chat-bucket"
+            - name: S3_ACCESS_KEY_ID
+              value: {{ .Values.S3_ACCESS_KEY_ID }}
+            - name: S3_SECRET_ACCESS_KEY
+              value: {{ .Values.S3_SECRET_ACCESS_KEY }}
+            - name: JWT_SECRET
+              value: {{ .Values.JWT_SECRET }}
+            - name: COTURN_SECRET
+              value: {{ .Values.coturn.secret }}
+      {{- with .Values.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
