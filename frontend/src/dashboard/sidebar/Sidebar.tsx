@@ -2,6 +2,7 @@ import { Autocomplete, TextField } from "@mui/material";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { ReactElement, useContext, useEffect, useState } from "react";
 import { ContactsContext } from "../../shared/contexts/ContactsContext";
+import { useOnlineStatus } from "../../shared/contexts/OnlineStatusContext";
 import { useHandleInputChange } from "../../helpers";
 import { useUserContext } from "../../shared/contexts/UserContext";
 import { Contact } from "../../shared/Contact";
@@ -27,7 +28,7 @@ export function Sidebar() {
     const [selectedContact, setSelectedContact] =
         contactsContext.selectedContact;
     const [userContacts, setUserContacts] = contactsContext.contacts;
-    const [userContactsOnlineStatus] = contactsContext.contactsOnlineStatus;
+    const { contactsOnlineStatus: userContactsOnlineStatus } = useOnlineStatus();
     const [userContactGroups] = contactsContext.contactGroups;
     const [socket] = useContext(SocketContext);
     const [lastMessage, setLastMessage] = useState<Message>();

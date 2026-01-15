@@ -8,6 +8,7 @@ import {
 import { Drawer, Fade, IconButton, Menu, MenuItem } from "@mui/material";
 import React, { MouseEvent, useContext, useEffect, useState } from "react";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
+import { useOnlineStatus } from "../../../shared/contexts/OnlineStatusContext";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
 import { Contact } from "real-time-chat-backend/shared/contact.contract";
@@ -32,8 +33,7 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
         useContext(ContactsContext).contactGroups;
     const selectedContact = props.selectedContact;
     const [, setSelectedContact] = useContext(ContactsContext).selectedContact;
-    const [contactsOnlineStatus] =
-        useContext(ContactsContext).contactsOnlineStatus;
+    const { contactsOnlineStatus } = useOnlineStatus();
     const [, setMessages] = useContext(MessageContext);
     const { startCall } = useContext(PeerContext);
     const [socket] = useContext(SocketContext);
