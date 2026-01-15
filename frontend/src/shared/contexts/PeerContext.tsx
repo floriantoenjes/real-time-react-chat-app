@@ -1,7 +1,9 @@
 import React, {
     createContext,
+    useCallback,
     useContext,
     useEffect,
+    useMemo,
     useRef,
     useState,
 } from "react";
@@ -51,6 +53,47 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
     const [selectedContact] = useContext(ContactsContext).selectedContact;
 
     const videoRef = useRef<HTMLVideoElement | null>(null);
+
+    const shutdownCall = useCallback(() => {
+        if (videoRef.current?.srcObject) {
+            // @ts-ignore
+            for (const track of videoRef.current.srcObject.getTracks()) {
+                track.stop();
+            }
+            videoRef.current.srcObject = null;
+
+            if (stream) {
+                for (const track of stream.getTracks()) {
+                    track.stop();
+                }
+            }
+
+            setStream(null);
+
+            if (receiveCallingStream) {
+                for (const track of receiveCallingStream?.getTracks()) {
+                    track.stop();
+                }
+                setReceiveCallingStream(null);
+            }
+
+            // peer?.destroy();
+        }
+    }, [stream, receiveCallingStream]);
+
+    const listenOnPeerConnections = useCallback((peer: Peer) => {
+        peer.on("connection", (connection) => {
+            setDataConnection(connection);
+
+            peer.on("call", (call) => {
+                setCall(call);
+            });
+
+            connection.on("close", () => {
+                setCall(null);
+            });
+        });
+    }, []);
 
     useEffect(() => {
         try {
@@ -103,7 +146,7 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
             return;
         }
         listenOnPeerConnections(peer);
-    }, [peer]);
+    }, [peer, listenOnPeerConnections]);
 
     useEffect(() => {
         if (!videoRef.current || !stream) {
@@ -116,7 +159,7 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
         if (!call && stream) {
             shutdownCall();
         }
-    }, [call]);
+    }, [call, stream, shutdownCall]);
 
     function answerCall(video: boolean) {
         if (!call) {
@@ -163,47 +206,6 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
         });
     }
 
-    function shutdownCall() {
-        if (videoRef.current?.srcObject) {
-            // @ts-ignore
-            for (const track of videoRef.current.srcObject.getTracks()) {
-                track.stop();
-            }
-            videoRef.current.srcObject = null;
-
-            if (stream) {
-                for (const track of stream.getTracks()) {
-                    track.stop();
-                }
-            }
-
-            setStream(null);
-
-            if (receiveCallingStream) {
-                for (const track of receiveCallingStream?.getTracks()) {
-                    track.stop();
-                }
-                setReceiveCallingStream(null);
-            }
-
-            // peer?.destroy();
-        }
-    }
-
-    function listenOnPeerConnections(peer: Peer) {
-        peer.on("connection", (connection) => {
-            setDataConnection(connection);
-
-            peer.on("call", (call) => {
-                setCall(call);
-            });
-
-            connection.on("close", () => {
-                setCall(null);
-            });
-        });
-    }
-
     function endCall() {
         connection?.close({ flush: true });
         if (!callingStream) {
@@ -234,50 +236,53 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
         return !!stream;
     }
 
-    async function startCall(selectedContact: Contact, video: boolean) {
-        setCalling(true);
+    const startCall = useCallback(
+        async (selectedContact: Contact, video: boolean) => {
+            setCalling(true);
 
-        navigator.mediaDevices
-            .getUserMedia({ video, audio: true })
-            .then(async (stream) => {
-                setCallingStream(stream);
+            navigator.mediaDevices
+                .getUserMedia({ video, audio: true })
+                .then(async (stream) => {
+                    setCallingStream(stream);
 
-                if (!peer) {
-                    return;
-                }
+                    if (!peer) {
+                        return;
+                    }
 
-                const connection = peer.connect(selectedContact.name);
-                setDataConnection(connection);
+                    const connection = peer.connect(selectedContact.name);
+                    setDataConnection(connection);
 
-                connection.on("open", () => {
-                    const call = peer.call(selectedContact.name, stream);
-                    setCall(call);
-                    call.on("stream", (remoteStream) => {
-                        // Show stream in some <video> element.
-                        setStream(remoteStream);
-                    });
-
-                    call.on("close", () => {
-                        setCall(null);
-                        stream.getTracks().forEach((track) => {
-                            track.stop();
+                    connection.on("open", () => {
+                        const call = peer.call(selectedContact.name, stream);
+                        setCall(call);
+                        call.on("stream", (remoteStream) => {
+                            // Show stream in some <video> element.
+                            setStream(remoteStream);
                         });
-                        setCalling(false);
-                    });
 
-                    connection.on("close", () => {
-                        setCall(null);
-                        stream.getTracks().forEach((track) => {
-                            track.stop();
+                        call.on("close", () => {
+                            setCall(null);
+                            stream.getTracks().forEach((track) => {
+                                track.stop();
+                            });
+                            setCalling(false);
                         });
-                        setCalling(false);
+
+                        connection.on("close", () => {
+                            setCall(null);
+                            stream.getTracks().forEach((track) => {
+                                track.stop();
+                            });
+                            setCalling(false);
+                        });
                     });
-                });
-            })
-            .catch((reason) =>
-                loggingService.error(reason, undefined, reason?.stack),
-            );
-    }
+                })
+                .catch((reason) =>
+                    loggingService.error(reason, undefined, reason?.stack),
+                );
+        },
+        [peer, loggingService],
+    );
 
     function callingPeerAvatar(contact?: Contact) {
         return contact ? (
@@ -294,12 +299,17 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
         );
     }
 
-    const callingContact = contacts.find((c) => c.name === connection?.peer);
+    const callingContact = useMemo(
+        () => contacts.find((c) => c.name === connection?.peer),
+        [contacts, connection?.peer],
+    );
+
+    const contextValue = useMemo(() => ({ startCall }), [startCall]);
 
     return (
         <>
             {isNeitherCallingNorBeingCalled() && (
-                <PeerContext.Provider value={{ startCall }}>
+                <PeerContext.Provider value={contextValue}>
                     {children}
                 </PeerContext.Provider>
             )}
