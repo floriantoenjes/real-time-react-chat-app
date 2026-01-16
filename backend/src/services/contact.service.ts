@@ -28,11 +28,23 @@ export class ContactService {
             throw new UserNotFoundException();
         }
 
+        const userContacts = user.contacts ?? [];
+        if (userContacts.length === 0) {
+            return [];
+        }
+
+        const contactIds = userContacts.map((contact) => contact._id);
+        const contactUsers = await this.userModel
+            .find({ _id: { $in: contactIds } })
+            .lean();
+
+        const contactUserMap = new Map(
+            contactUsers.map((cu) => [cu._id.toString(), cu]),
+        );
+
         const contacts: Contact[] = [];
-        for (const contact of user.contacts ?? []) {
-            const contactUser = await this.userModel
-                .findOne({ _id: contact._id })
-                .lean();
+        for (const contact of userContacts) {
+            const contactUser = contactUserMap.get(contact._id);
 
             if (!contactUser) {
                 throw new ContactNotFoundException();
