@@ -4,10 +4,11 @@ import {
     ExceptionFilter,
     HttpStatus,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { OperationFailedException } from '../external/operation-failed.exception';
 import { CustomLogger } from '../../logging/custom-logger';
 import { ClientFriendlyHttpException } from '../client-friendly-http.exception';
+import { AppHttpException } from '../app-http.exception';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
@@ -18,6 +19,13 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     catch(exception: unknown, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
+        const request = ctx.getRequest<Request>();
+
+        const requestContext = {
+            method: request.method,
+            path: request.url,
+            userId: request['user']?.sub,
+        };
 
         if (exception instanceof ClientFriendlyHttpException) {
             const status = exception.getStatus();
@@ -25,10 +33,32 @@ export class GlobalExceptionFilter implements ExceptionFilter {
             return;
         }
 
-        if (exception instanceof Error) {
-            this.logger.error(exception.message, exception.stack);
+        if (exception instanceof AppHttpException) {
+            this.logger.error(
+                JSON.stringify({
+                    ...requestContext,
+                    errorCode: exception.errorCode,
+                    message: exception.message,
+                    details: exception.details,
+                    status: exception.getStatus(),
+                }),
+                exception.stack,
+            );
+        } else if (exception instanceof Error) {
+            this.logger.error(
+                JSON.stringify({
+                    ...requestContext,
+                    message: exception.message,
+                }),
+                exception.stack,
+            );
         } else {
-            this.logger.error(JSON.stringify(exception));
+            this.logger.error(
+                JSON.stringify({
+                    ...requestContext,
+                    error: exception,
+                }),
+            );
         }
 
         response
