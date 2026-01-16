@@ -61,18 +61,24 @@ export class ContactGroupService {
             throw new ContactGroupAlreadyExistsException();
         }
 
-        for (const member of [user, ...members]) {
-            member.contactGroups.push({
-                ...newContactGroup,
-                memberIds: [user, ...members]
-                    .map((m) => m._id)
-                    .filter((mid) => mid !== member._id)
-                    .map((mid) => mid.toString()),
-            });
-            member.markModified('contactGroups');
+        const allMembers = [user, ...members];
+        const bulkOps = allMembers.map((member) => ({
+            updateOne: {
+                filter: { _id: member._id },
+                update: {
+                    $push: {
+                        contactGroups: {
+                            ...newContactGroup,
+                            memberIds: allMembers
+                                .map((m) => m._id.toString())
+                                .filter((mid) => mid !== member._id.toString()),
+                        },
+                    },
+                },
+            },
+        }));
 
-            await member.save();
-        }
+        await this.userModel.bulkWrite(bulkOps);
 
         return {
             status: 201 as const,
