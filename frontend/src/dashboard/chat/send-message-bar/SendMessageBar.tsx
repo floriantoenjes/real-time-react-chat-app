@@ -86,7 +86,6 @@ export function SendMessageBar(props: {
         ]);
 
         const res = await messageService.sendMessage(
-            user._id,
             message,
             selectedContact._id,
             type,
@@ -123,7 +122,7 @@ export function SendMessageBar(props: {
     function setFileToUpload(event: any) {
         const file = event.target.files[0];
         setFile(file);
-        void messageService.sendFile(file, user._id);
+        void messageService.sendFile(file);
         void sendMessage(file.name, "image");
     }
 
@@ -154,7 +153,7 @@ export function SendMessageBar(props: {
             lastModified: Date.now(),
         });
 
-        await messageService.sendFile(file, user._id);
+        await messageService.sendFile(file);
         await sendMessage(fileName, "audio");
     }
 

@@ -67,7 +67,7 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
 
     function emptyChat() {
         messageService
-            .deleteMessages(user._id, selectedContact._id)
+            .deleteMessages(selectedContact._id)
             .then(() => {
                 snackbarService.showSnackbar(
                     LL.CHAT_MESSAGES_DELETED(),
@@ -86,24 +86,19 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
     }
 
     async function deleteChatMessages(selectedContact: Contact | ContactGroup) {
-        await messageService.deleteMessages(user._id, selectedContact._id);
+        await messageService.deleteMessages(selectedContact._id);
     }
 
     async function deleteChatContact(selectedContact: Contact | ContactGroup) {
         const isAContactGroup = "memberIds" in selectedContact;
         if (isAContactGroup) {
-            const deletionResult = await contactGroupService.deleteContactGroup(
-                user._id,
-                selectedContact,
-            );
+            const deletionResult =
+                await contactGroupService.deleteContactGroup(selectedContact);
             if (deletionResult) {
                 return;
             }
         } else {
-            const deletionRes = await contactService.deleteContact(
-                user._id,
-                selectedContact,
-            );
+            const deletionRes = await contactService.deleteContact(selectedContact);
 
             if (deletionRes.status !== 204) {
                 return;

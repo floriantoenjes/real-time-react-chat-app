@@ -4,10 +4,10 @@ import { fileContract } from "@t/file.contract";
 export class FileService {
     constructor(private clientService: ClientService) {}
 
-    async loadImage(userId: string, fileName: string) {
+    async loadImage(fileName: string) {
         const res = (await this.clientService
             .getClient(fileContract)
-            .loadFile({ body: { userId, fileName } })) as any;
+            .loadFile({ body: { fileName } })) as any;
 
         return btoa(
             new Uint8Array(Object.values(res.body)).reduce(function (
@@ -19,10 +19,10 @@ export class FileService {
         );
     }
 
-    async loadFile(userId: string, fileName: string) {
+    async loadFile(fileName: string) {
         const res = (await this.clientService
             .getClient(fileContract)
-            .loadFile({ body: { userId, fileName } })) as any;
+            .loadFile({ body: { fileName } })) as any;
 
         return new Int8Array(Object.values(res.body));
     }

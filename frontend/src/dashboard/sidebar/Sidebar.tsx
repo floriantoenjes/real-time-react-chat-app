@@ -87,9 +87,7 @@ export function Sidebar() {
     }
 
     useEffect(() => {
-        contactService
-            .getContacts(user._id)
-            .then((contacts) => setUserContacts(contacts));
+        contactService.getContacts().then((contacts) => setUserContacts(contacts));
     }, [user]);
 
     useEffect(() => {
@@ -145,7 +143,6 @@ export function Sidebar() {
             return;
         }
         const newContactResponse = await contactService.addContact(
-            user._id,
             searchedUser._id,
         );
         if (newContactResponse.status !== 201) {

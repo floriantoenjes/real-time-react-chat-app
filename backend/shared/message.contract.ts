@@ -42,7 +42,6 @@ export const messageContract = c.router({
             200: z.array(MessageSchema),
         },
         body: z.object({
-            userId: z.string(),
             contactId: z.string(),
         }),
         summary: 'Get messages for user by username',
@@ -54,7 +53,6 @@ export const messageContract = c.router({
             204: z.boolean(),
         },
         body: z.object({
-            fromUserId: z.string(),
             toUserId: z.string(),
         }),
         summary: 'Delete messages for user by username',
@@ -68,7 +66,6 @@ export const messageContract = c.router({
         body: z.object({
             toUserId: z.string(),
             message: z.string(),
-            fromUserId: z.string(),
             type: MessageTypeSchema,
         }),
         summary: 'Send a message',
@@ -93,7 +90,6 @@ export const messageContract = c.router({
         },
         body: c.type<{
             file: File;
-            userId: string;
         }>(),
         summary: 'Upload user avatar',
     },

@@ -58,7 +58,6 @@ export function GroupCreation(props: { user: User; toggleDrawer: any }) {
 
         contactGroupService
             .addContactGroup(
-                props.user._id,
                 mappedMembers
                     .map((mm) => mm.name)
                     .reduce(

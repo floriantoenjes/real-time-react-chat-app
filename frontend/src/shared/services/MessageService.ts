@@ -12,11 +12,11 @@ export class MessageService {
         });
     }
 
-    async getMessages(userId: string, contactId: string) {
+    async getMessages(contactId: string) {
         const messages = await this.clientService
             .getClient(messageContract)
             .getMessages({
-                body: { userId, contactId },
+                body: { contactId },
             });
 
         if (messages.status !== 200) {
@@ -26,26 +26,20 @@ export class MessageService {
         return messages.body;
     }
 
-    async deleteMessages(fromUserId: string, toUserId: string) {
+    async deleteMessages(toUserId: string) {
         const res = await this.clientService
             .getClient(messageContract)
-            .deleteMessages({ body: { fromUserId, toUserId } });
+            .deleteMessages({ body: { toUserId } });
         if (res.status !== 204) {
             return false;
         }
     }
 
-    sendMessage(
-        userIdAuthor: string,
-        message: string,
-        contactId: string,
-        type: Message["type"],
-    ) {
+    sendMessage(message: string, contactId: string, type: Message["type"]) {
         return this.clientService.getClient(messageContract).sendMessage({
             body: {
                 toUserId: contactId,
                 message,
-                fromUserId: userIdAuthor,
                 type,
             },
         });
@@ -59,13 +53,12 @@ export class MessageService {
         });
     }
 
-    sendFile(file: File, userId: string) {
+    sendFile(file: File) {
         return this.clientService
             .getClient<typeof messageContract>(messageContract)
             .sendFile({
                 body: {
                     file,
-                    userId,
                 },
             });
     }

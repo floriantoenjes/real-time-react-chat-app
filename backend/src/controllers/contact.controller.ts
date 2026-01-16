@@ -1,8 +1,9 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Req } from '@nestjs/common';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { contactContract } from '../../shared/contact.contract';
 import { ContactService } from '../services/contact.service';
 import { CustomLogger } from '../logging/custom-logger';
+import { Request } from 'express';
 
 @Controller()
 export class ContactController {
@@ -14,32 +15,32 @@ export class ContactController {
     }
 
     @TsRestHandler(contactContract.getContacts)
-    async getContacts() {
-        return tsRestHandler(contactContract.getContacts, async ({ body }) => {
+    async getContacts(@Req() req: Request) {
+        const userId = req['user'].sub;
+        return tsRestHandler(contactContract.getContacts, async () => {
             return {
                 status: 200 as const,
-                body: await this.contactService.getUserContacts(body.userId),
+                body: await this.contactService.getUserContacts(userId),
             };
         });
     }
 
     @TsRestHandler(contactContract.addContact)
-    async addContact() {
+    async addContact(@Req() req: Request) {
+        const userId = req['user'].sub;
         return tsRestHandler(contactContract.addContact, async ({ body }) => {
-            return this.contactService.addContact(
-                body.userId,
-                body.newContactId,
-            );
+            return this.contactService.addContact(userId, body.newContactId);
         });
     }
 
     @TsRestHandler(contactContract.removeContact)
-    async removeContact() {
+    async removeContact(@Req() req: Request) {
+        const userId = req['user'].sub;
         return tsRestHandler(
             contactContract.removeContact,
             async ({ body }) => {
                 return this.contactService.removeContact(
-                    body.userId,
+                    userId,
                     body.contactId,
                 );
             },

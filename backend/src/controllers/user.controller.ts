@@ -188,16 +188,16 @@ export class UserController {
         @TsRestRequest()
         {}: NestRequestShapes<typeof userContract>['uploadAvatar'],
         @UploadedFile() avatar: Express.Multer.File,
+        @Req() req: Request,
         @Body()
         body: {
-            userId: string;
             x: number;
             y: number;
             width: number;
             height: number;
         },
     ) {
-        const userId = body.userId.replaceAll('"', '');
+        const userId = req['user'].sub;
         const x = +body.x;
         const y = +body.y;
         const width = +body.width;

@@ -4,10 +4,10 @@ import { coturnContract } from "@t/coturn.contract";
 export class CoturnService {
     constructor(private readonly clientService: ClientService) {}
 
-    async getCredentials(userId: string) {
+    async getCredentials() {
         const response = await this.clientService
             .getClient(coturnContract)
-            .getCredentials({ body: { userId } });
+            .getCredentials({ body: {} });
 
         if (response.status !== 200) {
             return false;

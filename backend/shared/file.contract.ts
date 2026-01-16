@@ -20,13 +20,13 @@ export const fileContract = c.router({
         responses: {
             201: z.boolean(),
         },
-        body: c.type<{ avatar: File; userId: string }>(),
+        body: c.type<{ avatar: File }>(),
         summary: 'Upload a file',
     },
     loadFile: {
         method: 'POST',
         path: '/get-file',
-        body: z.object({ userId: z.string(), fileName: z.string() }),
+        body: z.object({ fileName: z.string() }),
         responses: {
             200: c.type<Uint8Array>(),
         },

@@ -38,10 +38,7 @@ export function Message(props: { msg: MessageModel; user: User }) {
         if (props.msg.type !== "image") {
             return;
         }
-        const image = await fileService.loadImage(
-            props.user._id,
-            props.msg.message,
-        );
+        const image = await fileService.loadImage(props.msg.message);
         setImage(image);
     }
 
@@ -49,10 +46,7 @@ export function Message(props: { msg: MessageModel; user: User }) {
         if (props.msg.type !== "audio") {
             return;
         }
-        const audio = await fileService.loadFile(
-            props.user._id,
-            props.msg.message,
-        );
+        const audio = await fileService.loadFile(props.msg.message);
 
         const file = new File([audio], "audio", { type: "audio/mp3" });
         if (secondsPlayed == 0) {

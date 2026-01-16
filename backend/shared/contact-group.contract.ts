@@ -21,9 +21,7 @@ export const contactGroupContract = c.router({
         responses: {
             200: z.array(ContactGroupSchema),
         },
-        body: z.object({
-            userId: z.string(),
-        }),
+        body: z.object({}),
         summary: 'Get contact groups',
     },
     addContactGroup: {
@@ -33,7 +31,6 @@ export const contactGroupContract = c.router({
             201: ContactGroupSchema,
         },
         body: z.object({
-            userId: z.string(),
             name: z.string(),
             memberIds: z.array(z.string()),
         }),
@@ -46,7 +43,6 @@ export const contactGroupContract = c.router({
             204: z.boolean(),
         },
         body: z.object({
-            userId: z.string(),
             contactGroupId: z.string(),
         }),
         summary: 'Remove a contact group',

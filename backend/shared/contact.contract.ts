@@ -20,9 +20,7 @@ export const contactContract = c.router({
         responses: {
             200: z.array(ContactSchema),
         },
-        body: z.object({
-            userId: z.string(),
-        }),
+        body: z.object({}),
         summary: 'Get contacts',
     },
     addContact: {
@@ -32,7 +30,6 @@ export const contactContract = c.router({
             201: ContactSchema,
         },
         body: z.object({
-            userId: z.string(),
             newContactId: z.string(),
         }),
         summary: 'Add a new contact',
@@ -44,7 +41,6 @@ export const contactContract = c.router({
             204: z.boolean(),
         },
         body: z.object({
-            userId: z.string(),
             contactId: z.string(),
         }),
         summary: 'Remove a contact',

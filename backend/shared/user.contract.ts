@@ -97,7 +97,6 @@ export const userContract = c.router({
         },
         body: c.type<{
             avatar: File;
-            userId: string;
             x: number;
             y: number;
             width: number;

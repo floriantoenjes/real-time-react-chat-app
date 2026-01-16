@@ -1,8 +1,9 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Req } from '@nestjs/common';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { contactGroupContract } from '../../shared/contact-group.contract';
 import { ContactGroupService } from '../services/contact-group.service';
 import { CustomLogger } from '../logging/custom-logger';
+import { Request } from 'express';
 
 @Controller()
 export class ContactGroupController {
@@ -14,22 +15,24 @@ export class ContactGroupController {
     }
 
     @TsRestHandler(contactGroupContract.getContactGroups)
-    async getContactGroups() {
+    async getContactGroups(@Req() req: Request) {
+        const userId = req['user'].sub;
         return tsRestHandler(
             contactGroupContract.getContactGroups,
-            async ({ body }) => {
-                return this.contactGroupService.getContactGroups(body.userId);
+            async () => {
+                return this.contactGroupService.getContactGroups(userId);
             },
         );
     }
 
     @TsRestHandler(contactGroupContract.addContactGroup)
-    async addContactGroup() {
+    async addContactGroup(@Req() req: Request) {
+        const userId = req['user'].sub;
         return tsRestHandler(
             contactGroupContract.addContactGroup,
             async ({ body }) => {
                 return this.contactGroupService.addContactGroup(
-                    body.userId,
+                    userId,
                     body.name,
                     body.memberIds,
                 );
@@ -38,12 +41,13 @@ export class ContactGroupController {
     }
 
     @TsRestHandler(contactGroupContract.removeContactGroup)
-    async removeContactGroup() {
+    async removeContactGroup(@Req() req: Request) {
+        const userId = req['user'].sub;
         return tsRestHandler(
             contactGroupContract.removeContactGroup,
             async ({ body }) => {
                 return this.contactGroupService.removeContactGroup(
-                    body.userId,
+                    userId,
                     body.contactGroupId,
                 );
             },

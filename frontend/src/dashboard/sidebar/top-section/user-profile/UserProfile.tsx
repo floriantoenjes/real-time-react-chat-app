@@ -42,7 +42,6 @@ export function UserProfile(props: { toggleDrawer: any }) {
                 croppedArea.y,
                 croppedArea.width,
                 croppedArea.height,
-                user._id,
             )
             .then(() => {
                 getSetUserWithAvatarBytes(userService)(setUser)({

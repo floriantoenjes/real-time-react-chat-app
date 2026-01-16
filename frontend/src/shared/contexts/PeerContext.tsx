@@ -98,7 +98,7 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
     useEffect(() => {
         try {
             if (user && !peer) {
-                coturnService.getCredentials(user._id).then((credentials) => {
+                coturnService.getCredentials().then((credentials) => {
                     if (!credentials) {
                         return;
                     }

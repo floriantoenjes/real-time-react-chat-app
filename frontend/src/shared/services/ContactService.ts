@@ -10,10 +10,10 @@ export class ContactService {
         private readonly userService: UserService,
     ) {}
 
-    async getContacts(userId: string): Promise<Contact[]> {
+    async getContacts(): Promise<Contact[]> {
         const res = await this.clientService
             .getClient(contactContract)
-            .getContacts({ body: { userId } });
+            .getContacts({ body: {} });
 
         if (res.status === 200) {
             let initializedContacts = [];
@@ -31,16 +31,16 @@ export class ContactService {
         return [];
     }
 
-    async addContact(userId: string, newContactId: string) {
+    async addContact(newContactId: string) {
         return this.clientService
             .getClient(contactContract)
-            .addContact({ body: { userId, newContactId } });
+            .addContact({ body: { newContactId } });
     }
 
-    async deleteContact(userId: string, contact: Contact | ContactGroup) {
+    async deleteContact(contact: Contact | ContactGroup) {
         return await this.clientService
             .getClient(contactContract)
-            .removeContact({ body: { userId, contactId: contact._id } });
+            .removeContact({ body: { contactId: contact._id } });
     }
 
     async getContactsOnlineStatus(contactIds: string[]) {

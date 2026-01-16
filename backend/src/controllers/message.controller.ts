@@ -1,6 +1,6 @@
 import {
-    Body,
     Controller,
+    Req,
     UploadedFile,
     UseInterceptors,
 } from '@nestjs/common';
@@ -15,6 +15,7 @@ import { messageContract } from '../../shared/message.contract';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MessageService } from '../services/message.service';
 import { CustomLogger } from '../logging/custom-logger';
+import { Request } from 'express';
 
 @Controller()
 export class MessageController {
@@ -36,30 +37,30 @@ export class MessageController {
     }
 
     @TsRestHandler(messageContract.getMessages)
-    async getMessages() {
+    async getMessages(@Req() req: Request) {
+        const userId = req['user'].sub;
         return tsRestHandler(messageContract.getMessages, async ({ body }) => {
-            return this.messageService.getMessages(body.userId, body.contactId);
+            return this.messageService.getMessages(userId, body.contactId);
         });
     }
 
     @TsRestHandler(messageContract.deleteMessages)
-    async deleteMessages() {
+    async deleteMessages(@Req() req: Request) {
+        const userId = req['user'].sub;
         return tsRestHandler(
             messageContract.deleteMessages,
             async ({ body }) => {
-                return this.messageService.deleteMessages(
-                    body.fromUserId,
-                    body.toUserId,
-                );
+                return this.messageService.deleteMessages(userId, body.toUserId);
             },
         );
     }
 
     @TsRestHandler(messageContract.sendMessage)
-    async sendMessage() {
+    async sendMessage(@Req() req: Request) {
+        const userId = req['user'].sub;
         return tsRestHandler(messageContract.sendMessage, async ({ body }) => {
             return this.messageService.sendMessage(
-                body.fromUserId,
+                userId,
                 body.toUserId,
                 body.message,
                 body.type,
@@ -83,13 +84,9 @@ export class MessageController {
         @TsRestRequest()
         {}: NestRequestShapes<typeof messageContract>['sendFile'],
         @UploadedFile() file: Express.Multer.File,
-        @Body()
-        body: {
-            userId: string;
-        },
+        @Req() req: Request,
     ) {
-        const userId = body.userId.replaceAll('"', '');
-
+        const userId = req['user'].sub;
         return this.messageService.uploadFileAsMessage(userId, file);
     }
 }

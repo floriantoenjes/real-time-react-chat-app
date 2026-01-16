@@ -77,12 +77,11 @@ export class UserService {
         y: number,
         width: number,
         height: number,
-        userId: string,
     ) {
         const res = await this.clientService
             .getClient(userContract)
             .uploadAvatar({
-                body: { avatar: file, userId, x, y, width, height },
+                body: { avatar: file, x, y, width, height },
             });
 
         return res.status === 201;

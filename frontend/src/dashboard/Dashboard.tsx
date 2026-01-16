@@ -38,16 +38,8 @@ export function Dashboard(props: { user?: User }) {
             if (!props.user?._id) {
                 return;
             }
-            setContacts(
-                await contactService.current.getContacts(
-                    props.user._id.toString(),
-                ),
-            );
-            setContactGroups(
-                await contactGroupService.current.getContactGroups(
-                    props.user._id.toString(),
-                ),
-            );
+            setContacts(await contactService.current.getContacts());
+            setContactGroups(await contactGroupService.current.getContactGroups());
         })();
     }, [props.user, contactService]);
 
