@@ -68,6 +68,7 @@ export function Login(props: {}) {
                             onChange={handleInputChange}
                             value={formData.email}
                             className={"w-80"}
+                            required={true}
                         />
                     </div>
                     <div className="mb-3">
@@ -78,6 +79,7 @@ export function Login(props: {}) {
                             onChange={handleInputChange}
                             value={formData.password}
                             className={"w-80"}
+                            required={true}
                         />
                     </div>
 
