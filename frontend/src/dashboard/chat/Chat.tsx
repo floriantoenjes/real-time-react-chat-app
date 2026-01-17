@@ -27,7 +27,6 @@ export function Chat() {
             }
 
             const messages = await messageService.getMessages(
-                user._id,
                 selectedContact._id,
             );
             if (!messages) {

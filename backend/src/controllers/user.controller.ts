@@ -23,6 +23,7 @@ import { InvalidEmailOrPasswordException } from '../errors/external/invalid-emai
 import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
 import { UnauthorizedException } from '../errors/external/unauthorized.exception';
 import { CustomLogger } from '../logging/custom-logger';
+import { UserId } from '../decorators/user-id.decorator';
 
 @Controller()
 export class UserController {
@@ -188,7 +189,7 @@ export class UserController {
         @TsRestRequest()
         {}: NestRequestShapes<typeof userContract>['uploadAvatar'],
         @UploadedFile() avatar: Express.Multer.File,
-        @Req() req: Request,
+        @UserId() userId: string,
         @Body()
         body: {
             x: number;
@@ -197,7 +198,6 @@ export class UserController {
             height: number;
         },
     ) {
-        const userId = req['user'].sub;
         const x = +body.x;
         const y = +body.y;
         const width = +body.width;

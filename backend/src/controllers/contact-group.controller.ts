@@ -1,9 +1,9 @@
-import { Controller, Req } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { contactGroupContract } from '../../shared/contact-group.contract';
 import { ContactGroupService } from '../services/contact-group.service';
 import { CustomLogger } from '../logging/custom-logger';
-import { Request } from 'express';
+import { UserId } from '../decorators/user-id.decorator';
 
 @Controller()
 export class ContactGroupController {
@@ -15,8 +15,7 @@ export class ContactGroupController {
     }
 
     @TsRestHandler(contactGroupContract.getContactGroups)
-    async getContactGroups(@Req() req: Request) {
-        const userId = req['user'].sub;
+    async getContactGroups(@UserId() userId: string) {
         return tsRestHandler(
             contactGroupContract.getContactGroups,
             async () => {
@@ -26,8 +25,7 @@ export class ContactGroupController {
     }
 
     @TsRestHandler(contactGroupContract.addContactGroup)
-    async addContactGroup(@Req() req: Request) {
-        const userId = req['user'].sub;
+    async addContactGroup(@UserId() userId: string) {
         return tsRestHandler(
             contactGroupContract.addContactGroup,
             async ({ body }) => {
@@ -41,8 +39,7 @@ export class ContactGroupController {
     }
 
     @TsRestHandler(contactGroupContract.removeContactGroup)
-    async removeContactGroup(@Req() req: Request) {
-        const userId = req['user'].sub;
+    async removeContactGroup(@UserId() userId: string) {
         return tsRestHandler(
             contactGroupContract.removeContactGroup,
             async ({ body }) => {

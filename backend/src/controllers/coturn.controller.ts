@@ -1,10 +1,10 @@
-import { Controller, Req } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 
 import * as crypto from 'crypto';
 import { TsRestHandler, tsRestHandler } from '@ts-rest/nest';
 import { coturnContract } from '../../shared/coturn.contract';
 import { ConfigService } from '@nestjs/config';
-import { Request } from 'express';
+import { UserId } from '../decorators/user-id.decorator';
 
 @Controller()
 export class CoturnController {
@@ -19,8 +19,7 @@ export class CoturnController {
     }
 
     @TsRestHandler(coturnContract.getCredentials)
-    private async getCredentials(@Req() req: Request) {
-        const userId = req['user'].sub;
+    private async getCredentials(@UserId() userId: string) {
         return tsRestHandler(coturnContract.getCredentials, async () => {
             const unixTimeStamp = Math.round(Date.now() / 1000) + 24 * 3600; // this credential would be valid for the next 24 hours
             const username = [unixTimeStamp, userId].join(':');
