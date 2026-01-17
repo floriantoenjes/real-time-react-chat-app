@@ -14,17 +14,10 @@ export function Login(props: {}) {
     const [modalOpen, setModalOpen] = useState(false);
     const locale = useI18nContext().locale;
 
-    const [formData, setFormData] = useState(
-        import.meta.env.PROD
-            ? {
-                  email: "",
-                  password: "",
-              }
-            : {
-                  email: "florian@email.com",
-                  password: "password",
-              },
-    );
+    const [formData, setFormData] = useState({
+        email: "",
+        password: "",
+    });
 
     async function signIn() {
         const user = await authService.signIn(

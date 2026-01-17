@@ -1,5 +1,5 @@
 import "./Dashboard.css";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { User } from "real-time-chat-backend/shared/user.contract";
 import { Contact } from "real-time-chat-backend/shared/contact.contract";
@@ -24,8 +24,10 @@ export function Dashboard(props: { user?: User }) {
         undefined,
     );
 
-    const contactService = useRef(useDiContext().ContactService);
-    const contactGroupService = useRef(useDiContext().ContactGroupService);
+    const {
+        ContactService: contactService,
+        ContactGroupService: contactGroupService,
+    } = useDiContext();
 
     const [contacts, setContacts] = useState<Contact[]>([]);
 
@@ -38,10 +40,10 @@ export function Dashboard(props: { user?: User }) {
             if (!props.user?._id) {
                 return;
             }
-            setContacts(await contactService.current.getContacts());
-            setContactGroups(await contactGroupService.current.getContactGroups());
+            setContacts(await contactService.getContacts());
+            setContactGroups(await contactGroupService.getContactGroups());
         })();
-    }, [props.user, contactService]);
+    }, [props.user]);
 
     return (
         <div className={"h-screen flex bg-gray-100"}>
@@ -52,9 +54,7 @@ export function Dashboard(props: { user?: User }) {
                     selectedContact: [selectedContact, setSelectedContact],
                 }}
             >
-                <OnlineStatusProvider
-                    contactIds={contacts.map((c) => c._id)}
-                >
+                <OnlineStatusProvider contactIds={contacts.map((c) => c._id)}>
                     <MessageContext.Provider value={[messages, setMessages]}>
                         <PeerProvider>
                             <Sidebar />

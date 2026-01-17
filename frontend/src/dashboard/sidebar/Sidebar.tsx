@@ -20,16 +20,18 @@ import { SocketMessageTypes } from "@t/socket-message-types.enum";
 
 export function Sidebar() {
     const { LL } = useI18nContext();
-    const [user, ,] = useUserContext();
-    const userService = useDiContext().UserService;
+    const [user] = useUserContext();
+    const { ContactService: contactService, UserService: userService } =
+        useDiContext();
     const contactsContext = useContext(ContactsContext);
-    const contactService = useDiContext().ContactService;
 
     const [selectedContact, setSelectedContact] =
         contactsContext.selectedContact;
     const [userContacts, setUserContacts] = contactsContext.contacts;
-    const { contactsOnlineStatus: userContactsOnlineStatus } = useOnlineStatus();
+    const { contactsOnlineStatus: userContactsOnlineStatus } =
+        useOnlineStatus();
     const [userContactGroups] = contactsContext.contactGroups;
+
     const [socket] = useContext(SocketContext);
     const [lastMessage, setLastMessage] = useState<Message>();
 
@@ -70,6 +72,16 @@ export function Sidebar() {
         setContacts(contactList());
     }, [nameFilter, userContacts, userContactGroups, userContactsOnlineStatus]);
 
+    useEffect(() => {
+        contactService
+            .getContacts()
+            .then((contacts) => setUserContacts(contacts));
+    }, [user]);
+
+    useEffect(() => {
+        loadUserContacts();
+    }, [userContacts]);
+
     function loadUserContacts() {
         userService.getUsers().then((users) => {
             if (!users) {
@@ -85,14 +97,6 @@ export function Sidebar() {
             );
         });
     }
-
-    useEffect(() => {
-        contactService.getContacts().then((contacts) => setUserContacts(contacts));
-    }, [user]);
-
-    useEffect(() => {
-        loadUserContacts();
-    }, [userContacts]);
 
     function contactList() {
         return userContacts
@@ -212,14 +216,6 @@ export function Sidebar() {
                 />
             </div>
             <div className={"border"}>
-                {/*<div className={"border"}>*/}
-                {/*    <Button*/}
-                {/*        className={"text-start w-full"}*/}
-                {/*        startIcon={<ArrowDownOnSquareIcon className={"h-8"} />}*/}
-                {/*    >*/}
-                {/*        {LL.ARCHIVED()}*/}
-                {/*    </Button>*/}
-                {/*</div>*/}
                 <div className={"border"}>{contacts}</div>
             </div>
         </div>
