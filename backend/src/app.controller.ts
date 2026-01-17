@@ -2,6 +2,7 @@ import { Controller, Get, Res } from '@nestjs/common';
 import { AppService } from './app.service';
 import { RealTimeChatGateway } from './gateways/socket.gateway';
 import { Public } from './services/auth-constants';
+import { SkipThrottle } from './decorators/throttle.decorators';
 
 @Controller()
 export class AppController {
@@ -18,6 +19,7 @@ export class AppController {
 
     @Get('ready')
     @Public()
+    @SkipThrottle() // TODO: Check later if skipping is okay here
     isReady(): boolean {
         return true;
     }

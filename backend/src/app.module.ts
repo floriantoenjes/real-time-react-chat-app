@@ -17,6 +17,7 @@ import { ObjectStorageService } from './services/object-storage.service';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guards/auth.guard';
+import { CustomThrottlerGuard } from './guards/custom-throttler.guard';
 import { FileController } from './controllers/file.controller';
 import { ContactService } from './services/contact.service';
 import { CacheModule, CacheStore } from '@nestjs/cache-manager';
@@ -30,10 +31,14 @@ import { PubSubFactoryToken } from './interfaces/pub-sub.factory.interface';
 import { CoturnController } from './controllers/coturn.controller';
 import { ContactGroupService } from './services/contact-group.service';
 import { MessageService } from './services/message.service';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
     imports: [
         ConfigModule.forRoot(),
+        ThrottlerModule.forRoot({
+            throttlers: [{ limit: 100, ttl: 60 * 1000 }],
+        }),
         ServeStaticModule.forRoot({
             serveRoot: '/frontend',
             rootPath: join(__dirname, '..', '..', '..', 'frontend/dist'),
@@ -98,6 +103,10 @@ import { MessageService } from './services/message.service';
         {
             provide: APP_GUARD,
             useClass: AuthGuard,
+        },
+        {
+            provide: APP_GUARD,
+            useClass: CustomThrottlerGuard,
         },
     ],
 })

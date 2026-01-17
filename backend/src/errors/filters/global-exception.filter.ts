@@ -5,7 +5,9 @@ import {
     HttpStatus,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { ThrottlerException } from '@nestjs/throttler';
 import { OperationFailedException } from '../external/operation-failed.exception';
+import { RateLimitExceededException } from '../external/rate-limit-exceeded.exception';
 import { CustomLogger } from '../../logging/custom-logger';
 import { ClientFriendlyHttpException } from '../client-friendly-http.exception';
 import { AppHttpException } from '../app-http.exception';
@@ -26,6 +28,15 @@ export class GlobalExceptionFilter implements ExceptionFilter {
             path: request.url,
             userId: request['user']?.sub,
         };
+
+        if (exception instanceof ThrottlerException) {
+            const rateLimitException = new RateLimitExceededException();
+            response
+                .status(HttpStatus.TOO_MANY_REQUESTS)
+                .setHeader('Retry-After', '60')
+                .json(rateLimitException.getResponse());
+            return;
+        }
 
         if (exception instanceof ClientFriendlyHttpException) {
             const status = exception.getStatus();

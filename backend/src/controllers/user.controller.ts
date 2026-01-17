@@ -24,6 +24,7 @@ import { UserNotFoundException } from '../errors/internal/user-not-found.excepti
 import { UnauthorizedException } from '../errors/external/unauthorized.exception';
 import { CustomLogger } from '../logging/custom-logger';
 import { UserId } from '../decorators/user-id.decorator';
+import { AuthThrottle } from '../decorators/throttle.decorators';
 
 @Controller()
 export class UserController {
@@ -43,6 +44,7 @@ export class UserController {
 
     @TsRestHandler(userContract.signIn)
     @Public()
+    @AuthThrottle()
     async signIn(@Res({ passthrough: true }) res: Response) {
         return tsRestHandler(userContract.signIn, async ({ body }) => {
             try {
@@ -141,6 +143,7 @@ export class UserController {
 
     @TsRestHandler(userContract.signUp)
     @Public()
+    @AuthThrottle()
     async signUp() {
         return tsRestHandler(userContract.signUp, async ({ body }) => {
             const newUser = await this.userService.createUser(

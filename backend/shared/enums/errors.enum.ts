@@ -19,6 +19,8 @@ export enum ExternalErrors {
     EXT_AUTH_002 = 'EXT_AUTH_002',
 
     EXT_SIGN_IN_001 = 'EXT_SIGN_IN_001',
+
+    EXT_RATE_LIMIT_001 = 'EXT_RATE_LIMIT_001',
 }
 
 export type InternalErrorTypes = Record<InternalErrors, string>;
