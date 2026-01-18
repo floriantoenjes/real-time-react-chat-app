@@ -1,4 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, {
+    Dispatch,
+    SetStateAction,
+    useCallback,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
 import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import { Login } from "./login/Login";
@@ -30,6 +37,25 @@ function App() {
     const setUserWithAvatarBytes =
         getSetUserWithAvatarBytesOptional(userService);
 
+    const memoizedSetUser = useCallback(
+        (newUser: User | undefined) => {
+            if (newUser) {
+                setUserWithAvatarBytes(setUser)(newUser);
+            } else {
+                setUser(undefined);
+            }
+        },
+        [userService],
+    );
+
+    const userContextValue = useMemo(
+        (): [User | undefined, Dispatch<SetStateAction<User | undefined>>] => [
+            user,
+            memoizedSetUser as Dispatch<SetStateAction<User | undefined>>,
+        ],
+        [user, memoizedSetUser],
+    );
+
     useEffect(() => {
         loadLocaleAsync(locale).then(() => setLocalesLoaded(true));
     }, [locale]);
@@ -50,9 +76,7 @@ function App() {
         <TypesafeI18n locale={locale}>
             <GlobalErrorHandlerContext>
                 <SnackbarProvider>
-                    <UserContext.Provider
-                        value={[user, setUserWithAvatarBytes(setUser)]}
-                    >
+                    <UserContext.Provider value={userContextValue}>
                         <SocketProvider>
                             <Routes>
                                 <Route

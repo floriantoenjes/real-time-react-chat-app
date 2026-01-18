@@ -45,7 +45,7 @@ export function Dashboard(props: { user?: User }) {
             setContacts(await contactService.getContacts());
             setContactGroups(await contactGroupService.getContactGroups());
         })();
-    }, [props.user]);
+    }, [props.user?._id]);
 
     return (
         <div className={"h-screen flex bg-gray-100"}>
