@@ -1,5 +1,5 @@
 import "./Dashboard.css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { User } from "real-time-chat-backend/shared/user.contract";
 import { Contact } from "real-time-chat-backend/shared/contact.contract";
@@ -35,6 +35,8 @@ export function Dashboard(props: { user?: User }) {
 
     const [messages, setMessages] = useState<Message[]>([]);
 
+    const contactIds = useMemo(() => contacts.map((c) => c._id), [contacts]);
+
     useEffect(() => {
         (async () => {
             if (!props.user?._id) {
@@ -54,7 +56,7 @@ export function Dashboard(props: { user?: User }) {
                     selectedContact: [selectedContact, setSelectedContact],
                 }}
             >
-                <OnlineStatusProvider contactIds={contacts.map((c) => c._id)}>
+                <OnlineStatusProvider contactIds={contactIds}>
                     <MessageContext.Provider value={[messages, setMessages]}>
                         <PeerProvider>
                             <Sidebar />
