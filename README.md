@@ -42,7 +42,3 @@ Backend and frontend...
 * are secured via JWTs transported via secure cookies
 * communicate via REST with typesafe communication via ts-rest, a tRPC like communications contract between frontend and backend.
 * are processing real time updates with WebSocket connections via socket.io server and client.
-
-### Next TODOs
-* Introduce throttling
-* Improve backend validation
