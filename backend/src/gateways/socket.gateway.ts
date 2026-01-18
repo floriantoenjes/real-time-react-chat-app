@@ -90,7 +90,6 @@ export class RealTimeChatGateway
 
         this.onlineStatusService.setContactOffline(userId, true);
 
-        // TODO: make sure that signing out of the frontend triggers offline-update as well
         this.contactService
             .getUsersThatHaveContact(userId)
             .then((contacts: User[]) => {
