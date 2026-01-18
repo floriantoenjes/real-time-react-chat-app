@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { MessageEntity } from '../schemas/message.schema';
 import { Model } from 'mongoose';
@@ -14,6 +14,8 @@ import { UserNotFoundException } from '../errors/internal/user-not-found.excepti
 
 @Injectable()
 export class MessageService {
+    private readonly logger = new Logger(MessageService.name);
+
     constructor(
         private readonly gateway: RealTimeChatGateway,
         @InjectModel(MessageEntity.name)
@@ -28,6 +30,9 @@ export class MessageService {
         const message = await this.messageModel.findById(messageId).lean();
 
         if (!message) {
+            this.logger.warn(
+                `Get message failed: message ${messageId} not found`,
+            );
             throw new MessageNotFoundException();
         }
 
@@ -40,6 +45,7 @@ export class MessageService {
         });
 
         if (!user) {
+            this.logger.warn(`Get messages failed: user ${userId} not found`);
             throw new UserNotFoundException();
         }
 
@@ -112,6 +118,9 @@ export class MessageService {
             .findById(fromUserId)
             .select('+password');
         if (!user) {
+            this.logger.warn(
+                `Send message failed: sender ${fromUserId} not found`,
+            );
             throw new UserNotFoundException();
         }
         const newlyCreatedMessage = await this.messageModel.create(newMessage);
@@ -156,6 +165,9 @@ export class MessageService {
             _id: msgId,
         });
         if (!msg) {
+            this.logger.warn(
+                `Mark message read failed: message ${msgId} not found`,
+            );
             throw new MessageNotFoundException();
         }
         msg.read = true;
@@ -170,6 +182,7 @@ export class MessageService {
 
     async uploadFileAsMessage(userId: string, file: Express.Multer.File) {
         if (!(await this.userModel.findOne({ _id: userId }))) {
+            this.logger.warn(`Upload file failed: user ${userId} not found`);
             throw new UserNotFoundException();
         }
 

@@ -23,6 +23,7 @@ export class ContactService {
         });
 
         if (!user) {
+            this.logger.warn(`Get contacts failed: user ${userId} not found`);
             throw new UserNotFoundException();
         }
 
@@ -45,6 +46,9 @@ export class ContactService {
             const contactUser = contactUserMap.get(contact._id);
 
             if (!contactUser) {
+                this.logger.warn(
+                    `Get contacts failed: contact ${contact._id} not found for user ${userId}`,
+                );
                 throw new ContactNotFoundException();
             }
 
@@ -70,6 +74,7 @@ export class ContactService {
         const user = await this.userModel.findOne({ _id: userId });
 
         if (!user) {
+            this.logger.warn(`Add contact failed: user ${userId} not found`);
             throw new UserNotFoundException();
         }
 
@@ -78,6 +83,9 @@ export class ContactService {
         });
 
         if (!contact) {
+            this.logger.warn(
+                `Add contact failed: contact ${newContactId} not found for user ${userId}`,
+            );
             throw new ContactNotFoundException();
         }
 
@@ -111,11 +119,15 @@ export class ContactService {
     async removeContact(userId: string, contactId: string) {
         const user = await this.userModel.findOne({ _id: userId });
         if (!user) {
+            this.logger.warn(`Remove contact failed: user ${userId} not found`);
             throw new UserNotFoundException();
         }
 
         const contact = user.contacts.find((uc) => uc._id === contactId);
         if (!contact) {
+            this.logger.warn(
+                `Remove contact failed: contact ${contactId} not found for user ${userId}`,
+            );
             throw new ContactNotFoundException();
         }
 

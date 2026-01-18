@@ -32,6 +32,9 @@ export class ContactGroupService {
     async addContactGroup(userId: string, name: string, memberIds: string[]) {
         const user = await this.userModel.findOne({ _id: userId });
         if (!user) {
+            this.logger.warn(
+                `Add contact group failed: user ${userId} not found`,
+            );
             throw new UserNotFoundException();
         }
 
@@ -40,6 +43,9 @@ export class ContactGroupService {
         });
 
         if (!members.length) {
+            this.logger.warn(
+                `Add contact group failed: no members found for IDs ${memberIds.join(', ')}`,
+            );
             throw new MembersNotFoundException();
         }
 
@@ -88,6 +94,9 @@ export class ContactGroupService {
         const user = await this.userModel.findOne({ _id: userId });
 
         if (!user) {
+            this.logger.warn(
+                `Remove contact group failed: user ${userId} not found`,
+            );
             throw new UserNotFoundException();
         }
 
@@ -95,6 +104,9 @@ export class ContactGroupService {
             user.contactGroups.find((uc) => uc._id === contactGroupId) ===
             undefined
         ) {
+            this.logger.warn(
+                `Remove contact group failed: group ${contactGroupId} not found for user ${userId}`,
+            );
             throw new ContactGroupNotFoundException();
         }
 

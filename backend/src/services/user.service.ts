@@ -89,18 +89,27 @@ export class UserService {
                 username: decodedJwt?.username,
             });
             if (!user) {
+                this.logger.warn(
+                    `Refresh failed: user not found for username ${decodedJwt?.username}`,
+                );
                 throw new UserNotFoundException();
             }
 
             return await this.respondWithNewTokens(user);
         } catch (error: any) {
             if (!refreshToken) {
+                this.logger.warn(
+                    `Refresh failed: no refresh token provided and access token invalid`,
+                );
                 throw new UnauthorizedException();
             }
 
             try {
                 this.jwtService.verify(refreshToken);
-            } catch (error: any) {
+            } catch (verifyError: any) {
+                this.logger.warn(
+                    `Refresh failed: invalid refresh token - ${verifyError.message}`,
+                );
                 throw new UnauthorizedException();
             }
 
@@ -118,6 +127,9 @@ export class UserService {
                 username: decodedJwt?.username,
             });
             if (!user) {
+                this.logger.warn(
+                    `Refresh failed: user not found for username ${decodedJwt?.username}`,
+                );
                 throw new UserNotFoundException();
             }
 
@@ -125,6 +137,9 @@ export class UserService {
                 !refreshTokenFromDb ||
                 !(await bcrypt.compare(refreshToken, refreshTokenFromDb))
             ) {
+                this.logger.warn(
+                    `Refresh failed: refresh token mismatch for user ${user.username}`,
+                );
                 throw new UnauthorizedException();
             }
 
@@ -194,6 +209,9 @@ export class UserService {
 
             return createdUser;
         } catch (error: any) {
+            this.logger.warn(
+                `User creation failed for email ${email}: ${error.message}`,
+            );
             throw new EmailAlreadyTakenException();
         }
     }
@@ -203,6 +221,9 @@ export class UserService {
             _id: new Types.ObjectId(userPartial._id),
         });
         if (!user) {
+            this.logger.warn(
+                `Update user failed: user ${userPartial._id} not found`,
+            );
             throw new UserNotFoundException();
         }
 
@@ -224,6 +245,9 @@ export class UserService {
                 };
             }
         } catch (error: any) {
+            this.logger.warn(
+                `Avatar load failed for user ${userId}: ${error.message}`,
+            );
             throw new ObjectNotFoundException();
         }
 

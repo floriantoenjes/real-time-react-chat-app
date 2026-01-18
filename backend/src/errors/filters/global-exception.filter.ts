@@ -43,16 +43,23 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         }
 
         if (exception instanceof AppHttpException) {
-            this.logger.error(
-                JSON.stringify({
-                    ...requestContext,
-                    errorCode: exception.errorCode,
-                    message: exception.message,
-                    details: exception.details,
-                    status: exception.getStatus(),
-                }),
-                exception.stack,
-            );
+            const logContext: Record<string, unknown> = {
+                ...requestContext,
+                errorCode: exception.errorCode,
+                message: exception.message,
+                details: exception.details,
+                status: exception.getStatus(),
+            };
+
+            if (exception.originalError) {
+                logContext.originalError = {
+                    name: exception.originalError.name,
+                    message: exception.originalError.message,
+                    stack: exception.originalError.stack,
+                };
+            }
+
+            this.logger.error(JSON.stringify(logContext), exception.stack);
         } else if (exception instanceof Error) {
             this.logger.error(
                 JSON.stringify({
