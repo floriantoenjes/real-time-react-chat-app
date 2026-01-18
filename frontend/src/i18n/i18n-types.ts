@@ -23,6 +23,10 @@ type RootTranslation = {
 	 */
 	EMAIL: string
 	/**
+	 * P​l​e​a​s​e​ ​e​n​t​e​r​ ​a​ ​v​a​l​i​d​ ​e​m​a​i​l
+	 */
+	ENTER_VALID_EMAIL: string
+	/**
 	 * P​a​s​s​w​o​r​d
 	 */
 	PASSWORD: string
@@ -181,6 +185,10 @@ export type TranslationFunctions = {
 	 * E-Mail
 	 */
 	EMAIL: () => LocalizedString
+	/**
+	 * Please enter a valid email
+	 */
+	ENTER_VALID_EMAIL: () => LocalizedString
 	/**
 	 * Password
 	 */

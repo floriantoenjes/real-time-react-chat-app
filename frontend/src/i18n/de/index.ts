@@ -3,6 +3,7 @@ import type { Translation } from "../i18n-types.js";
 const de = {
     LOGIN: "Login",
     EMAIL: "E-Mail",
+    ENTER_VALID_EMAIL: "Gib eine korrekte E-Mail Adresse ein",
     PASSWORD: "Passwort",
     CONFIRM_PASSWORD: "Passwort bestätigen",
     SIGN_IN: "Einloggen",

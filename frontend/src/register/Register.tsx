@@ -14,10 +14,10 @@ import { GlobeAltIcon } from "@heroicons/react/24/outline";
 import { LanguageModal } from "../dashboard/sidebar/top-section/language-modal/LanguageModal";
 
 type SignUpData = {
-    email: "";
-    password: "";
-    passwordConfirm: "";
-    username: "";
+    email: string;
+    password: string;
+    passwordConfirm: string;
+    username: string;
 };
 
 export function Register(props: {}) {

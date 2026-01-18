@@ -7,4 +7,6 @@ export const errorsDe = {
     EXT_AUTH_002: "Kein Zugriff",
 
     EXT_SIGN_IN_001: "E-Mail oder Passwort sind inkorrekt",
+
+    EXT_RATE_LIMIT_001: "Zu viele Anfragen in kurzer Zeit",
 } satisfies ExternalErrorTypes;
