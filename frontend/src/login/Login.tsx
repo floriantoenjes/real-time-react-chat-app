@@ -75,9 +75,11 @@ export function Login(props: {}) {
                             className={"w-80"}
                         />
                     </div>
-                    <div className={"mb-8 text-red-500 text-sm"}>
-                        {formState.errors.email?.message}
-                    </div>
+                    {formState.errors.email && (
+                        <div className={"mb-8 text-red-500 text-sm"}>
+                            {formState.errors.email?.message}
+                        </div>
+                    )}
                     <div className="mb-3">
                         <TextField
                             type="password"

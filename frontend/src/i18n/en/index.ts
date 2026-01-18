@@ -27,8 +27,7 @@ const en = {
     LOGGED_OUT: "You have been logged out successfully",
     CHAT_MESSAGES_DELETED: "Chat messages have been deleted",
     CONTACT_ADDED: "{name} has been added as a contact",
-    REGISTERED_AND_SIGNED_IN:
-        "Your account has been created and you have been signed in.",
+    REGISTERED: "Your account has been created",
     WS_CONNECTION_LOST:
         "The connection to the server has been lost. Reconnecting...",
     WS_CONNECTION_REESTABLISHED:

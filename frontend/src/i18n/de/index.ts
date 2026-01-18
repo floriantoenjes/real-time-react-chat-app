@@ -27,8 +27,7 @@ const de = {
     LOGGED_OUT: "Du wurdest erfolgreich ausgeloggt",
     CHAT_MESSAGES_DELETED: "Chat-Nachrichten erfolgreich gelöscht",
     CONTACT_ADDED: "{name} wurde als Kontakt hinzugefügt",
-    REGISTERED_AND_SIGNED_IN:
-        "Dein Account wurde erstellt und du wurdest eingeloggt",
+    REGISTERED: "Dein Account wurde erstellt",
     WS_CONNECTION_LOST:
         "Die Verbindung zum Server wurde getrennt. Verbinden...",
     WS_CONNECTION_REESTABLISHED:

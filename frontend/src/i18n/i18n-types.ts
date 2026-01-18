@@ -120,9 +120,9 @@ type RootTranslation = {
 	 */
 	CONTACT_ADDED: RequiredParams<'name'>
 	/**
-	 * Y​o​u​r​ ​a​c​c​o​u​n​t​ ​h​a​s​ ​b​e​e​n​ ​c​r​e​a​t​e​d​ ​a​n​d​ ​y​o​u​ ​h​a​v​e​ ​b​e​e​n​ ​s​i​g​n​e​d​ ​i​n​.
+	 * Y​o​u​r​ ​a​c​c​o​u​n​t​ ​h​a​s​ ​b​e​e​n​ ​c​r​e​a​t​e​d
 	 */
-	REGISTERED_AND_SIGNED_IN: string
+	REGISTERED: string
 	/**
 	 * T​h​e​ ​c​o​n​n​e​c​t​i​o​n​ ​t​o​ ​t​h​e​ ​s​e​r​v​e​r​ ​h​a​s​ ​b​e​e​n​ ​l​o​s​t​.​ ​R​e​c​o​n​n​e​c​t​i​n​g​.​.​.
 	 */
@@ -282,9 +282,9 @@ export type TranslationFunctions = {
 	 */
 	CONTACT_ADDED: (arg: { name: unknown }) => LocalizedString
 	/**
-	 * Your account has been created and you have been signed in.
+	 * Your account has been created
 	 */
-	REGISTERED_AND_SIGNED_IN: () => LocalizedString
+	REGISTERED: () => LocalizedString
 	/**
 	 * The connection to the server has been lost. Reconnecting...
 	 */

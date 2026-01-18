@@ -4,14 +4,15 @@ import React, { useContext, useState } from "react";
 import { UserContext } from "../shared/contexts/UserContext";
 import { useForm } from "react-hook-form";
 import { useDiContext } from "../shared/contexts/DiContext";
+import { useI18nContext } from "../i18n/i18n-react";
+import { GlobeAltIcon } from "@heroicons/react/24/outline";
+import { LanguageModal } from "../dashboard/sidebar/top-section/language-modal/LanguageModal";
+import { z } from "zod";
 import { RoutesEnum } from "../shared/enums/routes";
 import {
     SnackbarLevels,
     snackbarService,
 } from "../shared/contexts/SnackbarContext";
-import { useI18nContext } from "../i18n/i18n-react";
-import { GlobeAltIcon } from "@heroicons/react/24/outline";
-import { LanguageModal } from "../dashboard/sidebar/top-section/language-modal/LanguageModal";
 
 type SignUpData = {
     email: string;
@@ -31,11 +32,7 @@ export function Register(props: {}) {
 
     const [passwordsDontMatch, setPasswordsDontMatch] = useState(false);
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<SignUpData>();
+    const { register, handleSubmit, formState } = useForm<SignUpData>();
 
     async function signUp(formData: SignUpData) {
         const signUpResponse = await authService.signUp(
@@ -48,12 +45,8 @@ export function Register(props: {}) {
             return;
         }
 
-        setUser(signUpResponse.user);
-        navigate(RoutesEnum.DASHBOARD);
-        snackbarService.showSnackbar(
-            LL.REGISTERED_AND_SIGNED_IN(),
-            SnackbarLevels.SUCCESS,
-        );
+        navigate(RoutesEnum.LOGIN);
+        snackbarService.showSnackbar(LL.REGISTERED(), SnackbarLevels.SUCCESS);
     }
 
     return (
@@ -82,10 +75,27 @@ export function Register(props: {}) {
                         <TextField
                             type="email"
                             label={LL.EMAIL()}
-                            {...register("email", { required: true })}
+                            {...register("email", {
+                                required: true,
+                                validate: (value) => {
+                                    try {
+                                        return !!z
+                                            .string()
+                                            .email()
+                                            .parse(value);
+                                    } catch (e) {
+                                        return LL.ENTER_VALID_EMAIL();
+                                    }
+                                },
+                            })}
                             className={"w-80"}
                         />
                     </div>
+                    {formState.errors.email && (
+                        <div className={"mb-8 text-red-500 text-sm"}>
+                            {formState.errors.email?.message}
+                        </div>
+                    )}
                     <div className="mb-3">
                         <TextField
                             type="password"
