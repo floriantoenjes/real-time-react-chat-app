@@ -17,7 +17,6 @@ export function LanguageModal(props: {
         transform: "translate(-50%, -50%)",
         width: 400,
         bgcolor: "background.paper",
-        border: "2px solid #000",
         boxShadow: 24,
         p: 4,
     };
@@ -29,7 +28,7 @@ export function LanguageModal(props: {
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
         >
-            <Box sx={style}>
+            <Box sx={style} className={"rounded"}>
                 <h2 className={"text-xl mb-4 text-center"}>
                     {LL.CHANGE_LANGUAGE()}
                 </h2>
