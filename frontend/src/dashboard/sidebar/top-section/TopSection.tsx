@@ -115,6 +115,10 @@ export function TopSection() {
                         anchorEl={anchorEl}
                         open={open}
                         onClose={handleClose}
+                        transformOrigin={{
+                            vertical: "top",
+                            horizontal: "right",
+                        }}
                     >
                         <MenuItem onClick={toggleDrawer("left", true, "group")}>
                             <PlusIcon className={"w-4 mr-2"} />
