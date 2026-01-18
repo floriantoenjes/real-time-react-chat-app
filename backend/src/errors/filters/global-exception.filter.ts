@@ -38,6 +38,24 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
         if (exception instanceof ClientFriendlyHttpException) {
             const status = exception.getStatus();
+
+            const logContext: Record<string, unknown> = {
+                ...requestContext,
+                errorCode: exception.errorCode,
+                message: exception.message,
+                status,
+            };
+
+            if (exception.originalError) {
+                logContext.originalError = {
+                    name: exception.originalError.name,
+                    message: exception.originalError.message,
+                    stack: exception.originalError.stack,
+                };
+            }
+
+            this.logger.warn(JSON.stringify(logContext));
+
             response.status(status).json(exception.getResponse());
             return;
         }
