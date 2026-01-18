@@ -8,6 +8,9 @@ import commonjs from "vite-plugin-commonjs";
 export default defineConfig({
     plugins: [vitePluginRequire.default(), commonjs(), react()],
     base: "/frontend/",
+    // build: {
+    //     sourcemap: "inline", // TODO: Comment out after debugging
+    // },
     resolve: {
         alias: [
             {
