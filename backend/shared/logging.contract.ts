@@ -20,6 +20,6 @@ export const loggingContract = c.router({
             200: z.boolean(),
         },
         body: LogMessageSchema,
-        summary: 'Log a message with the CustomLogger',
+        summary: 'Log a message to the server',
     },
 });

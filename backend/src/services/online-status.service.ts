@@ -1,5 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { CustomLogger } from '../logging/custom-logger';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
     PubClient,
     PubSubFactoryInterface,
@@ -14,17 +13,16 @@ enum ServerSyncEvent {
 
 @Injectable()
 export class OnlineStatusService {
+    private readonly logger = new Logger(OnlineStatusService.name);
     private readonly pubClient: PubClient;
     private readonly subClient: SubClient;
 
     private readonly onlineUsersSet: Set<string> = new Set<string>();
 
     constructor(
-        private readonly logger: CustomLogger,
         @Inject(PubSubFactoryToken)
         readonly pubSubFactory: PubSubFactoryInterface,
     ) {
-        this.logger.setContext(OnlineStatusService.name);
 
         const { pubClient, subClient, connectionPromise } =
             pubSubFactory.getPubAndSubClients();

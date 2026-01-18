@@ -3,20 +3,18 @@ import {
     Catch,
     ExceptionFilter,
     HttpStatus,
+    Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ThrottlerException } from '@nestjs/throttler';
 import { OperationFailedException } from '../external/operation-failed.exception';
 import { RateLimitExceededException } from '../external/rate-limit-exceeded.exception';
-import { CustomLogger } from '../../logging/custom-logger';
 import { ClientFriendlyHttpException } from '../client-friendly-http.exception';
 import { AppHttpException } from '../app-http.exception';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
-    constructor(private readonly logger: CustomLogger) {
-        logger.setContext(GlobalExceptionFilter.name);
-    }
+    private readonly logger = new Logger(GlobalExceptionFilter.name);
 
     catch(exception: unknown, host: ArgumentsHost) {
         const ctx = host.switchToHttp();

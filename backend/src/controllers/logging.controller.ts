@@ -1,13 +1,10 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Logger } from '@nestjs/common';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
-import { CustomLogger } from '../logging/custom-logger';
 import { loggingContract } from '../../shared/logging.contract';
 
 @Controller()
 export class LoggingController {
-    constructor(private readonly logger: CustomLogger) {
-        this.logger.setContext(LoggingController.name);
-    }
+    private readonly logger = new Logger(LoggingController.name);
 
     @TsRestHandler(loggingContract.logMessage)
     async logMessage() {

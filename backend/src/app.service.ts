@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { MessageEntity } from './schemas/message.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -7,21 +7,19 @@ import { ContactEntity } from './schemas/contact.schema';
 import * as bcrypt from 'bcrypt';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { CustomLogger } from './logging/custom-logger';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
+    private readonly logger = new Logger(AppService.name);
+
     constructor(
         @Inject(CACHE_MANAGER)
         private readonly cache: Cache,
-        private readonly logger: CustomLogger,
         @InjectModel(MessageEntity.name)
         private readonly messageModel: Model<MessageEntity>,
         @InjectModel(UserEntity.name)
         private readonly userModel: Model<UserEntity>,
-    ) {
-        this.logger.setContext(AppService.name);
-    }
+    ) {}
 
     async onApplicationBootstrap() {
         await this.cache.reset();

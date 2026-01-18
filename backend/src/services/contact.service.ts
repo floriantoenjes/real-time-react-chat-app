@@ -1,9 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Contact } from '../../shared/contact.contract';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserEntity } from '../schemas/user.schema';
 import { Model } from 'mongoose';
-import { CustomLogger } from '../logging/custom-logger';
 import { OnlineStatusService } from './online-status.service';
 import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
 import { ContactNotFoundException } from '../errors/internal/contact-not-found.exception';
@@ -11,13 +10,12 @@ import { ContactAlreadyExistsException } from '../errors/internal/contact-alread
 
 @Injectable()
 export class ContactService {
+    private readonly logger = new Logger(ContactService.name);
+
     constructor(
-        private readonly logger: CustomLogger,
         private readonly onlineStatusService: OnlineStatusService,
         @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
-    ) {
-        this.logger.setContext(ContactService.name);
-    }
+    ) {}
 
     async getUserContacts(userId: string) {
         const user = await this.userModel.findOne({

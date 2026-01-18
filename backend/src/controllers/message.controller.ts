@@ -1,4 +1,4 @@
-import { Controller, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Logger, UploadedFile, UseInterceptors } from '@nestjs/common';
 import {
     NestRequestShapes,
     TsRest,
@@ -9,17 +9,13 @@ import {
 import { messageContract } from '../../shared/message.contract';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MessageService } from '../services/message.service';
-import { CustomLogger } from '../logging/custom-logger';
 import { UserId } from '../decorators/user-id.decorator';
 
 @Controller()
 export class MessageController {
-    constructor(
-        private readonly logger: CustomLogger,
-        private readonly messageService: MessageService,
-    ) {
-        this.logger.setContext(MessageController.name);
-    }
+    private readonly logger = new Logger(MessageController.name);
+
+    constructor(private readonly messageService: MessageService) {}
 
     @TsRestHandler(messageContract.getMessageById)
     async getMessageById() {

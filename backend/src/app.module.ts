@@ -23,7 +23,6 @@ import { ContactService } from './services/contact.service';
 import { CacheModule, CacheStore } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
 import * as process from 'node:process';
-import { CustomLogger } from './logging/custom-logger';
 import { LoggingController } from './controllers/logging.controller';
 import { RedisPubSubFactory } from './factories/redisPubSubFactory';
 import { OnlineStatusService } from './services/online-status.service';
@@ -93,7 +92,6 @@ import { ThrottlerModule } from '@nestjs/throttler';
         AppService,
         ContactService,
         ContactGroupService,
-        CustomLogger,
         MessageService,
         ObjectStorageService,
         OnlineStatusService,

@@ -5,10 +5,10 @@ import {
     WebSocketGateway,
     WebSocketServer,
 } from '@nestjs/websockets';
+import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { ContactService } from '../services/contact.service';
 import { User } from '../../shared/user.contract';
-import { CustomLogger } from '../logging/custom-logger';
 import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from '../services/auth-constants';
 import { OnlineStatusService } from 'src/services/online-status.service';
@@ -24,17 +24,16 @@ import { SocketMessageTypes } from '../../shared/socket-message-types.enum';
 export class RealTimeChatGateway
     implements OnGatewayConnection, OnGatewayDisconnect
 {
+    private readonly logger = new Logger(RealTimeChatGateway.name);
+
     @WebSocketServer()
     server!: Server;
 
     constructor(
         private readonly contactService: ContactService,
         private readonly jwtService: JwtService,
-        private readonly logger: CustomLogger,
         private readonly onlineStatusService: OnlineStatusService,
-    ) {
-        this.logger.setContext(RealTimeChatGateway.name);
-    }
+    ) {}
 
     handleConnection(socket: Socket): void {
         if (!this.canSocketBeAuthenticated(socket)) {

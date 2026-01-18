@@ -1,18 +1,14 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Logger } from '@nestjs/common';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { contactContract } from '../../shared/contact.contract';
 import { ContactService } from '../services/contact.service';
-import { CustomLogger } from '../logging/custom-logger';
 import { UserId } from '../decorators/user-id.decorator';
 
 @Controller()
 export class ContactController {
-    constructor(
-        private readonly contactService: ContactService,
-        private readonly logger: CustomLogger,
-    ) {
-        this.logger.setContext(ContactController.name);
-    }
+    private readonly logger = new Logger(ContactController.name);
+
+    constructor(private readonly contactService: ContactService) {}
 
     @TsRestHandler(contactContract.getContacts)
     async getContacts(@UserId() userId: string) {

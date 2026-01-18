@@ -1,6 +1,7 @@
 import {
     Body,
     Controller,
+    Logger,
     Req,
     Res,
     UploadedFile,
@@ -22,18 +23,14 @@ import { Request, Response } from 'express';
 import { InvalidEmailOrPasswordException } from '../errors/external/invalid-email-or-password.exception';
 import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
 import { UnauthorizedException } from '../errors/external/unauthorized.exception';
-import { CustomLogger } from '../logging/custom-logger';
 import { UserId } from '../decorators/user-id.decorator';
 import { AuthThrottle } from '../decorators/throttle.decorators';
 
 @Controller()
 export class UserController {
-    constructor(
-        private readonly logger: CustomLogger,
-        private readonly userService: UserService,
-    ) {
-        this.logger.setContext(UserController.name);
-    }
+    private readonly logger = new Logger(UserController.name);
+
+    constructor(private readonly userService: UserService) {}
 
     @TsRestHandler(userContract.getAll)
     async getAll() {

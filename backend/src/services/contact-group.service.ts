@@ -1,8 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserEntity } from '../schemas/user.schema';
 import { Model, Types } from 'mongoose';
-import { CustomLogger } from '../logging/custom-logger';
 import { ContactGroup } from '../../shared/contact-group.contract';
 import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
 import { MembersNotFoundException } from '../errors/internal/members-not-found.exception';
@@ -11,12 +10,11 @@ import { ContactGroupNotFoundException } from '../errors/internal/contact-group-
 
 @Injectable()
 export class ContactGroupService {
+    private readonly logger = new Logger(ContactGroupService.name);
+
     constructor(
-        private readonly logger: CustomLogger,
         @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
-    ) {
-        this.logger.setContext(ContactGroupService.name);
-    }
+    ) {}
 
     async getContactGroups(userId: string) {
         const user = await this.userModel

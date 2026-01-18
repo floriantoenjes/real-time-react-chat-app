@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { User } from '../../shared/user.contract';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -8,7 +8,6 @@ import { JwtService } from '@nestjs/jwt';
 import { Cache } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { findUsersByCacheKey } from '../cache/cache-keys';
-import { CustomLogger } from '../logging/custom-logger';
 import { Jimp } from 'jimp';
 import { ObjectStorageService } from './object-storage.service';
 import { EmailAlreadyTakenException } from '../errors/external/email-already-taken.exception';
@@ -18,18 +17,16 @@ import { ObjectNotFoundException } from '../errors/internal/object-not-found.exc
 
 @Injectable()
 export class UserService {
+    private readonly logger = new Logger(UserService.name);
     private readonly SALT_OR_ROUNDS = 10;
 
     constructor(
         @Inject(CACHE_MANAGER)
         private readonly cache: Cache,
-        private readonly logger: CustomLogger,
         @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
         private readonly jwtService: JwtService,
         private readonly objectStorageService: ObjectStorageService,
-    ) {
-        this.logger.setContext(UserService.name);
-    }
+    ) {}
 
     async findUsersBy(filter?: Partial<{ [k in keyof UserEntity]: any }>) {
         const cacheKey = findUsersByCacheKey(filter);
