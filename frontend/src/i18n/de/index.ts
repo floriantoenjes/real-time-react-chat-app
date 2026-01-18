@@ -6,6 +6,7 @@ const de = {
     ENTER_VALID_EMAIL: "Gib eine korrekte E-Mail Adresse ein",
     PASSWORD: "Passwort",
     CONFIRM_PASSWORD: "Passwort bestätigen",
+    PASSWORDS_DONT_MATCH: "Passwörter stimmen nicht überein",
     SIGN_IN: "Einloggen",
     SIGN_UP: "Registrieren",
     SIGN_OUT: "Ausloggen",

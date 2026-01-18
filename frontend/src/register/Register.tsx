@@ -75,6 +75,7 @@ export function Register(props: {}) {
                         <TextField
                             type="email"
                             label={LL.EMAIL()}
+                            error={!!formState.errors.email}
                             {...register("email", {
                                 required: true,
                                 validate: (value) => {
@@ -89,13 +90,9 @@ export function Register(props: {}) {
                                 },
                             })}
                             className={"w-80"}
+                            helperText={formState.errors.email?.message}
                         />
                     </div>
-                    {formState.errors.email && (
-                        <div className={"mb-8 text-red-500 text-sm"}>
-                            {formState.errors.email?.message}
-                        </div>
-                    )}
                     <div className="mb-3">
                         <TextField
                             type="password"
@@ -122,7 +119,7 @@ export function Register(props: {}) {
                             error={passwordsDontMatch}
                             helperText={
                                 passwordsDontMatch
-                                    ? "Passwords don't match"
+                                    ? LL.PASSWORDS_DONT_MATCH()
                                     : ""
                             }
                         />

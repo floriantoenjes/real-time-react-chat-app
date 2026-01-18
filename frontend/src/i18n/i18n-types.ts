@@ -35,6 +35,10 @@ type RootTranslation = {
 	 */
 	CONFIRM_PASSWORD: string
 	/**
+	 * P​a​s​s​w​o​r​d​s​ ​d​o​n​'​t​ ​m​a​t​c​h
+	 */
+	PASSWORDS_DONT_MATCH: string
+	/**
 	 * S​i​g​n​ ​i​n
 	 */
 	SIGN_IN: string
@@ -197,6 +201,10 @@ export type TranslationFunctions = {
 	 * Confirm Password
 	 */
 	CONFIRM_PASSWORD: () => LocalizedString
+	/**
+	 * Passwords don't match
+	 */
+	PASSWORDS_DONT_MATCH: () => LocalizedString
 	/**
 	 * Sign in
 	 */

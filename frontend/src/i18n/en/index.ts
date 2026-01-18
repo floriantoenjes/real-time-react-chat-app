@@ -6,6 +6,7 @@ const en = {
     ENTER_VALID_EMAIL: "Please enter a valid email",
     PASSWORD: "Password",
     CONFIRM_PASSWORD: "Confirm Password",
+    PASSWORDS_DONT_MATCH: "Passwords don't match",
     SIGN_IN: "Sign in",
     SIGN_UP: "Sign up",
     SIGN_OUT: "Sign out",
