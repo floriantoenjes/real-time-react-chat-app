@@ -7,7 +7,8 @@ export class ClientFriendlyHttpException extends AppHttpException {
         public readonly message: string,
         public readonly details?: any,
         statusCode: HttpStatus = HttpStatus.BAD_REQUEST,
+        originalError?: Error,
     ) {
-        super(errorCode, message, details, statusCode);
+        super(errorCode, message, details, statusCode, originalError);
     }
 }

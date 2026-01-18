@@ -110,7 +110,7 @@ export class UserService {
                 this.logger.warn(
                     `Refresh failed: invalid refresh token - ${verifyError.message}`,
                 );
-                throw new UnauthorizedException();
+                throw new UnauthorizedException(verifyError);
             }
 
             const decodedJwt = this.jwtService.decode(refreshToken);
@@ -212,7 +212,7 @@ export class UserService {
             this.logger.warn(
                 `User creation failed for email ${email}: ${error.message}`,
             );
-            throw new EmailAlreadyTakenException();
+            throw new EmailAlreadyTakenException(error);
         }
     }
 
@@ -248,7 +248,7 @@ export class UserService {
             this.logger.warn(
                 `Avatar load failed for user ${userId}: ${error.message}`,
             );
-            throw new ObjectNotFoundException();
+            throw new ObjectNotFoundException(error);
         }
 
         return {
