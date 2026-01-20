@@ -20,6 +20,14 @@ export function Chat() {
     const messageService = useDiContext().MessageService;
     const { LL } = useI18nContext();
     const messagesCache = useRef<Map<string, Message[]>>(new Map());
+    const selectedContactRef = useRef(selectedContact);
+    const userIdRef = useRef(user._id);
+
+    // Keep refs in sync
+    useEffect(() => {
+        selectedContactRef.current = selectedContact;
+        userIdRef.current = user._id;
+    }, [selectedContact, user._id]);
 
     // Fetch messages - check cache first
     useEffect(() => {
@@ -73,10 +81,14 @@ export function Chat() {
     }, [messages, selectedContact?._id]);
 
     useEffect(() => {
+        if (!socket) {
+            return;
+        }
+
         function addMessage(message: Message) {
             // Determine which contact this message belongs to
             const contactId =
-                message.fromUserId === user._id
+                message.fromUserId === userIdRef.current
                     ? message.toUserId
                     : message.fromUserId;
 
@@ -85,39 +97,36 @@ export function Chat() {
             messagesCache.current.set(contactId, [...cached, message]);
 
             // Update display if viewing that contact
-            if (selectedContact?._id === contactId) {
+            if (selectedContactRef.current?._id === contactId) {
                 setMessages((prev) => [...prev, message]);
                 messageService.setMessageRead(message._id);
             }
         }
 
-        if (socket) {
-            socket.once(SocketMessageTypes.message, addMessage);
-
-            socket.on(SocketMessageTypes.messageRead, (msgId: string) => {
-                setMessages((prevState) => {
-                    const nowReadMsgIdx = prevState.findIndex((msg) => {
-                        return (
-                            msg._id === msgId ||
-                            msg._id.startsWith(MessageAddons.TEMP_PREFIX)
-                        );
-                    });
-                    if (!prevState[nowReadMsgIdx]) {
-                        return prevState;
-                    }
-                    prevState[nowReadMsgIdx].read = true;
-                    return [...prevState];
+        function handleMessageRead(msgId: string) {
+            setMessages((prevState) => {
+                const nowReadMsgIdx = prevState.findIndex((msg) => {
+                    return (
+                        msg._id === msgId ||
+                        msg._id.startsWith(MessageAddons.TEMP_PREFIX)
+                    );
                 });
+                if (!prevState[nowReadMsgIdx]) {
+                    return prevState;
+                }
+                prevState[nowReadMsgIdx].read = true;
+                return [...prevState];
             });
         }
-    }, [
-        socket,
-        messages,
-        user._id,
-        selectedContact?._id,
-        setMessages,
-        messageService,
-    ]);
+
+        socket.on(SocketMessageTypes.message, addMessage);
+        socket.on(SocketMessageTypes.messageRead, handleMessageRead);
+
+        return () => {
+            socket.off(SocketMessageTypes.message, addMessage);
+            socket.off(SocketMessageTypes.messageRead, handleMessageRead);
+        };
+    }, [socket, setMessages, messageService]);
 
     return selectedContact ? (
         <div className={"h-screen w-full overflow-y-scroll"}>
