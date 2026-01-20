@@ -23,4 +23,9 @@ export class AppController {
     isReady(): boolean {
         return true;
     }
+
+    @Get('/debug-sentry')
+    mainHandler(req, res) {
+        throw new Error('My first GlitchTip error!');
+    }
 }

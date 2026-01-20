@@ -31,9 +31,11 @@ import { CoturnController } from './controllers/coturn.controller';
 import { ContactGroupService } from './services/contact-group.service';
 import { MessageService } from './services/message.service';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { SentryModule } from '@sentry/nestjs/setup';
 
 @Module({
     imports: [
+        SentryModule.forRoot(),
         ConfigModule.forRoot(),
         ThrottlerModule.forRoot({
             throttlers: [{ limit: 100, ttl: 60 * 1000 }],

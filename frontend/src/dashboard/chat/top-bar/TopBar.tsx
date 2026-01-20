@@ -38,9 +38,11 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
     const { startCall } = useContext(PeerContext);
     const [socket] = useContext(SocketContext);
 
-    const contactService = useDiContext().ContactService;
-    const contactGroupService = useDiContext().ContactGroupService;
-    const messageService = useDiContext().MessageService;
+    const {
+        ContactService: contactService,
+        ContactGroupService: contactGroupService,
+        MessageService: messageService,
+    } = useDiContext();
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -98,7 +100,8 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
                 return;
             }
         } else {
-            const deletionRes = await contactService.deleteContact(selectedContact);
+            const deletionRes =
+                await contactService.deleteContact(selectedContact);
 
             if (deletionRes.status !== 204) {
                 return;

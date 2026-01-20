@@ -1,0 +1,180 @@
+# Default values for glitchtip.
+image:
+  repository: glitchtip/glitchtip
+  tag: v5.2.1
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+env:
+  normal:
+    ENABLE_SOCIAL_AUTH: false
+    GLITCHTIP_DOMAIN: https://glitchtip.floriantoenjes.com # https://example.com
+  secret:
+    # SECRET_KEY: # REQUIRED, either set it here or in existingSecret
+    DATABASE_URL: postgres://username:password@postgres-postgresql:5432/auth
+    # REDIS_URL: Specify if using external redis (not managed by this chart)
+
+# You can inject secrets into the apps's environment from an existing secret by providing the name of a k8s secret in the same namespace.
+existingSecret: null
+
+migrationJob:
+  enabled: true
+  command: ["bin/run-migrate.sh"]
+  activeDeadlineSeconds: 900
+  podAnnotations: {}
+  database:
+    existingSecret: ""
+  extraEnvVars: []
+
+web:
+  replicaCount: 2
+  database:
+    existingSecret: ""
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPU: 80
+    # targetMemory: 80
+  budget:
+    minAvailable: 1
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  nodeSelector: {}
+  tolerations: []
+  podAnnotations: {}
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/component
+                  operator: In
+                  values:
+                    - web # Change this as needed
+            topologyKey: kubernetes.io/hostname
+  livenessProbe:
+    failureThreshold: 5
+    initialDelaySeconds: 5
+    timeoutSeconds: 3
+  readinessProbe:
+    failureThreshold: 10
+    initialDelaySeconds: 5
+    timeoutSeconds: 2
+  service:
+    type: ClusterIP
+    port: 80
+  extraEnvVars: []
+
+  ingress:
+    enabled: true # false
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: glitchtip.floriantoenjes.com
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls:
+      - secretName: wildcard-cert
+        hosts:
+          - glitchtip.floriantoenjes.com
+
+worker:
+  enabled: true
+  replicaCount: 1
+  database:
+    existingSecret: ""
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 10
+    targetCPU: 100
+    # targetMemory: 100
+  livenessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 30
+    timeoutSeconds: 10
+    exec:
+      command:
+        - /bin/sh
+        - -c
+        - "test -f /tmp/worker_health && [ $(($(date +%s) - $(stat -c %Y /tmp/worker_health))) -lt 15 ]"
+
+  resources:
+    limits:
+      cpu: 900m
+      memory: 768Mi
+    requests:
+      cpu: 100m
+      memory: 350Mi
+  nodeSelector: {}
+  tolerations: []
+  podAnnotations: {}
+  affinity: {}
+  extraEnvVars: []
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name:
+
+# For configuration options, see https://github.com/valkey-io/valkey-helm
+valkey:
+  enabled: true
+  # For most users, Valkey is used as a transient cache and doesn't require
+  # persistent storage or high availability. The data stored in Valkey is
+  # not critical, and losing it would only result in users being logged out
+  # and pending background tasks being lost.
+  # The following values are recommended for a small GlitchTip installation.
+  # For larger instances, you may need to increase these values. For example,
+  # for a medium-sized instance, you might use 1GB or 2GB of RAM.
+  replicaCount: 1
+  dataStorage:
+    enabled: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+# Default to disabled, use a managed database service. But can be enabled here.
+# When enabled, a CloudNativePG cluster will be created.
+# The CloudNativePG operator must be installed in the cluster.
+postgresql:
+  enabled: false
+  # When enabled, a Cluster resource is created.
+  # See https://cloudnative-pg.io/documentation/current/cloudnative-pg.v1/#postgresql-cnpg-io-v1-Cluster
+  cluster:
+    instances: 1
+    storage:
+      size: 1Gi
+      # Optional storageClass. Leave empty to use the cluster's default.
+      storageClass:
+
+tests:
+  configuration:
+    enabled: true
+
+monitoring:
+  enabled: false
+  path: /metrics
+  # labels:
+  #   release: kube-prometheus-stack
+  interval: 30s
+  scrapeTimeout: 10s

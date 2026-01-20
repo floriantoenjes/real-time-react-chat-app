@@ -31,8 +31,8 @@ function App() {
     const [localesLoaded, setLocalesLoaded] = useState(false);
     const [user, setUser] = useState<User>();
 
-    const authService = useDiContext().AuthService;
-    const userService = useDiContext().UserService;
+    const { AuthService: authService, UserService: userService } =
+        useDiContext();
 
     const setUserWithAvatarBytes =
         getSetUserWithAvatarBytesOptional(userService);

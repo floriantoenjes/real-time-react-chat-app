@@ -1,3 +1,6 @@
+// Import this first!
+import './instrument';
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { RedisIoAdapter } from './adapters/RedisIoAdapter';
