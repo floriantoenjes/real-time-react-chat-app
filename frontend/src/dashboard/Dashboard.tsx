@@ -58,7 +58,9 @@ export function Dashboard(props: { user?: User }) {
 
         const handleContactAutoAdded = (newContact: Contact) => {
             setContacts((prevContacts) => {
-                const exists = prevContacts.some((c) => c._id === newContact._id);
+                const exists = prevContacts.some(
+                    (c) => c._id === newContact._id,
+                );
                 if (exists) {
                     return prevContacts;
                 }
@@ -69,7 +71,10 @@ export function Dashboard(props: { user?: User }) {
         socket.on(SocketMessageTypes.contactAutoAdded, handleContactAutoAdded);
 
         return () => {
-            socket.off(SocketMessageTypes.contactAutoAdded, handleContactAutoAdded);
+            socket.off(
+                SocketMessageTypes.contactAutoAdded,
+                handleContactAutoAdded,
+            );
         };
     }, [socket, setContacts]);
 
