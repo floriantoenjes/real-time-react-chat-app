@@ -50,6 +50,8 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
     const [state, setState] = useState(false);
     const [isTyping, setIsTyping] = useState<boolean>(false);
 
+    const isAContactGroup = "memberIds" in selectedContact;
+
     useEffect(() => {
         if (!socket) {
             return;
@@ -87,13 +89,42 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
         );
     }
 
+    async function leaveGroup() {
+        if (!isAContactGroup) {
+            return;
+        }
+
+        const leaveResult = await contactGroupService.leaveContactGroup(
+            selectedContact._id,
+        );
+
+        if (!leaveResult) {
+            snackbarService.showSnackbar(
+                LL.ERROR.COULD_NOT_LEAVE_GROUP(),
+                SnackbarLevels.ERROR,
+            );
+            return;
+        }
+
+        setContactGroups(
+            contactGroups.filter((cg) => cg._id !== selectedContact._id),
+        );
+        setSelectedContact(undefined);
+
+        snackbarService.showSnackbar(
+            LL.GROUP_LEFT({ name: selectedContact.name }),
+            SnackbarLevels.SUCCESS,
+        );
+        handleClose();
+    }
+
     async function deleteChatMessages(selectedContact: Contact | ContactGroup) {
         await messageService.deleteMessages(selectedContact._id);
     }
 
     async function deleteChatContact(selectedContact: Contact | ContactGroup) {
-        const isAContactGroup = "memberIds" in selectedContact;
-        if (isAContactGroup) {
+        const contactIsAGroup = "memberIds" in selectedContact;
+        if (contactIsAGroup) {
             const deletionResult =
                 await contactGroupService.deleteContactGroup(selectedContact);
             if (deletionResult) {
@@ -214,7 +245,15 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
                     }}
                 >
                     <MenuItem onClick={emptyChat}>{LL.EMPTY_CHAT()}</MenuItem>
-                    <MenuItem onClick={deleteChat}>{LL.DELETE_CHAT()}</MenuItem>
+                    {isAContactGroup ? (
+                        <MenuItem onClick={leaveGroup}>
+                            {LL.LEAVE_GROUP()}
+                        </MenuItem>
+                    ) : (
+                        <MenuItem onClick={deleteChat}>
+                            {LL.DELETE_CHAT()}
+                        </MenuItem>
+                    )}
                 </Menu>
             </div>
             {selectedContact && (

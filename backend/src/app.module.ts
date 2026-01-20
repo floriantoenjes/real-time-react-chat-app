@@ -3,6 +3,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { RealTimeChatGateway } from './gateways/socket.gateway';
 import { MongooseModule } from '@nestjs/mongoose';
+import {
+    ContactGroupEntity,
+    ContactGroupSchema,
+} from './schemas/contact-group.schema';
 import { MessageEntity, MessageSchema } from './schemas/message.schema';
 import { UserEntity, UserSchema } from './schemas/user.schema';
 import { ContactController } from './controllers/contact.controller';
@@ -50,6 +54,7 @@ import { SentryModule } from '@sentry/nestjs/setup';
             dbName: 'real-time-chat',
         }),
         MongooseModule.forFeature([
+            { name: ContactGroupEntity.name, schema: ContactGroupSchema },
             { name: MessageEntity.name, schema: MessageSchema },
             { name: UserEntity.name, schema: UserSchema },
         ]),

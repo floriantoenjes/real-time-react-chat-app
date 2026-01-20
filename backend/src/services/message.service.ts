@@ -8,7 +8,7 @@ import { Message, MessageType } from '../../shared/message.contract';
 import { SocketMessageTypes } from '../../shared/socket-message-types.enum';
 import { RealTimeChatGateway } from '../gateways/socket.gateway';
 import { ObjectStorageService } from './object-storage.service';
-import { User } from '../../shared/user.contract';
+import { ContactGroupEntity } from '../schemas/contact-group.schema';
 import { MessageNotFoundException } from '../errors/internal/message-not-found.exception';
 import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
 
@@ -17,6 +17,8 @@ export class MessageService {
     private readonly logger = new Logger(MessageService.name);
 
     constructor(
+        @InjectModel(ContactGroupEntity.name)
+        private readonly contactGroupModel: Model<ContactGroupEntity>,
         private readonly gateway: RealTimeChatGateway,
         @InjectModel(MessageEntity.name)
         private readonly messageModel: Model<MessageEntity>,
@@ -50,9 +52,9 @@ export class MessageService {
         }
 
         let messages: Message[];
-        const isContactGroup = !!this.getContactGroup(user, contactId);
+        const contactGroup = await this.getContactGroup(contactId);
 
-        if (isContactGroup) {
+        if (contactGroup) {
             messages = await this.messageModel.find({
                 toUserId: contactId,
             });
@@ -125,7 +127,7 @@ export class MessageService {
         }
         const newlyCreatedMessage = await this.messageModel.create(newMessage);
 
-        const contactGroup = this.getContactGroup(user, toUserId);
+        const contactGroup = await this.getContactGroup(toUserId);
         const isContact = !contactGroup;
 
         if (isContact) {
@@ -133,8 +135,11 @@ export class MessageService {
         }
 
         if (contactGroup) {
+            // Send to all members except the sender
             for (const memberId of contactGroup.memberIds) {
-                this.emitMessageViaWebSocket(memberId, newlyCreatedMessage);
+                if (memberId !== fromUserId) {
+                    this.emitMessageViaWebSocket(memberId, newlyCreatedMessage);
+                }
             }
         }
 
@@ -197,8 +202,10 @@ export class MessageService {
         };
     }
 
-    private getContactGroup(user: User, contactGroupId: string) {
-        return user.contactGroups.find((cg) => cg._id === contactGroupId);
+    private async getContactGroup(
+        contactGroupId: string,
+    ): Promise<ContactGroupEntity | null> {
+        return this.contactGroupModel.findOne({ _id: contactGroupId }).lean();
     }
 
     private emitMessageViaWebSocket(

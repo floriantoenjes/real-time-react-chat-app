@@ -13,6 +13,7 @@ import { SocketMessageTypes } from "@t/socket-message-types.enum";
 
 export function Chat() {
     const [selectedContact] = useContext(ContactsContext).selectedContact;
+    const [contactGroups] = useContext(ContactsContext).contactGroups;
     const [user] = useUserContext();
     const [messages, setMessages] = useContext(MessageContext);
     const [socket] = useContext(SocketContext);
@@ -20,12 +21,14 @@ export function Chat() {
     const messagesCache = useRef<Map<string, Message[]>>(new Map());
     const selectedContactRef = useRef(selectedContact);
     const userIdRef = useRef(user._id);
+    const contactGroupsRef = useRef(contactGroups);
 
     // Keep refs in sync
     useEffect(() => {
         selectedContactRef.current = selectedContact;
         userIdRef.current = user._id;
-    }, [selectedContact, user._id]);
+        contactGroupsRef.current = contactGroups;
+    }, [selectedContact, user._id, contactGroups]);
 
     // Fetch messages - check cache first
     useEffect(() => {
@@ -85,10 +88,16 @@ export function Chat() {
 
         function addMessage(message: Message) {
             // Determine which contact this message belongs to
-            const contactId =
-                message.fromUserId === userIdRef.current
-                    ? message.toUserId
-                    : message.fromUserId;
+            // Check if the message is sent to a contact group
+            const isGroupMessage = contactGroupsRef.current.some(
+                (group) => group._id === message.toUserId,
+            );
+
+            const contactId = isGroupMessage
+                ? message.toUserId // Group message: use the group ID
+                : message.fromUserId === userIdRef.current
+                  ? message.toUserId // I sent it: use recipient ID
+                  : message.fromUserId; // Someone sent to me: use sender ID
 
             // Always update cache
             const cached = messagesCache.current.get(contactId) ?? [];

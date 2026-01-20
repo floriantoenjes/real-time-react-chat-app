@@ -34,6 +34,8 @@ const de = {
     WS_CONNECTION_REESTABLISHED:
         "Die Verbindung zum Server wurde wiederhergestellt",
     CONTACT_REMOVED: "{name} ist kein Kontakt mehr",
+    LEAVE_GROUP: "Gruppe verlassen",
+    GROUP_LEFT: "Du hast die Gruppe {name} verlassen",
     AVATAR_UPDATED: "Profilbild wurde aktualisiert",
     ERROR: {
         COULD_NOT_FETCH_MESSAGES: "Chat-Nachrichten konnte nicht geholt werden",
@@ -44,6 +46,7 @@ const de = {
         AVATAR_NOT_UPDATED: "Profilbild konnte nicht aktualisiert werden",
         COULD_NOT_DELETE_CONTACT_GROUP: "Gruppe konnte nicht entfernt werden",
         COULD_NOT_DELETE_CONTACT: "Kontakt konnte nicht entfernt werden",
+        COULD_NOT_LEAVE_GROUP: "Gruppe konnte nicht verlassen werden",
     },
     EMAIL_OR_PASSWORD_INCORRECT: "E-Mail oder Passwort sind inkorrekt",
 } satisfies Translation;

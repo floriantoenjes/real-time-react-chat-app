@@ -10,6 +10,8 @@ export const ContactGroupSchema = z.object({
     lastMessage: z.string().optional(),
     avatarFileName: z.string().optional(),
     avatarBase64: z.any().optional(),
+    createdBy: z.string(),
+    createdAt: z.coerce.date(),
 });
 
 export type ContactGroup = z.infer<typeof ContactGroupSchema>;
@@ -28,13 +30,45 @@ export const contactGroupContract = c.router({
         method: 'PUT',
         path: '/contact-groups',
         responses: {
-            201: ContactGroupSchema,
+            200: ContactGroupSchema, // Joined existing group
+            201: ContactGroupSchema, // Created new group
         },
         body: z.object({
             name: z.string(),
             memberIds: z.array(z.string()),
         }),
-        summary: 'Add a new contact group',
+        summary: 'Add a new contact group or join existing one',
+    },
+    leaveContactGroup: {
+        method: 'POST',
+        path: '/contact-groups/leave',
+        responses: {
+            200: z.boolean(),
+        },
+        body: z.object({
+            contactGroupId: z.string(),
+        }),
+        summary: 'Leave a contact group',
+    },
+    rejoinContactGroup: {
+        method: 'POST',
+        path: '/contact-groups/rejoin',
+        responses: {
+            200: ContactGroupSchema,
+        },
+        body: z.object({
+            contactGroupId: z.string(),
+        }),
+        summary: 'Rejoin a left contact group',
+    },
+    getLeftGroups: {
+        method: 'POST',
+        path: '/contact-groups/left',
+        responses: {
+            200: z.array(ContactGroupSchema),
+        },
+        body: z.object({}),
+        summary: 'Get list of left groups',
     },
     removeContactGroup: {
         method: 'DELETE',
