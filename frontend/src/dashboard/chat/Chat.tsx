@@ -121,7 +121,10 @@ export function Chat() {
                 if (!prevState[nowReadMsgIdx]) {
                     return prevState;
                 }
-                prevState[nowReadMsgIdx].read = true;
+                prevState[nowReadMsgIdx] = {
+                    ...prevState[nowReadMsgIdx],
+                    read: true,
+                };
                 return [...prevState];
             });
         }

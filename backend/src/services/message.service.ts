@@ -11,6 +11,7 @@ import { ObjectStorageService } from './object-storage.service';
 import { ContactGroupEntity } from '../schemas/contact-group.schema';
 import { MessageNotFoundException } from '../errors/internal/message-not-found.exception';
 import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
+import { ContactService } from './contact.service';
 
 @Injectable()
 export class MessageService {
@@ -19,6 +20,7 @@ export class MessageService {
     constructor(
         @InjectModel(ContactGroupEntity.name)
         private readonly contactGroupModel: Model<ContactGroupEntity>,
+        private readonly contactService: ContactService,
         private readonly gateway: RealTimeChatGateway,
         @InjectModel(MessageEntity.name)
         private readonly messageModel: Model<MessageEntity>,
@@ -162,6 +164,10 @@ export class MessageService {
             void receiver.save();
         }
 
+        if (isContact) {
+            void this.autoAddSenderToReceiverContacts(fromUserId, toUserId);
+        }
+
         return { status: 201 as const, body: newlyCreatedMessage };
     }
 
@@ -215,5 +221,27 @@ export class MessageService {
         this.gateway
             .prepareSendMessage(userSocketId)
             ?.emit(SocketMessageTypes.message, messageToSend);
+    }
+
+    private async autoAddSenderToReceiverContacts(
+        senderId: string,
+        receiverId: string,
+    ): Promise<void> {
+        try {
+            const newContact = await this.contactService.addContactIfNotExists(
+                receiverId,
+                senderId,
+            );
+
+            if (newContact) {
+                this.gateway
+                    .prepareSendMessage(receiverId)
+                    ?.emit(SocketMessageTypes.contactAutoAdded, newContact);
+            }
+        } catch (error) {
+            this.logger.error(
+                `Failed to auto-add sender ${senderId} to receiver ${receiverId}'s contacts: ${error}`,
+            );
+        }
     }
 }

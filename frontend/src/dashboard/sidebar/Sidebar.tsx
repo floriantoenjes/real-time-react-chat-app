@@ -50,7 +50,7 @@ export function Sidebar() {
         }
 
         return () => {
-            socket?.off(SocketMessageTypes.message);
+            socket?.off(SocketMessageTypes.message, updateLastMessage);
         };
     }, [socket, user.username, lastMessage, userContacts, contactGroups]);
 
