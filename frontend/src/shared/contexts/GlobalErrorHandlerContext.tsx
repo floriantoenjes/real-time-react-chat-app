@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { snackbarService } from "./SnackbarContext";
-import { useDiContext } from "./DiContext";
 import { useI18nContext } from "../../i18n/i18n-react";
 import * as Sentry from "@sentry/browser";
 
@@ -10,7 +9,6 @@ export const GlobalErrorHandlerContext = ({
     children: React.ReactNode;
 }) => {
     const { LL } = useI18nContext();
-    const loggingService = useDiContext().LoggingService;
 
     useEffect(() => {
         const internalFetchErrorMessageToBeIgnored = "Failed to fetch";
@@ -24,11 +22,6 @@ export const GlobalErrorHandlerContext = ({
                 snackbarService.showSnackbar(LL.OFFLINE_HINT());
                 return;
             }
-            // loggingService.error(
-            //     `Uncaught Exception: ${message}`,
-            //     source,
-            //     error?.stack,
-            // );
             Sentry.captureException(error);
         };
 
@@ -44,11 +37,6 @@ export const GlobalErrorHandlerContext = ({
                 snackbarService.showSnackbar(LL.OFFLINE_HINT());
                 return;
             }
-            // loggingService.error(
-            //     `Unhandled Promise Rejection: ${event.reason}`,
-            //     "Unhandled Promise",
-            //     event.reason?.stack || null,
-            // );
             Sentry.captureException(event.reason);
         };
     }, []);

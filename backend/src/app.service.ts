@@ -1,4 +1,9 @@
-import { Inject, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import {
+    Inject,
+    Injectable,
+    Logger,
+    OnApplicationBootstrap,
+} from '@nestjs/common';
 import { MessageEntity } from './schemas/message.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';

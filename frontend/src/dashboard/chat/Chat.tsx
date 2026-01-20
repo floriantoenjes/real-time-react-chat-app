@@ -9,7 +9,6 @@ import { MessageContext } from "../../shared/contexts/MessageContext";
 import { Message } from "real-time-chat-backend/shared/message.contract";
 import { useDiContext } from "../../shared/contexts/DiContext";
 import { MessageAddons } from "../../shared/enums/message";
-import { useI18nContext } from "../../i18n/i18n-react";
 import { SocketMessageTypes } from "@t/socket-message-types.enum";
 
 export function Chat() {
@@ -18,7 +17,6 @@ export function Chat() {
     const [messages, setMessages] = useContext(MessageContext);
     const [socket] = useContext(SocketContext);
     const messageService = useDiContext().MessageService;
-    const { LL } = useI18nContext();
     const messagesCache = useRef<Map<string, Message[]>>(new Map());
     const selectedContactRef = useRef(selectedContact);
     const userIdRef = useRef(user._id);

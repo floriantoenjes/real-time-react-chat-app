@@ -20,7 +20,7 @@ type SignUpData = {
     username: string;
 };
 
-export function Register(props: {}) {
+export function Register() {
     const { LL } = useI18nContext();
     const navigate = useNavigate();
     const authService = useDiContext().AuthService;
