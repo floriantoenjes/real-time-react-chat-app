@@ -3,8 +3,7 @@ import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
 // Ensure to call this before requiring any other modules!
 Sentry.init({
-    // dsn: 'https://907df49a6a224292b965b736285e8efb@glitchtip.floriantoenjes.com/2',
-    dsn: 'http://907df49a6a224292b965b736285e8efb@glitchtip-web/2',
+    dsn: 'http://c5b69bda1d9c44be958eddf739bed573@glitchtip-web/1',
     integrations: [
         // Add our Profiling integration
         nodeProfilingIntegration(),
@@ -16,6 +15,6 @@ Sentry.init({
 
     // Set sampling rate for profiling
     // This is relative to tracesSampleRate
-    profilesSampleRate: 0,
+    profilesSampleRate: 1.0,
     debug: false,
 });
