@@ -1,0 +1,27 @@
+Loki-Grafana logging stack has been deployed!
+
+=== Grafana ===
+To access Grafana, run:
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ .Release.Name }}-grafana 3000:80
+
+Then open http://localhost:3000 in your browser.
+  Username: admin
+  Password: admin (or the value set in values.yaml)
+
+=== Loki Data Source ===
+Configure Loki as a data source in Grafana with URL:
+  http://{{ .Release.Name }}-loki-distributed-gateway.{{ .Release.Namespace }}.svc.cluster.local:80
+
+=== Promtail ===
+Promtail is configured to collect logs from all pods and send them to Loki.
+Logs should start appearing in Grafana's Explore view once the data source is configured.
+
+=== Useful Commands ===
+Check pod status:
+  kubectl get pods -n {{ .Release.Namespace }}
+
+Check Loki logs:
+  kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/name=loki-distributed
+
+Check Promtail logs:
+  kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/name=promtail
