@@ -7,7 +7,7 @@ import { BrowserRouter } from "react-router-dom";
 import * as Sentry from "@sentry/browser";
 
 Sentry.init({
-    dsn: "https://f7bc5bf661564d7bb0dc65d824507cf0@glitchtip.floriantoenjes.com/2",
+    dsn: "https://c5761411d2f94e1bb3a75428c4da214f@glitchtip.floriantoenjes.com/2",
 });
 
 const root = ReactDOM.createRoot(
