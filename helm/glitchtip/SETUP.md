@@ -1,42 +1,93 @@
-# GlitchTip Helm Chart
+# GlitchTip Error Tracking
 
-Originally based on https://gitlab.com/burke-software/django-helm-chart/
+This Helm chart installs GlitchTip with PostgreSQL as a complete error tracking stack.
 
-This helm chart will deploy GlitchTip web, worker, migration job, postgres (if enabled), and valkey (if enabled).
+Based on the official [GlitchTip Helm Chart](https://gitlab.com/glitchtip/glitchtip-helm-chart/).
 
-# Usage
+## Prerequisites
 
-1. Add our Helm chart repo `helm repo add glitchtip https://gitlab.com/api/v4/projects/16325141/packages/helm/stable`
-2. Review the chart's default values.yaml. At a minimum, decide if using helm postgresql and set env.secret.SECRET_KEY
-3. Install the chart `helm install glitchtip glitchtip/glitchtip -f your-values.yaml`. You'll need to specify your own values.yml file or make use of `--set`. Take special care to create a secure Django `SECRET_KEY` for your application and inject it either by setting it as demonstrated in `values.sample.yaml` or using the `existingSecret` mechanism documented below.
+Add the required Helm repositories (one-time setup):
+```bash
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add glitchtip https://gitlab.com/api/v4/projects/16325141/packages/helm/stable
+helm repo update
+```
 
-For postgresql, we recommend an externally managed database and providing only the DATABASE_URL environment variable. If using helm managed postgresql, then make sure to consider:
+## Installation
 
-- If you uninstall the chart, it will not delete the pvc. If you reinstall the chart, it won't have the correct password because of this.
-- postgresql helm chart does not support major upgrades (such as 14.0 to 15.0). It will fail to start. You could export to a sql file and import if downtime is acceptable. Minor updates are supported.
+1. Update chart dependencies:
+```bash
+helm dependency update helm/glitchtip
+```
 
-## Important Tips
+2. Install the stack:
+```bash
+helm upgrade --install glitchtip ./helm/glitchtip
+```
 
-- Use [helm diff](https://github.com/databus23/helm-diff) to preview changes
-- Set image.pullPolicy to `IfNotPresent` after specifying the image.tag
-- Set `valkey.auth.password` to avoid valkey being entirely remade on each release
-- If updating the chart, carefully review values for any new defaults
-- There are three ways of injecting secrets into this chart:
-    1. Using the chart values
-    2. Use `existingSecret` to reference a secret deployed separately from this chart. The secret's values are going to be injected into the application container's environment. E.g. if you want to set the `SECRET_KEY`, generate a new one and save it as part of the secret's data.
-    3. Using `extraEnvVars`, allowing to customise key's name if you do not control the secret creation, this would allow to configure a `DATABASE_PASSWORD` env from an automatic secret containing the key `password`.
+## Accessing GlitchTip
+
+With ingress enabled (default), access at:
+```
+https://glitchtip.floriantoenjes.com
+```
+
+Or port-forward if ingress is disabled:
+```bash
+kubectl port-forward -n glitchtip svc/glitchtip-web 8000:80
+```
+
+## Initial Setup
+
+1. Open GlitchTip in your browser
+2. Create your first user account (first user becomes admin)
+3. Create an organization and project
+4. Copy the DSN and use it in your applications
+
+## Configuration
+
+### Setting SECRET_KEY (Required for Production)
+
+Set a secure Django SECRET_KEY in `values.yaml`:
+```yaml
+glitchtip:
+  env:
+    secret:
+      SECRET_KEY: "your-secure-random-key"
+```
+
+Or use an existing Kubernetes secret:
+```yaml
+glitchtip:
+  existingSecret: my-glitchtip-secrets
+```
+
+### Database Credentials
+
+Database credentials are configured in `values.yaml` under `postgresql.auth` and must match the `DATABASE_URL` in `glitchtip.env.secret`.
+
+## Verification
+
+Check that all pods are running:
+```bash
+kubectl get pods -n glitchtip
+```
+
+Check migration job completed:
+```bash
+kubectl get jobs -n glitchtip
+```
+
+## Components
+
+- **PostgreSQL**: Database backend (Bitnami chart)
+- **GlitchTip Web**: Main application
+- **GlitchTip Worker**: Background job processor
+- **Valkey**: Caching layer (included with GlitchTip)
 
 ## Updating
 
-See changes in this chart on [GitLab](https://gitlab.com/glitchtip/glitchtip-helm-chart/-/releases)
-
-- `helm repo update`
-- Set the image.tag to the [latest version](https://gitlab.com/glitchtip/glitchtip-frontend/-/releases)
-- `helm diff upgrade glitchtip glitchtip/glitchtip`
-- Carefully review diff
-- `helm upgrade glitchtip glitchtip/glitchtip -f your-values.yaml`
-
-
-# Contributing
-
-Please open issues only with potential solutions and be prepared to do some work or else fund it. Contributors are welcome. However, we kindly ask that feature requests and support requests not be opened in this repo.
+1. Update Helm repos: `helm repo update`
+2. Update the image tag in `values.yaml`
+3. Preview changes: `helm diff upgrade glitchtip ./helm/glitchtip -n glitchtip`
+4. Apply upgrade: `helm upgrade glitchtip ./helm/glitchtip -n glitchtip`
