@@ -34,6 +34,39 @@ export class ContactGroupController {
         );
     }
 
+    @TsRestHandler(contactGroupContract.leaveContactGroup)
+    async leaveContactGroup(@UserId() userId: string) {
+        return tsRestHandler(
+            contactGroupContract.leaveContactGroup,
+            async ({ body }) => {
+                return this.contactGroupService.leaveContactGroup(
+                    userId,
+                    body.contactGroupId,
+                );
+            },
+        );
+    }
+
+    @TsRestHandler(contactGroupContract.rejoinContactGroup)
+    async rejoinContactGroup(@UserId() userId: string) {
+        return tsRestHandler(
+            contactGroupContract.rejoinContactGroup,
+            async ({ body }) => {
+                return this.contactGroupService.rejoinContactGroup(
+                    userId,
+                    body.contactGroupId,
+                );
+            },
+        );
+    }
+
+    @TsRestHandler(contactGroupContract.getLeftGroups)
+    async getLeftGroups(@UserId() userId: string) {
+        return tsRestHandler(contactGroupContract.getLeftGroups, async () => {
+            return this.contactGroupService.getLeftGroups(userId);
+        });
+    }
+
     @TsRestHandler(contactGroupContract.removeContactGroup)
     async removeContactGroup(@UserId() userId: string) {
         return tsRestHandler(

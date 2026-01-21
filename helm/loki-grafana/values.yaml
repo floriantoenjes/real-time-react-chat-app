@@ -1,0 +1,28 @@
+# Grafana configuration
+grafana:
+  service:
+    type: NodePort
+  adminPassword: admin
+
+# Loki Distributed configuration
+loki-distributed:
+  loki:
+    storage:
+      type: s3
+      bucketNames:
+        chunks: loki
+        ruler: loki
+        admin: loki
+      s3:
+        endpoint: realtime-chat-s3mock.default.svc.cluster.local:9090
+        accessKeyId: ""
+        secretAccessKey: ""
+        insecure: true
+        s3ForcePathStyle: true
+
+# Promtail configuration
+promtail:
+  config:
+    clients:
+      - url: http://loki-grafana-loki-distributed-gateway/loki/api/v1/push
+        tenant_id: 1

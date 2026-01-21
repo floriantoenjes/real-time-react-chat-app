@@ -8,15 +8,19 @@ import { Message, MessageType } from '../../shared/message.contract';
 import { SocketMessageTypes } from '../../shared/socket-message-types.enum';
 import { RealTimeChatGateway } from '../gateways/socket.gateway';
 import { ObjectStorageService } from './object-storage.service';
-import { User } from '../../shared/user.contract';
+import { ContactGroupEntity } from '../schemas/contact-group.schema';
 import { MessageNotFoundException } from '../errors/internal/message-not-found.exception';
 import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
+import { ContactService } from './contact.service';
 
 @Injectable()
 export class MessageService {
     private readonly logger = new Logger(MessageService.name);
 
     constructor(
+        @InjectModel(ContactGroupEntity.name)
+        private readonly contactGroupModel: Model<ContactGroupEntity>,
+        private readonly contactService: ContactService,
         private readonly gateway: RealTimeChatGateway,
         @InjectModel(MessageEntity.name)
         private readonly messageModel: Model<MessageEntity>,
@@ -50,9 +54,9 @@ export class MessageService {
         }
 
         let messages: Message[];
-        const isContactGroup = !!this.getContactGroup(user, contactId);
+        const contactGroup = await this.getContactGroup(contactId);
 
-        if (isContactGroup) {
+        if (contactGroup) {
             messages = await this.messageModel.find({
                 toUserId: contactId,
             });
@@ -125,7 +129,7 @@ export class MessageService {
         }
         const newlyCreatedMessage = await this.messageModel.create(newMessage);
 
-        const contactGroup = this.getContactGroup(user, toUserId);
+        const contactGroup = await this.getContactGroup(toUserId);
         const isContact = !contactGroup;
 
         if (isContact) {
@@ -133,8 +137,11 @@ export class MessageService {
         }
 
         if (contactGroup) {
+            // Send to all members except the sender
             for (const memberId of contactGroup.memberIds) {
-                this.emitMessageViaWebSocket(memberId, newlyCreatedMessage);
+                if (memberId !== fromUserId) {
+                    this.emitMessageViaWebSocket(memberId, newlyCreatedMessage);
+                }
             }
         }
 
@@ -155,6 +162,10 @@ export class MessageService {
             receiverContact.lastMessage = newlyCreatedMessage._id.toString();
             receiver.markModified('contacts');
             void receiver.save();
+        }
+
+        if (isContact) {
+            void this.autoAddSenderToReceiverContacts(fromUserId, toUserId);
         }
 
         return { status: 201 as const, body: newlyCreatedMessage };
@@ -197,8 +208,10 @@ export class MessageService {
         };
     }
 
-    private getContactGroup(user: User, contactGroupId: string) {
-        return user.contactGroups.find((cg) => cg._id === contactGroupId);
+    private async getContactGroup(
+        contactGroupId: string,
+    ): Promise<ContactGroupEntity | null> {
+        return this.contactGroupModel.findOne({ _id: contactGroupId }).lean();
     }
 
     private emitMessageViaWebSocket(
@@ -208,5 +221,27 @@ export class MessageService {
         this.gateway
             .prepareSendMessage(userSocketId)
             ?.emit(SocketMessageTypes.message, messageToSend);
+    }
+
+    private async autoAddSenderToReceiverContacts(
+        senderId: string,
+        receiverId: string,
+    ): Promise<void> {
+        try {
+            const newContact = await this.contactService.addContactIfNotExists(
+                receiverId,
+                senderId,
+            );
+
+            if (newContact) {
+                this.gateway
+                    .prepareSendMessage(receiverId)
+                    ?.emit(SocketMessageTypes.contactAutoAdded, newContact);
+            }
+        } catch (error) {
+            this.logger.error(
+                `Failed to auto-add sender ${senderId} to receiver ${receiverId}'s contacts: ${error}`,
+            );
+        }
     }
 }

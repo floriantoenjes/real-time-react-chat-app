@@ -1,0 +1,44 @@
+GlitchTip error tracking has been deployed!
+
+=== Access GlitchTip ===
+{{- if .Values.glitchtip.web.ingress.enabled }}
+GlitchTip is available at:
+{{- range .Values.glitchtip.web.ingress.hosts }}
+  https://{{ .host }}
+{{- end }}
+{{- else }}
+To access GlitchTip, run:
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ .Release.Name }}-glitchtip-web 8000:80
+
+Then open http://localhost:8000 in your browser.
+{{- end }}
+
+=== Initial Setup ===
+1. Open GlitchTip in your browser
+2. Create your first user account (first user becomes admin)
+3. Create an organization and project
+4. Use the provided DSN in your applications
+
+=== Components ===
+- PostgreSQL: Database backend
+- GlitchTip Web: Main application ({{ .Values.glitchtip.web.replicaCount }} replicas)
+- GlitchTip Worker: Background job processor
+- Valkey: Caching layer
+
+=== Useful Commands ===
+Check pod status:
+  kubectl get pods -n {{ .Release.Namespace }}
+
+Check migration job:
+  kubectl get jobs -n {{ .Release.Namespace }}
+
+View GlitchTip logs:
+  kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/name=glitchtip
+
+View PostgreSQL logs:
+  kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/name=postgresql
+
+=== Important Notes ===
+- The migration job runs automatically on install/upgrade
+- SECRET_KEY should be set in production (via values or existingSecret)
+- Database credentials are configured in values.yaml

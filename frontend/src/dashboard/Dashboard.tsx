@@ -1,5 +1,5 @@
 import "./Dashboard.css";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { User } from "real-time-chat-backend/shared/user.contract";
 import { Contact } from "real-time-chat-backend/shared/contact.contract";
@@ -13,6 +13,8 @@ import { Chat } from "./chat/Chat";
 import { ContactsContext } from "../shared/contexts/ContactsContext";
 import { PeerProvider } from "../shared/contexts/PeerContext";
 import { OnlineStatusProvider } from "../shared/contexts/OnlineStatusContext";
+import { SocketContext } from "../shared/contexts/SocketContext";
+import { SocketMessageTypes } from "@t/socket-message-types.enum";
 
 export function Dashboard(props: { user?: User }) {
     const isLoggedIn = props.user;
@@ -28,6 +30,8 @@ export function Dashboard(props: { user?: User }) {
         ContactService: contactService,
         ContactGroupService: contactGroupService,
     } = useDiContext();
+
+    const [socket] = useContext(SocketContext);
 
     const [contacts, setContacts] = useState<Contact[]>([]);
 
@@ -46,6 +50,33 @@ export function Dashboard(props: { user?: User }) {
             setContactGroups(await contactGroupService.getContactGroups());
         })();
     }, [props.user?._id]);
+
+    useEffect(() => {
+        if (!socket) {
+            return;
+        }
+
+        const handleContactAutoAdded = (newContact: Contact) => {
+            setContacts((prevContacts) => {
+                const exists = prevContacts.some(
+                    (c) => c._id === newContact._id,
+                );
+                if (exists) {
+                    return prevContacts;
+                }
+                return [...prevContacts, newContact];
+            });
+        };
+
+        socket.on(SocketMessageTypes.contactAutoAdded, handleContactAutoAdded);
+
+        return () => {
+            socket.off(
+                SocketMessageTypes.contactAutoAdded,
+                handleContactAutoAdded,
+            );
+        };
+    }, [socket, setContacts]);
 
     return (
         <div className={"h-screen flex bg-gray-100"}>

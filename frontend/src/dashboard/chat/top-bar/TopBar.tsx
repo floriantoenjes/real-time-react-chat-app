@@ -38,15 +38,19 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
     const { startCall } = useContext(PeerContext);
     const [socket] = useContext(SocketContext);
 
-    const contactService = useDiContext().ContactService;
-    const contactGroupService = useDiContext().ContactGroupService;
-    const messageService = useDiContext().MessageService;
+    const {
+        ContactService: contactService,
+        ContactGroupService: contactGroupService,
+        MessageService: messageService,
+    } = useDiContext();
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const [, setAnchorElDrawer] = useState<null | HTMLElement>(null);
     const [state, setState] = useState(false);
     const [isTyping, setIsTyping] = useState<boolean>(false);
+
+    const isAContactGroup = "memberIds" in selectedContact;
 
     useEffect(() => {
         if (!socket) {
@@ -85,20 +89,50 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
         );
     }
 
+    async function leaveGroup() {
+        if (!isAContactGroup) {
+            return;
+        }
+
+        const leaveResult = await contactGroupService.leaveContactGroup(
+            selectedContact._id,
+        );
+
+        if (!leaveResult) {
+            snackbarService.showSnackbar(
+                LL.ERROR.COULD_NOT_LEAVE_GROUP(),
+                SnackbarLevels.ERROR,
+            );
+            return;
+        }
+
+        setContactGroups(
+            contactGroups.filter((cg) => cg._id !== selectedContact._id),
+        );
+        setSelectedContact(undefined);
+
+        snackbarService.showSnackbar(
+            LL.GROUP_LEFT({ name: selectedContact.name }),
+            SnackbarLevels.SUCCESS,
+        );
+        handleClose();
+    }
+
     async function deleteChatMessages(selectedContact: Contact | ContactGroup) {
         await messageService.deleteMessages(selectedContact._id);
     }
 
     async function deleteChatContact(selectedContact: Contact | ContactGroup) {
-        const isAContactGroup = "memberIds" in selectedContact;
-        if (isAContactGroup) {
+        const contactIsAGroup = "memberIds" in selectedContact;
+        if (contactIsAGroup) {
             const deletionResult =
                 await contactGroupService.deleteContactGroup(selectedContact);
             if (deletionResult) {
                 return;
             }
         } else {
-            const deletionRes = await contactService.deleteContact(selectedContact);
+            const deletionRes =
+                await contactService.deleteContact(selectedContact);
 
             if (deletionRes.status !== 204) {
                 return;
@@ -211,7 +245,15 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
                     }}
                 >
                     <MenuItem onClick={emptyChat}>{LL.EMPTY_CHAT()}</MenuItem>
-                    <MenuItem onClick={deleteChat}>{LL.DELETE_CHAT()}</MenuItem>
+                    {isAContactGroup ? (
+                        <MenuItem onClick={leaveGroup}>
+                            {LL.LEAVE_GROUP()}
+                        </MenuItem>
+                    ) : (
+                        <MenuItem onClick={deleteChat}>
+                            {LL.DELETE_CHAT()}
+                        </MenuItem>
+                    )}
                 </Menu>
             </div>
             {selectedContact && (

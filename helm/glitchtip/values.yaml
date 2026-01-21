@@ -1,0 +1,160 @@
+# PostgreSQL configuration
+postgresql:
+  auth:
+    postgresPassword: your-secure-password
+    username: glitchtip
+    password: glitchtip-password
+    database: glitchtip
+
+# GlitchTip configuration
+glitchtip:
+  image:
+    repository: glitchtip/glitchtip
+    tag: v5.2.1
+    pullPolicy: IfNotPresent
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  env:
+    normal:
+      ENABLE_SOCIAL_AUTH: false
+      GLITCHTIP_DOMAIN: https://glitchtip.floriantoenjes.com
+    secret:
+      SECRET_KEY: 181HD1h29dhRT19 # REQUIRED, either set it here or in existingSecret
+      DATABASE_URL: postgres://glitchtip:glitchtip-password@glitchtip-postgresql:5432/glitchtip
+
+  existingSecret: null
+
+  migrationJob:
+    enabled: true
+    command: ["bin/run-migrate.sh"]
+    activeDeadlineSeconds: 900
+    podAnnotations: {}
+    database:
+      existingSecret: ""
+    extraEnvVars: []
+
+  web:
+    replicaCount: 2
+    database:
+      existingSecret: ""
+    autoscaling:
+      enabled: false
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPU: 80
+    budget:
+      minAvailable: 1
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+    nodeSelector: {}
+    tolerations: []
+    podAnnotations: {}
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/component
+                    operator: In
+                    values:
+                      - web
+              topologyKey: kubernetes.io/hostname
+    livenessProbe:
+      failureThreshold: 5
+      initialDelaySeconds: 5
+      timeoutSeconds: 3
+    readinessProbe:
+      failureThreshold: 10
+      initialDelaySeconds: 5
+      timeoutSeconds: 2
+    service:
+      type: ClusterIP
+      port: 80
+    extraEnvVars: []
+
+    ingress:
+      enabled: true
+      annotations: {}
+      hosts:
+        - host: glitchtip.floriantoenjes.com
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls:
+        - secretName: wildcard-cert
+          hosts:
+            - glitchtip.floriantoenjes.com
+
+  worker:
+    enabled: true
+    replicaCount: 1
+    database:
+      existingSecret: ""
+    autoscaling:
+      enabled: false
+      minReplicas: 1
+      maxReplicas: 10
+      targetCPU: 100
+    livenessProbe:
+      initialDelaySeconds: 10
+      periodSeconds: 30
+      timeoutSeconds: 10
+      exec:
+        command:
+          - /bin/sh
+          - -c
+          - "test -f /tmp/worker_health && [ $(($(date +%s) - $(stat -c %Y /tmp/worker_health))) -lt 15 ]"
+    resources:
+      limits:
+        cpu: 900m
+        memory: 768Mi
+      requests:
+        cpu: 100m
+        memory: 350Mi
+    nodeSelector: {}
+    tolerations: []
+    podAnnotations: {}
+    affinity: {}
+    extraEnvVars: []
+
+  serviceAccount:
+    create: false
+    name:
+
+  # Valkey (Redis alternative) for caching
+  valkey:
+    enabled: true
+    replicaCount: 1
+    dataStorage:
+      enabled: false
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+
+  # Disable built-in PostgreSQL (using Bitnami chart instead)
+  postgresql:
+    enabled: false
+
+  tests:
+    configuration:
+      enabled: true
+
+  monitoring:
+    enabled: false
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s

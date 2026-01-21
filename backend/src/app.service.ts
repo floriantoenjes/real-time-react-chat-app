@@ -1,4 +1,9 @@
-import { Inject, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import {
+    Inject,
+    Injectable,
+    Logger,
+    OnApplicationBootstrap,
+} from '@nestjs/common';
 import { MessageEntity } from './schemas/message.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -7,6 +12,7 @@ import { ContactEntity } from './schemas/contact.schema';
 import * as bcrypt from 'bcrypt';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { ContactGroupEntity } from './schemas/contact-group.schema';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
@@ -15,6 +21,8 @@ export class AppService implements OnApplicationBootstrap {
     constructor(
         @Inject(CACHE_MANAGER)
         private readonly cache: Cache,
+        @InjectModel(ContactGroupEntity.name)
+        private readonly contactGroupModel: Model<ContactGroupEntity>,
         @InjectModel(MessageEntity.name)
         private readonly messageModel: Model<MessageEntity>,
         @InjectModel(UserEntity.name)
@@ -31,6 +39,10 @@ export class AppService implements OnApplicationBootstrap {
         this.logger.log('Deleting all users...');
         await this.userModel.deleteMany({});
         this.logger.log('All users have been deleted.');
+
+        this.logger.log('Deleting all contact groups...');
+        await this.contactGroupModel.deleteMany({});
+        this.logger.log('All contact groups have been deleted.');
 
         if (await this.userModel.findOne()) {
             return;

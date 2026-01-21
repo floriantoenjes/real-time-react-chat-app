@@ -1,0 +1,17 @@
+apiVersion: v2
+name: loki-grafana
+description: Logging stack with Grafana, Loki, and Promtail
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+
+dependencies:
+  - name: grafana
+    version: "8.x.x"
+    repository: https://grafana.github.io/helm-charts
+  - name: loki-distributed
+    version: "0.x.x"
+    repository: https://grafana.github.io/helm-charts
+  - name: promtail
+    version: "6.x.x"
+    repository: https://grafana.github.io/helm-charts

@@ -11,11 +11,14 @@ import { OperationFailedException } from '../external/operation-failed.exception
 import { RateLimitExceededException } from '../external/rate-limit-exceeded.exception';
 import { ClientFriendlyHttpException } from '../client-friendly-http.exception';
 import { AppHttpException } from '../app-http.exception';
+import * as Sentry from '@sentry/node';
+import { SentryExceptionCaptured } from '@sentry/nestjs';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
     private readonly logger = new Logger(GlobalExceptionFilter.name);
 
+    @SentryExceptionCaptured()
     catch(exception: unknown, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
@@ -26,6 +29,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
             path: request.url,
             userId: request['user']?.sub,
         };
+
+        Sentry.captureException(exception);
 
         if (exception instanceof ThrottlerException) {
             const rateLimitException = new RateLimitExceededException();

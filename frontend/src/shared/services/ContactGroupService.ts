@@ -24,11 +24,52 @@ export class ContactGroupService {
             .addContactGroup({
                 body: { name: groupName, memberIds },
             });
-        if (result.status !== 201) {
+        // Handle both 200 (joined existing) and 201 (created new)
+        if (result.status !== 200 && result.status !== 201) {
             return false;
         }
 
         return result.body;
+    }
+
+    async leaveContactGroup(groupId: string): Promise<boolean> {
+        const result = await this.clientService
+            .getClient(contactGroupContract)
+            .leaveContactGroup({
+                body: { contactGroupId: groupId },
+            });
+
+        return result.status === 200;
+    }
+
+    // TODO: Use later
+    async rejoinContactGroup(groupId: string): Promise<ContactGroup | false> {
+        const result = await this.clientService
+            .getClient(contactGroupContract)
+            .rejoinContactGroup({
+                body: { contactGroupId: groupId },
+            });
+
+        if (result.status !== 200) {
+            return false;
+        }
+
+        return result.body;
+    }
+
+    // TODO: Use later
+    async getLeftGroups(): Promise<ContactGroup[]> {
+        const result = await this.clientService
+            .getClient(contactGroupContract)
+            .getLeftGroups({
+                body: {},
+            });
+
+        if (result.status === 200) {
+            return result.body;
+        }
+
+        return [];
     }
 
     async deleteContactGroup(contactGroup: ContactGroup) {
@@ -37,7 +78,7 @@ export class ContactGroupService {
             .removeContactGroup({
                 body: { contactGroupId: contactGroup._id },
             });
-        if (result.status !== 204) {
+        if (result.status !== 200) {
             return false;
         }
 

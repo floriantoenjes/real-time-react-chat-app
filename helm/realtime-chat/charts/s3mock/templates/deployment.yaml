@@ -61,7 +61,7 @@ spec:
           {{- end }}
           env:
             - name: initialBuckets
-              value: "realtime-chat-bucket"
+              value: "realtime-chat-bucket, loki"
       {{- with .Values.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}

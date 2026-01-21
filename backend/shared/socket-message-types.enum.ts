@@ -1,4 +1,5 @@
 export enum SocketMessageTypes {
+    contactAutoAdded = 'contactAutoAdded',
     contactOnline = 'contactOnline',
     contactOffline = 'contactOffline',
     message = 'message',

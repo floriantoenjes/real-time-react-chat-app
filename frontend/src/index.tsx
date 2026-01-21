@@ -4,6 +4,11 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter } from "react-router-dom";
+import * as Sentry from "@sentry/browser";
+
+Sentry.init({
+    dsn: "https://c5761411d2f94e1bb3a75428c4da214f@glitchtip.floriantoenjes.com/2",
+});
 
 const root = ReactDOM.createRoot(
     document.getElementById("root") as HTMLElement,

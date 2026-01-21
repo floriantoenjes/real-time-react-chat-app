@@ -14,6 +14,7 @@ export function Sidebar() {
 
     const [selectedContact] = contactsContext.selectedContact;
     const [userContacts, setUserContacts] = contactsContext.contacts;
+    const [contactGroups, setContactGroups] = contactsContext.contactGroups;
 
     const [socket] = useContext(SocketContext);
     const [lastMessage, setLastMessage] = useState<Message>();
@@ -22,6 +23,18 @@ export function Sidebar() {
 
     useEffect(() => {
         function updateLastMessage(message: Message) {
+            // Check if the message belongs to a contact group
+            const contactGroupWithNewMessage = contactGroups.find(
+                (cg) => cg._id === message.toUserId,
+            );
+            if (contactGroupWithNewMessage) {
+                contactGroupWithNewMessage.lastMessage = message._id;
+                setContactGroups([...contactGroups]);
+                setLastMessage(message);
+                return;
+            }
+
+            // Otherwise, it's a direct contact message
             const userContactWithNewMessage = userContacts.find(
                 (uc) => uc._id === message.fromUserId,
             );
@@ -35,7 +48,11 @@ export function Sidebar() {
         if (socket) {
             socket.once(SocketMessageTypes.message, updateLastMessage);
         }
-    }, [socket, user.username, lastMessage, userContacts]);
+
+        return () => {
+            socket?.off(SocketMessageTypes.message, updateLastMessage);
+        };
+    }, [socket, user.username, lastMessage, userContacts, contactGroups]);
 
     return (
         <div

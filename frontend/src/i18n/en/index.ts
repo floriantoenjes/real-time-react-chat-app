@@ -34,6 +34,8 @@ const en = {
     WS_CONNECTION_REESTABLISHED:
         "The connection to the server has been reestablished",
     CONTACT_REMOVED: "{name} is no longer a contact",
+    LEAVE_GROUP: "Leave group",
+    GROUP_LEFT: "You have left the group {name}",
     AVATAR_UPDATED: "Your profile picture has been updated",
     ERROR: {
         COULD_NOT_FETCH_MESSAGES: "Could not fetch messages",
@@ -43,6 +45,7 @@ const en = {
         AVATAR_NOT_UPDATED: "Your profile picture could not be updated",
         COULD_NOT_DELETE_CONTACT_GROUP: "Error deleting contact group",
         COULD_NOT_DELETE_CONTACT: "Error deleting contact",
+        COULD_NOT_LEAVE_GROUP: "Error leaving group",
     },
     EMAIL_OR_PASSWORD_INCORRECT: "Email or password incorrect",
 } satisfies BaseTranslation;

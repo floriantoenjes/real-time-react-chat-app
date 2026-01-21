@@ -1,7 +1,6 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
 import { ContactSchema } from './contact.contract';
-import { ContactGroupSchema } from './contact-group.contract';
 
 const c = initContract();
 
@@ -11,7 +10,8 @@ export const UserSchema = z.object({
     password: z.string(),
     username: z.string(),
     contacts: z.array(ContactSchema),
-    contactGroups: z.array(ContactGroupSchema),
+    contactGroupIds: z.array(z.string()),
+    leftGroupIds: z.array(z.string()),
     avatarFileName: z.string().optional(),
     avatarBase64: z.any().optional(),
 });

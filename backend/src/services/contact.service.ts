@@ -116,6 +116,55 @@ export class ContactService {
         };
     }
 
+    async addContactIfNotExists(
+        userId: string,
+        newContactId: string,
+    ): Promise<Contact | null> {
+        const user = await this.userModel.findOne({ _id: userId });
+
+        if (!user) {
+            this.logger.warn(
+                `Auto-add contact failed: user ${userId} not found`,
+            );
+            return null;
+        }
+
+        const contactAlreadyExists = user.contacts.find(
+            (uc) => uc._id === newContactId,
+        );
+        if (contactAlreadyExists) {
+            return null;
+        }
+
+        const contact = await this.userModel.findOne({
+            _id: newContactId,
+        });
+
+        if (!contact) {
+            this.logger.warn(
+                `Auto-add contact failed: contact ${newContactId} not found`,
+            );
+            return null;
+        }
+
+        const newContact = {
+            _id: newContactId,
+            name: contact.username,
+            avatarFileName: contact.avatarFileName,
+        } as Contact;
+
+        user.contacts.push(newContact);
+        user.markModified('contacts');
+
+        await user.save();
+
+        this.logger.log(
+            `Auto-added contact ${newContactId} to user ${userId}'s contacts`,
+        );
+
+        return newContact;
+    }
+
     async removeContact(userId: string, contactId: string) {
         const user = await this.userModel.findOne({ _id: userId });
         if (!user) {

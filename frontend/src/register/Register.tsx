@@ -1,7 +1,6 @@
 import { Button, IconButton, TextField } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import React, { useContext, useState } from "react";
-import { UserContext } from "../shared/contexts/UserContext";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDiContext } from "../shared/contexts/DiContext";
 import { useI18nContext } from "../i18n/i18n-react";
@@ -21,10 +20,9 @@ type SignUpData = {
     username: string;
 };
 
-export function Register(props: {}) {
+export function Register() {
     const { LL } = useI18nContext();
     const navigate = useNavigate();
-    const [, setUser] = useContext(UserContext);
     const authService = useDiContext().AuthService;
 
     const [modalOpen, setModalOpen] = useState(false);

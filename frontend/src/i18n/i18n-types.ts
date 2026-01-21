@@ -141,6 +141,15 @@ type RootTranslation = {
 	 */
 	CONTACT_REMOVED: RequiredParams<'name'>
 	/**
+	 * L​e​a​v​e​ ​g​r​o​u​p
+	 */
+	LEAVE_GROUP: string
+	/**
+	 * Y​o​u​ ​h​a​v​e​ ​l​e​f​t​ ​t​h​e​ ​g​r​o​u​p​ ​{​n​a​m​e​}
+	 * @param {unknown} name
+	 */
+	GROUP_LEFT: RequiredParams<'name'>
+	/**
 	 * Y​o​u​r​ ​p​r​o​f​i​l​e​ ​p​i​c​t​u​r​e​ ​h​a​s​ ​b​e​e​n​ ​u​p​d​a​t​e​d
 	 */
 	AVATAR_UPDATED: string
@@ -173,6 +182,10 @@ type RootTranslation = {
 		 * E​r​r​o​r​ ​d​e​l​e​t​i​n​g​ ​c​o​n​t​a​c​t
 		 */
 		COULD_NOT_DELETE_CONTACT: string
+		/**
+		 * E​r​r​o​r​ ​l​e​a​v​i​n​g​ ​g​r​o​u​p
+		 */
+		COULD_NOT_LEAVE_GROUP: string
 	}
 	/**
 	 * E​m​a​i​l​ ​o​r​ ​p​a​s​s​w​o​r​d​ ​i​n​c​o​r​r​e​c​t
@@ -306,6 +319,14 @@ export type TranslationFunctions = {
 	 */
 	CONTACT_REMOVED: (arg: { name: unknown }) => LocalizedString
 	/**
+	 * Leave group
+	 */
+	LEAVE_GROUP: () => LocalizedString
+	/**
+	 * You have left the group {name}
+	 */
+	GROUP_LEFT: (arg: { name: unknown }) => LocalizedString
+	/**
 	 * Your profile picture has been updated
 	 */
 	AVATAR_UPDATED: () => LocalizedString
@@ -338,6 +359,10 @@ export type TranslationFunctions = {
 		 * Error deleting contact
 		 */
 		COULD_NOT_DELETE_CONTACT: () => LocalizedString
+		/**
+		 * Error leaving group
+		 */
+		COULD_NOT_LEAVE_GROUP: () => LocalizedString
 	}
 	/**
 	 * Email or password incorrect
