@@ -5,6 +5,7 @@ import { DateTime } from "luxon";
 import { useDiContext } from "./contexts/DiContext";
 import { useEffect, useState } from "react";
 import { Message } from "@t/message.contract";
+import { useI18nContext } from "../i18n/i18n-react";
 
 export function Contact(props: {
     contact: ContactModel;
@@ -12,6 +13,7 @@ export function Contact(props: {
     onContactSelect?: () => void;
     isOnline?: boolean;
 }) {
+    const { LL } = useI18nContext();
     const messageService = useDiContext().MessageService;
     const [lastMessage, setLastMessage] = useState<Message | undefined>();
 
@@ -56,9 +58,17 @@ export function Contact(props: {
                 </div>
                 <div className={"text-gray-500"} style={{ maxWidth: "18rem" }}>
                     {lastMessage &&
+                        lastMessage.type === "text" &&
                         (lastMessage.message.length > 35
                             ? lastMessage?.message.substring(0, 35) + "..."
                             : lastMessage.message)}
+
+                    {lastMessage && lastMessage.type === "audio" && (
+                        <p>
+                            {LL.AUDIO_MESSAGE()}: {}
+                            {Math.ceil(+lastMessage.message.split("-d")[1])}s
+                        </p>
+                    )}
                 </div>
             </div>
         </div>

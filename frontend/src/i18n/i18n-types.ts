@@ -191,6 +191,10 @@ type RootTranslation = {
 	 * E​m​a​i​l​ ​o​r​ ​p​a​s​s​w​o​r​d​ ​i​n​c​o​r​r​e​c​t
 	 */
 	EMAIL_OR_PASSWORD_INCORRECT: string
+	/**
+	 * A​u​d​i​o​ ​m​e​s​s​a​g​e
+	 */
+	AUDIO_MESSAGE: string
 }
 
 export type TranslationFunctions = {
@@ -368,6 +372,10 @@ export type TranslationFunctions = {
 	 * Email or password incorrect
 	 */
 	EMAIL_OR_PASSWORD_INCORRECT: () => LocalizedString
+	/**
+	 * Audio message
+	 */
+	AUDIO_MESSAGE: () => LocalizedString
 }
 
 export type Formatters = {}

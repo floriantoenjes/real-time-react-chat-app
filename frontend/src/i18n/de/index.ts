@@ -49,6 +49,7 @@ const de = {
         COULD_NOT_LEAVE_GROUP: "Gruppe konnte nicht verlassen werden",
     },
     EMAIL_OR_PASSWORD_INCORRECT: "E-Mail oder Passwort sind inkorrekt",
+    AUDIO_MESSAGE: "Sprachnachricht",
 } satisfies Translation;
 
 export default de;

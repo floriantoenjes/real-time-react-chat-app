@@ -48,6 +48,7 @@ const en = {
         COULD_NOT_LEAVE_GROUP: "Error leaving group",
     },
     EMAIL_OR_PASSWORD_INCORRECT: "Email or password incorrect",
+    AUDIO_MESSAGE: "Audio message",
 } satisfies BaseTranslation;
 
 export default en;

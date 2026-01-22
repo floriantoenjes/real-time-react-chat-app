@@ -23,7 +23,6 @@ export class OnlineStatusService {
         @Inject(PubSubFactoryToken)
         readonly pubSubFactory: PubSubFactoryInterface,
     ) {
-
         const { pubClient, subClient, connectionPromise } =
             pubSubFactory.getPubAndSubClients();
         [this.pubClient, this.subClient] = [pubClient, subClient] as const;
