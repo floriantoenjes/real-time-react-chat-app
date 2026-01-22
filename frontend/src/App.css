@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@source "../src/**/*.{js,jsx,ts,tsx}";
 
 .App {
     text-align: center;
