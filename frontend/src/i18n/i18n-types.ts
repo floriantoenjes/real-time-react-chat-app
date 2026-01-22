@@ -195,6 +195,10 @@ type RootTranslation = {
 	 * A​u​d​i​o​ ​m​e​s​s​a​g​e
 	 */
 	AUDIO_MESSAGE: string
+	/**
+	 * I​m​a​g​e​ ​m​e​s​s​a​g​e
+	 */
+	IMAGE_MESSAGE: string
 }
 
 export type TranslationFunctions = {
@@ -376,6 +380,10 @@ export type TranslationFunctions = {
 	 * Audio message
 	 */
 	AUDIO_MESSAGE: () => LocalizedString
+	/**
+	 * Image message
+	 */
+	IMAGE_MESSAGE: () => LocalizedString
 }
 
 export type Formatters = {}

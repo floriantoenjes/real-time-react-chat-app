@@ -50,6 +50,7 @@ const de = {
     },
     EMAIL_OR_PASSWORD_INCORRECT: "E-Mail oder Passwort sind inkorrekt",
     AUDIO_MESSAGE: "Sprachnachricht",
+    IMAGE_MESSAGE: "Bildnachricht",
 } satisfies Translation;
 
 export default de;

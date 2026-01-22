@@ -69,6 +69,10 @@ export function Contact(props: {
                             {Math.ceil(+lastMessage.message.split("-d")[1])}s
                         </p>
                     )}
+
+                    {lastMessage && lastMessage.type === "image" && (
+                        <p>{LL.IMAGE_MESSAGE()}</p>
+                    )}
                 </div>
             </div>
         </div>
