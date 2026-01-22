@@ -38,7 +38,7 @@ A WhatsApp-style real-time chat application featuring video/voice calls, group m
 ## Tech Stack
 
 ### Frontend
-- **React 18** with TypeScript and functional components
+- **React 19** with TypeScript and functional components
 - **MUI** component library + **Tailwind CSS** for styling
 - **Vite** for fast development and optimized builds
 - **Socket.io client** for real-time bidirectional communication
