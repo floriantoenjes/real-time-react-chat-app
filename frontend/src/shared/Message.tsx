@@ -101,7 +101,7 @@ export function Message(props: { msg: MessageModel; user: User }) {
         <div className={"chat-message w-full flex"}>
             <div
                 className={
-                    "border w-fit rounded p-3 m-3 max-w-96 flex" +
+                    "border border-blue-100 w-fit rounded-sm p-3 m-3 max-w-96 flex" +
                     (props.msg.fromUserId === props.user._id.toString()
                         ? " ml-auto bg-green-300"
                         : " bg-white")

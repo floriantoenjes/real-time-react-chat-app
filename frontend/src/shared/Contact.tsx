@@ -34,7 +34,7 @@ export function Contact(props: {
     return (
         <div
             className={
-                "contact flex border p-2 cursor-pointer" +
+                "contact flex border border-blue-100 p-2 cursor-pointer" +
                 (props.selectedContact === props.contact ? " active" : "")
             }
             onClick={props.onContactSelect}

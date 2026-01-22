@@ -58,5 +58,5 @@ export function ContactList(props: { nameFilter?: string }) {
             );
         });
 
-    return <div className={"border"}>{contacts}</div>;
+    return <div>{contacts}</div>;
 }

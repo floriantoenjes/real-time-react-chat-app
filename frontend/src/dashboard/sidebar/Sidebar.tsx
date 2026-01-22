@@ -52,13 +52,13 @@ export function Sidebar() {
     return (
         <div
             className={
-                "sidebar h-screen border bg-white" +
+                "sidebar h-screen bg-white" +
                 (selectedContact ? " hidden md:block" : "")
             }
         >
             <TopSection />
             <ContactSearch onFilterChange={setNameFilter} />
-            <div className={"border"}>
+            <div>
                 <ContactList nameFilter={nameFilter} />
             </div>
         </div>

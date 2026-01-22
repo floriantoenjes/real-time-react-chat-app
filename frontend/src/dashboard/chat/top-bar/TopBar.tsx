@@ -191,7 +191,7 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
     return (
         <div
             className={
-                "flex items-center border w-full p-2 justify-between sticky top-0 bg-white cursor-pointer"
+                "flex items-center border border-blue-100 w-full p-2 justify-between sticky top-0 bg-white cursor-pointer"
             }
         >
             <div className={"sm:block md:hidden"}>
