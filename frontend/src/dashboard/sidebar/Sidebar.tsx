@@ -1,6 +1,5 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useEffectEvent, useState } from "react";
 import { ContactsContext } from "../../shared/contexts/ContactsContext";
-import { useUserContext } from "../../shared/contexts/UserContext";
 import { TopSection } from "./top-section/TopSection";
 import { SocketContext } from "../../shared/contexts/SocketContext";
 import { Message } from "@t/message.contract";
@@ -9,7 +8,6 @@ import { ContactSearch } from "./contact-search/ContactSearch";
 import { ContactList } from "./contact-list/ContactList";
 
 export function Sidebar() {
-    const [user] = useUserContext();
     const contactsContext = useContext(ContactsContext);
 
     const [selectedContact] = contactsContext.selectedContact;
@@ -17,42 +15,39 @@ export function Sidebar() {
     const [contactGroups, setContactGroups] = contactsContext.contactGroups;
 
     const [socket] = useContext(SocketContext);
-    const [lastMessage, setLastMessage] = useState<Message>();
 
     const [nameFilter, setNameFilter] = useState<string | undefined>();
 
+    const onMessage = useEffectEvent((message: Message) => {
+        // Check if the message belongs to a contact group
+        const contactGroupWithNewMessage = contactGroups.find(
+            (cg) => cg._id === message.toUserId,
+        );
+        if (contactGroupWithNewMessage) {
+            contactGroupWithNewMessage.lastMessage = message._id;
+            setContactGroups([...contactGroups]);
+            return;
+        }
+
+        // Otherwise, it's a direct contact message
+        const userContactWithNewMessage = userContacts.find(
+            (uc) => uc._id === message.fromUserId,
+        );
+        if (userContactWithNewMessage) {
+            userContactWithNewMessage.lastMessage = message._id;
+            setUserContacts([...userContacts]);
+        }
+    });
+
     useEffect(() => {
-        function updateLastMessage(message: Message) {
-            // Check if the message belongs to a contact group
-            const contactGroupWithNewMessage = contactGroups.find(
-                (cg) => cg._id === message.toUserId,
-            );
-            if (contactGroupWithNewMessage) {
-                contactGroupWithNewMessage.lastMessage = message._id;
-                setContactGroups([...contactGroups]);
-                setLastMessage(message);
-                return;
-            }
-
-            // Otherwise, it's a direct contact message
-            const userContactWithNewMessage = userContacts.find(
-                (uc) => uc._id === message.fromUserId,
-            );
-            if (userContactWithNewMessage) {
-                userContactWithNewMessage.lastMessage = message._id;
-                setUserContacts([...userContacts]);
-            }
-            setLastMessage(message);
+        if (!socket) {
+            return;
         }
-
-        if (socket) {
-            socket.once(SocketMessageTypes.message, updateLastMessage);
-        }
-
+        socket.on(SocketMessageTypes.message, onMessage);
         return () => {
-            socket?.off(SocketMessageTypes.message, updateLastMessage);
+            socket.off(SocketMessageTypes.message, onMessage);
         };
-    }, [socket, user.username, lastMessage, userContacts, contactGroups]);
+    }, [socket]);
 
     return (
         <div

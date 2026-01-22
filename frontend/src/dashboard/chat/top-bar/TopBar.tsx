@@ -6,7 +6,13 @@ import {
     VideoCameraIcon,
 } from "@heroicons/react/24/outline";
 import { Drawer, Fade, IconButton, Menu, MenuItem } from "@mui/material";
-import React, { MouseEvent, useContext, useEffect, useState } from "react";
+import React, {
+    MouseEvent,
+    useContext,
+    useEffect,
+    useEffectEvent,
+    useState,
+} from "react";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { useOnlineStatus } from "../../../shared/contexts/OnlineStatusContext";
 import { useUserContext } from "../../../shared/contexts/UserContext";
@@ -52,21 +58,25 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
 
     const isAContactGroup = "memberIds" in selectedContact;
 
+    const onTyping = useEffectEvent(
+        (body: { userId: string; isTyping: boolean }) => {
+            if (body.userId === selectedContact._id) {
+                setIsTyping(body.isTyping);
+                setTimeout(() => {
+                    setIsTyping(false);
+                }, 5000);
+            }
+        },
+    );
+
     useEffect(() => {
         if (!socket) {
             return;
         }
-        socket.on(
-            SocketMessageTypes.typing,
-            (body: { userId: string; isTyping: boolean }) => {
-                if (body.userId === selectedContact._id) {
-                    setIsTyping(body.isTyping);
-                    setTimeout(() => {
-                        setIsTyping(false);
-                    }, 5000);
-                }
-            },
-        );
+        socket.on(SocketMessageTypes.typing, onTyping);
+        return () => {
+            socket.off(SocketMessageTypes.typing, onTyping);
+        };
     }, [socket]);
 
     function emptyChat() {

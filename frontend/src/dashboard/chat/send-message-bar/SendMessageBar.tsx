@@ -42,14 +42,14 @@ export function SendMessageBar(props: {
             }),
         [],
     );
-    let startOfRecordingRef = useRef<Date | null>(null);
+    const startOfRecordingRef = useRef<Date | null>(null);
     const [startOfRecording, setStartOfRecording] = useState<Date | null>(null);
 
     const handleInputChange = useHandleInputChange(setFormData);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [, setFile] = useState<File>();
     const [socket] = useContext(SocketContext);
-    let [isTyping, setIsTyping] = useState<boolean>(false);
+    const [isTyping, setIsTyping] = useState<boolean>(false);
 
     async function sendOnEnterPressed(event: any) {
         if (checkEnterPressed(event) && formData?.message.trim().length) {

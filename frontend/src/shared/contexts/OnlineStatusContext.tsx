@@ -3,6 +3,7 @@ import React, {
     useCallback,
     useContext,
     useEffect,
+    useEffectEvent,
     useMemo,
     useState,
 } from "react";
@@ -40,16 +41,6 @@ export function OnlineStatusProvider({
     const [socket] = useContext(SocketContext);
     const contactService = useDiContext().ContactService;
 
-    const setContactOnlineStatusOnOrOffline = useCallback(
-        (contactId: string, onlineStatus: boolean) => {
-            setContactsOnlineStatus((prevState) => {
-                prevState.set(contactId, onlineStatus);
-                return new Map(prevState);
-            });
-        },
-        [],
-    );
-
     useEffect(() => {
         if (!contactIds.length) {
             return;
@@ -69,27 +60,33 @@ export function OnlineStatusProvider({
         })();
     }, [contactIds, contactService]);
 
+    const onContactOnline = useEffectEvent((contactId: string) => {
+        setContactsOnlineStatus((prevState) => {
+            prevState.set(contactId, true);
+            return new Map(prevState);
+        });
+    });
+
+    const onContactOffline = useEffectEvent((contactId: string) => {
+        setContactsOnlineStatus((prevState) => {
+            prevState.set(contactId, false);
+            return new Map(prevState);
+        });
+    });
+
     useEffect(() => {
         if (!socket) {
             return;
         }
 
-        const handleContactOnline = (contactId: string) => {
-            setContactOnlineStatusOnOrOffline(contactId, true);
-        };
-
-        const handleContactOffline = (contactId: string) => {
-            setContactOnlineStatusOnOrOffline(contactId, false);
-        };
-
-        socket.on(SocketMessageTypes.contactOnline, handleContactOnline);
-        socket.on(SocketMessageTypes.contactOffline, handleContactOffline);
+        socket.on(SocketMessageTypes.contactOnline, onContactOnline);
+        socket.on(SocketMessageTypes.contactOffline, onContactOffline);
 
         return () => {
-            socket.off(SocketMessageTypes.contactOnline, handleContactOnline);
-            socket.off(SocketMessageTypes.contactOffline, handleContactOffline);
+            socket.off(SocketMessageTypes.contactOnline, onContactOnline);
+            socket.off(SocketMessageTypes.contactOffline, onContactOffline);
         };
-    }, [socket, setContactOnlineStatusOnOrOffline]);
+    }, [socket]);
 
     const isContactOnline = useCallback(
         (contactId: string): boolean => {

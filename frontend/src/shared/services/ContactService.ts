@@ -16,7 +16,7 @@ export class ContactService {
             .getContacts({ body: {} });
 
         if (res.status === 200) {
-            let initializedContacts = [];
+            const initializedContacts = [];
             for (const contact of res.body) {
                 initializedContacts.push(
                     await UserFactory.createUserWithAvatarBytes(
