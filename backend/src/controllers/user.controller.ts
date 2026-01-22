@@ -1,5 +1,4 @@
 import {
-    Body,
     Controller,
     Logger,
     Req,
@@ -7,13 +6,7 @@ import {
     UploadedFile,
     UseInterceptors,
 } from '@nestjs/common';
-import {
-    NestRequestShapes,
-    TsRest,
-    TsRestHandler,
-    tsRestHandler,
-    TsRestRequest,
-} from '@ts-rest/nest';
+import { TsRestHandler, tsRestHandler } from '@ts-rest/nest';
 import { userContract } from '../../shared/user.contract';
 import { UserService } from '../services/user.service';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -96,7 +89,7 @@ export class UserController {
                 path: '/refresh',
             });
 
-            return { status: 204, body: {} };
+            return { status: 204, body: undefined };
         });
     }
 
@@ -183,33 +176,26 @@ export class UserController {
         });
     }
 
-    @TsRest(userContract.uploadAvatar)
+    @TsRestHandler(userContract.uploadAvatar)
     @UseInterceptors(FileInterceptor('avatar'))
     async updateUserAvatar(
-        @TsRestRequest()
-        {}: NestRequestShapes<typeof userContract>['uploadAvatar'],
         @UploadedFile() avatar: Express.Multer.File,
         @UserId() userId: string,
-        @Body()
-        body: {
-            x: number;
-            y: number;
-            width: number;
-            height: number;
-        },
     ) {
-        const x = +body.x;
-        const y = +body.y;
-        const width = +body.width;
-        const height = +body.height;
+        return tsRestHandler(userContract.uploadAvatar, async ({ body }) => {
+            const x = +body.x;
+            const y = +body.y;
+            const width = +body.width;
+            const height = +body.height;
 
-        return this.userService.updateUserAvatar(
-            userId,
-            x,
-            y,
-            width,
-            height,
-            avatar,
-        );
+            return this.userService.updateUserAvatar(
+                userId,
+                x,
+                y,
+                width,
+                height,
+                avatar,
+            );
+        });
     }
 }

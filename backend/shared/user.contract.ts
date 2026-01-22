@@ -45,9 +45,9 @@ export const userContract = c.router({
         method: 'POST',
         path: '/logout',
         responses: {
-            204: z.object({}),
+            204: z.undefined(),
         },
-        body: z.object({}),
+        body: z.undefined(),
         summary: 'Sign out',
     },
     refresh: {
@@ -58,7 +58,7 @@ export const userContract = c.router({
                 user: UserSchema,
             }),
         },
-        body: z.object({}),
+        body: z.undefined(),
         summary: 'Refresh sign in via JWT',
     },
     signUp: {
@@ -95,13 +95,13 @@ export const userContract = c.router({
         responses: {
             201: z.boolean(),
         },
-        body: c.type<{
-            avatar: File;
-            x: number;
-            y: number;
-            width: number;
-            height: number;
-        }>(),
+        body: z.object({
+            avatar: z.custom<File>(),
+            x: z.string(),
+            y: z.string(),
+            width: z.string(),
+            height: z.string(),
+        }),
         summary: 'Upload user avatar',
     },
     loadAvatar: {

@@ -7,9 +7,7 @@ export class ContactGroupService {
     async getContactGroups(): Promise<ContactGroup[]> {
         const messages = await this.clientService
             .getClient(contactGroupContract)
-            .getContactGroups({
-                body: {},
-            });
+            .getContactGroups();
 
         if (messages.status === 200) {
             return messages.body;
@@ -61,9 +59,7 @@ export class ContactGroupService {
     async getLeftGroups(): Promise<ContactGroup[]> {
         const result = await this.clientService
             .getClient(contactGroupContract)
-            .getLeftGroups({
-                body: {},
-            });
+            .getLeftGroups();
 
         if (result.status === 200) {
             return result.body;

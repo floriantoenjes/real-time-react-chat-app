@@ -13,7 +13,7 @@ export class ContactService {
     async getContacts(): Promise<Contact[]> {
         const res = await this.clientService
             .getClient(contactContract)
-            .getContacts({ body: {} });
+            .getContacts();
 
         if (res.status === 200) {
             const initializedContacts = [];

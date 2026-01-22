@@ -24,8 +24,6 @@ import { AuthGuard } from './guards/auth.guard';
 import { CustomThrottlerGuard } from './guards/custom-throttler.guard';
 import { FileController } from './controllers/file.controller';
 import { ContactService } from './services/contact.service';
-import { CacheModule, CacheStore } from '@nestjs/cache-manager';
-import { redisStore } from 'cache-manager-redis-yet';
 import * as process from 'node:process';
 import { LoggingController } from './controllers/logging.controller';
 import { RedisPubSubFactory } from './factories/redisPubSubFactory';
@@ -36,6 +34,8 @@ import { ContactGroupService } from './services/contact-group.service';
 import { MessageService } from './services/message.service';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { SentryModule } from '@sentry/nestjs/setup';
+import { CacheModule } from '@nestjs/cache-manager';
+import KeyvRedis from '@keyv/redis';
 
 @Module({
     imports: [
@@ -71,16 +71,11 @@ import { SentryModule } from '@sentry/nestjs/setup';
         }),
         CacheModule.registerAsync({
             useFactory: async () => {
-                const store = await redisStore({
-                    socket: {
-                        host: process.env.REDIS_HOST,
-                        port: 6379,
-                    },
-                });
-
                 return {
-                    store: store as unknown as CacheStore,
-                    ttl: 3 * 60000, // 3 minutes (milliseconds)
+                    stores: [
+                        new KeyvRedis(`redis://${process.env.REDIS_HOST}:6379`),
+                    ],
+                    ttl: 3 * 60 * 1000,
                 };
             },
         }),

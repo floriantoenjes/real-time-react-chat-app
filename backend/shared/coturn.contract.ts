@@ -17,7 +17,7 @@ export const coturnContract = c.router({
         responses: {
             200: CoturnCredentialsSchema,
         },
-        body: z.object({}),
+        body: z.undefined(),
         summary: 'Get coturn credentials',
     },
 });

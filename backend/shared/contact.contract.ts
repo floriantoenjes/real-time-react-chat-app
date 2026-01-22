@@ -20,7 +20,7 @@ export const contactContract = c.router({
         responses: {
             200: z.array(ContactSchema),
         },
-        body: z.object({}),
+        body: z.undefined(),
         summary: 'Get contacts',
     },
     addContact: {

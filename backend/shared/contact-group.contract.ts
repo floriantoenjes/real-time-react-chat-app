@@ -23,7 +23,7 @@ export const contactGroupContract = c.router({
         responses: {
             200: z.array(ContactGroupSchema),
         },
-        body: z.object({}),
+        body: z.undefined(),
         summary: 'Get contact groups',
     },
     addContactGroup: {
@@ -67,7 +67,7 @@ export const contactGroupContract = c.router({
         responses: {
             200: z.array(ContactGroupSchema),
         },
-        body: z.object({}),
+        body: z.undefined(),
         summary: 'Get list of left groups',
     },
     removeContactGroup: {

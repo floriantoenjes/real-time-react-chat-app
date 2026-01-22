@@ -30,7 +30,7 @@ export class AppService implements OnApplicationBootstrap {
     ) {}
 
     async onApplicationBootstrap() {
-        await this.cache.reset();
+        await this.cache.clear();
 
         this.logger.log('Deleting all messages...');
         await this.messageModel.deleteMany({});
