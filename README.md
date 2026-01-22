@@ -3,7 +3,7 @@
 # Florian's Chat - Real-Time Messaging App
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)
-![React](https://img.shields.io/badge/React_18-61DAFB?logo=react&logoColor=black)
+![React](https://img.shields.io/badge/React_19-61DAFB?logo=react&logoColor=black)
 ![NestJS](https://img.shields.io/badge/NestJS-E0234E?logo=nestjs&logoColor=white)
 [![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?logo=mongodb&logoColor=white)](#)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
@@ -38,7 +38,7 @@ A WhatsApp-style real-time chat application featuring video/voice calls, group m
 ## Tech Stack
 
 ### Frontend
-- **React 18** with TypeScript and functional components
+- **React 19** with TypeScript and functional components
 - **MUI** component library + **Tailwind CSS** for styling
 - **Vite** for fast development and optimized builds
 - **Socket.io client** for real-time bidirectional communication
