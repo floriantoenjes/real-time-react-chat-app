@@ -81,6 +81,7 @@ export class UserService {
         const res = await this.clientService
             .getClient(userContract)
             .uploadAvatar({
+                // @ts-expect-error The params after "file" are expected to be numbers here (ts-rest issue)
                 body: { avatar: file, x, y, width, height },
             });
 
