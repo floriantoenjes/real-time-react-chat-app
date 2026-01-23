@@ -122,7 +122,7 @@ export class ClientService {
             await fetch(`${BACKEND_URL}/logout`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({}),
+                body: undefined,
                 credentials: "include",
             });
             return;
