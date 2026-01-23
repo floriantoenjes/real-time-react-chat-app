@@ -1,4 +1,9 @@
-import { Controller, Logger, UploadedFile, UseInterceptors } from '@nestjs/common';
+import {
+    Controller,
+    Logger,
+    UploadedFile,
+    UseInterceptors,
+} from '@nestjs/common';
 import {
     NestRequestShapes,
     TsRest,
@@ -10,6 +15,7 @@ import { messageContract } from '../../shared/message.contract';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MessageService } from '../services/message.service';
 import { UserId } from '../decorators/user-id.decorator';
+import { StrictThrottle } from '../decorators/throttle.decorators';
 
 @Controller()
 export class MessageController {
@@ -48,6 +54,7 @@ export class MessageController {
     }
 
     @TsRestHandler(messageContract.sendMessage)
+    @StrictThrottle()
     async sendMessage(@UserId() userId: string) {
         return tsRestHandler(messageContract.sendMessage, async ({ body }) => {
             return this.messageService.sendMessage(

@@ -18,7 +18,7 @@ import { WsConnectionThrottledException } from '../errors/ws/ws-connection-throt
 
 @WebSocketGateway({
     cors: {
-        origin: '*', // Replace with your frontend domain if needed
+        origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
         methods: ['GET', 'POST'],
         credentials: true,
     },
