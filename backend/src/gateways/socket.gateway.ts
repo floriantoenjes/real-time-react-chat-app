@@ -11,11 +11,11 @@ import { parse as parseCookie } from 'cookie';
 import { ContactService } from '../services/contact.service';
 import { User } from '../../shared/user.contract';
 import { JwtService } from '@nestjs/jwt';
-import { jwtConstants } from '../services/auth-constants';
 import { OnlineStatusService } from 'src/services/online-status.service';
 import { SocketMessageTypes } from '../../shared/socket-message-types.enum';
 import { WsConnectionThrottlerService } from '../services/ws-connection-throttler.service';
 import { WsConnectionThrottledException } from '../errors/ws/ws-connection-throttled.exception';
+import { ConfigService } from '@nestjs/config';
 
 @WebSocketGateway({
     cors: {
@@ -27,17 +27,27 @@ import { WsConnectionThrottledException } from '../errors/ws/ws-connection-throt
 export class RealTimeChatGateway
     implements OnGatewayConnection, OnGatewayDisconnect
 {
+    private readonly JWT_SECRET: string;
+
     private readonly logger = new Logger(RealTimeChatGateway.name);
 
     @WebSocketServer()
     server!: Server;
 
     constructor(
+        private readonly configService: ConfigService,
         private readonly contactService: ContactService,
         private readonly jwtService: JwtService,
         private readonly onlineStatusService: OnlineStatusService,
         private readonly wsThrottler: WsConnectionThrottlerService,
-    ) {}
+    ) {
+        const jwtSecret = this.configService.get('JWT_SECRET');
+        if (!jwtSecret) {
+            throw new Error('JWT_SECRET is required');
+        }
+
+        this.JWT_SECRET = jwtSecret;
+    }
 
     async handleConnection(socket: Socket): Promise<void> {
         // Check throttle first - before authentication
@@ -91,7 +101,7 @@ export class RealTimeChatGateway
 
         try {
             this.jwtService.verify(token, {
-                secret: jwtConstants.secret,
+                secret: this.JWT_SECRET,
             });
             return true;
         } catch (err: unknown) {

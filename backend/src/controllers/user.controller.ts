@@ -10,7 +10,7 @@ import { TsRestHandler, tsRestHandler } from '@ts-rest/nest';
 import { userContract } from '../../shared/user.contract';
 import { UserService } from '../services/user.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Public } from '../services/auth-constants';
+import { Public } from '../constants/auth-constants';
 import { returnEntityOrNotFound } from './utils/controller-utils';
 import { Request, Response } from 'express';
 import { InvalidEmailOrPasswordException } from '../errors/external/invalid-email-or-password.exception';

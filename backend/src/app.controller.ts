@@ -1,5 +1,5 @@
 import { Controller, Get, Res } from '@nestjs/common';
-import { Public } from './services/auth-constants';
+import { Public } from './constants/auth-constants';
 import { SkipThrottle } from './decorators/throttle.decorators';
 
 @Controller()
