@@ -13,6 +13,8 @@ import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from '../services/auth-constants';
 import { OnlineStatusService } from 'src/services/online-status.service';
 import { SocketMessageTypes } from '../../shared/socket-message-types.enum';
+import { WsConnectionThrottlerService } from '../services/ws-connection-throttler.service';
+import { WsConnectionThrottledException } from '../errors/ws/ws-connection-throttled.exception';
 
 @WebSocketGateway({
     cors: {
@@ -33,9 +35,21 @@ export class RealTimeChatGateway
         private readonly contactService: ContactService,
         private readonly jwtService: JwtService,
         private readonly onlineStatusService: OnlineStatusService,
+        private readonly wsThrottler: WsConnectionThrottlerService,
     ) {}
 
-    handleConnection(socket: Socket): void {
+    async handleConnection(socket: Socket): Promise<void> {
+        // Check throttle first - before authentication
+        const throttleResult = await this.wsThrottler.checkAndTrack(socket);
+        if (!throttleResult.allowed) {
+            const exception = new WsConnectionThrottledException(
+                throttleResult.retryAfterMs ?? 60000,
+            );
+            socket.emit('error', exception.toClientPayload());
+            socket.disconnect(true);
+            return;
+        }
+
         if (!this.canSocketBeAuthenticated(socket)) {
             return;
         }

@@ -28,6 +28,7 @@ import * as process from 'node:process';
 import { LoggingController } from './controllers/logging.controller';
 import { RedisPubSubFactory } from './factories/redisPubSubFactory';
 import { OnlineStatusService } from './services/online-status.service';
+import { WsConnectionThrottlerService } from './services/ws-connection-throttler.service';
 import { PubSubFactoryToken } from './interfaces/pub-sub.factory.interface';
 import { CoturnController } from './controllers/coturn.controller';
 import { ContactGroupService } from './services/contact-group.service';
@@ -99,6 +100,7 @@ import KeyvRedis from '@keyv/redis';
         OnlineStatusService,
         RealTimeChatGateway,
         UserService,
+        WsConnectionThrottlerService,
         { provide: PubSubFactoryToken, useClass: RedisPubSubFactory },
         {
             provide: APP_GUARD,

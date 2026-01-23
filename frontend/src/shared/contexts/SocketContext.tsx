@@ -16,8 +16,9 @@ import { useNavigate } from "react-router-dom";
 import { useI18nContext } from "../../i18n/i18n-react";
 import { TranslationFunctions } from "../../i18n/i18n-types";
 import { SocketMessageTypes } from "@t/socket-message-types.enum";
+import { ExternalErrors } from "@t/enums/errors.enum";
 
-function initializeWebSocket<ListenEvents>(
+function initializeWebSocket(
     setSocket: Dispatch<SetStateAction<Socket | undefined>>,
     user: User,
     LL: TranslationFunctions,
@@ -30,12 +31,32 @@ function initializeWebSocket<ListenEvents>(
     let missedPings = 0;
     const MAX_MISSED_PINGS = 3;
 
+    let throttled = false;
+
     const socket = io(BACKEND_URL, {
         query: { userId: user?._id },
         transports: ["websocket"],
     });
     socket.connect();
     setSocket(socket);
+
+    socket.on(
+        "error",
+        (error: {
+            error: string;
+            errorCode: ExternalErrors;
+            message: string;
+            retryAfterMs: number;
+        }) => {
+            if (error.errorCode === ExternalErrors.EXT_WS_THROTTLE_001) {
+                throttled = true;
+
+                setTimeout(() => {
+                    throttled = false;
+                }, error.retryAfterMs + 1000);
+            }
+        },
+    );
 
     socket.on("connect", function () {
         heartbeatInterval = setInterval(() => {
@@ -57,6 +78,10 @@ function initializeWebSocket<ListenEvents>(
             SnackbarLevels.WARNING,
         );
         socketReconnectInterval = setInterval(() => {
+            if (throttled) {
+                return;
+            }
+
             socket.connect();
             if (socket.connected) {
                 setSocket(socket);

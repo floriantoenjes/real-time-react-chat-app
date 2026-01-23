@@ -22,6 +22,8 @@ export enum ExternalErrors {
     EXT_SIGN_IN_001 = 'EXT_SIGN_IN_001',
 
     EXT_RATE_LIMIT_001 = 'EXT_RATE_LIMIT_001',
+
+    EXT_WS_THROTTLE_001 = 'EXT_WS_THROTTLE_001',
 }
 
 export type InternalErrorTypes = Record<InternalErrors, string>;
