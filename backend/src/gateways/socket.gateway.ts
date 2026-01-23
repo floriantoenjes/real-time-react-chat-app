@@ -7,6 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { parse as parseCookie } from 'cookie';
 import { ContactService } from '../services/contact.service';
 import { User } from '../../shared/user.contract';
 import { JwtService } from '@nestjs/jwt';
@@ -72,9 +73,18 @@ export class RealTimeChatGateway
     }
 
     canSocketBeAuthenticated(socket: Socket): boolean {
-        const token = socket.handshake.headers.cookie?.split('accessToken=')[1];
+        const cookies = socket.handshake.headers.cookie;
+        if (!cookies) {
+            this.logger.warn(`No cookies for socket ${socket.id}`);
+            socket.disconnect();
+            return false;
+        }
+
+        const parsed = parseCookie(cookies);
+        const token = parsed.accessToken;
+
         if (!token) {
-            this.logger.warn(`No token for socket ${socket.id}`);
+            this.logger.warn(`No accessToken cookie for socket ${socket.id}`);
             socket.disconnect();
             return false;
         }
@@ -86,7 +96,7 @@ export class RealTimeChatGateway
             return true;
         } catch (err: unknown) {
             this.logger.warn(
-                `Unable to verify token ${token} for socket ${socket.id}: ${JSON.stringify(err)}`,
+                `Unable to verify token for socket ${socket.id}: ${err instanceof Error ? err.message : 'Unknown error'}`,
             );
             socket.disconnect();
             return false;
