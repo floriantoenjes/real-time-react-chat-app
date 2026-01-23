@@ -77,7 +77,7 @@ export function SendMessageBar(props: {
             ...messages,
             {
                 ...messageToSend,
-                _id: MessageAddons.TEMP_PREFIX + new Date().toString(),
+                _id: MessageAddons.TEMP_PREFIX + +new Date(),
                 at: new Date(),
                 read: false,
                 sent: false,

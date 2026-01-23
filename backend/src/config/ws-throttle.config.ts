@@ -12,3 +12,9 @@ export const WS_THROTTLE_CONFIG = {
     // Redis key prefix for throttle tracking
     keyPrefix: 'ws:throttle:',
 } as const;
+
+export const WS_MESSAGE_THROTTLE_CONFIG = {
+    typing: { limit: 20, ttlMs: 10 * 1000 },
+    ping: { limit: 60, ttlMs: 60 * 1000 },
+    keyPrefix: 'ws:msg:',
+} as const;

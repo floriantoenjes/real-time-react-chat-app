@@ -112,25 +112,44 @@ export class RealTimeChatGateway
             });
     }
 
-    @SubscribeMessage(SocketMessageTypes.message)
-    handleMessage(client: Socket, payload: any): void {
-        this.logger.debug('Message received in gateway: ' + payload);
-        // Broadcast to all clients
-        this.server.emit(SocketMessageTypes.message, {
-            text: 'Hello from server',
-        });
-    }
-
     @SubscribeMessage(SocketMessageTypes.ping)
-    pong(client: Socket): void {
+    async pong(client: Socket): Promise<void> {
+        const userId = client.handshake.query.userId as string;
+        const throttleResult = await this.wsThrottler.checkMessageThrottle(
+            userId,
+            'ping',
+        );
+        if (!throttleResult.allowed) {
+            client.emit('error', {
+                error: 'MESSAGE_THROTTLED',
+                messageType: SocketMessageTypes.ping,
+                retryAfterMs: throttleResult.retryAfterMs,
+            });
+            return;
+        }
+
         client.emit(SocketMessageTypes.pong);
     }
 
     @SubscribeMessage(SocketMessageTypes.typing)
-    handleTyping(
+    async handleTyping(
         client: Socket,
         payload: { userId: string; contactId: string; isTyping: boolean },
-    ): void {
+    ): Promise<void> {
+        const userId = client.handshake.query.userId as string;
+        const throttleResult = await this.wsThrottler.checkMessageThrottle(
+            userId,
+            'typing',
+        );
+        if (!throttleResult.allowed) {
+            client.emit('error', {
+                error: 'MESSAGE_THROTTLED',
+                messageType: SocketMessageTypes.typing,
+                retryAfterMs: throttleResult.retryAfterMs,
+            });
+            return;
+        }
+
         this.server.to(payload.contactId).emit(SocketMessageTypes.typing, {
             userId: payload.userId,
             isTyping: payload.isTyping,
