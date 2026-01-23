@@ -10,13 +10,27 @@ import * as process from 'node:process';
 import * as cookieParser from 'cookie-parser';
 import { GlobalExceptionFilter } from './errors/filters/global-exception.filter';
 
+function maskValue(value: string | undefined, visibleChars = 4): string {
+    if (!value) return '[not set]';
+    if (value.length <= visibleChars) return '***';
+    return '***' + value.slice(-visibleChars);
+}
+
+function maskUri(uri: string | undefined): string {
+    if (!uri) return '[not set]';
+    try {
+        const url = new URL(uri);
+        return `${url.protocol}//${url.host}${url.pathname}`;
+    } catch {
+        return maskValue(uri);
+    }
+}
+
 async function bootstrap() {
-    console.log(
-        `Connecting to db uri: ${process.env.uri} with username: ${process.env.user} and dbName: ${process.env.dbName}`,
-    );
+    console.log(`Connecting to db: ${maskUri(process.env.uri)}`);
 
     console.log(
-        `Connecting to S3: ${process.env.S3_URL} at ${process.env.S3_REGION} with debug flag ${process.env.S3_DEBUG}`,
+        `Connecting to S3: ${maskUri(process.env.S3_URL)} at ${process.env.S3_REGION}`,
     );
 
     const app = await NestFactory.create(AppModule);
