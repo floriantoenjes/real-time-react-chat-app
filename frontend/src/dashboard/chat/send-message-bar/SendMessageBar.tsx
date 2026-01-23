@@ -36,7 +36,7 @@ export function SendMessageBar(props: {
 
     const recorder = useMemo(
         () =>
-            // @ts-ignore
+            // @ts-expect-error No typings for the MicRecorder
             new MicRecorder({
                 bitRate: 128,
             }),
@@ -200,7 +200,7 @@ export function SendMessageBar(props: {
 
             {formData.message.trim().length >= 1 && (
                 <IconButton
-                    onPointerDown={async (event) => {
+                    onPointerDown={async () => {
                         await sendMessage();
                         setFormData({ message: "" });
                     }}

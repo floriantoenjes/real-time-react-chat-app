@@ -76,7 +76,6 @@ export class ClientService {
                 await this.refreshAccessToken();
 
                 // Retry the original request with the new token
-                // @ts-ignore
                 const refreshResponse = await fetch(path, requestOptions);
 
                 await this.handleErrors(responseBody);

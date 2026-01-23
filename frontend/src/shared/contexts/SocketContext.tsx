@@ -23,10 +23,8 @@ function initializeWebSocket(
     user: User,
     LL: TranslationFunctions,
 ) {
-    // @ts-ignore
-    let socketReconnectInterval: NodeJS.Timer;
-    // @ts-ignore
-    let heartbeatInterval: NodeJS.Timer;
+    let socketReconnectInterval: ReturnType<typeof setInterval>;
+    let heartbeatInterval: ReturnType<typeof setInterval>;
 
     let missedPings = 0;
     const MAX_MISSED_PINGS = 3;

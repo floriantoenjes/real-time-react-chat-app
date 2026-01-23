@@ -56,7 +56,7 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
 
     const shutdownCall = useCallback(() => {
         if (videoRef.current?.srcObject) {
-            // @ts-ignore
+            // @ts-expect-error .getTracks does not have a known type but works
             for (const track of videoRef.current.srcObject.getTracks()) {
                 track.stop();
             }

@@ -86,7 +86,7 @@ export class RealTimeChatGateway
             return true;
         } catch (err: unknown) {
             this.logger.warn(
-                `Unable to verify token ${token} for socket ${socket.id}`,
+                `Unable to verify token ${token} for socket ${socket.id}: ${JSON.stringify(err)}`,
             );
             socket.disconnect();
             return false;
