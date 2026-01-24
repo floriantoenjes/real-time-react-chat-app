@@ -5,11 +5,13 @@ import { Contact } from "../../../shared/Contact";
 import { useDiContext } from "../../../shared/contexts/DiContext";
 import { Message } from "@t/message.contract";
 
+type MessageId = string;
+
 type UserContact = {
     _id: string;
     name: string;
     memberIds?: string[];
-    lastMessage?: string | undefined;
+    lastMessage?: MessageId | undefined;
     avatarFileName?: string | undefined;
     avatarBase64?: any;
 };
@@ -22,10 +24,9 @@ export function ContactList(props: { nameFilter?: string }) {
     const [userContactGroups] = contactsContext.contactGroups;
     const { contactsOnlineStatus } = useOnlineStatus();
     const messageService = useDiContext().MessageService;
-    const [
-        userContactsLastMessageToLastMessageObjMap,
-        setUserContactsLastMessageToLastMessageObjMap,
-    ] = useState(new Map<string, Message>());
+    const [lastMessageCache, setLastMessageCache] = useState(
+        new Map<MessageId, Message>(),
+    );
     const [loaded, setLoaded] = useState<boolean>(false);
 
     function sortByLastMessageDateTime(
@@ -57,9 +58,7 @@ export function ContactList(props: { nameFilter?: string }) {
         for (const userContact of userContacts) {
             if (
                 userContact.lastMessage &&
-                userContactsLastMessageToLastMessageObjMap.get(
-                    userContact.lastMessage,
-                )
+                lastMessageCache.get(userContact.lastMessage)
             ) {
                 if (userContacts.at(-1) === userContact) {
                     setLoaded(true);
@@ -70,13 +69,11 @@ export function ContactList(props: { nameFilter?: string }) {
             getUserContactMessages(userContact).then((lastMessageObj) => {
                 const lastMessage = userContact.lastMessage;
                 if (lastMessage && lastMessageObj) {
-                    setUserContactsLastMessageToLastMessageObjMap(
-                        (prevState) => {
-                            return new Map(
-                                prevState.set(lastMessage, lastMessageObj),
-                            );
-                        },
-                    );
+                    setLastMessageCache((prevState) => {
+                        return new Map(
+                            prevState.set(lastMessage, lastMessageObj),
+                        );
+                    });
                 }
                 if (userContacts.at(-1) === userContact) {
                     setLoaded(true);
@@ -108,8 +105,8 @@ export function ContactList(props: { nameFilter?: string }) {
             }
 
             return sortByLastMessageDateTime(
-                userContactsLastMessageToLastMessageObjMap.get(uc1LastMessage),
-                userContactsLastMessageToLastMessageObjMap.get(uc2LastMessage),
+                lastMessageCache.get(uc1LastMessage),
+                lastMessageCache.get(uc2LastMessage),
             );
         })
         .map((contact) => {
@@ -122,9 +119,7 @@ export function ContactList(props: { nameFilter?: string }) {
                     isOnline={contactsOnlineStatus.get(contact._id)}
                     lastMessage={
                         contact.lastMessage
-                            ? userContactsLastMessageToLastMessageObjMap.get(
-                                  contact.lastMessage,
-                              )
+                            ? lastMessageCache.get(contact.lastMessage)
                             : undefined
                     }
                 />
