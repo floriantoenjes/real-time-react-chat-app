@@ -41,6 +41,7 @@ export function ContactList(props: { nameFilter?: string }) {
         return 0;
     }
 
+    // Refresh last message cache
     useEffect(() => {
         async function getUserContactMessages(userContact: UserContact) {
             if (userContact.lastMessage) {
@@ -111,18 +112,18 @@ export function ContactList(props: { nameFilter?: string }) {
                 userContactsLastMessageToLastMessageObjMap.get(uc2LastMessage),
             );
         })
-        .map((c) => {
+        .map((contact) => {
             return (
                 <Contact
-                    key={c.name}
-                    contact={c}
+                    key={contact.name}
+                    contact={contact}
                     selectedContact={selectedContact}
-                    onContactSelect={() => setSelectedContact(c)}
-                    isOnline={contactsOnlineStatus.get(c._id)}
+                    onContactSelect={() => setSelectedContact(contact)}
+                    isOnline={contactsOnlineStatus.get(contact._id)}
                     lastMessage={
-                        c.lastMessage
+                        contact.lastMessage
                             ? userContactsLastMessageToLastMessageObjMap.get(
-                                  c.lastMessage,
+                                  contact.lastMessage,
                               )
                             : undefined
                     }
