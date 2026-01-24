@@ -26,6 +26,7 @@ export function ContactList(props: { nameFilter?: string }) {
         userContactsLastMessageToLastMessageObjMap,
         setUserContactsLastMessageToLastMessageObjMap,
     ] = useState(new Map<string, Message>());
+    const [loaded, setLoaded] = useState<boolean>(false);
 
     function sortByLastMessageDateTime(
         uc1Message?: Message,
@@ -59,6 +60,9 @@ export function ContactList(props: { nameFilter?: string }) {
                     userContact.lastMessage,
                 )
             ) {
+                if (userContacts.at(-1) === userContact) {
+                    setLoaded(true);
+                }
                 continue;
             }
 
@@ -72,6 +76,9 @@ export function ContactList(props: { nameFilter?: string }) {
                             );
                         },
                     );
+                }
+                if (userContacts.at(-1) === userContact) {
+                    setLoaded(true);
                 }
             });
         }
@@ -123,5 +130,5 @@ export function ContactList(props: { nameFilter?: string }) {
             );
         });
 
-    return <div>{contactElements}</div>;
+    return <div>{loaded && contactElements}</div>;
 }
