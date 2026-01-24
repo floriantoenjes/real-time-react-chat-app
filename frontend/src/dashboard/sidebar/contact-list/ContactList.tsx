@@ -1,7 +1,9 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { useOnlineStatus } from "../../../shared/contexts/OnlineStatusContext";
 import { Contact } from "../../../shared/Contact";
+import { useDiContext } from "../../../shared/contexts/DiContext";
+import { Message } from "@t/message.contract";
 
 type UserContact = {
     _id: string;
@@ -19,24 +21,63 @@ export function ContactList(props: { nameFilter?: string }) {
     const [userContacts] = contactsContext.contacts;
     const [userContactGroups] = contactsContext.contactGroups;
     const { contactsOnlineStatus } = useOnlineStatus();
+    const messageService = useDiContext().MessageService;
+    const [
+        userContactsLastMessageToLastMessageObjMap,
+        setUserContactsLastMessageToLastMessageObjMap,
+    ] = useState(new Map<string, Message>());
 
     function sortByLastMessageDateTime(
-        userContact1: UserContact,
-        userContact2: UserContact,
+        uc1Message?: Message,
+        uc2Message?: Message,
     ) {
-        const uc1MessageDate = userContact1.lastMessage?.at;
-        const uc2MessageDate = userContact2.lastMessage?.at;
-
-        if (uc1MessageDate && uc2MessageDate) {
-            return -uc1MessageDate
+        if (uc1Message && uc2Message) {
+            return -uc1Message.at
                 .toString()
-                .localeCompare(uc2MessageDate.toString());
+                .localeCompare(uc2Message.at.toString());
         }
 
         return 0;
     }
 
-    const contacts = userContacts
+    useEffect(() => {
+        async function getUserContactMessages(userContact: UserContact) {
+            if (userContact.lastMessage) {
+                const res = await messageService.getMessageById(
+                    userContact.lastMessage,
+                );
+                if (res.status === 200) {
+                    return res.body.message;
+                }
+            }
+        }
+
+        for (const userContact of userContacts) {
+            if (
+                userContact.lastMessage &&
+                userContactsLastMessageToLastMessageObjMap.get(
+                    userContact.lastMessage,
+                )
+            ) {
+                continue;
+            }
+
+            getUserContactMessages(userContact).then((lastMessageObj) => {
+                const lastMessage = userContact.lastMessage;
+                if (lastMessage && lastMessageObj) {
+                    setUserContactsLastMessageToLastMessageObjMap(
+                        (prevState) => {
+                            return new Map(
+                                prevState.set(lastMessage, lastMessageObj),
+                            );
+                        },
+                    );
+                }
+            });
+        }
+    }, [userContacts]);
+
+    const contactElements = userContacts
         .concat(userContactGroups)
         .filter((contact) =>
             props.nameFilter !== undefined
@@ -45,7 +86,24 @@ export function ContactList(props: { nameFilter?: string }) {
                       .match(props.nameFilter.toLowerCase())
                 : true,
         )
-        .sort((uc1, uc2) => sortByLastMessageDateTime(uc1, uc2))
+        .sort((uc1, uc2) => {
+            const uc1LastMessage = uc1.lastMessage;
+            const uc2LastMessage = uc2.lastMessage;
+
+            if (!uc1LastMessage || !uc2LastMessage) {
+                if (!uc1LastMessage) {
+                    return 1;
+                }
+                if (!uc2LastMessage) {
+                    return -1;
+                }
+            }
+
+            return sortByLastMessageDateTime(
+                userContactsLastMessageToLastMessageObjMap.get(uc1LastMessage),
+                userContactsLastMessageToLastMessageObjMap.get(uc2LastMessage),
+            );
+        })
         .map((c) => {
             return (
                 <Contact
@@ -54,9 +112,16 @@ export function ContactList(props: { nameFilter?: string }) {
                     selectedContact={selectedContact}
                     onContactSelect={() => setSelectedContact(c)}
                     isOnline={contactsOnlineStatus.get(c._id)}
+                    lastMessage={
+                        c.lastMessage
+                            ? userContactsLastMessageToLastMessageObjMap.get(
+                                  c.lastMessage,
+                              )
+                            : undefined
+                    }
                 />
             );
         });
 
-    return <div>{contacts}</div>;
+    return <div>{contactElements}</div>;
 }

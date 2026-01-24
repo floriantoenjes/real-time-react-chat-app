@@ -119,11 +119,14 @@ export function SendMessageBar(props: {
         }
     }
 
-    function setFileToUpload(event: any) {
+    async function setFileToUpload(event: any) {
         const file = event.target.files[0];
         setFile(file);
-        void messageService.sendFile(file);
-        void sendMessage(file.name, "image");
+        const res = await messageService.sendFile(file, "image");
+        if (res.status === 201) {
+            const sanitizedFilename = res.body;
+            void sendMessage(sanitizedFilename, "image");
+        }
     }
 
     async function startRecordAudio() {
@@ -153,8 +156,11 @@ export function SendMessageBar(props: {
             lastModified: Date.now(),
         });
 
-        await messageService.sendFile(file);
-        await sendMessage(fileName, "audio");
+        const res = await messageService.sendFile(file, "audio");
+        if (res.status === 201) {
+            const sanitizedFilename = res.body;
+            await sendMessage(sanitizedFilename, "audio");
+        }
     }
 
     async function sendIsTyping() {
@@ -182,7 +188,8 @@ export function SendMessageBar(props: {
                 type="file"
                 ref={fileInputRef}
                 hidden={true}
-                onChange={setFileToUpload}
+                onChange={(evt) => setFileToUpload(evt)}
+                accept="image/jpeg, image/png, image/gif, image/bmp, image/tiff"
             />
             <TextField
                 className={"w-full"}

@@ -12,6 +12,11 @@ import { ContactGroupEntity } from '../schemas/contact-group.schema';
 import { MessageNotFoundException } from '../errors/internal/message-not-found.exception';
 import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
 import { ContactService } from './contact.service';
+import {
+    validateAndSanitizeAudioFile,
+    validateAndSanitizeImageFile,
+    ValidatedFile,
+} from '../utils/file-validation.util';
 
 @Injectable()
 export class MessageService {
@@ -191,20 +196,34 @@ export class MessageService {
         return { status: 200 as const, body: true };
     }
 
-    async uploadFileAsMessage(userId: string, file: Express.Multer.File) {
+    async uploadFileAsMessage(
+        userId: string,
+        file: Express.Multer.File,
+        type: 'image' | 'audio',
+    ) {
         if (!(await this.userModel.findOne({ _id: userId }))) {
             this.logger.warn(`Upload file failed: user ${userId} not found`);
             throw new UserNotFoundException();
         }
 
+        let validatedFile: ValidatedFile;
+        switch (type) {
+            case 'image':
+                validatedFile = await validateAndSanitizeImageFile(file);
+                break;
+            case 'audio':
+                validatedFile = await validateAndSanitizeAudioFile(file);
+                break;
+        }
+
         await this.objectStorageService.uploadFile(
-            file.buffer,
-            file.originalname,
+            validatedFile.buffer,
+            validatedFile.sanitizedFilename,
         );
 
         return {
-            status: 200 as const,
-            body: true,
+            status: 201 as const,
+            body: validatedFile.sanitizedFilename,
         };
     }
 

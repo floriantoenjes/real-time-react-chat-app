@@ -4,18 +4,13 @@ import {
     UploadedFile,
     UseInterceptors,
 } from '@nestjs/common';
-import {
-    NestRequestShapes,
-    TsRest,
-    tsRestHandler,
-    TsRestHandler,
-    TsRestRequest,
-} from '@ts-rest/nest';
+import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { messageContract } from '../../shared/message.contract';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MessageService } from '../services/message.service';
 import { UserId } from '../decorators/user-id.decorator';
 import { StrictThrottle } from '../decorators/throttle.decorators';
+import { MAX_FILE_SIZE_BYTES } from '../errors/external/file-too-large.exception';
 
 @Controller()
 export class MessageController {
@@ -76,14 +71,18 @@ export class MessageController {
         );
     }
 
-    @TsRest(messageContract.sendFile)
-    @UseInterceptors(FileInterceptor('file'))
+    @TsRestHandler(messageContract.sendFile)
+    @UseInterceptors(
+        FileInterceptor('file', { limits: { fileSize: MAX_FILE_SIZE_BYTES } }),
+    )
     async uploadFile(
-        @TsRestRequest()
-        {}: NestRequestShapes<typeof messageContract>['sendFile'],
         @UploadedFile() file: Express.Multer.File,
         @UserId() userId: string,
     ) {
-        return this.messageService.uploadFileAsMessage(userId, file);
+        return tsRestHandler(messageContract.sendFile, async ({ body }) => {
+            // unwrap the type, because ts-rest wraps in extra quotes
+            const type = body.type.replaceAll('"', '') as 'image' | 'audio';
+            return this.messageService.uploadFileAsMessage(userId, file, type);
+        });
     }
 }

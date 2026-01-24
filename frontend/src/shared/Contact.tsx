@@ -2,8 +2,6 @@ import { Avatar } from "./Avatar";
 import { Contact as ContactModel } from "real-time-chat-backend/shared/contact.contract";
 import { ContactGroup } from "real-time-chat-backend/shared/contact-group.contract";
 import { DateTime } from "luxon";
-import { useDiContext } from "./contexts/DiContext";
-import { useEffect, useState } from "react";
 import { Message } from "@t/message.contract";
 import { useI18nContext } from "../i18n/i18n-react";
 
@@ -12,24 +10,18 @@ export function Contact(props: {
     selectedContact?: ContactModel | ContactGroup | undefined;
     onContactSelect?: () => void;
     isOnline?: boolean;
+    lastMessage?: Message;
 }) {
     const { LL } = useI18nContext();
-    const messageService = useDiContext().MessageService;
-    const [lastMessage, setLastMessage] = useState<Message | undefined>();
+    const lastMessage = props.lastMessage;
 
-    useEffect(() => {
-        (async () => {
-            if (props.contact.lastMessage) {
-                const res = await messageService.getMessageById(
-                    props.contact.lastMessage,
-                );
-
-                if (res.status === 200) {
-                    setLastMessage(res.body.message);
-                }
-            }
-        })();
-    }, [props.contact.lastMessage]);
+    function getAudioDurationInSeconds(message: Message) {
+        const match = message.message.split("-d")[1].match(/\d+/);
+        if (!match?.length) {
+            throw new Error("No audio duration for contacts last message");
+        }
+        return match[0];
+    }
 
     return (
         <div
@@ -66,7 +58,7 @@ export function Contact(props: {
                     {lastMessage && lastMessage.type === "audio" && (
                         <p>
                             {LL.AUDIO_MESSAGE()}: {}
-                            {Math.ceil(+lastMessage.message.split("-d")[1])}s
+                            {getAudioDurationInSeconds(lastMessage)}s
                         </p>
                     )}
 

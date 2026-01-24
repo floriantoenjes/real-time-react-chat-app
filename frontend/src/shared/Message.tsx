@@ -84,24 +84,31 @@ export function Message(props: { msg: MessageModel; user: User }) {
         const [type, storageId, dateInMilliSeconds, duration] =
             msg.message.split("-");
 
-        return { storageId, dateInMilliSeconds, duration };
+        return {
+            storageId,
+            dateInMilliSeconds,
+            duration,
+        };
     }
 
-    function getAudioMessageDate(msg: MessageModel) {
-        return DateTime.fromMillis(+splitAudioMessage(msg).dateInMilliSeconds)
-            .toJSDate()
-            .toLocaleString();
+    function getMessageDate(msg: MessageModel) {
+        // TODO: check the msg.at type
+        return DateTime.fromISO(msg.at).toFormat("HH:mm");
     }
 
     function getAudioDuration(msg: MessageModel) {
-        return Math.floor(+splitAudioMessage(msg).duration.substring(1));
+        const durationMatch = splitAudioMessage(msg).duration.match(/\d+/);
+        if (!durationMatch?.length) {
+            throw new Error("No audio duration provided");
+        }
+        return Math.floor(+durationMatch[0]);
     }
 
     return (
         <div className={"chat-message w-full flex"}>
             <div
                 className={
-                    "border border-blue-100 w-fit rounded-sm p-3 m-3 max-w-96 flex" +
+                    "border border-blue-100 w-fit rounded-sm p-3 m-3 max-w-96 flex flex-col" +
                     (props.msg.fromUserId === props.user._id.toString()
                         ? " ml-auto bg-green-300"
                         : " bg-white")
@@ -170,17 +177,24 @@ export function Message(props: { msg: MessageModel; user: User }) {
                         </div>
                     )}
                 </div>
-                {props.msg.fromUserId === props.user._id.toString() &&
-                    props.msg.sent && (
-                        <CheckIcon className={"w-4 h-4 mt-auto"} />
-                    )}
-                {props.msg.fromUserId === props.user._id.toString() &&
-                    props.msg.read && (
-                        <CheckIcon
-                            className={"w-4 h-4 mt-auto"}
-                            style={{ marginLeft: "-0.5rem" }}
-                        />
-                    )}
+
+                <footer className={"flex ml-auto"}>
+                    <span className={"mt-auto text-xs"}>
+                        {getMessageDate(props.msg)}
+                    </span>
+
+                    {props.msg.fromUserId === props.user._id.toString() &&
+                        props.msg.sent && (
+                            <CheckIcon className={"w-4 h-4 mt-auto"} />
+                        )}
+                    {props.msg.fromUserId === props.user._id.toString() &&
+                        props.msg.read && (
+                            <CheckIcon
+                                className={"w-4 h-4 mt-auto"}
+                                style={{ marginLeft: "-0.5rem" }}
+                            />
+                        )}
+                </footer>
             </div>
         </div>
     );

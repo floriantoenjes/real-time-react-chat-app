@@ -86,11 +86,12 @@ export const messageContract = c.router({
         path: '/file',
         contentType: 'multipart/form-data',
         responses: {
-            201: z.boolean(),
+            201: z.string(),
         },
-        body: c.type<{
-            file: File;
-        }>(),
-        summary: 'Upload user avatar',
+        body: z.object({
+            file: z.custom<File>(),
+            type: z.literal('"image"').or(z.literal('"audio"')),
+        }),
+        summary: 'Upload an image or an audio file',
     },
 });

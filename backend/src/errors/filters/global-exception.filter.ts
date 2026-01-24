@@ -7,8 +7,10 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ThrottlerException } from '@nestjs/throttler';
+import { MulterError } from 'multer';
 import { OperationFailedException } from '../external/operation-failed.exception';
 import { RateLimitExceededException } from '../external/rate-limit-exceeded.exception';
+import { FileTooLargeException } from '../external/file-too-large.exception';
 import { ClientFriendlyHttpException } from '../client-friendly-http.exception';
 import { AppHttpException } from '../app-http.exception';
 import * as Sentry from '@sentry/node';
@@ -38,6 +40,17 @@ export class GlobalExceptionFilter implements ExceptionFilter {
                 .status(HttpStatus.TOO_MANY_REQUESTS)
                 .setHeader('Retry-After', '60')
                 .json(rateLimitException.getResponse());
+            return;
+        }
+
+        if (
+            exception instanceof MulterError &&
+            exception.code === 'LIMIT_FILE_SIZE'
+        ) {
+            const fileTooLargeException = new FileTooLargeException();
+            response
+                .status(HttpStatus.PAYLOAD_TOO_LARGE)
+                .json(fileTooLargeException.getResponse());
             return;
         }
 

@@ -24,6 +24,9 @@ export enum ExternalErrors {
     EXT_RATE_LIMIT_001 = 'EXT_RATE_LIMIT_001',
 
     EXT_WS_THROTTLE_001 = 'EXT_WS_THROTTLE_001',
+
+    EXT_FILE_001 = 'EXT_FILE_001', // File too large
+    EXT_FILE_002 = 'EXT_FILE_002', // Invalid file type
 }
 
 export type InternalErrorTypes = Record<InternalErrors, string>;
