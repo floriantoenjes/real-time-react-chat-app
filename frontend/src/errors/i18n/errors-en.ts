@@ -9,4 +9,9 @@ export const errorsEn = {
     EXT_SIGN_IN_001: "Invalid email or password",
 
     EXT_RATE_LIMIT_001: "Too many requests in a short period of time",
+
+    EXT_WS_THROTTLE_001: "Too many requests in a short period of time",
+
+    EXT_FILE_001: "File too large",
+    EXT_FILE_002: "Invalid file type",
 } satisfies ExternalErrorTypes;
