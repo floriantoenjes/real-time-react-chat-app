@@ -64,6 +64,8 @@ type SignUpData = {
     username: string;
 };
 
+const MIN_PASSWORD_LENGTH = 8;
+
 export function Register() {
     const { LL } = useI18nContext();
     const navigate = useNavigate();
@@ -72,6 +74,8 @@ export function Register() {
     const [modalOpen, setModalOpen] = useState(false);
     const locale = useI18nContext().locale;
 
+    const [password, setPassword] = useState<string>("");
+    const result = usePasswordStrength(password);
     const [passwordsDontMatch, setPasswordsDontMatch] = useState(false);
 
     const { register, handleSubmit, formState } = useForm<SignUpData>();
@@ -90,9 +94,6 @@ export function Register() {
         navigate(RoutesEnum.LOGIN);
         snackbarService.showSnackbar(LL.REGISTERED(), SnackbarLevels.SUCCESS);
     }
-
-    const [password, setPassword] = useState<string>("");
-    const result = usePasswordStrength(password);
 
     function getPasswordScoreColor() {
         switch (result?.score) {
@@ -162,10 +163,11 @@ export function Register() {
                             {...register("password", {
                                 required: true,
                                 validate: (value) =>
-                                    value.length < 8
+                                    value.length < MIN_PASSWORD_LENGTH
                                         ? LL.MIN_LENGTH() +
-                                          " 8 " +
-                                          LL.CHARACTERS()
+                                          ` ${MIN_PASSWORD_LENGTH} ` +
+                                          LL.CHARACTERS() +
+                                          "."
                                         : true,
                                 onChange: (event) =>
                                     setPassword(event.target.value),

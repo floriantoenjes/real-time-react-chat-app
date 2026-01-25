@@ -204,7 +204,7 @@ type RootTranslation = {
 	 */
 	PASSSWORD_STRENGTH: string
 	/**
-	 * M​i​n​i​m​u​m​ ​l​e​n​g​t​h
+	 * M​i​n​i​m​u​m​ ​l​e​n​g​t​h​ ​a​r​e
 	 */
 	MIN_LENGTH: string
 	/**
@@ -401,7 +401,7 @@ export type TranslationFunctions = {
 	 */
 	PASSSWORD_STRENGTH: () => LocalizedString
 	/**
-	 * Minimum length
+	 * Minimum length are
 	 */
 	MIN_LENGTH: () => LocalizedString
 	/**

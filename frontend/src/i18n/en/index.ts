@@ -51,7 +51,7 @@ const en = {
     AUDIO_MESSAGE: "Audio message",
     IMAGE_MESSAGE: "Image message",
     PASSSWORD_STRENGTH: "Password strength",
-    MIN_LENGTH: "Minimum length",
+    MIN_LENGTH: "Minimum length are",
     CHARACTERS: "characters",
 } satisfies BaseTranslation;
 
