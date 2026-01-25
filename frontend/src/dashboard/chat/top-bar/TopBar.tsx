@@ -80,17 +80,21 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
     }, [socket]);
 
     function emptyChat() {
-        messageService
-            .deleteMessages(selectedContact._id)
-            .then(() => {
+        messageService.deleteMessages(selectedContact._id).then((result) => {
+            if (result === false) {
                 snackbarService.showSnackbar(
-                    LL.CHAT_MESSAGES_DELETED(),
-                    SnackbarLevels.SUCCESS,
+                    LL.ERROR.COULD_NOT_DELETE_CHAT_MESSAGES(),
+                    SnackbarLevels.ERROR,
                 );
-                setMessages([]);
-                handleClose();
-            })
-            .catch();
+                return;
+            }
+            snackbarService.showSnackbar(
+                LL.CHAT_MESSAGES_DELETED(),
+                SnackbarLevels.SUCCESS,
+            );
+            setMessages([]);
+            handleClose();
+        });
     }
 
     async function deleteChat() {

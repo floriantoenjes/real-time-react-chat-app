@@ -17,6 +17,7 @@ import {
     validateAndSanitizeImageFile,
     ValidatedFile,
 } from '../utils/file-validation.util';
+import { ContactNotFoundException } from '../errors/internal/contact-not-found.exception';
 
 @Injectable()
 export class MessageService {
@@ -96,6 +97,9 @@ export class MessageService {
     }
 
     async deleteMessages(fromUserId: string, toUserId: string) {
+        await this.deleteLastContactMessage(fromUserId, toUserId);
+        await this.deleteLastContactMessage(toUserId, fromUserId);
+
         await this.messageModel.deleteMany({
             fromUserId: fromUserId,
             toUserId: toUserId,
@@ -107,6 +111,26 @@ export class MessageService {
         });
 
         return { status: 204 as const, body: true };
+    }
+
+    private async deleteLastContactMessage(
+        fromUserId: string,
+        toUserId: string,
+    ) {
+        const fromUser = await this.userModel.findById(fromUserId);
+        if (!fromUser) {
+            throw new UserNotFoundException();
+        }
+        const fromContact = fromUser.contacts.find(
+            (contact) => contact._id === toUserId,
+        );
+        if (!fromContact) {
+            throw new ContactNotFoundException();
+        }
+        fromContact.lastMessage = undefined;
+        fromUser.markModified('contacts');
+
+        await fromUser.save();
     }
 
     async sendMessage(
