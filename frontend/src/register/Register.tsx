@@ -164,20 +164,14 @@ export function Register() {
                                 required: true,
                                 validate: (value) =>
                                     value.length < MIN_PASSWORD_LENGTH
-                                        ? LL.MIN_LENGTH() +
-                                          ` ${MIN_PASSWORD_LENGTH} ` +
-                                          LL.CHARACTERS() +
-                                          "."
+                                        ? `${LL.MIN_LENGTH()} ${MIN_PASSWORD_LENGTH} ${LL.CHARACTERS()}.`
                                         : true,
                                 onChange: (event) =>
                                     setPassword(event.target.value),
                             })}
                             className={"w-80"}
                             helperText={
-                                LL.PASSSWORD_STRENGTH() +
-                                ": " +
-                                (result?.score ?? "0") +
-                                "/4. " +
+                                `${LL.PASSSWORD_STRENGTH()}: ${result?.score ?? "0"}/4. ` +
                                 (formState.errors.password?.message ??
                                     result?.feedback.warning ??
                                     "")
