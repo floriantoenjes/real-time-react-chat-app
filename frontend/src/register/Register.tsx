@@ -1,6 +1,6 @@
 import { Button, IconButton, TextField } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import React, { useState } from "react";
+import React, { useDeferredValue, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDiContext } from "../shared/contexts/DiContext";
 import { useI18nContext } from "../i18n/i18n-react";
@@ -12,6 +12,50 @@ import {
     SnackbarLevels,
     snackbarService,
 } from "../shared/contexts/SnackbarContext";
+import { zxcvbnAsync, zxcvbnOptions, ZxcvbnResult } from "@zxcvbn-ts/core";
+import * as zxcvbnCommonPackage from "@zxcvbn-ts/language-common";
+import * as zxcvbnEnPackage from "@zxcvbn-ts/language-en";
+import * as zxcvbnDePackage from "@zxcvbn-ts/language-de";
+import { Locales } from "../i18n/i18n-types";
+
+function setPasswordStrengthOptions(locale: Locales) {
+    const options = {
+        // recommended
+        dictionary: {
+            ...zxcvbnCommonPackage.dictionary,
+            ...zxcvbnEnPackage.dictionary,
+            // recommended the language of the country that the user will be in
+            ...zxcvbnDePackage.dictionary,
+        },
+        // recommended
+        graphs: zxcvbnCommonPackage.adjacencyGraphs,
+        // recommended
+        useLevenshteinDistance: true,
+        // optional
+        translations:
+            locale === "en"
+                ? zxcvbnEnPackage.translations
+                : zxcvbnDePackage.translations,
+    };
+    zxcvbnOptions.setOptions(options);
+}
+
+const usePasswordStrength = (password: string) => {
+    const [result, setResult] = useState<ZxcvbnResult | null>(null);
+    // NOTE: useDeferredValue is React v18 only, for v17 or lower use debouncing
+    const deferredPassword = useDeferredValue(password);
+    const { locale } = useI18nContext();
+
+    useEffect(() => {
+        setPasswordStrengthOptions(locale);
+    }, [locale]);
+
+    useEffect(() => {
+        zxcvbnAsync(deferredPassword).then((response) => setResult(response));
+    }, [deferredPassword]);
+
+    return result;
+};
 
 type SignUpData = {
     email: string;
@@ -45,6 +89,26 @@ export function Register() {
 
         navigate(RoutesEnum.LOGIN);
         snackbarService.showSnackbar(LL.REGISTERED(), SnackbarLevels.SUCCESS);
+    }
+
+    const [password, setPassword] = useState<string>("");
+    const result = usePasswordStrength(password);
+
+    function getPasswordScoreColor() {
+        switch (result?.score) {
+            case 0:
+                return "text-red-500";
+            case 1:
+                return "text-red-500";
+            case 2:
+                return "text-yellow-500";
+            case 3:
+                return "text-yellow-500";
+            case 4:
+                return "text-green-500";
+            default:
+                return "";
+        }
     }
 
     return (
@@ -91,13 +155,35 @@ export function Register() {
                             helperText={formState.errors.email?.message}
                         />
                     </div>
-                    <div className="mb-3">
+                    <div className={"mb-3"}>
                         <TextField
                             type="password"
                             label={LL.PASSWORD()}
-                            {...register("password", { required: true })}
+                            {...register("password", {
+                                required: true,
+                                validate: (value) =>
+                                    value.length < 8
+                                        ? LL.MIN_LENGTH() +
+                                          " 8 " +
+                                          LL.CHARACTERS()
+                                        : true,
+                                onChange: (event) =>
+                                    setPassword(event.target.value),
+                            })}
                             className={"w-80"}
+                            helperText={
+                                LL.PASSSWORD_STRENGTH() +
+                                ": " +
+                                (result?.score ?? "0") +
+                                "/4. " +
+                                (formState.errors.password?.message ??
+                                    result?.feedback.warning ??
+                                    "")
+                            }
                         />
+                    </div>
+                    <div className={"mb-3"} style={{ height: "0.5rem" }}>
+                        <hr className={getPasswordScoreColor()} />
                     </div>
                     <div className="mb-3">
                         <TextField

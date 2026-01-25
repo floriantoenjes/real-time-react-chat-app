@@ -6,7 +6,7 @@ const c = initContract();
 
 export const UserSchema = z.object({
     _id: z.string(),
-    email: z.string(),
+    email: z.string().min(8),
     password: z.string(),
     username: z.string(),
     contacts: z.array(ContactSchema),

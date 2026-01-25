@@ -50,6 +50,9 @@ const en = {
     EMAIL_OR_PASSWORD_INCORRECT: "Email or password incorrect",
     AUDIO_MESSAGE: "Audio message",
     IMAGE_MESSAGE: "Image message",
+    PASSSWORD_STRENGTH: "Password strength",
+    MIN_LENGTH: "Minimum length",
+    CHARACTERS: "characters",
 } satisfies BaseTranslation;
 
 export default en;

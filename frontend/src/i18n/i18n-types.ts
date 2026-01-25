@@ -199,6 +199,18 @@ type RootTranslation = {
 	 * I​m​a​g​e​ ​m​e​s​s​a​g​e
 	 */
 	IMAGE_MESSAGE: string
+	/**
+	 * P​a​s​s​w​o​r​d​ ​s​t​r​e​n​g​t​h
+	 */
+	PASSSWORD_STRENGTH: string
+	/**
+	 * M​i​n​i​m​u​m​ ​l​e​n​g​t​h
+	 */
+	MIN_LENGTH: string
+	/**
+	 * c​h​a​r​a​c​t​e​r​s
+	 */
+	CHARACTERS: string
 }
 
 export type TranslationFunctions = {
@@ -384,6 +396,18 @@ export type TranslationFunctions = {
 	 * Image message
 	 */
 	IMAGE_MESSAGE: () => LocalizedString
+	/**
+	 * Password strength
+	 */
+	PASSSWORD_STRENGTH: () => LocalizedString
+	/**
+	 * Minimum length
+	 */
+	MIN_LENGTH: () => LocalizedString
+	/**
+	 * characters
+	 */
+	CHARACTERS: () => LocalizedString
 }
 
 export type Formatters = {}
