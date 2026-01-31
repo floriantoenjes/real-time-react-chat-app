@@ -20,20 +20,27 @@ type RecursiveProxyObj<T, TClientArgs extends InitClientArgs> = {
           : never;
 };
 
-export class ClientService {
-    private contractClientMap: Map<any, any> = new Map();
+type Contract = AppRouter;
+type CustomFetchApi = (args: any) => Promise<{
+    status: number;
+    body: any;
+    headers: Headers;
+}>;
+type RestClient<T> = RecursiveProxyObj<
+    T,
+    { baseUrl: string; api: CustomFetchApi; credentials: "include" }
+>;
 
-    getClient<T extends AppRouter>(
-        contract: T,
-    ): RecursiveProxyObj<
-        T,
-        {
-            baseUrl: string;
-            credentials: "include";
-        }
-    > {
-        if (this.contractClientMap.get(contract)) {
-            return this.contractClientMap.get(contract);
+export class ClientService {
+    private contractClientMap = new Map<Contract, RestClient<AppRouter>>();
+
+    getClient<T extends AppRouter>(contract: T): RestClient<T> {
+        type ClientType = RestClient<T>;
+        type MapValueType = RestClient<Contract>;
+
+        const cached = this.contractClientMap.get(contract);
+        if (cached) {
+            return cached as ClientType;
         }
 
         const client = initClient(contract, {
@@ -42,13 +49,9 @@ export class ClientService {
             credentials: "include",
         });
 
-        this.contractClientMap.set(contract, client);
+        this.contractClientMap.set(contract, client as MapValueType);
 
-        const clientInMap = this.contractClientMap.get(contract);
-        if (!clientInMap) {
-            throw new Error("TS-Rest client not found in Map!");
-        }
-        return clientInMap;
+        return client as ClientType;
     }
 
     private getCustomFetchApi() {
