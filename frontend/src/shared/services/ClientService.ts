@@ -80,12 +80,17 @@ export class ClientService {
 
                 // Retry the original request with the new token
                 const refreshResponse = await fetch(path, requestOptions);
+                const refreshResponseBody = refreshResponse.headers
+                    .get("content-type")
+                    ?.includes("json")
+                    ? await refreshResponse.json()
+                    : await refreshResponse.text();
 
-                await this.handleErrors(responseBody);
+                await this.handleErrors(refreshResponseBody);
 
                 return {
                     status: refreshResponse.status,
-                    body: responseBody,
+                    body: refreshResponseBody,
                     headers: refreshResponse.headers,
                 };
             }
@@ -115,19 +120,20 @@ export class ClientService {
     async refreshAccessToken() {
         const response = await fetch(`${BACKEND_URL}/refresh`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
             credentials: "include",
         });
 
         if (!response.ok) {
             await fetch(`${BACKEND_URL}/logout`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: undefined,
                 credentials: "include",
             });
+            localStorage.setItem(
+                AuthService.LOCAL_STORAGE_SIGNED_IN_FLAG,
+                JSON.stringify(false),
+            );
+            window.location.reload();
+
             return;
         }
 

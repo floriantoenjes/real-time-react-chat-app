@@ -64,16 +64,16 @@ export class AuthService {
         ) => (user: React.SetStateAction<User | undefined>) => void,
         setUser: Dispatch<SetStateAction<User | undefined>>,
     ) {
-        const hasAnAuthToken = localStorage.getItem(
+        const signedInFlagItem = localStorage.getItem(
             AuthService.LOCAL_STORAGE_SIGNED_IN_FLAG,
         );
 
-        if (user) {
-            setUserWithAvatarBytes(setUser)(user);
+        if (!signedInFlagItem || !JSON.parse(signedInFlagItem)) {
             return;
         }
 
-        if (!hasAnAuthToken) {
+        if (user) {
+            setUserWithAvatarBytes(setUser)(user);
             return;
         }
 
