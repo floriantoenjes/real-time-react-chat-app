@@ -126,6 +126,3 @@ helm/
 ├── loki-grafana/        # Logging and monitoring
 └── glitchtip/           # Error tracking
 ```
-
-
--
