@@ -53,6 +53,7 @@ const en = {
     PASSSWORD_STRENGTH: "Password strength",
     MIN_LENGTH: "Minimum length are",
     CHARACTERS: "characters",
+    SHOW_IMAGE: "Show Image",
 } satisfies BaseTranslation;
 
 export default en;

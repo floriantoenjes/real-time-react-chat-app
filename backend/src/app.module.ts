@@ -37,6 +37,10 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { CacheModule } from '@nestjs/cache-manager';
 import KeyvRedis from '@keyv/redis';
+import {
+    FileAccessEntity,
+    FileAccessSchema,
+} from './schemas/file-access.schema';
 
 @Module({
     imports: [
@@ -56,6 +60,7 @@ import KeyvRedis from '@keyv/redis';
         }),
         MongooseModule.forFeature([
             { name: ContactGroupEntity.name, schema: ContactGroupSchema },
+            { name: FileAccessEntity.name, schema: FileAccessSchema },
             { name: MessageEntity.name, schema: MessageSchema },
             { name: UserEntity.name, schema: UserSchema },
         ]),

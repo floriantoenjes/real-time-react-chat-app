@@ -6,8 +6,10 @@ import { CheckIcon } from "@heroicons/react/16/solid";
 import { Button } from "@mui/material";
 import { useDiContext } from "./contexts/DiContext";
 import { DateTime } from "luxon";
+import { useI18nContext } from "../i18n/i18n-react";
 
 export function Message(props: { msg: MessageModel; user: User }) {
+    const { LL } = useI18nContext();
     const [contacts] = useContext(ContactsContext).contacts;
     const fileService = useDiContext().FileService;
 
@@ -39,6 +41,10 @@ export function Message(props: { msg: MessageModel; user: User }) {
             return;
         }
         const image = await fileService.loadImage(props.msg.message);
+        if (!image) {
+            return;
+        }
+
         setImage(image);
     }
 
@@ -47,6 +53,9 @@ export function Message(props: { msg: MessageModel; user: User }) {
             return;
         }
         const audio = await fileService.loadFile(props.msg.message);
+        if (!audio) {
+            return;
+        }
 
         const file = new File([audio], "audio", { type: "audio/mp3" });
         if (secondsPlayed == 0) {
@@ -81,7 +90,8 @@ export function Message(props: { msg: MessageModel; user: User }) {
     }
 
     function splitAudioMessage(msg: MessageModel) {
-        const [type, storageId, dateInMilliSeconds, duration] =
+        // type, storageId, dateInMilliSeconds, duration
+        const [, storageId, dateInMilliSeconds, duration] =
             msg.message.split("-");
 
         return {
@@ -163,7 +173,7 @@ export function Message(props: { msg: MessageModel; user: User }) {
                         </div>
                     )}
                     {!image && props.msg.type === "image" && (
-                        <Button onClick={loadImage}>Show Image</Button>
+                        <Button onClick={loadImage}>{LL.SHOW_IMAGE()}</Button>
                     )}
                     {image && <img src={`data:image/jpg;base64,${image}`} />}
                     {props.msg.type === "audio" && (

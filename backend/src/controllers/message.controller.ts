@@ -80,9 +80,15 @@ export class MessageController {
         @UserId() userId: string,
     ) {
         return tsRestHandler(messageContract.sendFile, async ({ body }) => {
-            // unwrap the type, because ts-rest wraps in extra quotes
+            // unwrap the types, because ts-rest wraps in extra quotes when multipart/form-data
             const type = body.type.replaceAll('"', '') as 'image' | 'audio';
-            return this.messageService.uploadFileAsMessage(userId, file, type);
+            const toUsers: string[] = JSON.parse(JSON.parse(body.toUsers));
+            return this.messageService.uploadFileAsMessage(
+                userId,
+                file,
+                type,
+                toUsers,
+            );
         });
     }
 }

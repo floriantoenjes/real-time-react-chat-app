@@ -211,6 +211,10 @@ type RootTranslation = {
 	 * c​h​a​r​a​c​t​e​r​s
 	 */
 	CHARACTERS: string
+	/**
+	 * S​h​o​w​ ​I​m​a​g​e
+	 */
+	SHOW_IMAGE: string
 }
 
 export type TranslationFunctions = {
@@ -408,6 +412,10 @@ export type TranslationFunctions = {
 	 * characters
 	 */
 	CHARACTERS: () => LocalizedString
+	/**
+	 * Show Image
+	 */
+	SHOW_IMAGE: () => LocalizedString
 }
 
 export type Formatters = {}

@@ -122,7 +122,9 @@ export function SendMessageBar(props: {
     async function setFileToUpload(event: any) {
         const file = event.target.files[0];
         setFile(file);
-        const res = await messageService.sendFile(file, "image");
+        const res = await messageService.sendFile(file, "image", [
+            selectedContact._id,
+        ]);
         if (res.status === 201) {
             const sanitizedFilename = res.body;
             void sendMessage(sanitizedFilename, "image");
@@ -156,7 +158,9 @@ export function SendMessageBar(props: {
             lastModified: Date.now(),
         });
 
-        const res = await messageService.sendFile(file, "audio");
+        const res = await messageService.sendFile(file, "audio", [
+            selectedContact._id,
+        ]);
         if (res.status === 201) {
             const sanitizedFilename = res.body;
             await sendMessage(sanitizedFilename, "audio");

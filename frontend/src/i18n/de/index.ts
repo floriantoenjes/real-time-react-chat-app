@@ -54,6 +54,7 @@ const de = {
     PASSSWORD_STRENGTH: "Passwortstärke",
     MIN_LENGTH: "Mindestlänge sind",
     CHARACTERS: "Zeichen",
+    SHOW_IMAGE: "Bild anzeigen",
 } satisfies Translation;
 
 export default de;

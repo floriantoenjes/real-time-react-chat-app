@@ -9,6 +9,10 @@ export class FileService {
             .getClient(fileContract)
             .loadFile({ body: { fileName } })) as any;
 
+        if (res.status !== 200) {
+            return false;
+        }
+
         return btoa(
             new Uint8Array(Object.values(res.body)).reduce(function (
                 data,
@@ -23,6 +27,10 @@ export class FileService {
         const res = (await this.clientService
             .getClient(fileContract)
             .loadFile({ body: { fileName } })) as any;
+
+        if (res.status !== 200) {
+            return false;
+        }
 
         return new Int8Array(Object.values(res.body));
     }

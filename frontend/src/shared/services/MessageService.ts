@@ -53,14 +53,15 @@ export class MessageService {
         });
     }
 
-    sendFile(file: File, type: "image" | "audio") {
+    sendFile(file: File, type: "image" | "audio", toUsers: string[]) {
         return this.clientService
             .getClient<typeof messageContract>(messageContract)
             .sendFile({
                 body: {
                     file,
-                    // @ts-expect-error The type is wrapped in extra quotes in the contract, because of ts-rest
                     type,
+                    // stringified because of how ts-rest handles multipart/form-data
+                    toUsers: JSON.stringify(toUsers),
                 },
             });
     }

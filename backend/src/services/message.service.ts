@@ -17,7 +17,7 @@ import {
     validateAndSanitizeImageFile,
     ValidatedFile,
 } from '../utils/file-validation.util';
-import { ContactNotFoundException } from '../errors/internal/contact-not-found.exception';
+import { FileAccessEntity } from '../schemas/file-access.schema';
 
 @Injectable()
 export class MessageService {
@@ -27,6 +27,8 @@ export class MessageService {
         @InjectModel(ContactGroupEntity.name)
         private readonly contactGroupModel: Model<ContactGroupEntity>,
         private readonly contactService: ContactService,
+        @InjectModel(FileAccessEntity.name)
+        private readonly fileAccessModel: Model<FileAccessEntity>,
         private readonly gateway: RealTimeChatGateway,
         @InjectModel(MessageEntity.name)
         private readonly messageModel: Model<MessageEntity>,
@@ -125,7 +127,7 @@ export class MessageService {
             (contact) => contact._id === toUserId,
         );
         if (!fromContact) {
-            throw new ContactNotFoundException();
+            return;
         }
         fromContact.lastMessage = undefined;
         fromUser.markModified('contacts');
@@ -224,6 +226,7 @@ export class MessageService {
         userId: string,
         file: Express.Multer.File,
         type: 'image' | 'audio',
+        toUsers: string[],
     ) {
         if (!(await this.userModel.findOne({ _id: userId }))) {
             this.logger.warn(`Upload file failed: user ${userId} not found`);
@@ -244,6 +247,12 @@ export class MessageService {
             validatedFile.buffer,
             validatedFile.sanitizedFilename,
         );
+
+        await this.fileAccessModel.create({
+            ownerId: userId,
+            accessibleBy: [userId, ...toUsers],
+            storageId: validatedFile.sanitizedFilename,
+        });
 
         return {
             status: 201 as const,

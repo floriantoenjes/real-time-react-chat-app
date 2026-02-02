@@ -91,6 +91,7 @@ export const messageContract = c.router({
         body: z.object({
             file: z.custom<File>(),
             type: z.literal('"image"').or(z.literal('"audio"')),
+            toUsers: z.string(),
         }),
         summary: 'Upload an image or an audio file',
     },
