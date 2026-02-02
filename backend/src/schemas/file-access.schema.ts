@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
-@Schema({ collection: 'file-access' })
+@Schema({ collection: 'fileAccess' })
 export class FileAccessEntity {
     _id: any;
 

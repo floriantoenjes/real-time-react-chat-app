@@ -13,6 +13,7 @@ import * as bcrypt from 'bcrypt';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { ContactGroupEntity } from './schemas/contact-group.schema';
+import { FileAccessEntity } from './schemas/file-access.schema';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
@@ -23,6 +24,8 @@ export class AppService implements OnApplicationBootstrap {
         private readonly cache: Cache,
         @InjectModel(ContactGroupEntity.name)
         private readonly contactGroupModel: Model<ContactGroupEntity>,
+        @InjectModel(FileAccessEntity.name)
+        private readonly fileAccessModel: Model<FileAccessEntity>,
         @InjectModel(MessageEntity.name)
         private readonly messageModel: Model<MessageEntity>,
         @InjectModel(UserEntity.name)
@@ -43,6 +46,10 @@ export class AppService implements OnApplicationBootstrap {
         this.logger.log('Deleting all contact groups...');
         await this.contactGroupModel.deleteMany({});
         this.logger.log('All contact groups have been deleted.');
+
+        this.logger.log('Deleting all file access entities...');
+        await this.fileAccessModel.deleteMany({});
+        this.logger.log('All file access entities have been deleted.');
 
         if (await this.userModel.findOne()) {
             return;
