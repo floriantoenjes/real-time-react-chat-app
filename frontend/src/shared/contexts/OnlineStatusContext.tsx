@@ -10,6 +10,7 @@ import React, {
 import { SocketContext } from "./SocketContext";
 import { useDiContext } from "./DiContext";
 import { SocketMessageTypes } from "@t/socket-message-types.enum";
+import { ContactsContext } from "./ContactsContext";
 
 interface OnlineStatusContextType {
     contactsOnlineStatus: Map<string, boolean>;
@@ -27,19 +28,19 @@ export function useOnlineStatus() {
 
 interface OnlineStatusProviderProps {
     children: React.ReactNode;
-    contactIds: string[];
 }
 
-export function OnlineStatusProvider({
-    children,
-    contactIds,
-}: OnlineStatusProviderProps) {
+export function OnlineStatusProvider({ children }: OnlineStatusProviderProps) {
     const [contactsOnlineStatus, setContactsOnlineStatus] = useState<
         Map<string, boolean>
     >(new Map<string, boolean>());
 
     const [socket] = useContext(SocketContext);
     const contactService = useDiContext().ContactService;
+
+    const [contacts] = useContext(ContactsContext).contacts;
+
+    const contactIds = useMemo(() => contacts.map((c) => c._id), [contacts]);
 
     useEffect(() => {
         if (!contactIds.length) {

@@ -14,7 +14,7 @@ type SignInData = {
     password: string;
 };
 
-export function Login(props: {}) {
+export function Login() {
     const { LL } = useI18nContext();
     const authService = useDiContext().AuthService;
     const [modalOpen, setModalOpen] = useState(false);
