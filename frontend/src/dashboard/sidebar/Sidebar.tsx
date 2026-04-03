@@ -18,7 +18,7 @@ export function Sidebar() {
 
     const [nameFilter, setNameFilter] = useState<string | undefined>();
 
-    const onMessage = useEffectEvent((message: Message) => {
+    const updateContactLastMessage = useEffectEvent((message: Message) => {
         // Check if the message belongs to a contact group
         const contactGroupWithNewMessage = contactGroups.find(
             (cg) => cg._id === message.toUserId,
@@ -43,9 +43,9 @@ export function Sidebar() {
         if (!socket) {
             return;
         }
-        socket.on(SocketMessageTypes.message, onMessage);
+        socket.on(SocketMessageTypes.message, updateContactLastMessage);
         return () => {
-            socket.off(SocketMessageTypes.message, onMessage);
+            socket.off(SocketMessageTypes.message, updateContactLastMessage);
         };
     }, [socket]);
 

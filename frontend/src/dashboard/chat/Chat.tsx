@@ -154,7 +154,7 @@ export function Chat() {
         </div>
     ) : (
         <div className={"w-full flex justify-center items-center"}>
-            <h2 className={"text-2xl"}>Welcome to Florians Chat!</h2>
+            <h2 className={"text-2xl"}>Welcome to Florian's Chat!</h2>
         </div>
     );
 }
