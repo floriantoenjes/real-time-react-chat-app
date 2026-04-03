@@ -161,9 +161,6 @@ export class MessageService {
         const receiver = await this.userModel
             .findById(toUserId)
             .select('+password');
-        if (!receiver) {
-            throw new UserNotFoundException();
-        }
 
         const newlyCreatedMessage = await this.messageModel.create(newMessage);
 
@@ -176,6 +173,7 @@ export class MessageService {
             }
 
             if (
+                receiver &&
                 !receiver.contacts.find((contact) => contact._id === fromUserId)
                     ?.isAccepted
             ) {

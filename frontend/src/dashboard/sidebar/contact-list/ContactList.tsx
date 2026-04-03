@@ -1,20 +1,9 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { useOnlineStatus } from "../../../shared/contexts/OnlineStatusContext";
 import { Contact } from "../../../shared/Contact";
-import { useDiContext } from "../../../shared/contexts/DiContext";
 import { Message } from "@t/message.contract";
-
-type MessageId = string;
-
-type UserContact = {
-    _id: string;
-    name: string;
-    memberIds?: string[];
-    lastMessage?: MessageId | undefined;
-    avatarFileName?: string | undefined;
-    avatarBase64?: any;
-};
+import { useLastContactMessageCache } from "../../../shared/hooks/useLastContactMessageCache";
 
 export function ContactList(props: { nameFilter?: string }) {
     const contactsContext = useContext(ContactsContext);
@@ -23,11 +12,8 @@ export function ContactList(props: { nameFilter?: string }) {
     const [userContacts] = contactsContext.contacts;
     const [userContactGroups] = contactsContext.contactGroups;
     const { contactsOnlineStatus } = useOnlineStatus();
-    const messageService = useDiContext().MessageService;
-    const [lastMessageCache, setLastMessageCache] = useState(
-        new Map<MessageId, Message>(),
-    );
-    const [loaded, setLoaded] = useState<boolean>(false);
+
+    const { loaded, lastMessageCache } = useLastContactMessageCache();
 
     function sortByLastMessageDateTime(
         uc1Message?: Message,
@@ -41,47 +27,6 @@ export function ContactList(props: { nameFilter?: string }) {
 
         return 0;
     }
-
-    // Refresh last message cache
-    useEffect(() => {
-        async function getUserContactMessages(userContact: UserContact) {
-            if (userContact.lastMessage) {
-                const message = await messageService.getMessageById(
-                    userContact.lastMessage,
-                );
-                if (!message) {
-                    return;
-                }
-                return message;
-            }
-        }
-
-        for (const userContact of userContacts) {
-            if (
-                userContact.lastMessage &&
-                lastMessageCache.get(userContact.lastMessage)
-            ) {
-                if (userContacts.at(-1) === userContact) {
-                    setLoaded(true);
-                }
-                continue;
-            }
-
-            getUserContactMessages(userContact).then((lastMessageObj) => {
-                const lastMessage = userContact.lastMessage;
-                if (lastMessage && lastMessageObj) {
-                    setLastMessageCache((prevState) => {
-                        return new Map(
-                            prevState.set(lastMessage, lastMessageObj),
-                        );
-                    });
-                }
-                if (userContacts.at(-1) === userContact) {
-                    setLoaded(true);
-                }
-            });
-        }
-    }, [userContacts]);
 
     const contactElements = userContacts
         .concat(userContactGroups)
