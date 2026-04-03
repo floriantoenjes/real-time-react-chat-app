@@ -1,0 +1,76 @@
+import { useContext, useEffect, useRef } from "react";
+import { Message } from "@t/message.contract";
+import { ContactsContext } from "../contexts/ContactsContext";
+import { MessageContext } from "../contexts/MessageContext";
+import { useDiContext } from "../contexts/DiContext";
+
+/**
+ * Custom hook for managing message caching and fetching
+ * Handles the complex logic of caching messages per contact and fetching from API
+ */
+export function useMessageCache() {
+    const [selectedContact] = useContext(ContactsContext).selectedContact;
+    const [messages, setMessages] = useContext(MessageContext);
+    const messageService = useDiContext().MessageService;
+    const messagesCache = useRef<Map<string, Message[]>>(new Map());
+
+    // Fetch messages - check cache first
+    useEffect(() => {
+        let isCurrent = true;
+
+        async function fetchMessages() {
+            if (!selectedContact) {
+                return;
+            }
+
+            const contactId = selectedContact._id;
+
+            // Check cache first
+            const cached = messagesCache.current.get(contactId);
+            if (cached) {
+                if (isCurrent) {
+                    setMessages(cached);
+                }
+                return;
+            }
+
+            // Fetch from API
+            const fetchedMessages = await messageService.getMessages(contactId);
+
+            if (!fetchedMessages) {
+                return;
+            }
+
+            // Abort if contact changed while fetching
+            if (!isCurrent) {
+                return;
+            }
+
+            // Store in cache and display (use empty array if null)
+            const messagesToSet = fetchedMessages ?? [];
+            messagesCache.current.set(contactId, messagesToSet);
+            setMessages(messagesToSet);
+        }
+        void fetchMessages();
+
+        return () => {
+            isCurrent = false;
+        };
+    }, [selectedContact?._id, messageService, setMessages]);
+
+    // Sync cache when messages change (handles sent messages from SendMessageBar)
+    useEffect(() => {
+        if (selectedContact) {
+            messagesCache.current.set(selectedContact._id, messages);
+        }
+    }, [messages, selectedContact?._id]);
+
+    // Get messages from cache for the current selected contact
+    const getCachedMessages = (contactId: string): Message[] | undefined => {
+        return messagesCache.current.get(contactId);
+    };
+
+    return {
+        getCachedMessages,
+    };
+}

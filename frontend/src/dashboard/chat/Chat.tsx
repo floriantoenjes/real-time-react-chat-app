@@ -1,147 +1,15 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext } from "react";
 import { MainChat } from "./main-chat/MainChat";
 import { SendMessageBar } from "./send-message-bar/SendMessageBar";
 import { TopBar } from "./top-bar/TopBar";
 import { ContactsContext } from "../../shared/contexts/ContactsContext";
-import { SocketContext } from "../../shared/contexts/SocketContext";
-import { useUserContext } from "../../shared/contexts/UserContext";
-import { MessageContext } from "../../shared/contexts/MessageContext";
-import {
-    Message,
-    MessageSchema,
-} from "real-time-chat-backend/shared/message.contract";
-import { useDiContext } from "../../shared/contexts/DiContext";
-import { MessageAddons } from "../../shared/enums/message";
-import { SocketMessageTypes } from "@t/socket-message-types.enum";
 import { ContactRequest } from "./contact-request/contact-request";
+import { useMessageCache } from "../../shared/hooks/useMessageCache";
 
 export function Chat() {
     const [selectedContact] = useContext(ContactsContext).selectedContact;
-    const [contactGroups] = useContext(ContactsContext).contactGroups;
-    const [user] = useUserContext();
-    const [messages, setMessages] = useContext(MessageContext);
-    const [socket] = useContext(SocketContext);
-    const messageService = useDiContext().MessageService;
-    const messagesCache = useRef<Map<string, Message[]>>(new Map());
-    const selectedContactRef = useRef(selectedContact);
-    const userIdRef = useRef(user._id);
-    const contactGroupsRef = useRef(contactGroups);
 
-    // Keep refs in sync
-    useEffect(() => {
-        selectedContactRef.current = selectedContact;
-        userIdRef.current = user._id;
-        contactGroupsRef.current = contactGroups;
-    }, [selectedContact, user._id, contactGroups]);
-
-    // Fetch messages - check cache first
-    useEffect(() => {
-        let isCurrent = true;
-
-        async function fetchMessages() {
-            if (!selectedContact) {
-                return;
-            }
-
-            const contactId = selectedContact._id;
-
-            // Check cache first
-            const cached = messagesCache.current.get(contactId);
-            if (cached) {
-                if (isCurrent) {
-                    setMessages(cached);
-                }
-                return;
-            }
-
-            // Fetch from API
-            const fetchedMessages = await messageService.getMessages(contactId);
-
-            if (!fetchedMessages) {
-                return;
-            }
-
-            // Abort if contact changed while fetching
-            if (!isCurrent) {
-                return;
-            }
-
-            // Store in cache and display (use empty array if null)
-            const messagesToSet = fetchedMessages ?? [];
-            messagesCache.current.set(contactId, messagesToSet);
-            setMessages(messagesToSet);
-        }
-        void fetchMessages();
-
-        return () => {
-            isCurrent = false;
-        };
-    }, [selectedContact?._id, setMessages, messageService]);
-
-    // Sync cache when messages change (handles sent messages from SendMessageBar)
-    useEffect(() => {
-        if (selectedContact) {
-            messagesCache.current.set(selectedContact._id, messages);
-        }
-    }, [messages, selectedContact?._id]);
-
-    useEffect(() => {
-        if (!socket) {
-            return;
-        }
-
-        function addMessage(message: Message) {
-            message = MessageSchema.parse(message);
-            // Determine which contact this message belongs to
-            // Check if the message is sent to a contact group
-            const isGroupMessage = contactGroupsRef.current.some(
-                (group) => group._id === message.toUserId,
-            );
-
-            const contactId = isGroupMessage
-                ? message.toUserId // Group message: use the group ID
-                : message.fromUserId === userIdRef.current
-                  ? message.toUserId // I sent it: use recipient ID
-                  : message.fromUserId; // Someone sent to me: use sender ID
-
-            // Always update cache
-            const cached = messagesCache.current.get(contactId) ?? [];
-            messagesCache.current.set(contactId, [...cached, message]);
-
-            // Update display if viewing that contact
-            if (selectedContactRef.current?._id === contactId) {
-                setMessages((prev) => [...prev, message]);
-                messageService.setMessageRead(message._id);
-            }
-        }
-
-        function handleMessageRead(msgId: string) {
-            setMessages((prevState) => {
-                const nowReadMsgIdx = prevState.findIndex((msg) => {
-                    return (
-                        msg._id === msgId ||
-                        msg._id.startsWith(MessageAddons.TEMP_PREFIX)
-                    );
-                });
-                if (!prevState[nowReadMsgIdx]) {
-                    return prevState;
-                }
-                prevState[nowReadMsgIdx] = {
-                    ...prevState[nowReadMsgIdx],
-                    read: true,
-                };
-                return [...prevState];
-            });
-        }
-
-        socket.on(SocketMessageTypes.message, addMessage);
-        socket.on(SocketMessageTypes.messageRead, handleMessageRead);
-
-        return () => {
-            socket.off(SocketMessageTypes.message, addMessage);
-            socket.off(SocketMessageTypes.messageRead, handleMessageRead);
-        };
-    }, [socket, setMessages, messageService]);
+    useMessageCache();
 
     return selectedContact ? (
         <div className={"h-screen w-full overflow-y-scroll"}>

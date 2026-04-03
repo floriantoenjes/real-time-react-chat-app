@@ -103,6 +103,11 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
                         return;
                     }
 
+                    // TODO: If-statement currently used for local development
+                    if (!PEERJS_SERVER_HOST || !PEERJS_SERVER_PORT) {
+                        return;
+                    }
+
                     const newPeer = new Peer(user.username, {
                         host: PEERJS_SERVER_HOST,
                         port: +PEERJS_SERVER_PORT,

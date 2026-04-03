@@ -5,7 +5,7 @@ import {
     PaperAirplaneIcon,
     PlusIcon,
 } from "@heroicons/react/24/outline";
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useMemo, useRef, useState } from "react";
 import { checkEnterPressed, useHandleInputChange } from "../../../helpers";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
@@ -33,10 +33,6 @@ export function SendMessageBar(props: {
     const [user] = useUserContext();
     const [messages, setMessages] = useContext(MessageContext);
     const messageService = useDiContext().MessageService;
-
-    useEffect(() => {
-        console.log(messages);
-    }, [messages]);
 
     const recorder = useMemo(
         () =>
