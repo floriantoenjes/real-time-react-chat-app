@@ -215,6 +215,10 @@ type RootTranslation = {
 	 * S​h​o​w​ ​I​m​a​g​e
 	 */
 	SHOW_IMAGE: string
+	/**
+	 * i​s​ ​t​y​p​i​n​g​.​.​.
+	 */
+	IS_TYPING: string
 }
 
 export type TranslationFunctions = {
@@ -416,6 +420,10 @@ export type TranslationFunctions = {
 	 * Show Image
 	 */
 	SHOW_IMAGE: () => LocalizedString
+	/**
+	 * is typing...
+	 */
+	IS_TYPING: () => LocalizedString
 }
 
 export type Formatters = {}

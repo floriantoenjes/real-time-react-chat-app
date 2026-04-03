@@ -102,8 +102,7 @@ export function Message(props: { msg: MessageModel; user: User }) {
     }
 
     function getMessageDate(msg: MessageModel) {
-        // TODO: check the msg.at type
-        return DateTime.fromISO(msg.at).toFormat("HH:mm");
+        return DateTime.fromJSDate(msg.at).toFormat("HH:mm");
     }
 
     function getAudioDuration(msg: MessageModel) {

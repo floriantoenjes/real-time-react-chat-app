@@ -19,6 +19,9 @@ export class ContactGroupEntity implements ContactGroup {
 
     @Prop({ required: true, default: () => new Date() })
     createdAt!: Date;
+
+    @Prop({ required: true })
+    isAccepted: boolean = false; // TODO: Don't use isAccepted here!
 }
 
 export const ContactGroupSchema =

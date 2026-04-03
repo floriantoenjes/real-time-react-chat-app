@@ -7,12 +7,15 @@ import { OnlineStatusService } from './online-status.service';
 import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
 import { ContactNotFoundException } from '../errors/internal/contact-not-found.exception';
 import { ContactAlreadyExistsException } from '../errors/internal/contact-already-exists.exception';
+import { ContactRequestEntity } from '../schemas/contact-request.schema';
 
 @Injectable()
 export class ContactService {
     private readonly logger = new Logger(ContactService.name);
 
     constructor(
+        @InjectModel(ContactRequestEntity.name)
+        private contactRequestModel: Model<ContactRequestEntity>,
         private readonly onlineStatusService: OnlineStatusService,
         @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
     ) {}
@@ -93,6 +96,7 @@ export class ContactService {
             _id: newContactId,
             name: contact.username,
             avatarFileName: contact.avatarFileName,
+            isAccepted: true,
         } as Contact;
 
         const contactAlreadyExists = user.contacts.find(
@@ -109,6 +113,12 @@ export class ContactService {
         user.markModified('contacts');
 
         await user.save();
+
+        await this.contactRequestModel.create({
+            initiatorId: userId,
+            targetUserId: newContactId,
+            sentAt: new Date(),
+        });
 
         return {
             status: 201 as const,

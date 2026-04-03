@@ -55,6 +55,7 @@ const de = {
     MIN_LENGTH: "Mindestlänge sind",
     CHARACTERS: "Zeichen",
     SHOW_IMAGE: "Bild anzeigen",
+    IS_TYPING: "schreibt...",
 } satisfies Translation;
 
 export default de;

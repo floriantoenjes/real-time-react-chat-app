@@ -12,6 +12,7 @@ export const ContactGroupSchema = z.object({
     avatarBase64: z.any().optional(),
     createdBy: z.string(),
     createdAt: z.coerce.date(),
+    isAccepted: z.boolean(),
 });
 
 export type ContactGroup = z.infer<typeof ContactGroupSchema>;

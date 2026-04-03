@@ -6,7 +6,7 @@ export class UserService {
     constructor(private clientService: ClientService) {}
 
     async getUsers() {
-        const res = await this.clientService.getClient(userContract).getAll();
+        const res = await this.clientService.getClient(userContract).getAll({});
 
         if (res.status === 200) {
             return res.body;
@@ -28,13 +28,17 @@ export class UserService {
     }
 
     async signOut() {
-        const res = await this.clientService.getClient(userContract).signOut();
+        const res = await this.clientService
+            .getClient(userContract)
+            .signOut({});
 
         return res.status === 204;
     }
 
     async refresh(): Promise<{ user: User } | false> {
-        const res = await this.clientService.getClient(userContract).refresh();
+        const res = await this.clientService
+            .getClient(userContract)
+            .refresh({});
 
         if (res.status === 200) {
             return res.body;
@@ -81,7 +85,7 @@ export class UserService {
         const res = await this.clientService
             .getClient(userContract)
             .uploadAvatar({
-                // @ts-expect-error The params after "file" are expected to be numbers here (ts-rest issue)
+                // The params after "file" are expected to be numbers here (ts-rest issue)
                 body: { avatar: file, x, y, width, height },
             });
 

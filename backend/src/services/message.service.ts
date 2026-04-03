@@ -149,21 +149,39 @@ export class MessageService {
             type: type,
         };
 
-        const user = await this.userModel
+        const sender = await this.userModel
             .findById(fromUserId)
             .select('+password');
-        if (!user) {
+        if (!sender) {
             this.logger.warn(
                 `Send message failed: sender ${fromUserId} not found`,
             );
             throw new UserNotFoundException();
         }
+        const receiver = await this.userModel
+            .findById(toUserId)
+            .select('+password');
+        if (!receiver) {
+            throw new UserNotFoundException();
+        }
+
         const newlyCreatedMessage = await this.messageModel.create(newMessage);
 
         const contactGroup = await this.getContactGroup(toUserId);
-        const isContact = !contactGroup;
+        const isNotContactGroup = !contactGroup;
 
-        if (isContact) {
+        if (isNotContactGroup) {
+            if (isNotContactGroup) {
+                void this.autoAddSenderToReceiverContacts(fromUserId, toUserId);
+            }
+
+            if (
+                !receiver.contacts.find((contact) => contact._id === fromUserId)
+                    ?.isAccepted
+            ) {
+                return { status: 200 as const, body: newlyCreatedMessage };
+            }
+
             this.emitMessageViaWebSocket(toUserId, newlyCreatedMessage);
         }
 
@@ -176,27 +194,20 @@ export class MessageService {
             }
         }
 
-        const userContact = user.contacts.find((uc) => uc._id === toUserId);
+        const userContact = sender.contacts.find((uc) => uc._id === toUserId);
         if (userContact) {
             userContact.lastMessage = newlyCreatedMessage._id.toString();
-            user.markModified('contacts');
-            void user.save();
+            sender.markModified('contacts');
+            void sender.save();
         }
 
-        const receiver = await this.userModel
-            .findOne({ _id: toUserId })
-            .select('+password');
         const receiverContact = receiver?.contacts.find(
-            (c) => c._id === user._id.toString(),
+            (c) => c._id === sender._id.toString(),
         );
         if (receiver && receiverContact) {
             receiverContact.lastMessage = newlyCreatedMessage._id.toString();
             receiver.markModified('contacts');
             void receiver.save();
-        }
-
-        if (isContact) {
-            void this.autoAddSenderToReceiverContacts(fromUserId, toUserId);
         }
 
         return { status: 201 as const, body: newlyCreatedMessage };

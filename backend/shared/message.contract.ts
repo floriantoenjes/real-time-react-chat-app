@@ -14,7 +14,7 @@ export const MessageSchema = z.object({
     _id: z.string(),
     fromUserId: z.string(),
     toUserId: z.string(),
-    at: z.date(),
+    at: z.coerce.date(),
     message: z.string().max(4096),
     read: z.boolean().default(false),
     sent: z.boolean().default(true),

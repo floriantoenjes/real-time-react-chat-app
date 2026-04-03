@@ -46,12 +46,13 @@ export function ContactList(props: { nameFilter?: string }) {
     useEffect(() => {
         async function getUserContactMessages(userContact: UserContact) {
             if (userContact.lastMessage) {
-                const res = await messageService.getMessageById(
+                const message = await messageService.getMessageById(
                     userContact.lastMessage,
                 );
-                if (res.status === 200) {
-                    return res.body.message;
+                if (!message) {
+                    return;
                 }
+                return message;
             }
         }
 

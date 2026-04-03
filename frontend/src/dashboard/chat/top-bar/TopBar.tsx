@@ -213,7 +213,7 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
                 <div>
                     <p>{selectedContact.name}</p>
                     <Fade in={isTyping}>
-                        <p className={"text-xs absolute"}>is typing...</p>
+                        <p className={"text-xs absolute"}>{LL.IS_TYPING()}</p>
                     </Fade>
                 </div>
             </div>

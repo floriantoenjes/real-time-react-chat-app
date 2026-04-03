@@ -54,6 +54,7 @@ const en = {
     MIN_LENGTH: "Minimum length are",
     CHARACTERS: "characters",
     SHOW_IMAGE: "Show Image",
+    IS_TYPING: "is typing...",
 } satisfies BaseTranslation;
 
 export default en;

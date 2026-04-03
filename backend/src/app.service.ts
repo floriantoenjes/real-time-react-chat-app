@@ -14,6 +14,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { ContactGroupEntity } from './schemas/contact-group.schema';
 import { FileAccessEntity } from './schemas/file-access.schema';
+import { ContactRequestEntity } from './schemas/contact-request.schema';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
@@ -24,6 +25,8 @@ export class AppService implements OnApplicationBootstrap {
         private readonly cache: Cache,
         @InjectModel(ContactGroupEntity.name)
         private readonly contactGroupModel: Model<ContactGroupEntity>,
+        @InjectModel(ContactRequestEntity.name)
+        private readonly contactRequestModel: Model<ContactRequestEntity>,
         @InjectModel(FileAccessEntity.name)
         private readonly fileAccessModel: Model<FileAccessEntity>,
         @InjectModel(MessageEntity.name)
@@ -42,6 +45,10 @@ export class AppService implements OnApplicationBootstrap {
         this.logger.log('Deleting all users...');
         await this.userModel.deleteMany({});
         this.logger.log('All users have been deleted.');
+
+        this.logger.log('Deleting all contact requests...');
+        await this.contactRequestModel.deleteMany({});
+        this.logger.log('All contact requests have been deleted.');
 
         this.logger.log('Deleting all contact groups...');
         await this.contactGroupModel.deleteMany({});
@@ -95,6 +102,7 @@ export class AppService implements OnApplicationBootstrap {
                 _id: user2Doc._id.toString(),
                 name: user2.username,
                 avatarFileName: user2.avatarFileName,
+                isAccepted: true,
             },
         ];
         const user2Contacts: ContactEntity[] = [
@@ -102,6 +110,7 @@ export class AppService implements OnApplicationBootstrap {
                 _id: user1Doc._id.toString(),
                 name: user1.username,
                 avatarFileName: user1.avatarFileName,
+                isAccepted: true,
             },
         ];
         user1Doc.contacts = user1Contacts;

@@ -6,10 +6,14 @@ import { ContactsContext } from "../../shared/contexts/ContactsContext";
 import { SocketContext } from "../../shared/contexts/SocketContext";
 import { useUserContext } from "../../shared/contexts/UserContext";
 import { MessageContext } from "../../shared/contexts/MessageContext";
-import { Message } from "real-time-chat-backend/shared/message.contract";
+import {
+    Message,
+    MessageSchema,
+} from "real-time-chat-backend/shared/message.contract";
 import { useDiContext } from "../../shared/contexts/DiContext";
 import { MessageAddons } from "../../shared/enums/message";
 import { SocketMessageTypes } from "@t/socket-message-types.enum";
+import { ContactRequest } from "./contact-request/contact-request";
 
 export function Chat() {
     const [selectedContact] = useContext(ContactsContext).selectedContact;
@@ -87,6 +91,7 @@ export function Chat() {
         }
 
         function addMessage(message: Message) {
+            message = MessageSchema.parse(message);
             // Determine which contact this message belongs to
             // Check if the message is sent to a contact group
             const isGroupMessage = contactGroupsRef.current.some(
@@ -141,7 +146,10 @@ export function Chat() {
     return selectedContact ? (
         <div className={"h-screen w-full overflow-y-scroll"}>
             <TopBar selectedContact={selectedContact} />
-            <MainChat />
+            {!selectedContact.isAccepted && (
+                <ContactRequest selectedContact={selectedContact} />
+            )}
+            {selectedContact.isAccepted && <MainChat />}
             <SendMessageBar selectedContact={selectedContact} />
         </div>
     ) : (

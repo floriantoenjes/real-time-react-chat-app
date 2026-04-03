@@ -41,6 +41,12 @@ import {
     FileAccessEntity,
     FileAccessSchema,
 } from './schemas/file-access.schema';
+import { ContactRequestService } from './services/contact-request.service';
+import {
+    ContactRequestEntity,
+    ContactRequestSchema,
+} from './schemas/contact-request.schema';
+import { ContactRequestController } from './controllers/contact-request.controller';
 
 @Module({
     imports: [
@@ -60,6 +66,7 @@ import {
         }),
         MongooseModule.forFeature([
             { name: ContactGroupEntity.name, schema: ContactGroupSchema },
+            { name: ContactRequestEntity.name, schema: ContactRequestSchema },
             { name: FileAccessEntity.name, schema: FileAccessSchema },
             { name: MessageEntity.name, schema: MessageSchema },
             { name: UserEntity.name, schema: UserSchema },
@@ -90,6 +97,7 @@ import {
         AppController,
         ContactController,
         ContactGroupController,
+        ContactRequestController,
         CoturnController,
         FileController,
         LoggingController,
@@ -100,6 +108,7 @@ import {
         AppService,
         ContactService,
         ContactGroupService,
+        ContactRequestService,
         MessageService,
         ObjectStorageService,
         OnlineStatusService,

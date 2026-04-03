@@ -9,6 +9,8 @@ export class ContactEntity implements Contact {
     lastMessage?: string;
 
     avatarFileName?: string;
+
+    isAccepted = false;
 }
 
 export const ContactSchema = SchemaFactory.createForClass(ContactEntity);

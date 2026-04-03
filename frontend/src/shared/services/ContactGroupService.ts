@@ -5,12 +5,12 @@ export class ContactGroupService {
     constructor(private readonly clientService: ClientService) {}
 
     async getContactGroups(): Promise<ContactGroup[]> {
-        const messages = await this.clientService
+        const result = await this.clientService
             .getClient(contactGroupContract)
-            .getContactGroups();
+            .getContactGroups({});
 
-        if (messages.status === 200) {
-            return messages.body;
+        if (result.status === 200) {
+            return result.body;
         }
 
         return [];
@@ -59,7 +59,7 @@ export class ContactGroupService {
     async getLeftGroups(): Promise<ContactGroup[]> {
         const result = await this.clientService
             .getClient(contactGroupContract)
-            .getLeftGroups();
+            .getLeftGroups({});
 
         if (result.status === 200) {
             return result.body;

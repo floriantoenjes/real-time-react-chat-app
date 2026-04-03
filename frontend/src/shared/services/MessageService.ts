@@ -1,29 +1,37 @@
-import { Message, messageContract } from "@t/message.contract";
+import { Message, messageContract, MessageSchema } from "@t/message.contract";
 import { ClientService } from "./ClientService";
 
 export class MessageService {
     constructor(private readonly clientService: ClientService) {}
 
     async getMessageById(messageId: string) {
-        return this.clientService.getClient(messageContract).getMessageById({
-            body: {
-                messageId,
-            },
-        });
+        const res = await this.clientService
+            .getClient(messageContract)
+            .getMessageById({
+                body: {
+                    messageId,
+                },
+            });
+
+        if (res.status !== 200) {
+            return false;
+        }
+
+        return MessageSchema.parse(res.body.message);
     }
 
     async getMessages(contactId: string) {
-        const messages = await this.clientService
+        const res = await this.clientService
             .getClient(messageContract)
             .getMessages({
                 body: { contactId },
             });
 
-        if (messages.status !== 200) {
+        if (res.status !== 200) {
             return false;
         }
 
-        return messages.body;
+        return MessageSchema.array().parse(res.body);
     }
 
     async deleteMessages(toUserId: string) {
@@ -35,14 +43,24 @@ export class MessageService {
         }
     }
 
-    sendMessage(message: string, contactId: string, type: Message["type"]) {
-        return this.clientService.getClient(messageContract).sendMessage({
-            body: {
-                toUserId: contactId,
-                message,
-                type,
-            },
-        });
+    async sendMessage(
+        message: string,
+        contactId: string,
+        type: Message["type"],
+    ) {
+        const res = await this.clientService
+            .getClient(messageContract)
+            .sendMessage({
+                body: {
+                    toUserId: contactId,
+                    message,
+                    type,
+                },
+            });
+        if (res.status !== 201) {
+            return false;
+        }
+        return MessageSchema.parse(res.body);
     }
 
     setMessageRead(msgId: string) {

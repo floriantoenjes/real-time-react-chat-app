@@ -5,7 +5,7 @@ import {
     PaperAirplaneIcon,
     PlusIcon,
 } from "@heroicons/react/24/outline";
-import React, { useContext, useMemo, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { checkEnterPressed, useHandleInputChange } from "../../../helpers";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { MessageContext } from "../../../shared/contexts/MessageContext";
@@ -33,6 +33,10 @@ export function SendMessageBar(props: {
     const [user] = useUserContext();
     const [messages, setMessages] = useContext(MessageContext);
     const messageService = useDiContext().MessageService;
+
+    useEffect(() => {
+        console.log(messages);
+    }, [messages]);
 
     const recorder = useMemo(
         () =>
@@ -85,7 +89,7 @@ export function SendMessageBar(props: {
             },
         ]);
 
-        const res = await messageService.sendMessage(
+        const messageObj = await messageService.sendMessage(
             message,
             selectedContact._id,
             type,
@@ -95,8 +99,8 @@ export function SendMessageBar(props: {
             const contact = prevState.find(
                 (c) => c._id === selectedContact._id,
             );
-            if (contact && res.status === 201) {
-                contact.lastMessage = res.body._id;
+            if (contact && messageObj) {
+                contact.lastMessage = messageObj._id;
 
                 return [...prevState];
             }
@@ -104,7 +108,7 @@ export function SendMessageBar(props: {
             return prevState;
         });
 
-        if (res.status === 201) {
+        if (messageObj) {
             setMessages((prevState) => {
                 const msgIdx = prevState.findIndex(
                     (msg) =>
@@ -112,7 +116,7 @@ export function SendMessageBar(props: {
                         msg.toUserId === messageToSend.toUserId &&
                         msg.message === messageToSend.message,
                 );
-                prevState[msgIdx] = res.body;
+                prevState[msgIdx] = messageObj;
 
                 return [...prevState];
             });

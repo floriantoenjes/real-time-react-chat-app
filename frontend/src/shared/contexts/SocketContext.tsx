@@ -75,6 +75,7 @@ function initializeWebSocket(
             LL.WS_CONNECTION_LOST(),
             SnackbarLevels.WARNING,
         );
+        clearInterval(socketReconnectInterval);
         socketReconnectInterval = setInterval(() => {
             if (throttled) {
                 return;
