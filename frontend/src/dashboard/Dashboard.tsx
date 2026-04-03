@@ -1,7 +1,6 @@
 import "./Dashboard.css";
-import React from "react";
+import React, { useContext } from "react";
 import { Navigate } from "react-router-dom";
-import { User } from "real-time-chat-backend/shared/user.contract";
 import { RoutesEnum } from "../shared/enums/routes";
 import { MessageProvider } from "../shared/contexts/MessageContext";
 import { Sidebar } from "./sidebar/Sidebar";
@@ -9,9 +8,12 @@ import { Chat } from "./chat/Chat";
 import { PeerProvider } from "../shared/contexts/PeerContext";
 import { OnlineStatusProvider } from "../shared/contexts/OnlineStatusContext";
 import { ContactsProvider } from "../shared/contexts/ContactsContext";
+import { UserContext } from "../shared/contexts/UserContext";
 
-export function Dashboard(props: { loggedInUser?: User }) {
-    if (!props.loggedInUser) {
+export function Dashboard() {
+    const [loggedInUser] = useContext(UserContext);
+
+    if (!loggedInUser) {
         return <Navigate to={RoutesEnum.LOGIN} />;
     }
 

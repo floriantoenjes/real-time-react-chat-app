@@ -20,18 +20,13 @@ import { Locales } from "../i18n/i18n-types";
 
 function setPasswordStrengthOptions(locale: Locales) {
     const options = {
-        // recommended
         dictionary: {
             ...zxcvbnCommonPackage.dictionary,
             ...zxcvbnEnPackage.dictionary,
-            // recommended the language of the country that the user will be in
             ...zxcvbnDePackage.dictionary,
         },
-        // recommended
         graphs: zxcvbnCommonPackage.adjacencyGraphs,
-        // recommended
         useLevenshteinDistance: true,
-        // optional
         translations:
             locale === "en"
                 ? zxcvbnEnPackage.translations
