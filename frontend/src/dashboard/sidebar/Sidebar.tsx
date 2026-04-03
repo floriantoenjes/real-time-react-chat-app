@@ -6,7 +6,6 @@ import { ContactList } from "./contact-list/ContactList";
 
 export function Sidebar() {
     const contactsContext = useContext(ContactsContext);
-
     const [selectedContact] = contactsContext.selectedContact;
 
     const [nameFilter, setNameFilter] = useState<string | undefined>();

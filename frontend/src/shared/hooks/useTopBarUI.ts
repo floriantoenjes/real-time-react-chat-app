@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { MouseEvent } from "react";
+import React, { MouseEvent, useState } from "react";
 
 /**
  * Custom hook for managing TopBar UI state (menu and drawer)
