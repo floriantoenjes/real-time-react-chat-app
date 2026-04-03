@@ -37,10 +37,3 @@ export const contactRequestContract = c.router({
         summary: 'Respond to a contact request',
     },
 });
-
-/*
-1. Unconfirmed contact sends message to other user
-2. This creates a contact request for this case
-3. Other user sees the contact request and can accept or decline
-4. Until acceptance no messages can be send to the other user
- */
