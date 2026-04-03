@@ -14,9 +14,11 @@ export function Chat() {
     return selectedContact ? (
         <div className={"h-screen w-full overflow-y-scroll"}>
             <TopBar selectedContact={selectedContact} />
-            selectedContact.isAccepted ?
-            <MainChat /> :
-            <ContactRequest selectedContact={selectedContact} />
+            {selectedContact.isAccepted ? (
+                <MainChat />
+            ) : (
+                <ContactRequest selectedContact={selectedContact} />
+            )}
             <SendMessageBar selectedContact={selectedContact} />
         </div>
     ) : (
