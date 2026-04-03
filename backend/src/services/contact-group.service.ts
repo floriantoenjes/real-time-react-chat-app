@@ -174,6 +174,7 @@ export class ContactGroupService {
             name: name,
             createdBy: userId,
             createdAt: new Date(),
+            isAccepted: true, // TODO: have a look if this needs to be changed
         });
 
         const groupId = newContactGroup._id.toString();
