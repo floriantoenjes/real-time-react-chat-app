@@ -89,7 +89,7 @@ function App() {
                                 />
                                 <Route
                                     path={RoutesEnum.DASHBOARD}
-                                    element={<Dashboard user={user} />}
+                                    element={<Dashboard loggedInUser={user} />}
                                 />
                             </Routes>
                             <SnackbarWrapper />

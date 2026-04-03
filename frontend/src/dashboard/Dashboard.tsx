@@ -10,9 +10,8 @@ import { PeerProvider } from "../shared/contexts/PeerContext";
 import { OnlineStatusProvider } from "../shared/contexts/OnlineStatusContext";
 import { ContactsProvider } from "../shared/contexts/ContactsContext";
 
-export function Dashboard(props: { user?: User }) {
-    const isLoggedIn = props.user;
-    if (!isLoggedIn) {
+export function Dashboard(props: { loggedInUser?: User }) {
+    if (!props.loggedInUser) {
         return <Navigate to={RoutesEnum.LOGIN} />;
     }
 
