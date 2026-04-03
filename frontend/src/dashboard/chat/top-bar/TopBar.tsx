@@ -6,190 +6,50 @@ import {
     VideoCameraIcon,
 } from "@heroicons/react/24/outline";
 import { Drawer, Fade, IconButton, Menu, MenuItem } from "@mui/material";
-import React, {
-    MouseEvent,
-    useContext,
-    useEffect,
-    useEffectEvent,
-    useState,
-} from "react";
+import React, { useContext } from "react";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { useOnlineStatus } from "../../../shared/contexts/OnlineStatusContext";
 import { useUserContext } from "../../../shared/contexts/UserContext";
-import { MessageContext } from "../../../shared/contexts/MessageContext";
+import { PeerContext } from "../../../shared/contexts/PeerContext";
+import { useI18nContext } from "../../../i18n/i18n-react";
 import { Contact } from "real-time-chat-backend/shared/contact.contract";
 import { ChevronLeftIcon } from "@heroicons/react/16/solid";
-import { useDiContext } from "../../../shared/contexts/DiContext";
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
-import { PeerContext } from "../../../shared/contexts/PeerContext";
-import { SocketContext } from "../../../shared/contexts/SocketContext";
-import {
-    SnackbarLevels,
-    snackbarService,
-} from "../../../shared/contexts/SnackbarContext";
-import { useI18nContext } from "../../../i18n/i18n-react";
-import { SocketMessageTypes } from "@t/socket-message-types.enum";
+import { useTypingIndicator } from "../../../shared/hooks/useTypingIndicator";
+import { useContactActions } from "../../../shared/hooks/useContactActions";
+import { useTopBarUI } from "../../../shared/hooks/useTopBarUI";
 import { ContactGroup } from "@t/contact-group.contract";
 
 export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
     const { LL } = useI18nContext();
     const [user] = useUserContext();
-    const [contacts, setContacts] = useContext(ContactsContext).contacts;
-    const [contactGroups, setContactGroups] =
-        useContext(ContactsContext).contactGroups;
-    const selectedContact = props.selectedContact;
-    const [, setSelectedContact] = useContext(ContactsContext).selectedContact;
     const { contactsOnlineStatus } = useOnlineStatus();
-    const [, setMessages] = useContext(MessageContext);
     const { startCall } = useContext(PeerContext);
-    const [socket] = useContext(SocketContext);
+    const [, setSelectedContact] = useContext(ContactsContext).selectedContact;
 
-    const {
-        ContactService: contactService,
-        ContactGroupService: contactGroupService,
-        MessageService: messageService,
-    } = useDiContext();
-
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const open = Boolean(anchorEl);
-    const [, setAnchorElDrawer] = useState<null | HTMLElement>(null);
-    const [state, setState] = useState(false);
-    const [isTyping, setIsTyping] = useState<boolean>(false);
-
+    const selectedContact = props.selectedContact;
     const isAContactGroup = "memberIds" in selectedContact;
 
-    const onTyping = useEffectEvent(
-        (body: { userId: string; isTyping: boolean }) => {
-            if (body.userId === selectedContact._id) {
-                setIsTyping(body.isTyping);
-                setTimeout(() => {
-                    setIsTyping(false);
-                }, 5000);
-            }
-        },
-    );
+    // Use custom hooks for separated concerns
+    const { isTyping } = useTypingIndicator(selectedContact._id);
+    const { emptyChat, deleteChat, leaveGroup } = useContactActions();
+    const { anchorEl, open, state, handleClick, handleClose, toggleDrawer } =
+        useTopBarUI();
 
-    useEffect(() => {
-        if (!socket) {
-            return;
-        }
-        socket.on(SocketMessageTypes.typing, onTyping);
-        return () => {
-            socket.off(SocketMessageTypes.typing, onTyping);
-        };
-    }, [socket]);
-
-    function emptyChat() {
-        messageService.deleteMessages(selectedContact._id).then((result) => {
-            if (result === false) {
-                snackbarService.showSnackbar(
-                    LL.ERROR.COULD_NOT_DELETE_CHAT_MESSAGES(),
-                    SnackbarLevels.ERROR,
-                );
-                return;
-            }
-            snackbarService.showSnackbar(
-                LL.CHAT_MESSAGES_DELETED(),
-                SnackbarLevels.SUCCESS,
-            );
-            setMessages([]);
-            handleClose();
-        });
-    }
-
-    async function deleteChat() {
-        deleteChatMessages(selectedContact).then(() =>
-            deleteChatContact(selectedContact),
-        );
-    }
-
-    async function leaveGroup() {
-        if (!isAContactGroup) {
-            return;
-        }
-
-        const leaveResult = await contactGroupService.leaveContactGroup(
-            selectedContact._id,
-        );
-
-        if (!leaveResult) {
-            snackbarService.showSnackbar(
-                LL.ERROR.COULD_NOT_LEAVE_GROUP(),
-                SnackbarLevels.ERROR,
-            );
-            return;
-        }
-
-        setContactGroups(
-            contactGroups.filter((cg) => cg._id !== selectedContact._id),
-        );
-        setSelectedContact(undefined);
-
-        snackbarService.showSnackbar(
-            LL.GROUP_LEFT({ name: selectedContact.name }),
-            SnackbarLevels.SUCCESS,
-        );
+    // Handle contact actions with proper cleanup
+    const handleEmptyChat = async () => {
+        await emptyChat(selectedContact);
         handleClose();
-    }
-
-    async function deleteChatMessages(selectedContact: Contact | ContactGroup) {
-        await messageService.deleteMessages(selectedContact._id);
-    }
-
-    async function deleteChatContact(selectedContact: Contact | ContactGroup) {
-        const contactIsAGroup = "memberIds" in selectedContact;
-        if (contactIsAGroup) {
-            const deletionResult =
-                await contactGroupService.deleteContactGroup(selectedContact);
-            if (deletionResult) {
-                return;
-            }
-        } else {
-            const deletionRes =
-                await contactService.deleteContact(selectedContact);
-
-            if (deletionRes.status !== 204) {
-                return;
-            }
-        }
-
-        setContacts(
-            contacts.filter((cs: Contact) => cs._id !== selectedContact._id),
-        );
-        setContactGroups(
-            contactGroups.filter((cg) => cg._id !== selectedContact._id),
-        );
-        setSelectedContact(undefined);
-
-        snackbarService.showSnackbar(
-            LL.CONTACT_REMOVED({ name: selectedContact.name }),
-            SnackbarLevels.SUCCESS,
-        );
-    }
-
-    const handleCloseDrawer = () => {
-        setAnchorElDrawer(null);
     };
 
-    const toggleDrawer =
-        (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-            handleCloseDrawer();
-            if (
-                event?.type === "keydown" &&
-                ((event as React.KeyboardEvent).key === "Tab" ||
-                    (event as React.KeyboardEvent).key === "Shift")
-            ) {
-                return;
-            }
-
-            setState(open);
-        };
-
-    const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
+    const handleDeleteChat = async () => {
+        await deleteChat(selectedContact);
+        handleClose();
     };
-    const handleClose = () => {
-        setAnchorEl(null);
+
+    const handleLeaveGroup = async () => {
+        await leaveGroup(selectedContact);
+        handleClose();
     };
 
     return (
@@ -258,13 +118,15 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
                         "aria-labelledby": "basic-button",
                     }}
                 >
-                    <MenuItem onClick={emptyChat}>{LL.EMPTY_CHAT()}</MenuItem>
+                    <MenuItem onClick={handleEmptyChat}>
+                        {LL.EMPTY_CHAT()}
+                    </MenuItem>
                     {isAContactGroup ? (
-                        <MenuItem onClick={leaveGroup}>
+                        <MenuItem onClick={handleLeaveGroup}>
                             {LL.LEAVE_GROUP()}
                         </MenuItem>
                     ) : (
-                        <MenuItem onClick={deleteChat}>
+                        <MenuItem onClick={handleDeleteChat}>
                             {LL.DELETE_CHAT()}
                         </MenuItem>
                     )}
