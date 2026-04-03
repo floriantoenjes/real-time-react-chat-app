@@ -25,7 +25,10 @@ export function useContactActions() {
         MessageService: messageService,
     } = useDiContext();
 
-    async function emptyChat(selectedContact: Contact | ContactGroup) {
+    async function emptyChat(
+        selectedContact: Contact | ContactGroup,
+        callback?: () => void,
+    ) {
         const result = await messageService.deleteMessages(selectedContact._id);
         if (result === false) {
             snackbarService.showSnackbar(
@@ -39,6 +42,7 @@ export function useContactActions() {
             SnackbarLevels.SUCCESS,
         );
         setMessages([]);
+        callback?.();
         return true;
     }
 
@@ -78,12 +82,19 @@ export function useContactActions() {
         return true;
     }
 
-    async function deleteChat(selectedContact: Contact | ContactGroup) {
+    async function deleteChat(
+        selectedContact: Contact | ContactGroup,
+        callback?: () => void,
+    ) {
         await deleteChatMessages(selectedContact);
         await deleteChatContact(selectedContact);
+        callback?.();
     }
 
-    async function leaveGroup(selectedContact: Contact | ContactGroup) {
+    async function leaveGroup(
+        selectedContact: Contact | ContactGroup,
+        callback?: () => void,
+    ) {
         if (!("memberIds" in selectedContact)) {
             return false;
         }
@@ -109,6 +120,8 @@ export function useContactActions() {
             LL.GROUP_LEFT({ name: selectedContact.name }),
             SnackbarLevels.SUCCESS,
         );
+
+        callback?.();
         return true;
     }
 

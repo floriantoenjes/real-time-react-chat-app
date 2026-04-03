@@ -30,27 +30,10 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
     const selectedContact = props.selectedContact;
     const isAContactGroup = "memberIds" in selectedContact;
 
-    // Use custom hooks for separated concerns
     const { isTyping } = useTypingIndicator(selectedContact._id);
     const { emptyChat, deleteChat, leaveGroup } = useContactActions();
     const { anchorEl, open, state, handleClick, handleClose, toggleDrawer } =
         useTopBarUI();
-
-    // Handle contact actions with proper cleanup
-    const handleEmptyChat = async () => {
-        await emptyChat(selectedContact);
-        handleClose();
-    };
-
-    const handleDeleteChat = async () => {
-        await deleteChat(selectedContact);
-        handleClose();
-    };
-
-    const handleLeaveGroup = async () => {
-        await leaveGroup(selectedContact);
-        handleClose();
-    };
 
     return (
         <div
@@ -114,19 +97,29 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
                     anchorEl={anchorEl}
                     open={open}
                     onClose={handleClose}
-                    MenuListProps={{
-                        "aria-labelledby": "basic-button",
+                    slotProps={{
+                        list: { "aria-labelledby": "basic-button" },
                     }}
                 >
-                    <MenuItem onClick={handleEmptyChat}>
+                    <MenuItem
+                        onClick={() => emptyChat(selectedContact, handleClose)}
+                    >
                         {LL.EMPTY_CHAT()}
                     </MenuItem>
                     {isAContactGroup ? (
-                        <MenuItem onClick={handleLeaveGroup}>
+                        <MenuItem
+                            onClick={() =>
+                                leaveGroup(selectedContact, handleClose)
+                            }
+                        >
                             {LL.LEAVE_GROUP()}
                         </MenuItem>
                     ) : (
-                        <MenuItem onClick={handleDeleteChat}>
+                        <MenuItem
+                            onClick={() =>
+                                deleteChat(selectedContact, handleClose)
+                            }
+                        >
                             {LL.DELETE_CHAT()}
                         </MenuItem>
                     )}
