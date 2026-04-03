@@ -3,7 +3,7 @@ import { MainChat } from "./main-chat/MainChat";
 import { SendMessageBar } from "./send-message-bar/SendMessageBar";
 import { TopBar } from "./top-bar/TopBar";
 import { ContactsContext } from "../../shared/contexts/ContactsContext";
-import { ContactRequest } from "./contact-request/contact-request";
+import { ContactRequest } from "./contact-request/ContactRequest";
 import { useMessageCache } from "../../shared/hooks/useMessageCache";
 
 export function Chat() {
