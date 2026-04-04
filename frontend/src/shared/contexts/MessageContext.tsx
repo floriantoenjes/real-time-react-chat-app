@@ -2,6 +2,7 @@ import {
     createContext,
     Dispatch,
     ReactNode,
+    RefObject,
     SetStateAction,
     useContext,
     useEffect,
@@ -17,9 +18,21 @@ import { ContactsContext } from "./ContactsContext";
 import { useUserContext } from "./UserContext";
 import { MessageAddons } from "../enums/message";
 
-export const MessageContext = createContext<
-    [Message[], Dispatch<SetStateAction<Message[]>>]
->([[], () => {}]);
+export const MessageContext = createContext<{
+    messages: [Message[], Dispatch<SetStateAction<Message[]>>];
+    messageCache: RefObject<Map<string, Message[]>> | undefined;
+}>({ messages: [[], () => {}], messageCache: undefined });
+
+export function useMessageContext(): {
+    messages: [Message[], Dispatch<SetStateAction<Message[]>>];
+    messageCache: RefObject<Map<string, Message[]>>;
+} {
+    const { messages, messageCache } = useContext(MessageContext);
+    if (!messageCache) {
+        throw new Error("messageCache must be defined to use MessageContext!");
+    }
+    return { messages, messageCache };
+}
 
 export function MessageProvider({ children }: { children: ReactNode }) {
     const [messages, setMessages] = useState<Message[]>([]);
@@ -28,6 +41,7 @@ export function MessageProvider({ children }: { children: ReactNode }) {
     const [contactGroups] = useContext(ContactsContext).contactGroups;
     const [selectedContact] = useContext(ContactsContext).selectedContact;
     const messageService = useDiContext().MessageService;
+
     const messagesCache = useRef<Map<string, Message[]>>(new Map());
 
     const addMessage = useEffectEvent((message: Message) => {
@@ -43,10 +57,6 @@ export function MessageProvider({ children }: { children: ReactNode }) {
             : message.fromUserId === user._id
               ? message.toUserId // I sent it: use recipient ID
               : message.fromUserId; // Someone sent to me: use sender ID
-
-        // Always update cache
-        const cached = messagesCache.current.get(contactId) ?? [];
-        messagesCache.current.set(contactId, [...cached, message]);
 
         // Update display if viewing that contact
         if (selectedContact?._id === contactId) {
@@ -89,7 +99,12 @@ export function MessageProvider({ children }: { children: ReactNode }) {
     }, [socket, addMessage, handleMessageRead, selectedContact?._id]);
 
     return (
-        <MessageContext.Provider value={[messages, setMessages]}>
+        <MessageContext.Provider
+            value={{
+                messages: [messages, setMessages],
+                messageCache: messagesCache,
+            }}
+        >
             {children}
         </MessageContext.Provider>
     );

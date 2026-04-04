@@ -17,7 +17,7 @@ import { ContactGroup } from "@t/contact-group.contract";
  */
 export function useMessageSending(selectedContact: Contact | ContactGroup) {
     const [user] = useUserContext();
-    const [messages, setMessages] = useContext(MessageContext);
+    const [messages, setMessages] = useContext(MessageContext).messages;
     const [, setContacts] = useContext(ContactsContext).contacts;
     const messageService = useDiContext().MessageService;
     const [socket] = useContext(SocketContext);

@@ -5,7 +5,7 @@ import { Message } from "../../../shared/Message";
 
 export function MainChat() {
     const [user] = useUserContext();
-    const [messages] = useContext(MessageContext);
+    const [messages] = useContext(MessageContext).messages;
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView();

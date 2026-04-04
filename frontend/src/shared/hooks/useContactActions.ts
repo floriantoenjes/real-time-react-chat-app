@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { ContactsContext } from "../contexts/ContactsContext";
-import { MessageContext } from "../contexts/MessageContext";
+import { MessageContext, useMessageContext } from "../contexts/MessageContext";
 import { useDiContext } from "../contexts/DiContext";
 import { SnackbarLevels, snackbarService } from "../contexts/SnackbarContext";
 import { useI18nContext } from "../../i18n/i18n-react";
@@ -17,7 +17,8 @@ export function useContactActions() {
     const [contactGroups, setContactGroups] =
         useContext(ContactsContext).contactGroups;
     const [, setSelectedContact] = useContext(ContactsContext).selectedContact;
-    const [, setMessages] = useContext(MessageContext);
+    const [, setMessages] = useContext(MessageContext).messages;
+    const messageCache = useMessageContext().messageCache;
 
     const {
         ContactService: contactService,
@@ -48,6 +49,7 @@ export function useContactActions() {
 
     async function deleteChatMessages(selectedContact: Contact | ContactGroup) {
         await messageService.deleteMessages(selectedContact._id);
+        messageCache.current.delete(selectedContact._id);
     }
 
     async function deleteChatContact(selectedContact: Contact | ContactGroup) {

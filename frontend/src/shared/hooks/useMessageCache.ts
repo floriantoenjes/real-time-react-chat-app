@@ -1,7 +1,7 @@
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect } from "react";
 import { Message } from "@t/message.contract";
 import { ContactsContext } from "../contexts/ContactsContext";
-import { MessageContext } from "../contexts/MessageContext";
+import { MessageContext, useMessageContext } from "../contexts/MessageContext";
 import { useDiContext } from "../contexts/DiContext";
 
 /**
@@ -10,9 +10,9 @@ import { useDiContext } from "../contexts/DiContext";
  */
 export function useMessageCache() {
     const [selectedContact] = useContext(ContactsContext).selectedContact;
-    const [messages, setMessages] = useContext(MessageContext);
+    const [messages, setMessages] = useContext(MessageContext).messages;
     const messageService = useDiContext().MessageService;
-    const messagesCache = useRef<Map<string, Message[]>>(new Map());
+    const messagesCache = useMessageContext().messageCache;
 
     // Fetch messages - check cache first
     useEffect(() => {
