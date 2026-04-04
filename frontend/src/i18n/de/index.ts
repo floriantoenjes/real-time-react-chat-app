@@ -56,6 +56,9 @@ const de = {
     CHARACTERS: "Zeichen",
     SHOW_IMAGE: "Bild anzeigen",
     IS_TYPING: "schreibt...",
+    ACCEPT_CONTACT_QUESTION:
+        "Willst du {contactName} als Kontakt akzeptieren und weitere Nachrichten erhalten?",
+    CONTACT_ENABLED: "Kontakt {contactName} freigegeben",
 } satisfies Translation;
 
 export default de;

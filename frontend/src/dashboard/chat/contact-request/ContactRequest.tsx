@@ -9,6 +9,7 @@ import {
     SnackbarLevels,
     snackbarService,
 } from "../../../shared/contexts/SnackbarContext";
+import { useI18nContext } from "../../../i18n/i18n-react";
 
 interface ContactRequestProps {
     selectedContact?: Contact | ContactGroup;
@@ -19,6 +20,7 @@ export function ContactRequest({ selectedContact }: ContactRequestProps) {
     const [contactRequest, setContactRequest] = useState<ContactRequest>();
     const [, setContacts] = useContext(ContactsContext).contacts;
     const [, setSelectedContact] = useContext(ContactsContext).selectedContact;
+    const { LL } = useI18nContext();
 
     useEffect(() => {
         (async () => {
@@ -42,12 +44,13 @@ export function ContactRequest({ selectedContact }: ContactRequestProps) {
             className={"p-8 bg-orange-50 mb-16"}
             style={{ minHeight: "calc(100% - 146px)" }}
         >
-            {contactRequest !== undefined && (
+            {contactRequest !== undefined && selectedContact && (
                 <Card>
                     <CardContent>
                         <p>
-                            Do you want to accept {selectedContact?.name} as a
-                            contact for further messages?
+                            {LL.ACCEPT_CONTACT_QUESTION({
+                                contactName: selectedContact.name,
+                            })}
                         </p>
                     </CardContent>
                     <CardActions>
@@ -69,6 +72,12 @@ export function ContactRequest({ selectedContact }: ContactRequestProps) {
                                     contact.isAccepted = true;
                                     return [...prevState];
                                 });
+                                snackbarService.showSnackbar(
+                                    LL.CONTACT_ENABLED({
+                                        contactName: selectedContact.name,
+                                    }),
+                                    SnackbarLevels.SUCCESS,
+                                );
                             }}
                         >
                             Yes
@@ -96,7 +105,9 @@ export function ContactRequest({ selectedContact }: ContactRequestProps) {
                                 });
                                 setSelectedContact(undefined);
                                 snackbarService.showSnackbar(
-                                    `${selectedContact?.name} has been removed from contacts`,
+                                    LL.CONTACT_REMOVED({
+                                        name: selectedContact.name,
+                                    }),
                                     SnackbarLevels.SUCCESS,
                                 );
                             }}

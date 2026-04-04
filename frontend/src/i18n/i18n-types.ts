@@ -219,6 +219,16 @@ type RootTranslation = {
 	 * i​s​ ​t​y​p​i​n​g​.​.​.
 	 */
 	IS_TYPING: string
+	/**
+	 * D​o​ ​y​o​u​ ​w​a​n​t​ ​t​o​ ​a​c​c​e​p​t​ ​{​c​o​n​t​a​c​t​N​a​m​e​}​ ​a​s​ ​a​ ​c​o​n​t​a​c​t​ ​f​o​r​ ​f​u​r​t​h​e​r​ ​m​e​s​s​a​g​e​s​?
+	 * @param {unknown} contactName
+	 */
+	ACCEPT_CONTACT_QUESTION: RequiredParams<'contactName'>
+	/**
+	 * E​n​a​b​l​e​d​ ​{​c​o​n​t​a​c​t​N​a​m​e​}​ ​f​o​r​ ​f​u​r​t​h​e​r​ ​m​e​s​s​a​g​e​s
+	 * @param {unknown} contactName
+	 */
+	CONTACT_ENABLED: RequiredParams<'contactName'>
 }
 
 export type TranslationFunctions = {
@@ -424,6 +434,14 @@ export type TranslationFunctions = {
 	 * is typing...
 	 */
 	IS_TYPING: () => LocalizedString
+	/**
+	 * Do you want to accept {contactName} as a contact for further messages?
+	 */
+	ACCEPT_CONTACT_QUESTION: (arg: { contactName: unknown }) => LocalizedString
+	/**
+	 * Enabled {contactName} for further messages
+	 */
+	CONTACT_ENABLED: (arg: { contactName: unknown }) => LocalizedString
 }
 
 export type Formatters = {}

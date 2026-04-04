@@ -55,6 +55,9 @@ const en = {
     CHARACTERS: "characters",
     SHOW_IMAGE: "Show Image",
     IS_TYPING: "is typing...",
+    ACCEPT_CONTACT_QUESTION:
+        "Do you want to accept {contactName} as a contact for further messages?",
+    CONTACT_ENABLED: "Enabled {contactName} for further messages",
 } satisfies BaseTranslation;
 
 export default en;
