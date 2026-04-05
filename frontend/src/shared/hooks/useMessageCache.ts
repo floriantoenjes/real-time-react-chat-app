@@ -3,6 +3,19 @@ import { Message } from "@t/message.contract";
 import { ContactsContext } from "../contexts/ContactsContext";
 import { MessageContext, useMessageContext } from "../contexts/MessageContext";
 import { useDiContext } from "../contexts/DiContext";
+import { MessageService } from "../services/MessageService";
+
+function markMessagesReadAndEmit(
+    cached: Message[],
+    messageService: MessageService,
+) {
+    cached.forEach((msg) => {
+        if (!msg.read) {
+            messageService.setMessageRead(msg._id);
+            msg.read = true;
+        }
+    });
+}
 
 /**
  * Custom hook for managing message caching and fetching
@@ -29,12 +42,12 @@ export function useMessageCache() {
             const cached = messagesCache.current.get(contactId);
             if (cached) {
                 if (isCurrent) {
+                    markMessagesReadAndEmit(cached, messageService);
                     setMessages(cached);
                 }
                 return;
             }
 
-            // Fetch from API
             const fetchedMessages = await messageService.getMessages(contactId);
 
             if (!fetchedMessages) {

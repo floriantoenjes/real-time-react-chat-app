@@ -47,7 +47,6 @@ export function MessageProvider({ children }: { children: ReactNode }) {
     const addMessage = useEffectEvent((message: Message) => {
         message = MessageSchema.parse(message);
 
-        // Determine which contact this message belongs to
         const isGroupMessage = contactGroups.some(
             (group) => group._id === message.toUserId,
         );
@@ -62,6 +61,8 @@ export function MessageProvider({ children }: { children: ReactNode }) {
         if (selectedContact?._id === contactId) {
             setMessages((prev) => [...prev, message]);
             messageService.setMessageRead(message._id);
+        } else {
+            messagesCache.current.get(contactId)?.push(message);
         }
     });
 
@@ -70,7 +71,7 @@ export function MessageProvider({ children }: { children: ReactNode }) {
             const nowReadMsgIdx = prevState.findIndex((msg) => {
                 return (
                     msg._id === msgId ||
-                    msg._id.startsWith(MessageAddons.TEMP_PREFIX)
+                    msg._id.startsWith(MessageAddons.TEMP_PREFIX) // TODO: might be too unprecise at times
                 );
             });
             if (!prevState[nowReadMsgIdx]) {

@@ -41,7 +41,7 @@ export function useMessageSending(selectedContact: Contact | ContactGroup) {
         };
 
         // Add temporary message to UI
-        setMessages([
+        const updatedMessages = [
             ...messages,
             {
                 ...messageToSend,
@@ -50,8 +50,10 @@ export function useMessageSending(selectedContact: Contact | ContactGroup) {
                 read: false,
                 sent: false,
                 type,
-            },
-        ]);
+            } satisfies Message,
+        ];
+        const updatedMessageIndex = updatedMessages.length - 1;
+        setMessages(updatedMessages);
 
         // Send message via service
         const messageObj = await messageService.sendMessage(
@@ -75,13 +77,11 @@ export function useMessageSending(selectedContact: Contact | ContactGroup) {
         // Replace temporary message with real one
         if (messageObj) {
             setMessages((prevState) => {
-                const msgIdx = prevState.findIndex(
-                    (msg) =>
-                        msg.fromUserId === messageToSend.fromUserId &&
-                        msg.toUserId === messageToSend.toUserId &&
-                        msg.message === messageToSend.message,
-                );
-                prevState[msgIdx] = messageObj;
+                prevState[updatedMessageIndex] = {
+                    ...prevState[updatedMessageIndex],
+                    _id: messageObj._id,
+                    sent: messageObj.sent,
+                };
                 return [...prevState];
             });
         }
