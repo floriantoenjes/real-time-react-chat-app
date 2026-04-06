@@ -171,7 +171,7 @@ export class MessageService {
         const isNotContactGroup = !contactGroup;
 
         if (isNotContactGroup) {
-            void this.autoAddSenderToReceiverContacts(fromUserId, toUserId);
+            await this.autoAddSenderToReceiverContacts(fromUserId, toUserId);
 
             if (
                 receiver &&
@@ -188,7 +188,7 @@ export class MessageService {
             // Send to all members except the sender
             for (const memberId of contactGroup.memberIds) {
                 if (memberId !== fromUserId) {
-                    void this.autoAddSenderGroupToReceiverContactGroups(
+                    await this.autoAddSenderGroupToReceiverContactGroups(
                         contactGroup,
                         memberId,
                     );

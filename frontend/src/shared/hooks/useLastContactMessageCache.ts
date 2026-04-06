@@ -19,6 +19,9 @@ export function useLastContactMessageCache() {
     const contactsContext = useContext(ContactsContext);
 
     const [userContacts] = contactsContext.contacts;
+    const [userContactGroups] = contactsContext.contactGroups;
+
+    const userContactsAndGroups = userContacts.concat(userContactGroups);
 
     const [lastMessageCache, setLastMessageCache] = useState(
         new Map<MessageId, Message>(),
@@ -40,7 +43,7 @@ export function useLastContactMessageCache() {
             }
         }
 
-        for (const userContact of userContacts) {
+        for (const userContact of userContactsAndGroups) {
             if (
                 userContact.lastMessage &&
                 lastMessageCache.get(userContact.lastMessage)
@@ -65,7 +68,7 @@ export function useLastContactMessageCache() {
                 }
             });
         }
-    }, [userContacts]);
+    }, [userContacts, userContactGroups]);
 
     return { loaded, lastMessageCache };
 }
