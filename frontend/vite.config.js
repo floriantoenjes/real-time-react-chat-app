@@ -6,7 +6,15 @@ import tailwindcss from "@tailwindcss/vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [commonjs(), react(), tailwindcss()],
+    plugins: [
+        commonjs(),
+        react({
+            babel: {
+                plugins: ["babel-plugin-react-compiler"],
+            },
+        }),
+        tailwindcss(),
+    ],
     base: "/frontend/",
     // build: {
     //     sourcemap: "inline", // TODO: Comment out after debugging

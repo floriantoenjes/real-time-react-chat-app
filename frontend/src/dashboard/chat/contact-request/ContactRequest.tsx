@@ -72,6 +72,15 @@ export function ContactRequest({ selectedContact }: ContactRequestProps) {
                                     contact.isAccepted = true;
                                     return [...prevState];
                                 });
+                                setSelectedContact((prevState) => {
+                                    if (!prevState) {
+                                        return prevState;
+                                    }
+                                    return {
+                                        ...prevState,
+                                        isAccepted: true,
+                                    };
+                                });
                                 snackbarService.showSnackbar(
                                     LL.CONTACT_ENABLED({
                                         contactName: selectedContact.name,
