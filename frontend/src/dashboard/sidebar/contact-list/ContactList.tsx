@@ -58,7 +58,7 @@ export function ContactList(props: { nameFilter?: string }) {
         .map((contact) => {
             return (
                 <Contact
-                    key={contact.name}
+                    key={contact._id}
                     contact={contact}
                     selectedContact={selectedContact}
                     onContactSelect={() => setSelectedContact(contact)}

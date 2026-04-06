@@ -185,6 +185,12 @@ export class MessageService {
         }
 
         if (contactGroup) {
+            contactGroup.lastMessage = newlyCreatedMessage._id;
+            await this.contactGroupModel.updateOne(
+                { _id: contactGroup._id },
+                contactGroup,
+            );
+
             // Send to all members except the sender
             for (const memberId of contactGroup.memberIds) {
                 if (memberId !== fromUserId) {

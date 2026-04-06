@@ -10,6 +10,44 @@ import { SocketMessageTypes } from "@t/socket-message-types.enum";
 import { Contact } from "@t/contact.contract";
 import { ContactGroup } from "@t/contact-group.contract";
 
+function updateContactWithNewLastMessage(
+    setContacts: (
+        value: ((prevState: Contact[]) => Contact[]) | Contact[],
+    ) => void,
+    selectedContact: Contact,
+    messageObj: Message,
+) {
+    // Update contacts last message
+    setContacts((prevState) => {
+        const contact = prevState.find((c) => c._id === selectedContact._id);
+        if (contact && messageObj) {
+            contact.lastMessage = messageObj._id;
+            return [...prevState];
+        }
+        return prevState;
+    });
+}
+
+function updateContactGroupWithNewLastMessage(
+    setContactGroups: (
+        value: ((prevState: ContactGroup[]) => ContactGroup[]) | ContactGroup[],
+    ) => void,
+    selectedContact: Contact,
+    messageObj: Message,
+) {
+    // Update contact groups last message
+    setContactGroups((prevState) => {
+        const contactGroup = prevState.find(
+            (cg) => cg._id === selectedContact._id,
+        );
+        if (contactGroup && messageObj) {
+            contactGroup.lastMessage = messageObj._id;
+            return [...prevState];
+        }
+        return prevState;
+    });
+}
+
 /**
  * Custom hook for handling message sending functionality
  * @param selectedContact - The currently selected contact or contact group
@@ -19,6 +57,7 @@ export function useMessageSending(selectedContact: Contact | ContactGroup) {
     const [user] = useUserContext();
     const [messages, setMessages] = useContext(MessageContext).messages;
     const [, setContacts] = useContext(ContactsContext).contacts;
+    const [, setContactGroups] = useContext(ContactsContext).contactGroups;
     const messageService = useDiContext().MessageService;
     const [socket] = useContext(SocketContext);
     const [isTyping, setIsTyping] = useState<boolean>(false);
@@ -61,30 +100,33 @@ export function useMessageSending(selectedContact: Contact | ContactGroup) {
             selectedContact._id,
             type,
         );
+        if (!messageObj) {
+            return;
+        }
 
-        // Update contact's last message
-        setContacts((prevState) => {
-            const contact = prevState.find(
-                (c) => c._id === selectedContact._id,
+        if ("memberIds" in selectedContact) {
+            updateContactGroupWithNewLastMessage(
+                setContactGroups,
+                selectedContact,
+                messageObj,
             );
-            if (contact && messageObj) {
-                contact.lastMessage = messageObj._id;
-                return [...prevState];
-            }
-            return prevState;
-        });
+        } else {
+            updateContactWithNewLastMessage(
+                setContacts,
+                selectedContact,
+                messageObj,
+            );
+        }
 
         // Replace temporary message with real one
-        if (messageObj) {
-            setMessages((prevState) => {
-                prevState[updatedMessageIndex] = {
-                    ...prevState[updatedMessageIndex],
-                    _id: messageObj._id,
-                    sent: messageObj.sent,
-                };
-                return [...prevState];
-            });
-        }
+        setMessages((prevState) => {
+            prevState[updatedMessageIndex] = {
+                ...prevState[updatedMessageIndex],
+                _id: messageObj._id,
+                sent: messageObj.sent,
+            };
+            return [...prevState];
+        });
     }
 
     async function sendIsTyping() {
