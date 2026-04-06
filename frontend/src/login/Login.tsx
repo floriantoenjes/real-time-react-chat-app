@@ -45,7 +45,7 @@ export function Login() {
                 <form onSubmit={handleSubmit(signIn)} className="my-auto">
                     <div className="flex items-center">
                         <h4 className="text-center">{LL.SIGN_IN()}</h4>
-                        <div className={"ml-auto"}>
+                        <div id={"switch-locale-button"} className={"ml-auto"}>
                             {locale.toUpperCase()}
                             <IconButton
                                 onClick={() => setModalOpen(true)}
