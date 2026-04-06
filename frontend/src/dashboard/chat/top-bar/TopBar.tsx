@@ -1,7 +1,6 @@
 import { Avatar } from "../../../shared/Avatar";
 import {
     ChevronDownIcon,
-    MagnifyingGlassIcon,
     PhoneIcon,
     VideoCameraIcon,
 } from "@heroicons/react/24/outline";
@@ -79,9 +78,9 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
                 >
                     <PhoneIcon className={"w-6"} />
                 </IconButton>
-                <IconButton>
-                    <MagnifyingGlassIcon className={"w-6"} />
-                </IconButton>
+                {/*<IconButton> TODO: Implement later*/}
+                {/*    <MagnifyingGlassIcon className={"w-6"} />*/}
+                {/*</IconButton>*/}
                 <IconButton
                     id="basic-button"
                     name="chat-menu-button"

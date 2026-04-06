@@ -12,7 +12,7 @@ export class ContactGroupEntity implements ContactGroup {
     name!: string;
 
     @Prop()
-    lastMessage!: string;
+    lastMessage?: string;
 
     @Prop({ required: true })
     createdBy!: string;

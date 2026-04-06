@@ -18,6 +18,8 @@ import {
     ValidatedFile,
 } from '../utils/file-validation.util';
 import { FileAccessEntity } from '../schemas/file-access.schema';
+import { ContactGroupService } from './contact-group.service';
+import { ContactGroup } from '../../shared/contact-group.contract';
 
 @Injectable()
 export class MessageService {
@@ -26,6 +28,7 @@ export class MessageService {
     constructor(
         @InjectModel(ContactGroupEntity.name)
         private readonly contactGroupModel: Model<ContactGroupEntity>,
+        private readonly contactGroupService: ContactGroupService,
         private readonly contactService: ContactService,
         @InjectModel(FileAccessEntity.name)
         private readonly fileAccessModel: Model<FileAccessEntity>,
@@ -168,9 +171,7 @@ export class MessageService {
         const isNotContactGroup = !contactGroup;
 
         if (isNotContactGroup) {
-            if (isNotContactGroup) {
-                void this.autoAddSenderToReceiverContacts(fromUserId, toUserId);
-            }
+            void this.autoAddSenderToReceiverContacts(fromUserId, toUserId);
 
             if (
                 receiver &&
@@ -187,6 +188,11 @@ export class MessageService {
             // Send to all members except the sender
             for (const memberId of contactGroup.memberIds) {
                 if (memberId !== fromUserId) {
+                    void this.autoAddSenderGroupToReceiverContactGroups(
+                        contactGroup,
+                        memberId,
+                    );
+
                     this.emitMessageViaWebSocket(memberId, newlyCreatedMessage);
                 }
             }
@@ -302,6 +308,28 @@ export class MessageService {
         } catch (error) {
             this.logger.error(
                 `Failed to auto-add sender ${senderId} to receiver ${receiverId}'s contacts: ${error}`,
+            );
+        }
+    }
+
+    private async autoAddSenderGroupToReceiverContactGroups(
+        senderGroup: ContactGroup,
+        receiverId: string,
+    ): Promise<void> {
+        try {
+            senderGroup = (
+                await this.contactGroupService.computeGroupNamesForUser(
+                    [senderGroup],
+                    receiverId,
+                )
+            )[0];
+
+            this.gateway
+                .prepareSendMessage(receiverId)
+                ?.emit(SocketMessageTypes.contactGroupAutoAdded, senderGroup);
+        } catch (error) {
+            this.logger.error(
+                `Failed to auto-add sender group ${senderGroup._id} to receiver ${receiverId}'s contact groups: ${error}`,
             );
         }
     }

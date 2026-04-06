@@ -71,12 +71,32 @@ export function ContactsProvider({ children }: { children: ReactNode }) {
             });
         };
 
+        const handleContactGroupAutoAdded = (newContactGroup: ContactGroup) => {
+            setContactGroups((prevContactGroups) => {
+                const exists = prevContactGroups.some(
+                    (c) => c._id === newContactGroup._id,
+                );
+                if (exists) {
+                    return prevContactGroups;
+                }
+                return [...prevContactGroups, newContactGroup];
+            });
+        };
+
         socket.on(SocketMessageTypes.contactAutoAdded, handleContactAutoAdded);
+        socket.on(
+            SocketMessageTypes.contactGroupAutoAdded,
+            handleContactGroupAutoAdded,
+        );
 
         return () => {
             socket.off(
                 SocketMessageTypes.contactAutoAdded,
                 handleContactAutoAdded,
+            );
+            socket.off(
+                SocketMessageTypes.contactGroupAutoAdded,
+                handleContactGroupAutoAdded,
             );
         };
     }, [socket, setContacts]);

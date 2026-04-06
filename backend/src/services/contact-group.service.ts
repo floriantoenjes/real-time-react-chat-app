@@ -40,7 +40,7 @@ export class ContactGroupService {
     /**
      * Compute personalized group name for a user (excludes their own name)
      */
-    private async computeGroupNamesForUser(
+    public async computeGroupNamesForUser(
         groups: ContactGroupEntity[],
         userId: string,
     ): Promise<ContactGroup[]> {
