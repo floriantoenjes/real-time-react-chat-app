@@ -11,7 +11,7 @@ import { parse as parseCookie } from 'cookie';
 import { ContactService } from '../services/contact.service';
 import { User } from '../../shared/user.contract';
 import { JwtService } from '@nestjs/jwt';
-import { OnlineStatusService } from 'src/services/online-status.service';
+import { OnlineStatusService } from '../services/online-status.service';
 import { SocketMessageTypes } from '../../shared/socket-message-types.enum';
 import { WsConnectionThrottlerService } from '../services/ws-connection-throttler.service';
 import { WsConnectionThrottledException } from '../errors/ws/ws-connection-throttled.exception';

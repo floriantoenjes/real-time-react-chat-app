@@ -161,7 +161,8 @@ export class ContactService {
             _id: newContactId,
             name: contact.username,
             avatarFileName: contact.avatarFileName,
-        } as Contact;
+            isAccepted: false,
+        } satisfies Contact;
 
         user.contacts.push(newContact);
         user.markModified('contacts');

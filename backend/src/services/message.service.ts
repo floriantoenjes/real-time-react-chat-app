@@ -178,7 +178,7 @@ export class MessageService {
                 !receiver.contacts.find((contact) => contact._id === fromUserId)
                     ?.isAccepted
             ) {
-                return { status: 200 as const, body: newlyCreatedMessage };
+                return { status: 201 as const, body: newlyCreatedMessage };
             }
 
             this.emitMessageViaWebSocket(toUserId, newlyCreatedMessage);

@@ -56,6 +56,9 @@
     "devDependencies": {
         "@nestjs/schematics": "^11.0.9",
         "@nestjs/testing": "^11.1.12",
+        "@suites/di.nestjs": "^3.0.1",
+        "@suites/doubles.jest": "^3.0.1",
+        "@suites/unit": "^3.0.1",
         "@types/bcrypt": "^6.0.0",
         "@types/cookie": "^0.6.0",
         "@types/cookie-parser": "^1.4.10",
