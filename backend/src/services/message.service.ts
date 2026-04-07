@@ -20,6 +20,7 @@ import {
 import { FileAccessEntity } from '../schemas/file-access.schema';
 import { ContactGroupService } from './contact-group.service';
 import { ContactGroup } from '../../shared/contact-group.contract';
+import { ContactNotFoundException } from '../errors/internal/contact-not-found.exception';
 
 @Injectable()
 export class MessageService {
@@ -206,6 +207,8 @@ export class MessageService {
                     this.emitMessageViaWebSocket(memberId, newlyCreatedMessage);
                 }
             }
+        } else {
+            throw new ContactNotFoundException();
         }
 
         this.persistLastMessageForSender(sender, toUserId, newlyCreatedMessage);

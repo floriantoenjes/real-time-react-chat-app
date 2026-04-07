@@ -12,11 +12,15 @@ import { ContactService } from './contact.service';
 import { RealTimeChatGateway } from '../gateways/socket.gateway';
 import { Contact } from '../../shared/contact.contract';
 import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
+import { ContactGroup } from '../../shared/contact-group.contract';
+import { ContactGroupService } from './contact-group.service';
 
 describe('MessageService', () => {
     let messageService: MessageService;
 
     let contactService: Mocked<ContactService>;
+    let contactGroupService: Mocked<ContactGroupService>;
+    let contactGroupRepository: Mocked<Model<ContactGroupEntity>>;
     let messageRepository: Mocked<Model<MessageEntity>>;
     let userRepository: Mocked<Model<UserEntity>>;
 
@@ -27,6 +31,8 @@ describe('MessageService', () => {
     let testReceiver: User;
     const receiverMarkModifiedMock = jest.fn();
     const receiverSaveMock = jest.fn();
+
+    let testReceiverGroup: ContactGroup;
 
     const gatewayEmitMock = jest.fn();
 
@@ -54,23 +60,35 @@ describe('MessageService', () => {
                     },
                 })),
             }))
-            .mock(getModelToken(ContactGroupEntity.name))
-            .impl((stubFn) => ({
-                findOne: () => ({
-                    lean: stubFn().mockResolvedValue(null),
-                }),
-            }))
             .mock(RealTimeChatGateway)
             .impl(() => ({
                 prepareSendMessage: () => ({
                     emit: gatewayEmitMock,
                 }),
             }))
+            .mock(getModelToken(ContactGroupEntity.name))
+            .impl((stubFn) => ({
+                findOne: stubFn().mockImplementation((query: any) => {
+                    if (query._id === testReceiverGroup._id) {
+                        return {
+                            lean: stubFn().mockResolvedValue(testReceiverGroup),
+                        };
+                    }
+                    return {
+                        lean: stubFn().mockResolvedValue(null),
+                    };
+                }),
+                updateOne: stubFn().mockResolvedValue({}),
+            }))
             .compile();
 
         messageService = unit;
 
         contactService = unitRef.get(ContactService);
+        contactGroupService = unitRef.get(ContactGroupService);
+        contactGroupRepository = unitRef.get(
+            getModelToken(ContactGroupEntity.name),
+        );
         messageRepository = unitRef.get(getModelToken(MessageEntity.name));
         userRepository = unitRef.get(getModelToken(UserEntity.name));
     });
@@ -101,6 +119,15 @@ describe('MessageService', () => {
             isAccepted: true,
             name: testReceiver.username,
         });
+
+        testReceiverGroup = {
+            createdAt: new Date(),
+            createdBy: testSender._id,
+            isAccepted: true,
+            memberIds: [testSender._id, testReceiver._id],
+            name: 'testGroup1',
+            _id: 'groupId1',
+        };
 
         jest.clearAllMocks();
     });
@@ -231,6 +258,48 @@ describe('MessageService', () => {
             'contactAutoAdded',
             newContact,
         );
+        expect(gatewayEmitMock).toHaveBeenCalledWith('message', testMessage);
+    });
+
+    it('should send a message to a contact group and set last message on it', async () => {
+        const testMessage = {
+            _id: 'testMesssageId1',
+            message: 'test message',
+            read: false,
+            sent: false,
+            type: 'text',
+            fromUserId: testSender._id,
+            toUserId: testReceiverGroup._id,
+            at: new Date(),
+        } satisfies Message;
+
+        messageRepository.create.mockResolvedValue(testMessage as any);
+
+        contactGroupService.computeGroupNamesForUser.mockResolvedValue([
+            { ...testReceiverGroup, lastMessage: testMessage._id },
+        ]);
+
+        const result = await messageService.sendMessage(
+            testMessage.fromUserId,
+            testMessage.toUserId,
+            testMessage.message,
+            testMessage.type,
+        );
+
+        expect(result).toEqual({ status: 201, body: testMessage });
+        expect(userRepository.findById).toHaveBeenCalled();
+        expect(contactGroupRepository.findOne).toHaveBeenCalled();
+        expect(messageRepository.create).toHaveBeenCalled();
+
+        expect(receiverMarkModifiedMock).toHaveBeenCalledTimes(0);
+        expect(receiverSaveMock).toHaveBeenCalledTimes(0);
+        expect(testReceiverGroup.lastMessage).toEqual(testMessage._id);
+
+        expect(gatewayEmitMock).toHaveBeenCalledTimes(2);
+        expect(gatewayEmitMock).toHaveBeenCalledWith('contactGroupAutoAdded', {
+            ...testReceiverGroup,
+            lastMessage: testMessage._id,
+        });
         expect(gatewayEmitMock).toHaveBeenCalledWith('message', testMessage);
     });
 });
