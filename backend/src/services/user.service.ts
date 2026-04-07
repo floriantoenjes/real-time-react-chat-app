@@ -101,7 +101,7 @@ export class UserService {
                 this.logger.warn(
                     `Refresh failed: no refresh token provided and access token invalid`,
                 );
-                throw new UnauthorizedException();
+                throw new UnauthorizedException(error);
             }
 
             try {
@@ -115,17 +115,11 @@ export class UserService {
 
             const decodedJwt = this.jwtService.decode(refreshToken);
 
-            const refreshTokenFromDb = (
-                await this.userModel
-                    .findOne({
-                        username: decodedJwt.username,
-                    })
-                    .lean()
-            )?.refreshTokenEncrypted;
-
             const user = await this.findUserBy({
                 username: decodedJwt?.username,
             });
+            const refreshTokenFromDb = user?.refreshTokenEncrypted;
+
             if (!user) {
                 this.logger.warn(
                     `Refresh failed: user not found for username ${decodedJwt?.username}`,
