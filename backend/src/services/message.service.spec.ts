@@ -136,170 +136,183 @@ describe('MessageService', () => {
         expect(messageService).toBeDefined();
     });
 
-    it('should throw if sender does not exist', async () => {
-        const testMessage = {
-            _id: 'messageId1',
-            message: 'Test message.',
-            type: 'text',
-            fromUserId: 'NON EXISTENT ID',
-            toUserId: testReceiver._id,
-            at: new Date(),
-            read: false,
-            sent: false,
-        } satisfies Message;
+    describe('sendMessage', () => {
+        it('should throw if sender does not exist', async () => {
+            const testMessage = {
+                _id: 'messageId1',
+                message: 'Test message.',
+                type: 'text',
+                fromUserId: 'NON EXISTENT ID',
+                toUserId: testReceiver._id,
+                at: new Date(),
+                read: false,
+                sent: false,
+            } satisfies Message;
 
-        await expect(
-            async () =>
-                await messageService.sendMessage(
-                    testMessage.fromUserId,
-                    testMessage.toUserId,
-                    testMessage.message,
-                    testMessage.type,
-                ),
-        ).rejects.toThrow(UserNotFoundException);
-    });
-
-    it('should send a message and create contact request', async () => {
-        const testMessage = {
-            _id: 'messageId1',
-            message: 'Test message.',
-            type: 'text',
-            fromUserId: testSender._id,
-            toUserId: testReceiver._id,
-            at: new Date(),
-            read: false,
-            sent: false,
-        } satisfies Message;
-
-        const newContact = {
-            _id: testSender._id,
-            name: testSender.username,
-            avatarFileName: testSender.avatarFileName,
-            isAccepted: false,
-        } satisfies Contact;
-
-        messageRepository.create.mockResolvedValue(testMessage as any);
-        contactService.addContactIfNotExists.mockImplementationOnce(
-            async () => {
-                testReceiver.contacts.push(newContact);
-                return newContact;
-            },
-        );
-
-        const result = await messageService.sendMessage(
-            testMessage.fromUserId,
-            testMessage.toUserId,
-            testMessage.message,
-            testMessage.type,
-        );
-
-        expect(result).toEqual({ status: 201, body: testMessage });
-        expect(userRepository.findById).toHaveBeenCalled();
-        expect(messageRepository.create).toHaveBeenCalled();
-        expect(receiverMarkModifiedMock).not.toHaveBeenCalled();
-        expect(receiverSaveMock).not.toHaveBeenCalled();
-        expect(testSender.contacts[0].lastMessage).toEqual(testMessage._id);
-        expect(testReceiver.contacts).toHaveLength(1);
-        expect(gatewayEmitMock).toHaveBeenCalledTimes(1);
-        expect(gatewayEmitMock).toHaveBeenCalledWith(
-            'contactAutoAdded',
-            newContact,
-        );
-    });
-
-    it('should send a message and set last message on contact', async () => {
-        testReceiver.contacts.push({
-            _id: testSender._id,
-            name: testSender.username,
-            avatarFileName: testSender.avatarFileName,
-            isAccepted: true,
+            await expect(
+                async () =>
+                    await messageService.sendMessage(
+                        testMessage.fromUserId,
+                        testMessage.toUserId,
+                        testMessage.message,
+                        testMessage.type,
+                    ),
+            ).rejects.toThrow(UserNotFoundException);
         });
-        const testMessage = {
-            _id: 'messageId1',
-            message: 'Test message.',
-            type: 'text',
-            fromUserId: testSender._id,
-            toUserId: testReceiver._id,
-            at: new Date(),
-            read: false,
-            sent: false,
-        } satisfies Message;
 
-        messageRepository.create.mockResolvedValue(testMessage as any);
-        const newContact = {
-            _id: testSender._id,
-            name: testSender.username,
-            avatarFileName: testSender.avatarFileName,
-            isAccepted: false,
-        };
-        contactService.addContactIfNotExists.mockImplementationOnce(
-            async () => {
-                testReceiver.contacts.push(newContact);
-                return newContact;
-            },
-        );
+        it('should send a message and create contact request', async () => {
+            const testMessage = {
+                _id: 'messageId1',
+                message: 'Test message.',
+                type: 'text',
+                fromUserId: testSender._id,
+                toUserId: testReceiver._id,
+                at: new Date(),
+                read: false,
+                sent: false,
+            } satisfies Message;
 
-        const result = await messageService.sendMessage(
-            testMessage.fromUserId,
-            testMessage.toUserId,
-            testMessage.message,
-            testMessage.type,
-        );
+            const newContact = {
+                _id: testSender._id,
+                name: testSender.username,
+                avatarFileName: testSender.avatarFileName,
+                isAccepted: false,
+            } satisfies Contact;
 
-        expect(result).toEqual({ status: 201, body: testMessage });
-        expect(userRepository.findById).toHaveBeenCalled();
-        expect(messageRepository.create).toHaveBeenCalled();
-        expect(receiverMarkModifiedMock).toHaveBeenCalledTimes(1);
-        expect(receiverSaveMock).toHaveBeenCalledTimes(1);
-        expect(testSender.contacts[0].lastMessage).toEqual(testMessage._id);
-        expect(testReceiver.contacts[0].lastMessage).toEqual(testMessage._id);
-        expect(gatewayEmitMock).toHaveBeenCalledTimes(2);
-        expect(gatewayEmitMock).toHaveBeenCalledWith(
-            'contactAutoAdded',
-            newContact,
-        );
-        expect(gatewayEmitMock).toHaveBeenCalledWith('message', testMessage);
-    });
+            messageRepository.create.mockResolvedValue(testMessage as any);
+            contactService.addContactIfNotExists.mockImplementationOnce(
+                async () => {
+                    testReceiver.contacts.push(newContact);
+                    return newContact;
+                },
+            );
 
-    it('should send a message to a contact group and set last message on it', async () => {
-        const testMessage = {
-            _id: 'testMesssageId1',
-            message: 'test message',
-            read: false,
-            sent: false,
-            type: 'text',
-            fromUserId: testSender._id,
-            toUserId: testReceiverGroup._id,
-            at: new Date(),
-        } satisfies Message;
+            const result = await messageService.sendMessage(
+                testMessage.fromUserId,
+                testMessage.toUserId,
+                testMessage.message,
+                testMessage.type,
+            );
 
-        messageRepository.create.mockResolvedValue(testMessage as any);
-
-        contactGroupService.computeGroupNamesForUser.mockResolvedValue([
-            { ...testReceiverGroup, lastMessage: testMessage._id },
-        ]);
-
-        const result = await messageService.sendMessage(
-            testMessage.fromUserId,
-            testMessage.toUserId,
-            testMessage.message,
-            testMessage.type,
-        );
-
-        expect(result).toEqual({ status: 201, body: testMessage });
-        expect(userRepository.findById).toHaveBeenCalled();
-        expect(contactGroupRepository.findOne).toHaveBeenCalled();
-        expect(messageRepository.create).toHaveBeenCalled();
-
-        expect(receiverMarkModifiedMock).toHaveBeenCalledTimes(0);
-        expect(receiverSaveMock).toHaveBeenCalledTimes(0);
-        expect(testReceiverGroup.lastMessage).toEqual(testMessage._id);
-
-        expect(gatewayEmitMock).toHaveBeenCalledTimes(2);
-        expect(gatewayEmitMock).toHaveBeenCalledWith('contactGroupAutoAdded', {
-            ...testReceiverGroup,
-            lastMessage: testMessage._id,
+            expect(result).toEqual({ status: 201, body: testMessage });
+            expect(userRepository.findById).toHaveBeenCalled();
+            expect(messageRepository.create).toHaveBeenCalled();
+            expect(receiverMarkModifiedMock).not.toHaveBeenCalled();
+            expect(receiverSaveMock).not.toHaveBeenCalled();
+            expect(testSender.contacts[0].lastMessage).toEqual(testMessage._id);
+            expect(testReceiver.contacts).toHaveLength(1);
+            expect(gatewayEmitMock).toHaveBeenCalledTimes(1);
+            expect(gatewayEmitMock).toHaveBeenCalledWith(
+                'contactAutoAdded',
+                newContact,
+            );
         });
-        expect(gatewayEmitMock).toHaveBeenCalledWith('message', testMessage);
+
+        it('should send a message and set last message on contact', async () => {
+            testReceiver.contacts.push({
+                _id: testSender._id,
+                name: testSender.username,
+                avatarFileName: testSender.avatarFileName,
+                isAccepted: true,
+            });
+            const testMessage = {
+                _id: 'messageId1',
+                message: 'Test message.',
+                type: 'text',
+                fromUserId: testSender._id,
+                toUserId: testReceiver._id,
+                at: new Date(),
+                read: false,
+                sent: false,
+            } satisfies Message;
+
+            messageRepository.create.mockResolvedValue(testMessage as any);
+            const newContact = {
+                _id: testSender._id,
+                name: testSender.username,
+                avatarFileName: testSender.avatarFileName,
+                isAccepted: false,
+            };
+            contactService.addContactIfNotExists.mockImplementationOnce(
+                async () => {
+                    testReceiver.contacts.push(newContact);
+                    return newContact;
+                },
+            );
+
+            const result = await messageService.sendMessage(
+                testMessage.fromUserId,
+                testMessage.toUserId,
+                testMessage.message,
+                testMessage.type,
+            );
+
+            expect(result).toEqual({ status: 201, body: testMessage });
+            expect(userRepository.findById).toHaveBeenCalled();
+            expect(messageRepository.create).toHaveBeenCalled();
+            expect(receiverMarkModifiedMock).toHaveBeenCalledTimes(1);
+            expect(receiverSaveMock).toHaveBeenCalledTimes(1);
+            expect(testSender.contacts[0].lastMessage).toEqual(testMessage._id);
+            expect(testReceiver.contacts[0].lastMessage).toEqual(
+                testMessage._id,
+            );
+            expect(gatewayEmitMock).toHaveBeenCalledTimes(2);
+            expect(gatewayEmitMock).toHaveBeenCalledWith(
+                'contactAutoAdded',
+                newContact,
+            );
+            expect(gatewayEmitMock).toHaveBeenCalledWith(
+                'message',
+                testMessage,
+            );
+        });
+
+        it('should send a message to a contact group and set last message on it', async () => {
+            const testMessage = {
+                _id: 'testMesssageId1',
+                message: 'test message',
+                read: false,
+                sent: false,
+                type: 'text',
+                fromUserId: testSender._id,
+                toUserId: testReceiverGroup._id,
+                at: new Date(),
+            } satisfies Message;
+
+            messageRepository.create.mockResolvedValue(testMessage as any);
+
+            contactGroupService.computeGroupNamesForUser.mockResolvedValue([
+                { ...testReceiverGroup, lastMessage: testMessage._id },
+            ]);
+
+            const result = await messageService.sendMessage(
+                testMessage.fromUserId,
+                testMessage.toUserId,
+                testMessage.message,
+                testMessage.type,
+            );
+
+            expect(result).toEqual({ status: 201, body: testMessage });
+            expect(userRepository.findById).toHaveBeenCalled();
+            expect(contactGroupRepository.findOne).toHaveBeenCalled();
+            expect(messageRepository.create).toHaveBeenCalled();
+
+            expect(receiverMarkModifiedMock).toHaveBeenCalledTimes(0);
+            expect(receiverSaveMock).toHaveBeenCalledTimes(0);
+            expect(testReceiverGroup.lastMessage).toEqual(testMessage._id);
+
+            expect(gatewayEmitMock).toHaveBeenCalledTimes(2);
+            expect(gatewayEmitMock).toHaveBeenCalledWith(
+                'contactGroupAutoAdded',
+                {
+                    ...testReceiverGroup,
+                    lastMessage: testMessage._id,
+                },
+            );
+            expect(gatewayEmitMock).toHaveBeenCalledWith(
+                'message',
+                testMessage,
+            );
+        });
     });
 });
