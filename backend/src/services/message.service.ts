@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { MessageEntity } from '../schemas/message.schema';
-import { Model } from 'mongoose';
+import { HydratedDocument, Model } from 'mongoose';
 import { UserEntity } from '../schemas/user.schema';
 import { UserService } from './user.service';
 import { Message, MessageType } from '../../shared/message.contract';
@@ -178,13 +178,17 @@ export class MessageService {
                 !receiver.contacts.find((contact) => contact._id === fromUserId)
                     ?.isAccepted
             ) {
+                this.persistLastMessageForSender(
+                    sender,
+                    toUserId,
+                    newlyCreatedMessage,
+                );
+
                 return { status: 201 as const, body: newlyCreatedMessage };
             }
 
             this.emitMessageViaWebSocket(toUserId, newlyCreatedMessage);
-        }
-
-        if (contactGroup) {
+        } else if (contactGroup) {
             contactGroup.lastMessage = newlyCreatedMessage._id;
             await this.contactGroupModel.updateOne(
                 { _id: contactGroup._id },
@@ -204,12 +208,7 @@ export class MessageService {
             }
         }
 
-        const userContact = sender.contacts.find((uc) => uc._id === toUserId);
-        if (userContact) {
-            userContact.lastMessage = newlyCreatedMessage._id.toString();
-            sender.markModified('contacts');
-            void sender.save();
-        }
+        this.persistLastMessageForSender(sender, toUserId, newlyCreatedMessage);
 
         const receiverContact = receiver?.contacts.find(
             (c) => c._id === sender._id.toString(),
@@ -221,6 +220,19 @@ export class MessageService {
         }
 
         return { status: 201 as const, body: newlyCreatedMessage };
+    }
+
+    private persistLastMessageForSender(
+        sender: HydratedDocument<UserEntity>,
+        toUserId: string,
+        message: Message,
+    ) {
+        const userContact = sender.contacts.find((uc) => uc._id === toUserId);
+        if (userContact) {
+            userContact.lastMessage = message._id.toString();
+            sender.markModified('contacts');
+            void sender.save();
+        }
     }
 
     async markMessageRead(msgId: string) {

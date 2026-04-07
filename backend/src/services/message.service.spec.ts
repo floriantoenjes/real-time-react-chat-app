@@ -10,18 +10,25 @@ import { ContactGroupEntity } from '../schemas/contact-group.schema';
 import { MessageEntity } from '../schemas/message.schema';
 import { ContactService } from './contact.service';
 import { RealTimeChatGateway } from '../gateways/socket.gateway';
+import { Contact } from '../../shared/contact.contract';
+import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
 
 describe('MessageService', () => {
     let messageService: MessageService;
 
     let contactService: Mocked<ContactService>;
-    let gateway: Mocked<RealTimeChatGateway>;
     let messageRepository: Mocked<Model<MessageEntity>>;
     let userRepository: Mocked<Model<UserEntity>>;
 
     let testSender: User;
+    const senderMarkModifiedMock = jest.fn();
+    const senderSaveMock = jest.fn();
 
     let testReceiver: User;
+    const receiverMarkModifiedMock = jest.fn();
+    const receiverSaveMock = jest.fn();
+
+    const gatewayEmitMock = jest.fn();
 
     beforeAll(async () => {
         const { unit, unitRef } = await TestBed.solitary(MessageService)
@@ -32,16 +39,16 @@ describe('MessageService', () => {
                         if (userId === testSender._id) {
                             return {
                                 ...testSender,
-                                markModified: () => {},
-                                save: () => {},
+                                markModified: senderMarkModifiedMock,
+                                save: senderSaveMock,
                             };
                         }
 
                         if (userId === testReceiver._id) {
                             return {
                                 ...testReceiver,
-                                markModified: () => {},
-                                save: () => {},
+                                markModified: receiverMarkModifiedMock,
+                                save: receiverSaveMock,
                             };
                         }
                     },
@@ -53,12 +60,17 @@ describe('MessageService', () => {
                     lean: stubFn().mockResolvedValue(null),
                 }),
             }))
+            .mock(RealTimeChatGateway)
+            .impl(() => ({
+                prepareSendMessage: () => ({
+                    emit: gatewayEmitMock,
+                }),
+            }))
             .compile();
 
         messageService = unit;
 
         contactService = unitRef.get(ContactService);
-        gateway = unitRef.get(RealTimeChatGateway);
         messageRepository = unitRef.get(getModelToken(MessageEntity.name));
         userRepository = unitRef.get(getModelToken(UserEntity.name));
     });
@@ -83,10 +95,41 @@ describe('MessageService', () => {
             contactGroupIds: [],
             leftGroupIds: [],
         };
+
+        testSender.contacts.push({
+            _id: testReceiver._id,
+            isAccepted: true,
+            name: testReceiver.username,
+        });
+
+        jest.clearAllMocks();
     });
 
     it('should be defined', () => {
         expect(messageService).toBeDefined();
+    });
+
+    it('should throw if sender does not exist', async () => {
+        const testMessage = {
+            _id: 'messageId1',
+            message: 'Test message.',
+            type: 'text',
+            fromUserId: 'NON EXISTENT ID',
+            toUserId: testReceiver._id,
+            at: new Date(),
+            read: false,
+            sent: false,
+        } satisfies Message;
+
+        await expect(
+            async () =>
+                await messageService.sendMessage(
+                    testMessage.fromUserId,
+                    testMessage.toUserId,
+                    testMessage.message,
+                    testMessage.type,
+                ),
+        ).rejects.toThrow(UserNotFoundException);
     });
 
     it('should send a message and create contact request', async () => {
@@ -101,15 +144,16 @@ describe('MessageService', () => {
             sent: false,
         } satisfies Message;
 
+        const newContact = {
+            _id: testSender._id,
+            name: testSender.username,
+            avatarFileName: testSender.avatarFileName,
+            isAccepted: false,
+        } satisfies Contact;
+
         messageRepository.create.mockResolvedValue(testMessage as any);
         contactService.addContactIfNotExists.mockImplementationOnce(
             async () => {
-                const newContact = {
-                    _id: testSender._id,
-                    name: testSender.username,
-                    avatarFileName: testSender.avatarFileName,
-                    isAccepted: false,
-                };
                 testReceiver.contacts.push(newContact);
                 return newContact;
             },
@@ -124,8 +168,16 @@ describe('MessageService', () => {
 
         expect(result).toEqual({ status: 201, body: testMessage });
         expect(userRepository.findById).toHaveBeenCalled();
+        expect(messageRepository.create).toHaveBeenCalled();
+        expect(receiverMarkModifiedMock).not.toHaveBeenCalled();
+        expect(receiverSaveMock).not.toHaveBeenCalled();
+        expect(testSender.contacts[0].lastMessage).toEqual(testMessage._id);
         expect(testReceiver.contacts).toHaveLength(1);
-        expect(gateway.prepareSendMessage).toHaveBeenCalledTimes(1);
+        expect(gatewayEmitMock).toHaveBeenCalledTimes(1);
+        expect(gatewayEmitMock).toHaveBeenCalledWith(
+            'contactAutoAdded',
+            newContact,
+        );
     });
 
     it('should send a message and set last message on contact', async () => {
@@ -168,11 +220,17 @@ describe('MessageService', () => {
         );
 
         expect(result).toEqual({ status: 201, body: testMessage });
-        expect(userRepository.findById).toHaveBeenCalledTimes(1);
+        expect(userRepository.findById).toHaveBeenCalled();
+        expect(messageRepository.create).toHaveBeenCalled();
+        expect(receiverMarkModifiedMock).toHaveBeenCalledTimes(1);
+        expect(receiverSaveMock).toHaveBeenCalledTimes(1);
+        expect(testSender.contacts[0].lastMessage).toEqual(testMessage._id);
         expect(testReceiver.contacts[0].lastMessage).toEqual(testMessage._id);
-        expect(gateway.prepareSendMessage).toHaveBeenNthCalledWith(
-            2,
-            'userId2',
+        expect(gatewayEmitMock).toHaveBeenCalledTimes(2);
+        expect(gatewayEmitMock).toHaveBeenCalledWith(
+            'contactAutoAdded',
+            newContact,
         );
+        expect(gatewayEmitMock).toHaveBeenCalledWith('message', testMessage);
     });
 });
