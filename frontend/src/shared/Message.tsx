@@ -1,46 +1,36 @@
 import { Message as MessageModel } from "real-time-chat-backend/shared/message.contract";
 import { User } from "real-time-chat-backend/shared/user.contract";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useState } from "react";
 import { ContactsContext } from "./contexts/ContactsContext";
 import { CheckIcon } from "@heroicons/react/16/solid";
 import { Button } from "@mui/material";
-import { useDiContext } from "./contexts/DiContext";
 import { DateTime } from "luxon";
 import { useI18nContext } from "../i18n/i18n-react";
+import { useAudioPlayer } from "./hooks/useAudioPlayer";
+import { useDiContext } from "./contexts/DiContext";
 
-export function Message(props: { msg: MessageModel; user: User }) {
+export function Message(props: { messageModel: MessageModel; user: User }) {
     const { LL } = useI18nContext();
     const [contacts] = useContext(ContactsContext).contacts;
     const fileService = useDiContext().FileService;
 
+    const { audioDuration, secondsPlayed, playAudio, pauseAudio, playing } =
+        useAudioPlayer(props.messageModel);
+
     const [image, setImage] = useState<string>();
-    const audioRef = useRef<HTMLAudioElement | null>(null);
-
-    const [audioDuration, setAudioDuration] = useState<number>(0);
-    const [secondsPlayed, setSecondsPlayed] = useState<number>(0);
-    const [playing, setPlaying] = useState(false);
-    const played = useRef(0);
-    const playingRef = useRef(false);
-
-    useEffect(() => {
-        if (props.msg.type !== "audio") {
-            return;
-        }
-        setAudioDuration(getAudioDuration(props.msg));
-    }, [props.msg]);
 
     let fromUsername = "";
-    if (props.msg.fromUserId !== props.user._id) {
+    if (props.messageModel.fromUserId !== props.user._id) {
         fromUsername =
-            (contacts.find((c) => c._id === props.msg.fromUserId)?.name ??
-                "Unbekannt") + ": ";
+            (contacts.find((c) => c._id === props.messageModel.fromUserId)
+                ?.name ?? "Unbekannt") + ": ";
     }
 
     async function loadImage() {
-        if (props.msg.type !== "image") {
+        if (props.messageModel.type !== "image") {
             return;
         }
-        const image = await fileService.loadImage(props.msg.message);
+        const image = await fileService.loadImage(props.messageModel.message);
         if (!image) {
             return;
         }
@@ -48,69 +38,8 @@ export function Message(props: { msg: MessageModel; user: User }) {
         setImage(image);
     }
 
-    async function playAudio() {
-        if (props.msg.type !== "audio") {
-            return;
-        }
-        const audio = await fileService.loadFile(props.msg.message);
-        if (!audio) {
-            return;
-        }
-
-        const file = new File([audio], "audio", { type: "audio/mp3" });
-        if (secondsPlayed == 0) {
-            audioRef.current = new Audio(URL.createObjectURL(file));
-        }
-        audioRef.current!.play().then(() => {
-            setPlaying(true);
-            playingRef.current = true;
-
-            const playInterval = setInterval(() => {
-                if (!playingRef.current || played.current >= audioDuration) {
-                    clearInterval(playInterval);
-                    setPlaying(false);
-                    playingRef.current = false;
-                    if (played.current >= audioDuration) {
-                        setSecondsPlayed(0);
-                        played.current = 0;
-                    }
-                    return;
-                }
-
-                setSecondsPlayed((seconds) => seconds + 0.1);
-                played.current += 0.1;
-            }, 100);
-        });
-    }
-
-    function pauseAudio() {
-        setPlaying(false);
-        playingRef.current = false;
-        audioRef.current?.pause();
-    }
-
-    function splitAudioMessage(msg: MessageModel) {
-        // type, storageId, dateInMilliSeconds, duration
-        const [, storageId, dateInMilliSeconds, duration] =
-            msg.message.split("-");
-
-        return {
-            storageId,
-            dateInMilliSeconds,
-            duration,
-        };
-    }
-
     function getMessageDate(msg: MessageModel) {
         return DateTime.fromJSDate(msg.at).toFormat("HH:mm");
-    }
-
-    function getAudioDuration(msg: MessageModel) {
-        const durationMatch = splitAudioMessage(msg).duration.match(/\d+/);
-        if (!durationMatch?.length) {
-            throw new Error("No audio duration provided");
-        }
-        return Math.floor(+durationMatch[0]);
     }
 
     return (
@@ -118,7 +47,7 @@ export function Message(props: { msg: MessageModel; user: User }) {
             <div
                 className={
                     "border border-blue-100 w-fit rounded-sm p-3 m-3 max-w-96 flex flex-col" +
-                    (props.msg.fromUserId === props.user._id.toString()
+                    (props.messageModel.fromUserId === props.user._id.toString()
                         ? " ml-auto bg-green-300"
                         : " bg-white")
                 }
@@ -126,10 +55,12 @@ export function Message(props: { msg: MessageModel; user: User }) {
                 <div className={"w-full"}>
                     <p>
                         {fromUsername}
-                        {props.msg.type === "text" ? props.msg.message : ""}
+                        {props.messageModel.type === "text"
+                            ? props.messageModel.message
+                            : ""}
                     </p>
 
-                    {props.msg.type === "audio" && (
+                    {props.messageModel.type === "audio" && (
                         <div>
                             <div
                                 className={
@@ -171,11 +102,11 @@ export function Message(props: { msg: MessageModel; user: User }) {
                             </div>
                         </div>
                     )}
-                    {!image && props.msg.type === "image" && (
+                    {!image && props.messageModel.type === "image" && (
                         <Button onClick={loadImage}>{LL.SHOW_IMAGE()}</Button>
                     )}
                     {image && <img src={`data:image/jpg;base64,${image}`} />}
-                    {props.msg.type === "audio" && (
+                    {props.messageModel.type === "audio" && (
                         <div className={"pl-0 pt-4"}>
                             {!playing && (
                                 <Button onClick={playAudio}>Play</Button>
@@ -189,15 +120,17 @@ export function Message(props: { msg: MessageModel; user: User }) {
 
                 <footer className={"flex ml-auto"}>
                     <span className={"mt-auto text-xs"}>
-                        {getMessageDate(props.msg)}
+                        {getMessageDate(props.messageModel)}
                     </span>
 
-                    {props.msg.fromUserId === props.user._id.toString() &&
-                        props.msg.sent && (
+                    {props.messageModel.fromUserId ===
+                        props.user._id.toString() &&
+                        props.messageModel.sent && (
                             <CheckIcon className={"w-4 h-4 mt-auto"} />
                         )}
-                    {props.msg.fromUserId === props.user._id.toString() &&
-                        props.msg.read && (
+                    {props.messageModel.fromUserId ===
+                        props.user._id.toString() &&
+                        props.messageModel.read && (
                             <CheckIcon
                                 className={"w-4 h-4 mt-auto"}
                                 style={{ marginLeft: "-0.5rem" }}
