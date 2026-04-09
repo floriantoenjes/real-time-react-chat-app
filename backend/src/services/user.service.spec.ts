@@ -24,8 +24,9 @@ describe('User Service', () => {
     (bcrypt.compare as jest.Mock) = bcryptCompare;
     (bcrypt.hash as jest.Mock) = bcryptHash;
 
+    type Email = string;
+
     beforeAll(async () => {
-        type Email = string;
         const mockUserDb = new Set<Email>();
 
         const { unit, unitRef } = await TestBed.solitary(UserService)

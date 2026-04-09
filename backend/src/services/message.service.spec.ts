@@ -197,6 +197,7 @@ describe('MessageService', () => {
             expect(result).toEqual({ status: 201, body: testMessage });
             expect(userRepository.findById).toHaveBeenCalled();
             expect(messageRepository.create).toHaveBeenCalled();
+            expect(contactService.addContactIfNotExists).toHaveBeenCalled();
             expect(receiverMarkModifiedMock).not.toHaveBeenCalled();
             expect(receiverSaveMock).not.toHaveBeenCalled();
             expect(testSender.contacts[0].lastMessage).toEqual(testMessage._id);
@@ -269,7 +270,7 @@ describe('MessageService', () => {
 
         it('should send a message to a contact group and set last message on it', async () => {
             const testMessage = {
-                _id: 'testMesssageId1',
+                _id: 'testMessageId1',
                 message: 'test message',
                 read: false,
                 sent: false,

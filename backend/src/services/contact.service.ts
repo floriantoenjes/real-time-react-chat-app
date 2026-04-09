@@ -114,12 +114,6 @@ export class ContactService {
 
         await user.save();
 
-        await this.contactRequestModel.create({
-            initiatorId: userId,
-            targetUserId: newContactId,
-            sentAt: new Date(),
-        });
-
         return {
             status: 201 as const,
             body: newContact,
@@ -145,6 +139,12 @@ export class ContactService {
         if (contactAlreadyExists) {
             return null;
         }
+
+        await this.contactRequestModel.create({
+            initiatorId: newContactId,
+            targetUserId: userId,
+            sentAt: new Date(),
+        });
 
         const contact = await this.userModel.findOne({
             _id: newContactId,

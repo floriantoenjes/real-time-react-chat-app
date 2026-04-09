@@ -48,7 +48,7 @@ export function useLastContactMessageCache() {
                 userContact.lastMessage &&
                 lastMessageCache.get(userContact.lastMessage)
             ) {
-                if (userContacts.at(-1) === userContact) {
+                if (userContactsAndGroups.at(-1) === userContact) {
                     setLoaded(true);
                 }
                 continue;
@@ -63,7 +63,7 @@ export function useLastContactMessageCache() {
                         );
                     });
                 }
-                if (userContacts.at(-1) === userContact) {
+                if (userContactsAndGroups.at(-1) === userContact) {
                     setLoaded(true);
                 }
             });

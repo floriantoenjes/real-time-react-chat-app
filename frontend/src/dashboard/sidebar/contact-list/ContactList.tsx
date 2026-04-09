@@ -30,13 +30,15 @@ export function ContactList(props: { nameFilter?: string }) {
 
     const contactElements = userContacts
         .concat(userContactGroups)
-        .filter((contact) =>
-            props.nameFilter !== undefined
-                ? contact.name
-                      .toLowerCase()
-                      .match(props.nameFilter.toLowerCase())
-                : true,
-        )
+        .filter((contact) => {
+            if (props.nameFilter === undefined) {
+                return true;
+            }
+
+            return contact.name
+                .toLowerCase()
+                .match(props.nameFilter.toLowerCase());
+        })
         .sort((uc1, uc2) => {
             const uc1LastMessage = uc1.lastMessage;
             const uc2LastMessage = uc2.lastMessage;

@@ -19,67 +19,6 @@ export class ContactGroupService {
         @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
     ) {}
 
-    /**
-     * Normalize member IDs: sort and deduplicate
-     */
-    private normalizeMemberIds(memberIds: string[]): string[] {
-        return [...new Set(memberIds)].sort();
-    }
-
-    /**
-     * Find an existing group with the exact same member set
-     */
-    private async findGroupByMemberSet(
-        normalizedMemberIds: string[],
-    ): Promise<ContactGroupEntity | null> {
-        return this.contactGroupModel.findOne({
-            memberIds: normalizedMemberIds,
-        });
-    }
-
-    /**
-     * Compute personalized group name for a user (excludes their own name)
-     */
-    public async computeGroupNamesForUser(
-        groups: ContactGroupEntity[],
-        userId: string,
-    ): Promise<ContactGroup[]> {
-        // Collect all unique member IDs across all groups
-        const allMemberIds = new Set<string>();
-        for (const group of groups) {
-            for (const memberId of group.memberIds) {
-                if (memberId !== userId) {
-                    allMemberIds.add(memberId);
-                }
-            }
-        }
-
-        // Fetch all member usernames in one query
-        const members = await this.userModel
-            .find({ _id: { $in: [...allMemberIds] } })
-            .select('_id username')
-            .lean();
-
-        const memberNameMap = new Map<string, string>();
-        for (const member of members) {
-            memberNameMap.set(member._id.toString(), member.username);
-        }
-
-        // Build personalized names for each group
-        return groups.map((group) => {
-            const otherMemberNames = group.memberIds
-                .filter((id) => id !== userId)
-                .map((id) => memberNameMap.get(id) ?? 'Unknown')
-                .sort();
-
-            return {
-                ...group,
-                _id: group._id.toString(),
-                name: otherMemberNames.join(', '),
-            } as ContactGroup;
-        });
-    }
-
     async getContactGroups(userId: string) {
         const user = await this.userModel.findOne({ _id: userId }).lean();
 
@@ -356,5 +295,66 @@ export class ContactGroupService {
 
         // Just leave the group (same as leaveContactGroup)
         return this.leaveContactGroup(userId, contactGroupId);
+    }
+
+    /**
+     * Normalize member IDs: sort and deduplicate
+     */
+    private normalizeMemberIds(memberIds: string[]): string[] {
+        return [...new Set(memberIds)].sort();
+    }
+
+    /**
+     * Find an existing group with the exact same member set
+     */
+    private async findGroupByMemberSet(
+        normalizedMemberIds: string[],
+    ): Promise<ContactGroupEntity | null> {
+        return this.contactGroupModel.findOne({
+            memberIds: normalizedMemberIds,
+        });
+    }
+
+    /**
+     * Compute personalized group name for a user (excludes their own name)
+     */
+    public async computeGroupNamesForUser(
+        groups: ContactGroupEntity[],
+        userId: string,
+    ): Promise<ContactGroup[]> {
+        // Collect all unique member IDs across all groups
+        const allMemberIds = new Set<string>();
+        for (const group of groups) {
+            for (const memberId of group.memberIds) {
+                if (memberId !== userId) {
+                    allMemberIds.add(memberId);
+                }
+            }
+        }
+
+        // Fetch all member usernames in one query
+        const members = await this.userModel
+            .find({ _id: { $in: [...allMemberIds] } })
+            .select('_id username')
+            .lean();
+
+        const memberNameMap = new Map<string, string>();
+        for (const member of members) {
+            memberNameMap.set(member._id.toString(), member.username);
+        }
+
+        // Build personalized names for each group
+        return groups.map((group) => {
+            const otherMemberNames = group.memberIds
+                .filter((id) => id !== userId)
+                .map((id) => memberNameMap.get(id) ?? 'Unknown')
+                .sort();
+
+            return {
+                ...group,
+                _id: group._id.toString(),
+                name: otherMemberNames.join(', '),
+            } as ContactGroup;
+        });
     }
 }
