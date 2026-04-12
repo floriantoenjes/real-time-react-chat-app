@@ -23,7 +23,7 @@ export function Message(props: { messageModel: MessageModel; user: User }) {
     if (props.messageModel.fromUserId !== props.user._id) {
         fromUsername =
             (contacts.find((c) => c._id === props.messageModel.fromUserId)
-                ?.name ?? "Unbekannt") + ": ";
+                ?.name ?? "Unbekannt") + ": "; // TODO: Adjust logic so that non-contact group member names can be displayed
     }
 
     async function loadImage() {
