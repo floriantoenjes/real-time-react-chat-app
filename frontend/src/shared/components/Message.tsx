@@ -1,13 +1,13 @@
-import { Message as MessageModel } from "real-time-chat-backend/shared/message.contract";
-import { User } from "real-time-chat-backend/shared/user.contract";
+import { Message as MessageModel } from "@t/message.contract";
+import { User } from "@t/user.contract";
 import React, { useContext, useState } from "react";
-import { ContactsContext } from "./contexts/ContactsContext";
+import { ContactsContext } from "../contexts/ContactsContext";
 import { CheckIcon } from "@heroicons/react/16/solid";
 import { Button } from "@mui/material";
 import { DateTime } from "luxon";
-import { useI18nContext } from "../i18n/i18n-react";
-import { useAudioPlayer } from "./hooks/useAudioPlayer";
-import { useDiContext } from "./contexts/DiContext";
+import { useI18nContext } from "../../i18n/i18n-react";
+import { useAudioPlayer } from "../hooks/useAudioPlayer";
+import { useDiContext } from "../contexts/DiContext";
 
 export function Message(props: { messageModel: MessageModel; user: User }) {
     const { LL } = useI18nContext();

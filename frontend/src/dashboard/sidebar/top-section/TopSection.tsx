@@ -8,7 +8,7 @@ import {
 import React from "react";
 import "./TopSection.css";
 import { useUserContext } from "../../../shared/contexts/UserContext";
-import { Avatar } from "../../../shared/Avatar";
+import { Avatar } from "../../../shared/components/Avatar";
 import { UserProfile } from "./user-profile/UserProfile";
 import { GroupCreation } from "./group-creation/GroupCreation";
 import { useI18nContext } from "../../../i18n/i18n-react";

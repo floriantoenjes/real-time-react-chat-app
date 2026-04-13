@@ -4,7 +4,7 @@ import React, { useRef, useState } from "react";
 import { useUserContext } from "../../../../shared/contexts/UserContext";
 import { CheckIcon } from "@heroicons/react/16/solid";
 import Cropper, { Area, Point } from "react-easy-crop";
-import { Avatar } from "../../../../shared/Avatar";
+import { Avatar } from "../../../../shared/components/Avatar";
 import { useDiContext } from "../../../../shared/contexts/DiContext";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { getSetUserWithAvatarBytes } from "../../../../shared/helpers";

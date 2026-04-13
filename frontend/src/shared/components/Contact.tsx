@@ -1,9 +1,9 @@
 import { Avatar } from "./Avatar";
-import { Contact as ContactModel } from "real-time-chat-backend/shared/contact.contract";
-import { ContactGroup } from "real-time-chat-backend/shared/contact-group.contract";
+import { Contact as ContactModel } from "@t/contact.contract";
+import { ContactGroup } from "@t/contact-group.contract";
 import { DateTime } from "luxon";
 import { Message } from "@t/message.contract";
-import { useI18nContext } from "../i18n/i18n-react";
+import { useI18nContext } from "../../i18n/i18n-react";
 
 export function Contact(props: {
     contact: ContactModel;

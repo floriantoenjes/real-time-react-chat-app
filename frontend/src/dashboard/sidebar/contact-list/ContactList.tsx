@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { useOnlineStatus } from "../../../shared/contexts/OnlineStatusContext";
-import { Contact } from "../../../shared/Contact";
+import { Contact } from "../../../shared/components/Contact";
 import { Message } from "@t/message.contract";
 import { useLastContactMessageCache } from "../../../shared/hooks/useLastContactMessageCache";
 

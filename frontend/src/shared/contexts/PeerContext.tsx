@@ -23,7 +23,7 @@ import {
     XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { Contact } from "real-time-chat-backend/shared/contact.contract";
-import { Avatar } from "../Avatar";
+import { Avatar } from "../components/Avatar";
 import { ContactsContext } from "./ContactsContext";
 
 export const PeerContext = createContext<{

@@ -1,4 +1,4 @@
-import { Avatar } from "../../../shared/Avatar";
+import { Avatar } from "../../../shared/components/Avatar";
 import {
     ChevronDownIcon,
     PhoneIcon,

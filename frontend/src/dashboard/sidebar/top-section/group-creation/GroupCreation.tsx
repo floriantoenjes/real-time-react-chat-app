@@ -2,7 +2,7 @@ import { Autocomplete, Fab, IconButton, TextField } from "@mui/material";
 import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/solid";
 import React, { useContext } from "react";
 import { ContactsContext } from "../../../../shared/contexts/ContactsContext";
-import { Contact } from "../../../../shared/Contact";
+import { Contact } from "../../../../shared/components/Contact";
 import { User } from "@t/user.contract";
 import { useI18nContext } from "../../../../i18n/i18n-react";
 import { useContactGroupActions } from "../../../../shared/hooks/useContactGroupActions";
