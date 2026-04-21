@@ -54,9 +54,11 @@ export class ContactGroupService {
             throw new UserNotFoundException();
         }
 
-        const members = await this.userModel.find({
-            _id: { $in: memberIds },
-        });
+        const members = await this.userModel
+            .find({
+                _id: { $in: [userId, ...memberIds] },
+            })
+            .lean();
 
         if (!members.length) {
             this.logger.warn(
@@ -100,6 +102,8 @@ export class ContactGroupService {
             const [groupWithPersonalizedName] =
                 await this.computeGroupNamesForUser([existingGroup], userId);
 
+            // TODO: Doesn't the new member need to be saved into the contact group here as well?
+
             return {
                 status: 200 as const,
                 body: groupWithPersonalizedName,
@@ -109,9 +113,25 @@ export class ContactGroupService {
         // Create new group
         const newContactGroup = await this.contactGroupModel.create({
             _id: new Types.ObjectId(),
-            memberIds: normalizedMemberIds,
+            memberRefs: normalizedMemberIds
+                .map((memberId) => {
+                    const member = members.find((member) => {
+                        if (member._id.toString() === memberId) {
+                            return true;
+                        }
+                    });
+                    if (!member) {
+                        throw new NotAGroupMemberException();
+                    }
+
+                    return member;
+                })
+                .map((member) => ({
+                    memberId: member._id.toString(),
+                    memberName: member.username,
+                })),
             name: name,
-            createdBy: userId,
+            createdBy: { creatorId: userId, creatorName: user.username },
             createdAt: new Date(),
             isAccepted: true, // TODO: have a look if this needs to be changed
         });
@@ -168,7 +188,9 @@ export class ContactGroupService {
         }
 
         // Verify user is a member of this group
-        if (!group.memberIds.includes(userId)) {
+        if (
+            !group.memberRefs.some((memberRef) => memberRef.memberId === userId)
+        ) {
             this.logger.warn(
                 `Leave contact group failed: user ${userId} is not a member of group ${contactGroupId}`,
             );
@@ -214,7 +236,9 @@ export class ContactGroupService {
         }
 
         // Verify user is a member of this group
-        if (!group.memberIds.includes(userId)) {
+        if (
+            !group.memberRefs.some((memberRef) => memberRef.memberId === userId)
+        ) {
             this.logger.warn(
                 `Rejoin contact group failed: user ${userId} is not a member of group ${contactGroupId}`,
             );
@@ -325,9 +349,9 @@ export class ContactGroupService {
         // Collect all unique member IDs across all groups
         const allMemberIds = new Set<string>();
         for (const group of groups) {
-            for (const memberId of group.memberIds) {
-                if (memberId !== userId) {
-                    allMemberIds.add(memberId);
+            for (const memberRef of group.memberRefs) {
+                if (memberRef.memberId !== userId) {
+                    allMemberIds.add(memberRef.memberId);
                 }
             }
         }
@@ -345,9 +369,13 @@ export class ContactGroupService {
 
         // Build personalized names for each group
         return groups.map((group) => {
-            const otherMemberNames = group.memberIds
-                .filter((id) => id !== userId)
-                .map((id) => memberNameMap.get(id) ?? 'Unknown')
+            const otherMemberNames = group.memberRefs
+
+                .filter((memberRef) => memberRef.memberId !== userId)
+                .map(
+                    (memberRef) =>
+                        memberNameMap.get(memberRef.memberId) ?? 'Unknown',
+                )
                 .sort();
 
             return {

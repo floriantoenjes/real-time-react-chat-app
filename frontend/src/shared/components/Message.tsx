@@ -8,10 +8,31 @@ import { DateTime } from "luxon";
 import { useI18nContext } from "../../i18n/i18n-react";
 import { useAudioPlayer } from "../hooks/useAudioPlayer";
 import { useDiContext } from "../contexts/DiContext";
+import { Contact } from "@t/contact.contract";
+import { ContactGroup } from "@t/contact-group.contract";
+
+function getUsernameFromMessage(
+    contacts: Contact[],
+    messageModel: MessageModel,
+) {
+    return contacts.find((c) => c._id === messageModel.fromUserId)?.name;
+}
+
+function getGroupMemberNameFromMessage(
+    contactGroups: ContactGroup[],
+    messageModel: MessageModel,
+) {
+    return contactGroups
+        .find((cg) => cg._id === messageModel.toUserId)
+        ?.memberRefs.find(
+            (memberRef) => memberRef.memberId === messageModel.fromUserId,
+        )?.memberName;
+}
 
 export function Message(props: { messageModel: MessageModel; user: User }) {
     const { LL } = useI18nContext();
     const [contacts] = useContext(ContactsContext).contacts;
+    const [contactGroups] = useContext(ContactsContext).contactGroups;
     const fileService = useDiContext().FileService;
 
     const { audioDuration, secondsPlayed, playAudio, pauseAudio, playing } =
@@ -19,11 +40,15 @@ export function Message(props: { messageModel: MessageModel; user: User }) {
 
     const [image, setImage] = useState<string>();
 
+    const messageModel = props.messageModel;
+
     let fromUsername = "";
-    if (props.messageModel.fromUserId !== props.user._id) {
+    const isSenderSignedInUser = messageModel.fromUserId === props.user._id;
+    if (!isSenderSignedInUser) {
         fromUsername =
-            (contacts.find((c) => c._id === props.messageModel.fromUserId)
-                ?.name ?? "Unbekannt") + ": "; // TODO: Adjust logic so that non-contact group member names can be displayed
+            (getUsernameFromMessage(contacts, messageModel) ??
+                getGroupMemberNameFromMessage(contactGroups, messageModel) ??
+                "") + ": ";
     }
 
     async function loadImage() {

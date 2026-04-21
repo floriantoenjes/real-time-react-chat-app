@@ -5,12 +5,14 @@ const c = initContract();
 
 export const ContactGroupSchema = z.object({
     _id: z.string(),
-    memberIds: z.array(z.string()),
+    memberRefs: z.array(
+        z.object({ memberId: z.string(), memberName: z.string() }),
+    ),
     name: z.string(),
     lastMessage: z.string().optional(),
     avatarFileName: z.string().optional(),
     avatarBase64: z.any().optional(),
-    createdBy: z.string(),
+    createdBy: z.object({ creatorId: z.string(), creatorName: z.string() }),
     createdAt: z.coerce.date(),
     isAccepted: z.boolean(),
 });

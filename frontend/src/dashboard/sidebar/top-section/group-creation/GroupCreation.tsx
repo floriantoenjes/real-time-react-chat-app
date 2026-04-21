@@ -50,7 +50,7 @@ export function GroupCreation(props: { user: User; toggleDrawer: any }) {
                         </span>
                     ))}
                 </div>
-                {groupMembers.length > 0 && (
+                {groupMembers.length >= 2 && (
                     <Fab
                         name={"create-group-button"}
                         className={"mt-auto mb-5"}

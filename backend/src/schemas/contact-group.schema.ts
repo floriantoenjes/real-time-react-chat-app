@@ -6,7 +6,7 @@ export class ContactGroupEntity implements ContactGroup {
     _id: any;
 
     @Prop({ required: true })
-    memberIds!: string[];
+    memberRefs!: Array<{ memberId: string; memberName: string }>;
 
     @Prop({ required: true })
     name!: string;
@@ -14,8 +14,8 @@ export class ContactGroupEntity implements ContactGroup {
     @Prop()
     lastMessage?: string;
 
-    @Prop({ required: true })
-    createdBy!: string;
+    @Prop({ required: true, type: 'object' })
+    createdBy!: { creatorId: string; creatorName: string };
 
     @Prop({ required: true, default: () => new Date() })
     createdAt!: Date;

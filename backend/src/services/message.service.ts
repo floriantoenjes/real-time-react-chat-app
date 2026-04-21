@@ -197,14 +197,17 @@ export class MessageService {
             );
 
             // Send to all members except the sender
-            for (const memberId of contactGroup.memberIds) {
-                if (memberId !== fromUserId) {
+            for (const memberRef of contactGroup.memberRefs) {
+                if (memberRef.memberId !== fromUserId) {
                     await this.autoAddSenderGroupToReceiverContactGroups(
                         contactGroup,
-                        memberId,
+                        memberRef.memberId,
                     );
 
-                    this.emitMessageViaWebSocket(memberId, newlyCreatedMessage);
+                    this.emitMessageViaWebSocket(
+                        memberRef.memberId,
+                        newlyCreatedMessage,
+                    );
                 }
             }
         } else {
