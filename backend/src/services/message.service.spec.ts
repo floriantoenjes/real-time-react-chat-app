@@ -122,9 +122,18 @@ describe('MessageService', () => {
 
         testReceiverGroup = {
             createdAt: new Date(),
-            createdBy: testSender._id,
+            createdBy: {
+                creatorId: testSender._id,
+                creatorName: 'creator name',
+            },
             isAccepted: true,
-            memberIds: [testSender._id, testReceiver._id],
+            memberRefs: [
+                { memberId: testSender._id, memberName: testSender.username },
+                {
+                    memberId: testReceiver._id,
+                    memberName: testReceiver.username,
+                },
+            ],
             name: 'testGroup1',
             _id: 'groupId1',
         };
@@ -147,6 +156,7 @@ describe('MessageService', () => {
                 at: new Date(),
                 read: false,
                 sent: false,
+                owners: ['NON EXISTENT ID', testReceiver._id],
             } satisfies Message;
 
             await expect(
@@ -170,6 +180,7 @@ describe('MessageService', () => {
                 at: new Date(),
                 read: false,
                 sent: false,
+                owners: [testSender._id, testReceiver._id],
             } satisfies Message;
 
             const newContact = {
@@ -225,6 +236,7 @@ describe('MessageService', () => {
                 at: new Date(),
                 read: false,
                 sent: false,
+                owners: [testSender._id, testReceiver._id],
             } satisfies Message;
 
             messageRepository.create.mockResolvedValue(testMessage as any);
@@ -278,6 +290,7 @@ describe('MessageService', () => {
                 fromUserId: testSender._id,
                 toUserId: testReceiverGroup._id,
                 at: new Date(),
+                owners: [testSender._id, testReceiverGroup._id],
             } satisfies Message;
 
             messageRepository.create.mockResolvedValue(testMessage as any);
