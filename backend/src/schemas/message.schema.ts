@@ -17,7 +17,7 @@ export class MessageEntity implements Message {
     @Prop()
     message!: string;
 
-    @Prop()
+    @Prop({ default: false })
     read!: boolean;
 
     @Prop({ default: true })
@@ -25,6 +25,9 @@ export class MessageEntity implements Message {
 
     @Prop()
     type!: 'text' | 'image';
+
+    @Prop()
+    owners!: string[];
 }
 
 export const MessageSchema = SchemaFactory.createForClass(MessageEntity);

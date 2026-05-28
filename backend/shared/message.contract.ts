@@ -19,6 +19,7 @@ export const MessageSchema = z.object({
     read: z.boolean().default(false),
     sent: z.boolean().default(true),
     type: MessageTypeSchema,
+    owners: z.array(z.string()),
 });
 
 export type Message = z.infer<typeof MessageSchema>;

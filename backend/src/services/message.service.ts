@@ -71,6 +71,7 @@ export class MessageService {
         if (contactGroup) {
             messages = await this.messageModel.find({
                 toUserId: contactId,
+                owners: userId,
             });
 
             return {
@@ -82,6 +83,7 @@ export class MessageService {
         messages = await this.messageModel.find({
             fromUserId: { $in: [userId, contactId] },
             toUserId: { $in: [userId, contactId] },
+            owners: userId,
         });
 
         for (const message of messages) {
@@ -106,15 +108,36 @@ export class MessageService {
         await this.deleteLastContactMessage(fromUserId, toUserId);
         await this.deleteLastContactMessage(toUserId, fromUserId);
 
-        await this.messageModel.deleteMany({
-            fromUserId: fromUserId,
-            toUserId: toUserId,
-        });
+        const toUserIdIsContactGroupId = !!(await this.contactGroupModel
+            .findById(toUserId)
+            .lean());
 
-        await this.messageModel.deleteMany({
-            toUserId: fromUserId,
-            fromUserId: toUserId,
-        });
+        let affectedMessages: HydratedDocument<MessageEntity>[];
+        if (toUserIdIsContactGroupId) {
+            affectedMessages = await this.messageModel.find({
+                toUserId,
+                owners: fromUserId,
+            });
+        } else {
+            affectedMessages = await this.messageModel.find({
+                fromUserId: { $in: [fromUserId, toUserId] },
+                toUserId: { $in: [toUserId, fromUserId] },
+            });
+        }
+
+        for (const message of affectedMessages) {
+            message.owners = message.owners.filter(
+                (owner) => owner !== fromUserId,
+            );
+
+            if (message.owners.length === 0) {
+                await message.deleteOne();
+                continue;
+            }
+
+            message.markModified('owners');
+            await message.save();
+        }
 
         return { status: 204 as const, body: true };
     }
@@ -125,7 +148,7 @@ export class MessageService {
     ) {
         const fromUser = await this.userModel.findById(fromUserId);
         if (!fromUser) {
-            throw new UserNotFoundException();
+            return;
         }
         const fromContact = fromUser.contacts.find(
             (contact) => contact._id === toUserId,
@@ -151,7 +174,8 @@ export class MessageService {
             toUserId: toUserId,
             at: new Date(),
             type: type,
-        };
+            owners: [fromUserId, toUserId],
+        } satisfies Omit<Message, '_id' | 'sent' | 'read'>;
 
         const sender = await this.userModel
             .findById(fromUserId)
@@ -166,10 +190,16 @@ export class MessageService {
             .findById(toUserId)
             .select('+password');
 
-        const newlyCreatedMessage = await this.messageModel.create(newMessage);
-
         const contactGroup = await this.getContactGroup(toUserId);
         const isNotContactGroup = !contactGroup;
+
+        if (contactGroup) {
+            newMessage.owners = contactGroup.memberRefs.map(
+                (memberRef) => memberRef.memberId,
+            );
+        }
+
+        const newlyCreatedMessage = await this.messageModel.create(newMessage);
 
         if (isNotContactGroup) {
             await this.autoAddSenderToReceiverContacts(fromUserId, toUserId);
@@ -198,17 +228,19 @@ export class MessageService {
 
             // Send to all members except the sender
             for (const memberRef of contactGroup.memberRefs) {
-                if (memberRef.memberId !== fromUserId) {
-                    await this.autoAddSenderGroupToReceiverContactGroups(
-                        contactGroup,
-                        memberRef.memberId,
-                    );
-
-                    this.emitMessageViaWebSocket(
-                        memberRef.memberId,
-                        newlyCreatedMessage,
-                    );
+                if (memberRef.memberId === fromUserId) {
+                    continue;
                 }
+
+                await this.autoAddSenderGroupToReceiverContactGroups(
+                    contactGroup,
+                    memberRef.memberId,
+                );
+
+                this.emitMessageViaWebSocket(
+                    memberRef.memberId,
+                    newlyCreatedMessage,
+                );
             }
         } else {
             throw new ContactNotFoundException();
