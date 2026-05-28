@@ -12,10 +12,6 @@ export enum InternalErrors {
     CONTACT_GROUP_002 = 'CONTACT_GROUP_002',
     CONTACT_GROUP_003 = 'CONTACT_GROUP_003',
     CONTACT_GROUP_004 = 'CONTACT_GROUP_004',
-
-    IGNORE_001 = 'IGNORE_001',
-    IGNORE_002 = 'IGNORE_002',
-    IGNORE_003 = 'IGNORE_003',
 }
 
 export enum ExternalErrors {
@@ -32,6 +28,10 @@ export enum ExternalErrors {
 
     EXT_FILE_001 = 'EXT_FILE_001', // File too large
     EXT_FILE_002 = 'EXT_FILE_002', // Invalid file type
+
+    EXT_IGNORE_001 = 'EXT_IGNORE_001',
+    EXT_IGNORE_002 = 'EXT_IGNORE_002',
+    EXT_IGNORE_003 = 'EXT_IGNORE_003',
 }
 
 export type InternalErrorTypes = Record<InternalErrors, string>;

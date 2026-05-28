@@ -4,9 +4,9 @@ import { Model } from 'mongoose';
 import { IgnoredUserEntity } from '../schemas/ignored-user.schema';
 import { UserEntity } from '../schemas/user.schema';
 import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
-import { CannotIgnoreSelfException } from '../errors/internal/cannot-ignore-self.exception';
-import { AlreadyIgnoredException } from '../errors/internal/already-ignored.exception';
-import { UserNotIgnoredException } from '../errors/internal/user-not-ignored.exception';
+import { CannotIgnoreSelfException } from '../errors/external/cannot-ignore-self.exception';
+import { AlreadyIgnoredException } from '../errors/external/already-ignored.exception';
+import { UserNotIgnoredException } from '../errors/external/user-not-ignored.exception';
 
 export interface PaginationParams {
     page?: number;

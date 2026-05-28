@@ -52,6 +52,7 @@ import {
     IgnoredUserSchema,
 } from './schemas/ignored-user.schema';
 import { ContactRequestController } from './controllers/contact-request.controller';
+import { IgnoredUserController } from './controllers/ignored-user.controller';
 
 @Module({
     imports: [
@@ -104,6 +105,7 @@ import { ContactRequestController } from './controllers/contact-request.controll
         ContactController,
         ContactGroupController,
         ContactRequestController,
+        IgnoredUserController,
         CoturnController,
         FileController,
         LoggingController,

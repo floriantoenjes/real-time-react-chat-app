@@ -14,4 +14,8 @@ export const errorsEn = {
 
     EXT_FILE_001: "File too large",
     EXT_FILE_002: "Invalid file type",
+
+    EXT_IGNORE_001: "You cannot ignore yourself",
+    EXT_IGNORE_002: "This user is already ignored",
+    EXT_IGNORE_003: "This user is not ignored",
 } satisfies ExternalErrorTypes;
