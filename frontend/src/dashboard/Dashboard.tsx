@@ -8,6 +8,7 @@ import { Chat } from "./chat/Chat";
 import { PeerProvider } from "../shared/contexts/PeerContext";
 import { OnlineStatusProvider } from "../shared/contexts/OnlineStatusContext";
 import { ContactsProvider } from "../shared/contexts/ContactsContext";
+import { IgnoredUsersProvider } from "../shared/contexts/IgnoredUsersContext";
 import { UserContext } from "../shared/contexts/UserContext";
 
 export function Dashboard() {
@@ -20,14 +21,16 @@ export function Dashboard() {
     return (
         <div className={"h-screen flex bg-gray-100"}>
             <ContactsProvider>
-                <OnlineStatusProvider>
-                    <MessageProvider>
-                        <PeerProvider>
-                            <Sidebar />
-                            <Chat />
-                        </PeerProvider>
-                    </MessageProvider>
-                </OnlineStatusProvider>
+                <IgnoredUsersProvider>
+                    <OnlineStatusProvider>
+                        <MessageProvider>
+                            <PeerProvider>
+                                <Sidebar />
+                                <Chat />
+                            </PeerProvider>
+                        </MessageProvider>
+                    </OnlineStatusProvider>
+                </IgnoredUsersProvider>
             </ContactsProvider>
         </div>
     );
