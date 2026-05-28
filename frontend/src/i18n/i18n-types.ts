@@ -229,6 +229,10 @@ type RootTranslation = {
 	 * @param {unknown} contactName
 	 */
 	CONTACT_ENABLED: RequiredParams<'contactName'>
+	/**
+	 * Y​o​u​ ​n​e​e​d​ ​a​t​ ​l​e​a​s​t​ ​t​w​o​ ​c​o​n​t​a​c​t​s​ ​t​o​ ​c​r​e​a​t​e​ ​a​ ​g​r​o​u​p
+	 */
+	NOT_TWO_CONTACTS: string
 }
 
 export type TranslationFunctions = {
@@ -442,6 +446,10 @@ export type TranslationFunctions = {
 	 * Enabled {contactName} for further messages
 	 */
 	CONTACT_ENABLED: (arg: { contactName: unknown }) => LocalizedString
+	/**
+	 * You need at least two contacts to create a group
+	 */
+	NOT_TWO_CONTACTS: () => LocalizedString
 }
 
 export type Formatters = {}

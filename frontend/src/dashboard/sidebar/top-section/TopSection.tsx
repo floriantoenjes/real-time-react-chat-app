@@ -1,11 +1,11 @@
-import { Drawer, IconButton, Menu, MenuItem } from "@mui/material";
+import { Drawer, IconButton, Menu, MenuItem, Tooltip } from "@mui/material";
 import {
     ArrowRightStartOnRectangleIcon,
     ChevronDownIcon,
     GlobeAltIcon,
     PlusIcon,
 } from "@heroicons/react/24/outline";
-import React from "react";
+import React, { useContext } from "react";
 import "./TopSection.css";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { Avatar } from "../../../shared/components/Avatar";
@@ -15,10 +15,12 @@ import { useI18nContext } from "../../../i18n/i18n-react";
 import { LanguageModal } from "./language-modal/LanguageModal";
 import { useSidebarTopSectionUI } from "../../../shared/hooks/useSidebarTopSectionUI";
 import { useSignOutAction } from "../../../shared/hooks/useSignOutAction";
+import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 
 export function TopSection() {
     const { LL } = useI18nContext();
     const [user] = useUserContext();
+    const [userContacts] = useContext(ContactsContext).contacts;
 
     const { signOut } = useSignOutAction();
 
@@ -34,6 +36,8 @@ export function TopSection() {
         setModalOpen,
         drawerOpenState,
     } = useSidebarTopSectionUI();
+
+    const canCreateGroup = userContacts.length >= 2;
 
     return (
         <>
@@ -61,10 +65,24 @@ export function TopSection() {
                             horizontal: "right",
                         }}
                     >
-                        <MenuItem onClick={toggleDrawer("left", true, "group")}>
-                            <PlusIcon className={"w-4 mr-2"} />
-                            {LL.CREATE_GROUP()}
-                        </MenuItem>
+                        <Tooltip
+                            title={!canCreateGroup ? LL.NOT_TWO_CONTACTS() : ""}
+                            placement={"right"}
+                        >
+                            <span>
+                                <MenuItem
+                                    onClick={toggleDrawer(
+                                        "left",
+                                        true,
+                                        "group",
+                                    )}
+                                    disabled={!canCreateGroup}
+                                >
+                                    <PlusIcon className={"w-4 mr-2"} />
+                                    {LL.CREATE_GROUP()}
+                                </MenuItem>
+                            </span>
+                        </Tooltip>
                         <MenuItem onClick={showLanguageModal}>
                             <GlobeAltIcon className={"w-4 mr-2"} />
                             {LL.CHANGE_LANGUAGE()}

@@ -59,6 +59,8 @@ const de = {
     ACCEPT_CONTACT_QUESTION:
         "Willst du {contactName} als Kontakt akzeptieren und weitere Nachrichten erhalten?",
     CONTACT_ENABLED: "Kontakt {contactName} freigegeben",
+    NOT_TWO_CONTACTS:
+        "Es braucht mindestens zwei Kontakte um eine Gruppe zu erstellen",
 } satisfies Translation;
 
 export default de;

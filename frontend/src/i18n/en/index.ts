@@ -58,6 +58,7 @@ const en = {
     ACCEPT_CONTACT_QUESTION:
         "Do you want to accept {contactName} as a contact for further messages?",
     CONTACT_ENABLED: "Enabled {contactName} for further messages",
+    NOT_TWO_CONTACTS: "You need at least two contacts to create a group",
 } satisfies BaseTranslation;
 
 export default en;
