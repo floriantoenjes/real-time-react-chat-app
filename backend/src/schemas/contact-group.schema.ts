@@ -27,5 +27,5 @@ export class ContactGroupEntity implements ContactGroup {
 export const ContactGroupSchema =
     SchemaFactory.createForClass(ContactGroupEntity);
 
-// Index on memberIds for efficient duplicate lookup
-ContactGroupSchema.index({ memberIds: 1 });
+// Index on memberRefs for efficient duplicate lookup
+ContactGroupSchema.index({ memberRefs: 1 });
