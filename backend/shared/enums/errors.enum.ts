@@ -32,6 +32,7 @@ export enum ExternalErrors {
     EXT_IGNORE_001 = 'EXT_IGNORE_001',
     EXT_IGNORE_002 = 'EXT_IGNORE_002',
     EXT_IGNORE_003 = 'EXT_IGNORE_003',
+    EXT_IGNORE_004 = 'EXT_IGNORE_004',
 }
 
 export type InternalErrorTypes = Record<InternalErrors, string>;

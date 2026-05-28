@@ -21,6 +21,8 @@ import { FileAccessEntity } from '../schemas/file-access.schema';
 import { ContactGroupService } from './contact-group.service';
 import { ContactGroup } from '../../shared/contact-group.contract';
 import { ContactNotFoundException } from '../errors/internal/contact-not-found.exception';
+import { IgnoredUserService } from './ignored-user.service';
+import { UserIsIgnoredException } from '../errors/external/user-is-ignored.exception';
 
 @Injectable()
 export class MessageService {
@@ -40,6 +42,7 @@ export class MessageService {
         @InjectModel(UserEntity.name)
         private readonly userModel: Model<UserEntity>,
         private readonly userService: UserService,
+        private readonly ignoredUserService: IgnoredUserService,
     ) {}
 
     async getMessageById(messageId: string) {
@@ -168,6 +171,18 @@ export class MessageService {
         message: string,
         type: MessageType,
     ) {
+        // Check if sender has ignored the receiver
+        const isIgnored = await this.ignoredUserService.isUserIgnored(
+            fromUserId,
+            toUserId,
+        );
+        if (isIgnored) {
+            this.logger.warn(
+                `User ${fromUserId} tried to send message to ignored user ${toUserId}`,
+            );
+            throw new UserIsIgnoredException();
+        }
+
         const newMessage = {
             fromUserId: fromUserId,
             message: message,

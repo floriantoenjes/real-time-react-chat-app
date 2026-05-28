@@ -18,4 +18,5 @@ export const errorsEn = {
     EXT_IGNORE_001: "You cannot ignore yourself",
     EXT_IGNORE_002: "This user is already ignored",
     EXT_IGNORE_003: "This user is not ignored",
+    EXT_IGNORE_004: "You cannot interact with a user you have ignored",
 } satisfies ExternalErrorTypes;
