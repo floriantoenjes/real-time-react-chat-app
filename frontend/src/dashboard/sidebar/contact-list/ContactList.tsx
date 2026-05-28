@@ -1,16 +1,19 @@
 import { useContext } from "react";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { useOnlineStatus } from "../../../shared/contexts/OnlineStatusContext";
+import { IgnoredUsersContext } from "../../../shared/contexts/IgnoredUsersContext";
 import { Contact } from "../../../shared/components/Contact";
 import { Message } from "@t/message.contract";
 import { useLastContactMessageCache } from "../../../shared/hooks/useLastContactMessageCache";
 
 export function ContactList(props: { nameFilter?: string }) {
     const contactsContext = useContext(ContactsContext);
+    const ignoredUsersContext = useContext(IgnoredUsersContext);
     const [selectedContact, setSelectedContact] =
         contactsContext.selectedContact;
     const [userContacts] = contactsContext.contacts;
     const [userContactGroups] = contactsContext.contactGroups;
+    const [ignoredUserIds] = ignoredUsersContext.ignoredUserIds;
     const { contactsOnlineStatus } = useOnlineStatus();
 
     const { loaded, lastMessageCache } = useLastContactMessageCache();
@@ -31,6 +34,10 @@ export function ContactList(props: { nameFilter?: string }) {
     const contactElements = userContacts
         .concat(userContactGroups)
         .filter((contact) => {
+            // Filter out ignored users
+            if (ignoredUserIds.includes(contact._id)) {
+                return false;
+            }
             if (props.nameFilter === undefined) {
                 return true;
             }
