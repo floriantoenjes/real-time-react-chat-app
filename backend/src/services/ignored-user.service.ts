@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { IgnoredUserEntity } from '../schemas/ignored-user.schema';
@@ -31,13 +31,17 @@ export class IgnoredUserService {
         private readonly ignoredUserModel: Model<IgnoredUserEntity>,
         @InjectModel(UserEntity.name)
         private readonly userModel: Model<UserEntity>,
+        @Inject(forwardRef(() => RealTimeChatGateway))
         private readonly gateway: RealTimeChatGateway,
     ) {}
 
     /**
      * Add a user to the ignore list
      */
-    public async ignoreUser(userId: string, ignoredUserId: string): Promise<void> {
+    public async ignoreUser(
+        userId: string,
+        ignoredUserId: string,
+    ): Promise<void> {
         // Validate user exists
         const user = await this.userModel.findById(userId).lean();
         if (!user) {
@@ -48,13 +52,17 @@ export class IgnoredUserService {
         // Validate ignored user exists
         const ignoredUser = await this.userModel.findById(ignoredUserId).lean();
         if (!ignoredUser) {
-            this.logger.warn(`Ignore user failed: user ${ignoredUserId} not found`);
+            this.logger.warn(
+                `Ignore user failed: user ${ignoredUserId} not found`,
+            );
             throw new UserNotFoundException();
         }
 
         // Cannot ignore self
         if (userId === ignoredUserId) {
-            this.logger.warn(`Ignore user failed: user ${userId} cannot ignore themselves`);
+            this.logger.warn(
+                `Ignore user failed: user ${userId} cannot ignore themselves`,
+            );
             throw new CannotIgnoreSelfException();
         }
 
@@ -65,7 +73,9 @@ export class IgnoredUserService {
         });
 
         if (existingIgnore) {
-            this.logger.warn(`Ignore user failed: user ${userId} already ignores user ${ignoredUserId}`);
+            this.logger.warn(
+                `Ignore user failed: user ${userId} already ignores user ${ignoredUserId}`,
+            );
             throw new AlreadyIgnoredException();
         }
 
@@ -86,14 +96,19 @@ export class IgnoredUserService {
     /**
      * Remove a user from the ignore list
      */
-    public async unignoreUser(userId: string, ignoredUserId: string): Promise<void> {
+    public async unignoreUser(
+        userId: string,
+        ignoredUserId: string,
+    ): Promise<void> {
         const ignoreEntry = await this.ignoredUserModel.findOneAndDelete({
             userId,
             ignoredUserId,
         });
 
         if (!ignoreEntry) {
-            this.logger.warn(`Unignore user failed: user ${userId} does not ignore user ${ignoredUserId}`);
+            this.logger.warn(
+                `Unignore user failed: user ${userId} does not ignore user ${ignoredUserId}`,
+            );
             throw new UserNotIgnoredException();
         }
 
@@ -114,7 +129,9 @@ export class IgnoredUserService {
     ): Promise<PaginatedResult<string>> {
         const user = await this.userModel.findById(userId).lean();
         if (!user) {
-            this.logger.warn(`Get ignored users failed: user ${userId} not found`);
+            this.logger.warn(
+                `Get ignored users failed: user ${userId} not found`,
+            );
             throw new UserNotFoundException();
         }
 
@@ -145,7 +162,10 @@ export class IgnoredUserService {
     /**
      * Check if a user is ignored by another user
      */
-    public async isUserIgnored(userId: string, targetUserId: string): Promise<boolean> {
+    public async isUserIgnored(
+        userId: string,
+        targetUserId: string,
+    ): Promise<boolean> {
         const ignoreEntry = await this.ignoredUserModel.findOne({
             userId,
             ignoredUserId: targetUserId,
