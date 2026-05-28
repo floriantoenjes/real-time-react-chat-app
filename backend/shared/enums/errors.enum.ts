@@ -12,6 +12,10 @@ export enum InternalErrors {
     CONTACT_GROUP_002 = 'CONTACT_GROUP_002',
     CONTACT_GROUP_003 = 'CONTACT_GROUP_003',
     CONTACT_GROUP_004 = 'CONTACT_GROUP_004',
+
+    IGNORE_001 = 'IGNORE_001',
+    IGNORE_002 = 'IGNORE_002',
+    IGNORE_003 = 'IGNORE_003',
 }
 
 export enum ExternalErrors {
