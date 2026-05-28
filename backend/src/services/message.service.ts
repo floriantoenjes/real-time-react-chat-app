@@ -204,20 +204,6 @@ export class MessageService {
         if (isNotContactGroup) {
             await this.autoAddSenderToReceiverContacts(fromUserId, toUserId);
 
-            if (
-                receiver &&
-                !receiver.contacts.find((contact) => contact._id === fromUserId)
-                    ?.isAccepted
-            ) {
-                this.persistLastMessageForSender(
-                    sender,
-                    toUserId,
-                    newlyCreatedMessage,
-                );
-
-                return { status: 201 as const, body: newlyCreatedMessage };
-            }
-
             this.emitMessageViaWebSocket(toUserId, newlyCreatedMessage);
         } else if (contactGroup) {
             contactGroup.lastMessage = newlyCreatedMessage._id;
