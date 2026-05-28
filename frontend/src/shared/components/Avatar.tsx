@@ -1,16 +1,20 @@
 import { User } from "@t/user.contract";
 import { useEffect } from "react";
 import { Contact } from "@t/contact.contract";
+import { ContactGroup } from "@t/contact-group.contract";
+import { UsersIcon } from "@heroicons/react/24/outline";
 
 export function Avatar(props: {
     width?: string;
     height?: string;
-    user: User | Contact;
+    user: User | Contact | ContactGroup;
     squared?: boolean;
     isOnline?: boolean;
     noMargin?: boolean;
 }) {
     useEffect(() => {}, [props.user?.avatarBase64]);
+
+    const isContactGroup = props.user && "memberRefs" in props.user;
 
     return (
         <div
@@ -35,22 +39,24 @@ export function Avatar(props: {
                     }
                 ></div>
             )}
-            {(props.user.avatarBase64 || props.user.avatarFileName) && (
-                <img
-                    style={{
-                        maxHeight: "100%",
-                        borderRadius: props.squared ? "5%" : "50%",
-                    }}
-                    src={
-                        props.user?.avatarBase64
-                            ? `data:image/jpg;base64,${
-                                  props.user?.avatarBase64?.current ??
-                                  props.user.avatarBase64
-                              }`
-                            : "avatars/" + props.user?.avatarFileName
-                    }
-                />
-            )}
+            {!isContactGroup &&
+                (props.user.avatarBase64 || props.user.avatarFileName) && (
+                    <img
+                        style={{
+                            maxHeight: "100%",
+                            borderRadius: props.squared ? "5%" : "50%",
+                        }}
+                        src={
+                            props.user?.avatarBase64
+                                ? `data:image/jpg;base64,${
+                                      props.user?.avatarBase64?.current ??
+                                      props.user.avatarBase64
+                                  }`
+                                : "avatars/" + props.user?.avatarFileName
+                        }
+                    />
+                )}
+            {isContactGroup && <UsersIcon width={"2rem"} fill={"white"} />}
         </div>
     );
 }

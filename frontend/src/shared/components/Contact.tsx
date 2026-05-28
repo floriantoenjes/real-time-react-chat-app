@@ -6,7 +6,7 @@ import { Message } from "@t/message.contract";
 import { useI18nContext } from "../../i18n/i18n-react";
 
 export function Contact(props: {
-    contact: ContactModel;
+    contact: ContactModel | ContactGroup;
     selectedContact?: ContactModel | ContactGroup | undefined;
     onContactSelect?: () => void;
     isOnline?: boolean;
