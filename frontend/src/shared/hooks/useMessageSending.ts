@@ -89,6 +89,7 @@ export function useMessageSending(selectedContact: Contact | ContactGroup) {
                 read: false,
                 sent: false,
                 type,
+                owners: [messageToSend.fromUserId, messageToSend.toUserId],
             } satisfies Message,
         ];
         const updatedMessageIndex = updatedMessages.length - 1;
@@ -104,7 +105,7 @@ export function useMessageSending(selectedContact: Contact | ContactGroup) {
             return;
         }
 
-        if ("memberIds" in selectedContact) {
+        if ("memberRefs" in selectedContact) {
             updateContactGroupWithNewLastMessage(
                 setContactGroups,
                 selectedContact,

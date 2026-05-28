@@ -27,7 +27,7 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
     const [, setSelectedContact] = useContext(ContactsContext).selectedContact;
 
     const selectedContact = props.selectedContact;
-    const isAContactGroup = "memberIds" in selectedContact;
+    const isAContactGroup = "memberRefs" in selectedContact;
 
     const { isTyping } = useTypingIndicator(selectedContact._id);
     const { emptyChat, deleteChat, leaveGroup } = useContactActions();

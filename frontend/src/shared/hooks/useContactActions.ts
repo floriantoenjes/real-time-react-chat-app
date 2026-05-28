@@ -53,7 +53,7 @@ export function useContactActions() {
     }
 
     async function deleteChatContact(selectedContact: Contact | ContactGroup) {
-        const contactIsAGroup = "memberIds" in selectedContact;
+        const contactIsAGroup = "memberRefs" in selectedContact;
         if (contactIsAGroup) {
             const deletionResult =
                 await contactGroupService.deleteContactGroup(selectedContact);
@@ -97,7 +97,7 @@ export function useContactActions() {
         selectedContact: Contact | ContactGroup,
         callback?: () => void,
     ) {
-        if (!("memberIds" in selectedContact)) {
+        if (!("memberRefs" in selectedContact)) {
             return false;
         }
 

@@ -42,6 +42,7 @@ export function Avatar(props: {
             {!isContactGroup &&
                 (props.user.avatarBase64 || props.user.avatarFileName) && (
                     <img
+                        alt={"user avatar"}
                         style={{
                             maxHeight: "100%",
                             borderRadius: props.squared ? "5%" : "50%",

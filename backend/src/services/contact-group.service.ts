@@ -166,6 +166,7 @@ export class ContactGroupService {
         };
     }
 
+    // TODO: Might need some logic to remove user from the contact group entity itself here as well
     async leaveContactGroup(userId: string, contactGroupId: string) {
         const user = await this.userModel.findOne({ _id: userId });
 
