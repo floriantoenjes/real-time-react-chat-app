@@ -209,11 +209,11 @@ describe('MessageService', () => {
             expect(userRepository.findById).toHaveBeenCalled();
             expect(messageRepository.create).toHaveBeenCalled();
             expect(contactService.addContactIfNotExists).toHaveBeenCalled();
-            expect(receiverMarkModifiedMock).not.toHaveBeenCalled();
-            expect(receiverSaveMock).not.toHaveBeenCalled();
+            expect(receiverMarkModifiedMock).toHaveBeenCalled();
+            expect(receiverSaveMock).toHaveBeenCalled();
             expect(testSender.contacts[0].lastMessage).toEqual(testMessage._id);
             expect(testReceiver.contacts).toHaveLength(1);
-            expect(gatewayEmitMock).toHaveBeenCalledTimes(1);
+            expect(gatewayEmitMock).toHaveBeenCalledTimes(2);
             expect(gatewayEmitMock).toHaveBeenCalledWith(
                 'contactAutoAdded',
                 newContact,
