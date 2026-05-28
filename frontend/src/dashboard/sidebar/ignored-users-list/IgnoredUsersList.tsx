@@ -33,11 +33,13 @@ export function IgnoredUsersList() {
             }
             setLoading(true);
             try {
-                const userPromises = ignoredUserIds.map((id) =>
-                    userService.getUserById(id),
-                );
-                const usersData = await Promise.all(userPromises);
-                setUsers(usersData.filter((u) => u !== null) as User[]);
+                const allUsers = await userService.getUsers();
+                if (allUsers) {
+                    const usersData = allUsers.filter((user) =>
+                        ignoredUserIds.includes(user._id),
+                    );
+                    setUsers(usersData);
+                }
             } catch (error) {
                 console.error("Failed to fetch ignored users:", error);
             } finally {
