@@ -7,6 +7,8 @@ import { UserNotFoundException } from '../errors/internal/user-not-found.excepti
 import { CannotIgnoreSelfException } from '../errors/external/cannot-ignore-self.exception';
 import { AlreadyIgnoredException } from '../errors/external/already-ignored.exception';
 import { UserNotIgnoredException } from '../errors/external/user-not-ignored.exception';
+import { RealTimeChatGateway } from '../gateways/socket.gateway';
+import { SocketMessageTypes } from '../../shared/socket-message-types.enum';
 
 export interface PaginationParams {
     page?: number;
@@ -29,6 +31,7 @@ export class IgnoredUserService {
         private readonly ignoredUserModel: Model<IgnoredUserEntity>,
         @InjectModel(UserEntity.name)
         private readonly userModel: Model<UserEntity>,
+        private readonly gateway: RealTimeChatGateway,
     ) {}
 
     /**
@@ -72,6 +75,11 @@ export class IgnoredUserService {
             createdAt: new Date(),
         });
 
+        // Emit WebSocket event to the user who ignored
+        this.gateway
+            .prepareSendMessage(userId)
+            ?.emit(SocketMessageTypes.userIgnored, ignoredUserId);
+
         this.logger.log(`User ${userId} ignored user ${ignoredUserId}`);
     }
 
@@ -88,6 +96,11 @@ export class IgnoredUserService {
             this.logger.warn(`Unignore user failed: user ${userId} does not ignore user ${ignoredUserId}`);
             throw new UserNotIgnoredException();
         }
+
+        // Emit WebSocket event to the user who un-ignored
+        this.gateway
+            .prepareSendMessage(userId)
+            ?.emit(SocketMessageTypes.userUnignored, ignoredUserId);
 
         this.logger.log(`User ${userId} un-ignored user ${ignoredUserId}`);
     }
