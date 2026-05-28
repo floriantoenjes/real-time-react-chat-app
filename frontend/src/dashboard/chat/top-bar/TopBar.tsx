@@ -17,7 +17,7 @@ import { ArrowRightIcon } from "@heroicons/react/24/solid";
 import { useTypingIndicator } from "../../../shared/hooks/useTypingIndicator";
 import { useContactActions } from "../../../shared/hooks/useContactActions";
 import { useTopBarUI } from "../../../shared/hooks/useTopBarUI";
-import { ContactGroup } from "@t/contact-group.contract";
+import { ContactGroup, isContactGroup } from "@t/contact-group.contract";
 
 export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
     const { LL } = useI18nContext();
@@ -27,7 +27,6 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
     const [, setSelectedContact] = useContext(ContactsContext).selectedContact;
 
     const selectedContact = props.selectedContact;
-    const isAContactGroup = "memberRefs" in selectedContact;
 
     const { isTyping } = useTypingIndicator(selectedContact._id);
     const { emptyChat, deleteChat, leaveGroup } = useContactActions();
@@ -105,7 +104,7 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
                     >
                         {LL.EMPTY_CHAT()}
                     </MenuItem>
-                    {isAContactGroup ? (
+                    {isContactGroup(selectedContact) ? (
                         <MenuItem
                             onClick={() =>
                                 leaveGroup(selectedContact, handleClose)

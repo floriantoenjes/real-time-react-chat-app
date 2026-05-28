@@ -8,7 +8,7 @@ import { Message } from "@t/message.contract";
 import { MessageAddons } from "../enums/message";
 import { SocketMessageTypes } from "@t/socket-message-types.enum";
 import { Contact } from "@t/contact.contract";
-import { ContactGroup } from "@t/contact-group.contract";
+import { ContactGroup, isContactGroup } from "@t/contact-group.contract";
 
 function updateContactWithNewLastMessage(
     setContacts: (
@@ -105,7 +105,7 @@ export function useMessageSending(selectedContact: Contact | ContactGroup) {
             return;
         }
 
-        if ("memberRefs" in selectedContact) {
+        if (isContactGroup(selectedContact)) {
             updateContactGroupWithNewLastMessage(
                 setContactGroups,
                 selectedContact,

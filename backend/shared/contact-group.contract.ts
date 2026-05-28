@@ -85,3 +85,7 @@ export const contactGroupContract = c.router({
         summary: 'Remove a contact group',
     },
 });
+
+export function isContactGroup(contact: any): contact is ContactGroup {
+    return 'memberRefs' in contact;
+}

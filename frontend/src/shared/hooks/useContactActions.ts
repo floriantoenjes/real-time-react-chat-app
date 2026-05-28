@@ -5,7 +5,7 @@ import { useDiContext } from "../contexts/DiContext";
 import { SnackbarLevels, snackbarService } from "../contexts/SnackbarContext";
 import { useI18nContext } from "../../i18n/i18n-react";
 import { Contact } from "real-time-chat-backend/shared/contact.contract";
-import { ContactGroup } from "@t/contact-group.contract";
+import { ContactGroup, isContactGroup } from "@t/contact-group.contract";
 
 /**
  * Custom hook for contact-related actions (delete, leave group, etc.)
@@ -53,8 +53,7 @@ export function useContactActions() {
     }
 
     async function deleteChatContact(selectedContact: Contact | ContactGroup) {
-        const contactIsAGroup = "memberRefs" in selectedContact;
-        if (contactIsAGroup) {
+        if (isContactGroup(selectedContact)) {
             const deletionResult =
                 await contactGroupService.deleteContactGroup(selectedContact);
             if (deletionResult) {
@@ -97,7 +96,7 @@ export function useContactActions() {
         selectedContact: Contact | ContactGroup,
         callback?: () => void,
     ) {
-        if (!("memberRefs" in selectedContact)) {
+        if (!isContactGroup(selectedContact)) {
             return false;
         }
 

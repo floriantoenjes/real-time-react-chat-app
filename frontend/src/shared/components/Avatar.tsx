@@ -1,7 +1,7 @@
 import { User } from "@t/user.contract";
 import { useEffect } from "react";
 import { Contact } from "@t/contact.contract";
-import { ContactGroup } from "@t/contact-group.contract";
+import { ContactGroup, isContactGroup } from "@t/contact-group.contract";
 import { UsersIcon } from "@heroicons/react/24/outline";
 
 export function Avatar(props: {
@@ -13,8 +13,6 @@ export function Avatar(props: {
     noMargin?: boolean;
 }) {
     useEffect(() => {}, [props.user?.avatarBase64]);
-
-    const isContactGroup = props.user && "memberRefs" in props.user;
 
     return (
         <div
@@ -39,7 +37,7 @@ export function Avatar(props: {
                     }
                 ></div>
             )}
-            {!isContactGroup &&
+            {!isContactGroup(props.user) &&
                 (props.user.avatarBase64 || props.user.avatarFileName) && (
                     <img
                         alt={"user avatar"}
@@ -57,7 +55,9 @@ export function Avatar(props: {
                         }
                     />
                 )}
-            {isContactGroup && <UsersIcon width={"2rem"} fill={"white"} />}
+            {isContactGroup(props.user) && (
+                <UsersIcon width={"2rem"} fill={"white"} />
+            )}
         </div>
     );
 }
