@@ -46,6 +46,7 @@ const en = {
         COULD_NOT_DELETE_CONTACT_GROUP: "Error deleting contact group",
         COULD_NOT_DELETE_CONTACT: "Error deleting contact",
         COULD_NOT_LEAVE_GROUP: "Error leaving group",
+        COULD_NOT_UNIGNORE_USER: "Error un-ignoring user",
     },
     EMAIL_OR_PASSWORD_INCORRECT: "Email or password incorrect",
     AUDIO_MESSAGE: "Audio message",
@@ -59,6 +60,18 @@ const en = {
         "Do you want to accept {contactName} as a contact for further messages?",
     CONTACT_ENABLED: "Enabled {contactName} for further messages",
     NOT_TWO_CONTACTS: "You need at least two contacts to create a group",
+    IGNORE: "Ignore",
+    IGNORE_USER_SUCCESS: "{contactName} has been ignored",
+    UNIGNORE: "Un-ignore",
+    UNIGNORE_USER_SUCCESS: "{contactName} has been un-ignored",
+    IGNORED_USERS: "Ignored Users",
+    NO_IGNORED_USERS: "You have not ignored any users",
+    LOADING: "Loading...",
+    CONFIRM_IGNORE: "Confirm Ignore",
+    CONFIRM_UNIGNORE: "Confirm Un-ignore",
+    IGNORE_CONFIRMATION: "Are you sure you want to ignore {contactName}?",
+    UNIGNORE_CONFIRMATION: "Are you sure you want to un-ignore {username}?",
+    CANCEL: "Cancel",
 } satisfies BaseTranslation;
 
 export default en;

@@ -10,6 +10,7 @@ import {
     snackbarService,
 } from "../../../shared/contexts/SnackbarContext";
 import { useI18nContext } from "../../../i18n/i18n-react";
+import { IgnoreConfirmationDialog } from "../../../shared/components/IgnoreConfirmationDialog";
 
 interface ContactRequestProps {
     selectedContact?: Contact | ContactGroup;
@@ -17,10 +18,12 @@ interface ContactRequestProps {
 
 export function ContactRequest({ selectedContact }: ContactRequestProps) {
     const contactRequestService = useDiContext().ContactRequestService;
+    const ignoredUserService = useDiContext().IgnoredUserService;
     const [contactRequest, setContactRequest] = useState<ContactRequest>();
     const [, setContacts] = useContext(ContactsContext).contacts;
     const [, setSelectedContact] = useContext(ContactsContext).selectedContact;
     const { LL } = useI18nContext();
+    const [ignoreDialogOpen, setIgnoreDialogOpen] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -123,9 +126,41 @@ export function ContactRequest({ selectedContact }: ContactRequestProps) {
                         >
                             No
                         </Button>
+                        <Button
+                            onClick={() => setIgnoreDialogOpen(true)}
+                            color="error"
+                        >
+                            {LL.IGNORE()}
+                        </Button>
                     </CardActions>
                 </Card>
             )}
+
+            <IgnoreConfirmationDialog
+                open={ignoreDialogOpen}
+                onClose={() => setIgnoreDialogOpen(false)}
+                onConfirm={async () => {
+                    if (!contactRequest || !selectedContact) {
+                        return;
+                    }
+                    await ignoredUserService.ignoreFromContactRequest(
+                        contactRequest._id,
+                    );
+                    setContacts((prevState) => {
+                        return prevState.filter(
+                            (c) => c._id !== contactRequest.initiatorId,
+                        );
+                    });
+                    setSelectedContact(undefined);
+                    snackbarService.showSnackbar(
+                        LL.IGNORE_USER_SUCCESS({
+                            contactName: selectedContact.name,
+                        }),
+                        SnackbarLevels.SUCCESS,
+                    );
+                }}
+                contactName={selectedContact?.name ?? ""}
+            />
         </div>
     );
 }

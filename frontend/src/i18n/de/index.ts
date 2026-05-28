@@ -47,6 +47,7 @@ const de = {
         COULD_NOT_DELETE_CONTACT_GROUP: "Gruppe konnte nicht entfernt werden",
         COULD_NOT_DELETE_CONTACT: "Kontakt konnte nicht entfernt werden",
         COULD_NOT_LEAVE_GROUP: "Gruppe konnte nicht verlassen werden",
+        COULD_NOT_UNIGNORE_USER: "Fehler beim Aufheben der Ignorierung",
     },
     EMAIL_OR_PASSWORD_INCORRECT: "E-Mail oder Passwort sind inkorrekt",
     AUDIO_MESSAGE: "Sprachnachricht",
@@ -61,6 +62,18 @@ const de = {
     CONTACT_ENABLED: "Kontakt {contactName} freigegeben",
     NOT_TWO_CONTACTS:
         "Es braucht mindestens zwei Kontakte um eine Gruppe zu erstellen",
+    IGNORE: "Ignorieren",
+    IGNORE_USER_SUCCESS: "{contactName} wurde ignoriert",
+    UNIGNORE: "Ignorierung aufheben",
+    UNIGNORE_USER_SUCCESS: "{contactName} wurde nicht mehr ignoriert",
+    IGNORED_USERS: "Ignorierte Benutzer",
+    NO_IGNORED_USERS: "Sie haben keine Benutzer ignoriert",
+    LOADING: "Wird geladen...",
+    CONFIRM_IGNORE: "Ignorieren bestätigen",
+    CONFIRM_UNIGNORE: "Ignorierung aufheben bestätigen",
+    IGNORE_CONFIRMATION: "Möchten Sie {contactName} wirklich ignorieren?",
+    UNIGNORE_CONFIRMATION: "Möchten Sie die Ignorierung von {username} wirklich aufheben?",
+    CANCEL: "Abbrechen",
 } satisfies Translation;
 
 export default de;

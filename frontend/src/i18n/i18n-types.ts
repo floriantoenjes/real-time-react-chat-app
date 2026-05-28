@@ -186,6 +186,10 @@ type RootTranslation = {
 		 * E​r​r​o​r​ ​l​e​a​v​i​n​g​ ​g​r​o​u​p
 		 */
 		COULD_NOT_LEAVE_GROUP: string
+		/**
+		 * E​r​r​o​r​ ​u​n​-​i​g​n​o​r​i​n​g​ ​u​s​e​r
+		 */
+		COULD_NOT_UNIGNORE_USER: string
 	}
 	/**
 	 * E​m​a​i​l​ ​o​r​ ​p​a​s​s​w​o​r​d​ ​i​n​c​o​r​r​e​c​t
@@ -233,6 +237,58 @@ type RootTranslation = {
 	 * Y​o​u​ ​n​e​e​d​ ​a​t​ ​l​e​a​s​t​ ​t​w​o​ ​c​o​n​t​a​c​t​s​ ​t​o​ ​c​r​e​a​t​e​ ​a​ ​g​r​o​u​p
 	 */
 	NOT_TWO_CONTACTS: string
+	/**
+	 * I​g​n​o​r​e
+	 */
+	IGNORE: string
+	/**
+	 * {​c​o​n​t​a​c​t​N​a​m​e​}​ ​h​a​s​ ​b​e​e​n​ ​i​g​n​o​r​e​d
+	 * @param {unknown} contactName
+	 */
+	IGNORE_USER_SUCCESS: RequiredParams<'contactName'>
+	/**
+	 * U​n​-​i​g​n​o​r​e
+	 */
+	UNIGNORE: string
+	/**
+	 * {​c​o​n​t​a​c​t​N​a​m​e​}​ ​h​a​s​ ​b​e​e​n​ ​u​n​-​i​g​n​o​r​e​d
+	 * @param {unknown} contactName
+	 */
+	UNIGNORE_USER_SUCCESS: RequiredParams<'contactName'>
+	/**
+	 * I​g​n​o​r​e​d​ ​U​s​e​r​s
+	 */
+	IGNORED_USERS: string
+	/**
+	 * Y​o​u​ ​h​a​v​e​ ​n​o​t​ ​i​g​n​o​r​e​d​ ​a​n​y​ ​u​s​e​r​s
+	 */
+	NO_IGNORED_USERS: string
+	/**
+	 * L​o​a​d​i​n​g​.​.​.
+	 */
+	LOADING: string
+	/**
+	 * C​o​n​f​i​r​m​ ​I​g​n​o​r​e
+	 */
+	CONFIRM_IGNORE: string
+	/**
+	 * C​o​n​f​i​r​m​ ​U​n​-​i​g​n​o​r​e
+	 */
+	CONFIRM_UNIGNORE: string
+	/**
+	 * A​r​e​ ​y​o​u​ ​s​u​r​e​ ​y​o​u​ ​w​a​n​t​ ​t​o​ ​i​g​n​o​r​e​ ​{​c​o​n​t​a​c​t​N​a​m​e​}​?
+	 * @param {unknown} contactName
+	 */
+	IGNORE_CONFIRMATION: RequiredParams<'contactName'>
+	/**
+	 * A​r​e​ ​y​o​u​ ​s​u​r​e​ ​y​o​u​ ​w​a​n​t​ ​t​o​ ​u​n​-​i​g​n​o​r​e​ ​{​u​s​e​r​n​a​m​e​}​?
+	 * @param {unknown} username
+	 */
+	UNIGNORE_CONFIRMATION: RequiredParams<'username'>
+	/**
+	 * C​a​n​c​e​l
+	 */
+	CANCEL: string
 }
 
 export type TranslationFunctions = {
@@ -405,6 +461,10 @@ export type TranslationFunctions = {
 		 * Error leaving group
 		 */
 		COULD_NOT_LEAVE_GROUP: () => LocalizedString
+		/**
+		 * Error un-ignoring user
+		 */
+		COULD_NOT_UNIGNORE_USER: () => LocalizedString
 	}
 	/**
 	 * Email or password incorrect
@@ -450,6 +510,54 @@ export type TranslationFunctions = {
 	 * You need at least two contacts to create a group
 	 */
 	NOT_TWO_CONTACTS: () => LocalizedString
+	/**
+	 * Ignore
+	 */
+	IGNORE: () => LocalizedString
+	/**
+	 * {contactName} has been ignored
+	 */
+	IGNORE_USER_SUCCESS: (arg: { contactName: unknown }) => LocalizedString
+	/**
+	 * Un-ignore
+	 */
+	UNIGNORE: () => LocalizedString
+	/**
+	 * {contactName} has been un-ignored
+	 */
+	UNIGNORE_USER_SUCCESS: (arg: { contactName: unknown }) => LocalizedString
+	/**
+	 * Ignored Users
+	 */
+	IGNORED_USERS: () => LocalizedString
+	/**
+	 * You have not ignored any users
+	 */
+	NO_IGNORED_USERS: () => LocalizedString
+	/**
+	 * Loading...
+	 */
+	LOADING: () => LocalizedString
+	/**
+	 * Confirm Ignore
+	 */
+	CONFIRM_IGNORE: () => LocalizedString
+	/**
+	 * Confirm Un-ignore
+	 */
+	CONFIRM_UNIGNORE: () => LocalizedString
+	/**
+	 * Are you sure you want to ignore {contactName}?
+	 */
+	IGNORE_CONFIRMATION: (arg: { contactName: unknown }) => LocalizedString
+	/**
+	 * Are you sure you want to un-ignore {username}?
+	 */
+	UNIGNORE_CONFIRMATION: (arg: { username: unknown }) => LocalizedString
+	/**
+	 * Cancel
+	 */
+	CANCEL: () => LocalizedString
 }
 
 export type Formatters = {}
