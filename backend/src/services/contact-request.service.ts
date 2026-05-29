@@ -7,12 +7,14 @@ import { UserEntity } from '../schemas/user.schema';
 import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
 import { ObjectNotFoundException } from '../errors/internal/object-not-found.exception';
 import { ContactNotFoundException } from '../errors/internal/contact-not-found.exception';
+import { IgnoredUserService } from './ignored-user.service';
 
 @Injectable()
 export class ContactRequestService {
     constructor(
         @InjectModel(ContactRequestEntity.name)
         private readonly contactRequestModel: Model<ContactRequestEntity>,
+        private readonly ignoredUserService: IgnoredUserService,
         @InjectModel(UserEntity.name)
         private readonly userModel: Model<UserEntity>,
     ) {}
@@ -77,5 +79,28 @@ export class ContactRequestService {
             targetUser.markModified('contacts');
             await targetUser.save();
         }
+    }
+
+    public async ignoreFromContactRequest(
+        userId: string,
+        contactRequestId: string,
+    ) {
+        const contactRequest =
+            await this.contactRequestModel.findById(contactRequestId);
+
+        if (!contactRequest) {
+            throw new ObjectNotFoundException();
+        }
+
+        if (contactRequest.targetUserId !== userId) {
+            throw new ObjectNotFoundException();
+        }
+
+        await this.ignoredUserService.ignoreUser(
+            userId,
+            contactRequest.initiatorId,
+        );
+
+        await contactRequest.deleteOne();
     }
 }

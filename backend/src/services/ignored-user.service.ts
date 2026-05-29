@@ -1,6 +1,6 @@
-import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { HydratedDocument, Model } from 'mongoose';
 import { IgnoredUserEntity } from '../schemas/ignored-user.schema';
 import { UserEntity } from '../schemas/user.schema';
 import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
@@ -43,7 +43,7 @@ export class IgnoredUserService {
         ignoredUserId: string,
     ): Promise<void> {
         // Validate user exists
-        const user = await this.userModel.findById(userId).lean();
+        const user = await this.userModel.findById(userId);
         if (!user) {
             this.logger.warn(`Ignore user failed: user ${userId} not found`);
             throw new UserNotFoundException();
@@ -85,12 +85,25 @@ export class IgnoredUserService {
             createdAt: new Date(),
         });
 
+        await this.removeContactFromUserEntity(user, ignoredUserId);
+
         // Emit WebSocket event to the user who ignored
         this.gateway
             .prepareSendMessage(userId)
             ?.emit(SocketMessageTypes.userIgnored, ignoredUserId);
 
         this.logger.log(`User ${userId} ignored user ${ignoredUserId}`);
+    }
+
+    private async removeContactFromUserEntity(
+        user: HydratedDocument<UserEntity>,
+        ignoredUserId: string,
+    ) {
+        user.contacts = user.contacts.filter(
+            (contact) => contact._id !== ignoredUserId,
+        );
+        user.markModified('contacts');
+        await user.save();
     }
 
     /**

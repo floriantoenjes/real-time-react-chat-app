@@ -4,10 +4,6 @@ import { UserId } from '../decorators/user-id.decorator';
 import { ignoredUserContract } from '../../shared/ignored-user.contract';
 import { IgnoredUserService } from '../services/ignored-user.service';
 import { ContactRequestService } from '../services/contact-request.service';
-import { ContactRequestEntity } from '../schemas/contact-request.schema';
-import { ObjectNotFoundException } from '../errors/internal/object-not-found.exception';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 
 @Controller()
 export class IgnoredUserController {
@@ -16,8 +12,6 @@ export class IgnoredUserController {
     constructor(
         private readonly ignoredUserService: IgnoredUserService,
         private readonly contactRequestService: ContactRequestService,
-        @InjectModel(ContactRequestEntity.name)
-        private readonly contactRequestModel: Model<ContactRequestEntity>,
     ) {}
 
     @TsRestHandler(ignoredUserContract.ignoreUser)
@@ -80,24 +74,10 @@ export class IgnoredUserController {
         return tsRestHandler(
             ignoredUserContract.ignoreFromContactRequest,
             async ({ body }) => {
-                const contactRequest = await this.contactRequestModel.findById(
+                await this.contactRequestService.ignoreFromContactRequest(
+                    userId,
                     body.contactRequestId,
                 );
-
-                if (!contactRequest) {
-                    throw new ObjectNotFoundException();
-                }
-
-                if (contactRequest.targetUserId !== userId) {
-                    throw new ObjectNotFoundException();
-                }
-
-                await this.ignoredUserService.ignoreUser(
-                    userId,
-                    contactRequest.initiatorId,
-                );
-
-                await contactRequest.deleteOne();
 
                 return {
                     status: 201 as const,
