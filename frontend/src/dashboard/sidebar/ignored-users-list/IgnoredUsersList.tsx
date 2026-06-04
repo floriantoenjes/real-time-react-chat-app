@@ -1,5 +1,12 @@
-import { useContext, useEffect, useState } from "react";
-import { IconButton, List, ListItem, ListItemAvatar, ListItemText, Tooltip } from "@mui/material";
+import { useEffect, useState } from "react";
+import {
+    IconButton,
+    List,
+    ListItem,
+    ListItemAvatar,
+    ListItemText,
+    Tooltip,
+} from "@mui/material";
 import { User } from "@t/user.contract";
 import { useDiContext } from "../../../shared/contexts/DiContext";
 import { useIgnoredUsersContext } from "../../../shared/contexts/IgnoredUsersContext";
@@ -60,7 +67,9 @@ export function IgnoredUsersList() {
         try {
             await ignoredUserService.unignoreUser(userToUnignore._id);
             snackbarService.showSnackbar(
-                LL.UNIGNORE_USER_SUCCESS({ contactName: userToUnignore.username }),
+                LL.UNIGNORE_USER_SUCCESS({
+                    contactName: userToUnignore.username,
+                }),
                 SnackbarLevels.SUCCESS,
             );
         } catch (error) {
@@ -91,7 +100,9 @@ export function IgnoredUsersList() {
                                 <Tooltip title={LL.UNIGNORE()}>
                                     <IconButton
                                         edge="end"
-                                        onClick={() => handleUnignoreClick(user)}
+                                        onClick={() =>
+                                            handleUnignoreClick(user)
+                                        }
                                         color="primary"
                                     >
                                         <XMarkIcon className="w-5 h-5" />
@@ -100,7 +111,11 @@ export function IgnoredUsersList() {
                             }
                         >
                             <ListItemAvatar>
-                                <Avatar user={user} width="2.5rem" height="2.5rem" />
+                                <Avatar
+                                    user={user}
+                                    width="2.5rem"
+                                    height="2.5rem"
+                                />
                             </ListItemAvatar>
                             <ListItemText primary={user.username} />
                         </ListItem>

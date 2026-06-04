@@ -17,9 +17,14 @@ export class IgnoredUserService {
     }
 
     async getIgnoredUsers(page?: number, limit?: number) {
-        return this.clientService
+        const res = await this.clientService
             .getClient(ignoredUserContract)
             .getIgnoredUsers({ query: { page, limit } });
+        if (res.status !== 200) {
+            return false;
+        }
+
+        return res.body;
     }
 
     async ignoreFromContactRequest(contactRequestId: string) {

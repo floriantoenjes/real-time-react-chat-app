@@ -33,10 +33,12 @@ export function IgnoredUsersProvider({ children }: { children: ReactNode }) {
                 setIgnoredUserIds([]);
                 return;
             }
-            const response = await ignoredUserService.getIgnoredUsers();
-            if (response.status === 200) {
-                setIgnoredUserIds(response.body.data);
+            const ignoredUsersResponse =
+                await ignoredUserService.getIgnoredUsers();
+            if (!ignoredUsersResponse) {
+                return;
             }
+            setIgnoredUserIds(ignoredUsersResponse.data);
         })();
     }, [user?._id]);
 
