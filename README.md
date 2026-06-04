@@ -78,7 +78,7 @@ A WhatsApp-style real-time chat application featuring video/voice calls, group m
 ## Features
 
 - User registration, login, and logout with secure password hashing
-- Add contacts and send direct messages
+- Send contact requests, add contacts, send direct messages, or ignore users
 - Create group chats with multiple participants
 - Real-time message delivery and read receipts
 - User profile editing and viewing

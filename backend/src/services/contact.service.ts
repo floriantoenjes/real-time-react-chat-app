@@ -8,6 +8,8 @@ import { UserNotFoundException } from '../errors/internal/user-not-found.excepti
 import { ContactNotFoundException } from '../errors/internal/contact-not-found.exception';
 import { ContactAlreadyExistsException } from '../errors/internal/contact-already-exists.exception';
 import { ContactRequestEntity } from '../schemas/contact-request.schema';
+import { IgnoredUserService } from './ignored-user.service';
+import { UserIsIgnoredException } from '../errors/external/user-is-ignored.exception';
 
 @Injectable()
 export class ContactService {
@@ -18,6 +20,7 @@ export class ContactService {
         private contactRequestModel: Model<ContactRequestEntity>,
         private readonly onlineStatusService: OnlineStatusService,
         @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
+        private readonly ignoredUserService: IgnoredUserService,
     ) {}
 
     async getUserContacts(userId: string) {
@@ -99,6 +102,18 @@ export class ContactService {
             isAccepted: true,
         } as Contact;
 
+        // Check if user is ignored
+        const isIgnored = await this.ignoredUserService.isUserIgnored(
+            userId,
+            newContactId,
+        );
+        if (isIgnored) {
+            this.logger.warn(
+                `User ${userId} tried to add ignored user ${newContactId} as contact`,
+            );
+            throw new UserIsIgnoredException();
+        }
+
         const contactAlreadyExists = user.contacts.find(
             (uc) => uc._id === newContact._id,
         );
@@ -124,6 +139,18 @@ export class ContactService {
         userId: string,
         newContactId: string,
     ): Promise<Contact | null> {
+        // Check if user has ignored the new contact
+        const isIgnored = await this.ignoredUserService.isUserIgnored(
+            userId,
+            newContactId,
+        );
+        if (isIgnored) {
+            this.logger.warn(
+                `Auto-add contact failed: user ${userId} has ignored user ${newContactId}`,
+            );
+            return null;
+        }
+
         const user = await this.userModel.findOne({ _id: userId });
 
         if (!user) {

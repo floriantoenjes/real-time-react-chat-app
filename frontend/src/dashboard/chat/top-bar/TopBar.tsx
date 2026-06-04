@@ -5,7 +5,7 @@ import {
     VideoCameraIcon,
 } from "@heroicons/react/24/outline";
 import { Drawer, Fade, IconButton, Menu, MenuItem } from "@mui/material";
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { useOnlineStatus } from "../../../shared/contexts/OnlineStatusContext";
 import { useUserContext } from "../../../shared/contexts/UserContext";
@@ -18,13 +18,21 @@ import { useTypingIndicator } from "../../../shared/hooks/useTypingIndicator";
 import { useContactActions } from "../../../shared/hooks/useContactActions";
 import { useTopBarUI } from "../../../shared/hooks/useTopBarUI";
 import { ContactGroup, isContactGroup } from "@t/contact-group.contract";
+import { useDiContext } from "../../../shared/contexts/DiContext";
+import { IgnoreConfirmationDialog } from "../../../shared/components/IgnoreConfirmationDialog";
+import {
+    SnackbarLevels,
+    snackbarService,
+} from "../../../shared/contexts/SnackbarContext";
 
 export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
     const { LL } = useI18nContext();
     const [user] = useUserContext();
+    const [userContext] = useUserContext();
     const { contactsOnlineStatus } = useOnlineStatus();
     const { startCall } = useContext(PeerContext);
     const [, setSelectedContact] = useContext(ContactsContext).selectedContact;
+    const ignoredUserService = useDiContext().IgnoredUserService;
 
     const selectedContact = props.selectedContact;
 
@@ -32,6 +40,7 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
     const { emptyChat, deleteChat, leaveGroup } = useContactActions();
     const { anchorEl, open, state, handleClick, handleClose, toggleDrawer } =
         useTopBarUI();
+    const [ignoreDialogOpen, setIgnoreDialogOpen] = useState(false);
 
     return (
         <div
@@ -113,13 +122,25 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
                             {LL.LEAVE_GROUP()}
                         </MenuItem>
                     ) : (
-                        <MenuItem
-                            onClick={() =>
-                                deleteChat(selectedContact, handleClose)
-                            }
-                        >
-                            {LL.DELETE_CHAT()}
-                        </MenuItem>
+                        <>
+                            <MenuItem
+                                onClick={() =>
+                                    deleteChat(selectedContact, handleClose)
+                                }
+                            >
+                                {LL.DELETE_CHAT()}
+                            </MenuItem>
+                            {selectedContact._id !== userContext._id && (
+                                <MenuItem
+                                    onClick={() => {
+                                        handleClose();
+                                        setIgnoreDialogOpen(true);
+                                    }}
+                                >
+                                    {LL.IGNORE()}
+                                </MenuItem>
+                            )}
+                        </>
                     )}
                 </Menu>
             </div>
@@ -165,6 +186,26 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
                     </div>
                 </Drawer>
             )}
+
+            <IgnoreConfirmationDialog
+                open={ignoreDialogOpen}
+                onClose={() => setIgnoreDialogOpen(false)}
+                onConfirm={async () => {
+                    if (!isContactGroup(selectedContact)) {
+                        await ignoredUserService.ignoreUser(
+                            selectedContact._id,
+                        );
+                        setSelectedContact(undefined);
+                        snackbarService.showSnackbar(
+                            LL.IGNORE_USER_SUCCESS({
+                                contactName: selectedContact.name,
+                            }),
+                            SnackbarLevels.SUCCESS,
+                        );
+                    }
+                }}
+                contactName={selectedContact.name}
+            />
         </div>
     );
 }

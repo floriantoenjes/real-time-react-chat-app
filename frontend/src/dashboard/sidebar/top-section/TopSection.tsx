@@ -4,13 +4,15 @@ import {
     ChevronDownIcon,
     GlobeAltIcon,
     PlusIcon,
+    UserMinusIcon,
 } from "@heroicons/react/24/outline";
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import "./TopSection.css";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { Avatar } from "../../../shared/components/Avatar";
 import { UserProfile } from "./user-profile/UserProfile";
 import { GroupCreation } from "./group-creation/GroupCreation";
+import { IgnoredUsersList } from "../ignored-users-list/IgnoredUsersList";
 import { useI18nContext } from "../../../i18n/i18n-react";
 import { LanguageModal } from "./language-modal/LanguageModal";
 import { useSidebarTopSectionUI } from "../../../shared/hooks/useSidebarTopSectionUI";
@@ -87,6 +89,10 @@ export function TopSection() {
                             <GlobeAltIcon className={"w-4 mr-2"} />
                             {LL.CHANGE_LANGUAGE()}
                         </MenuItem>
+                        <MenuItem onClick={toggleDrawer("left", true, "ignoredUsers")}>
+                            <UserMinusIcon className={"w-4 mr-2"} />
+                            {LL.IGNORED_USERS()}
+                        </MenuItem>
                         <MenuItem onClick={signOut}>
                             <ArrowRightStartOnRectangleIcon
                                 className={"w-4 mr-2"}
@@ -109,6 +115,7 @@ export function TopSection() {
                     {section === "profile" && (
                         <UserProfile toggleDrawer={toggleDrawer} />
                     )}
+                    {section === "ignoredUsers" && <IgnoredUsersList />}
                 </Drawer>
             </div>
             <LanguageModal modalOpen={modalOpen} setModalOpen={setModalOpen} />

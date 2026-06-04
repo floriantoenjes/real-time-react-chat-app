@@ -8,4 +8,6 @@ export enum SocketMessageTypes {
     ping = 'ping',
     pong = 'pong',
     typing = 'typing',
+    userIgnored = 'userIgnored',
+    userUnignored = 'userUnignored',
 }

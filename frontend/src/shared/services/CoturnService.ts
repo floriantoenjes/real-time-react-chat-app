@@ -7,7 +7,7 @@ export class CoturnService {
     async getCredentials() {
         const response = await this.clientService
             .getClient(coturnContract)
-            .getCredentials();
+            .getCredentials({});
 
         if (response.status !== 200) {
             return false;

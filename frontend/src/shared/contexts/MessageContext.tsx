@@ -17,6 +17,7 @@ import { useDiContext } from "./DiContext";
 import { ContactsContext } from "./ContactsContext";
 import { useUserContext } from "./UserContext";
 import { MessageAddons } from "../enums/message";
+import { IgnoredUsersContext } from "./IgnoredUsersContext";
 
 export const MessageContext = createContext<{
     messages: [Message[], Dispatch<SetStateAction<Message[]>>];
@@ -40,12 +41,18 @@ export function MessageProvider({ children }: { children: ReactNode }) {
     const [user] = useUserContext();
     const [contactGroups] = useContext(ContactsContext).contactGroups;
     const [selectedContact] = useContext(ContactsContext).selectedContact;
+    const [ignoredUserIds] = useContext(IgnoredUsersContext).ignoredUserIds;
     const messageService = useDiContext().MessageService;
 
     const messagesCache = useRef<Map<string, Message[]>>(new Map());
 
     const addMessage = useEffectEvent((message: Message) => {
         message = MessageSchema.parse(message);
+
+        // Filter out messages from ignored users
+        if (ignoredUserIds.includes(message.fromUserId)) {
+            return;
+        }
 
         const isGroupMessage = contactGroups.some(
             (group) => group._id === message.toUserId,

@@ -42,11 +42,17 @@ import {
     FileAccessSchema,
 } from './schemas/file-access.schema';
 import { ContactRequestService } from './services/contact-request.service';
+import { IgnoredUserService } from './services/ignored-user.service';
 import {
     ContactRequestEntity,
     ContactRequestSchema,
 } from './schemas/contact-request.schema';
+import {
+    IgnoredUserEntity,
+    IgnoredUserSchema,
+} from './schemas/ignored-user.schema';
 import { ContactRequestController } from './controllers/contact-request.controller';
+import { IgnoredUserController } from './controllers/ignored-user.controller';
 
 @Module({
     imports: [
@@ -68,6 +74,7 @@ import { ContactRequestController } from './controllers/contact-request.controll
             { name: ContactGroupEntity.name, schema: ContactGroupSchema },
             { name: ContactRequestEntity.name, schema: ContactRequestSchema },
             { name: FileAccessEntity.name, schema: FileAccessSchema },
+            { name: IgnoredUserEntity.name, schema: IgnoredUserSchema },
             { name: MessageEntity.name, schema: MessageSchema },
             { name: UserEntity.name, schema: UserSchema },
         ]),
@@ -98,6 +105,7 @@ import { ContactRequestController } from './controllers/contact-request.controll
         ContactController,
         ContactGroupController,
         ContactRequestController,
+        IgnoredUserController,
         CoturnController,
         FileController,
         LoggingController,
@@ -109,6 +117,7 @@ import { ContactRequestController } from './controllers/contact-request.controll
         ContactService,
         ContactGroupService,
         ContactRequestService,
+        IgnoredUserService,
         MessageService,
         ObjectStorageService,
         OnlineStatusService,

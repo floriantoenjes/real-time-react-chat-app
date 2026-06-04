@@ -9,6 +9,7 @@ import { FileService } from "../services/FileService";
 import { LoggingService } from "../services/LoggingService";
 import { CoturnService } from "../services/CoturnService";
 import { ContactRequestService } from "../services/ContactRequestService";
+import { IgnoredUserService } from "../services/IgnoredUserService";
 
 const clientService = new ClientService();
 const userService = new UserService(clientService);
@@ -20,6 +21,7 @@ const container = {
     ContactRequestService: new ContactRequestService(clientService),
     CoturnService: new CoturnService(clientService),
     FileService: new FileService(clientService),
+    IgnoredUserService: new IgnoredUserService(clientService),
     LoggingService: new LoggingService(clientService),
     MessageService: new MessageService(clientService),
     UserService: userService,
