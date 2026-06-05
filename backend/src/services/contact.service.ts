@@ -14,7 +14,6 @@ import { EventBusService } from './event-bus.service';
 import {
     ContactAutoAddEvent,
     ContactAddedEvent,
-    ContactGroupAutoAddEvent,
 } from '../events';
 
 @Injectable()
@@ -57,18 +56,6 @@ export class ContactService implements OnModuleInit {
                         `Failed to handle contact.auto-add event: ${error}`,
                     );
                 }
-            },
-        );
-
-        // Listen for contact-group.auto-add events from MessageService
-        this.eventBus.on<ContactGroupAutoAddEvent>(
-            'contact-group.auto-add',
-            (payload: ContactGroupAutoAddEvent) => {
-                this.logger.debug(
-                    `Handling auto-add group: user=${payload.userId}, group=${payload.group._id}`,
-                );
-                // The group is already personalized for the user in the event payload
-                // Just re-emit it for any additional processing if needed
             },
         );
     }
