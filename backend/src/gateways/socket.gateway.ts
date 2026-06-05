@@ -23,6 +23,7 @@ import {
     ContactGroupAutoAddEvent,
 } from '../events/contact.events';
 import { MessageReadEvent, MessageSentEvent } from '../events/message.events';
+import { EventNames } from '../events/event-names.enum';
 
 @WebSocketGateway({
     cors: {
@@ -70,7 +71,7 @@ export class RealTimeChatGateway
 
     private processIgnoreEvents() {
         this.eventBus.on<UserIgnoredEvent>(
-            'user.ignored',
+            EventNames.USER_IGNORED,
             (payload: UserIgnoredEvent) => {
                 this.logger.debug(
                     `Broadcasting user ignored: ${payload.ignoredUserId} by ${payload.userId}`,
@@ -85,7 +86,7 @@ export class RealTimeChatGateway
         );
 
         this.eventBus.on<UserUnignoredEvent>(
-            'user.unignored',
+            EventNames.USER_UNIGNORED,
             (payload: UserUnignoredEvent) => {
                 this.logger.debug(
                     `Broadcasting user unignored: ${payload.unignoredUserId} by ${payload.userId}`,
@@ -102,7 +103,7 @@ export class RealTimeChatGateway
 
     private processContactEvents() {
         this.eventBus.on<ContactAddedEvent>(
-            'contact.added',
+            EventNames.CONTACT_ADDED,
             (payload: ContactAddedEvent) => {
                 this.logger.debug(
                     `Broadcasting contact added ${payload.contact._id} for user ${payload.userId}`,
@@ -114,7 +115,7 @@ export class RealTimeChatGateway
         );
 
         this.eventBus.on<ContactGroupAutoAddEvent>(
-            'contact-group.auto-add',
+            EventNames.CONTACT_GROUP_AUTO_ADD,
             (payload: ContactGroupAutoAddEvent) => {
                 this.logger.debug(
                     `Auto-adding group ${payload.group._id} for user ${payload.userId}`,
@@ -131,7 +132,7 @@ export class RealTimeChatGateway
 
     private processMessageEvents() {
         this.eventBus.on<MessageSentEvent>(
-            'message.sent',
+            EventNames.MESSAGE_SENT,
             (payload: MessageSentEvent) => {
                 this.logger.debug(
                     `Broadcasting message ${payload.message._id.toString()} to ${payload.recipientId}`,
@@ -143,7 +144,7 @@ export class RealTimeChatGateway
         );
 
         this.eventBus.on<MessageReadEvent>(
-            'message.read',
+            EventNames.MESSAGE_READ,
             (payload: MessageReadEvent) => {
                 this.logger.debug(
                     `Broadcasting message read ${payload.messageId} to ${payload.readerUserId}`,
