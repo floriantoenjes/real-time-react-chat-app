@@ -221,13 +221,6 @@ export class MessageService {
 
         const newlyCreatedMessage = await this.messageModel.create(newMessage);
 
-        const messageSentPayload: MessageSentEvent = {
-            fromUserId,
-            toUserId,
-            message: newlyCreatedMessage,
-            isGroup: !!contactGroup,
-        };
-
         if (isNotContactGroup) {
             this.eventBus.emitAsync<ContactAutoAddEvent>(
                 EventNames.CONTACT_AUTO_ADD,
@@ -236,10 +229,10 @@ export class MessageService {
                     contactUserId: fromUserId,
                 },
             );
-            this.eventBus.emitAsync<MessageSentEvent>(
-                EventNames.MESSAGE_SENT,
-                messageSentPayload,
-            );
+            this.eventBus.emitAsync<MessageSentEvent>(EventNames.MESSAGE_SENT, {
+                message: newlyCreatedMessage,
+                toUserId,
+            });
         } else if (contactGroup) {
             contactGroup.lastMessage = newlyCreatedMessage._id;
             await this.contactGroupModel.updateOne(
@@ -273,7 +266,7 @@ export class MessageService {
                 this.eventBus.emitAsync<MessageSentEvent>(
                     EventNames.MESSAGE_SENT,
                     {
-                        ...messageSentPayload,
+                        message: newlyCreatedMessage,
                         toUserId: memberRef.memberId,
                     },
                 );

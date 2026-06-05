@@ -8,18 +8,21 @@ import { Mocked } from '@suites/doubles.jest';
 import { getModelToken } from '@nestjs/mongoose';
 import { ContactGroupEntity } from '../schemas/contact-group.schema';
 import { MessageEntity } from '../schemas/message.schema';
-import { ContactService } from './contact.service';
-import { RealTimeChatGateway } from '../gateways/socket.gateway';
 import { Contact } from '../../shared/contact.contract';
 import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
 import { ContactGroup } from '../../shared/contact-group.contract';
-import { ContactGroupService } from './contact-group.service';
+import { EventBusService } from './event-bus.service';
+import { EventNames } from '../events/event-names.enum';
+import { MessageSentEvent } from '../events/message.events';
+import {
+    ContactAutoAddEvent,
+    ContactGroupAutoAddEvent,
+} from '../events/contact.events';
 
 describe('MessageService', () => {
     let messageService: MessageService;
 
-    let contactService: Mocked<ContactService>;
-    let contactGroupService: Mocked<ContactGroupService>;
+    let eventBus: Mocked<EventBusService>;
     let contactGroupRepository: Mocked<Model<ContactGroupEntity>>;
     let messageRepository: Mocked<Model<MessageEntity>>;
     let userRepository: Mocked<Model<UserEntity>>;
@@ -33,8 +36,6 @@ describe('MessageService', () => {
     const receiverSaveMock = jest.fn();
 
     let testReceiverGroup: ContactGroup;
-
-    const gatewayEmitMock = jest.fn();
 
     beforeAll(async () => {
         const { unit, unitRef } = await TestBed.solitary(MessageService)
@@ -60,12 +61,6 @@ describe('MessageService', () => {
                     },
                 })),
             }))
-            .mock(RealTimeChatGateway)
-            .impl(() => ({
-                prepareSendMessage: () => ({
-                    emit: gatewayEmitMock,
-                }),
-            }))
             .mock(getModelToken(ContactGroupEntity.name))
             .impl((stubFn) => ({
                 findOne: stubFn().mockImplementation((query: any) => {
@@ -84,8 +79,7 @@ describe('MessageService', () => {
 
         messageService = unit;
 
-        contactService = unitRef.get(ContactService);
-        contactGroupService = unitRef.get(ContactGroupService);
+        eventBus = unitRef.get(EventBusService);
         contactGroupRepository = unitRef.get(
             getModelToken(ContactGroupEntity.name),
         );
@@ -134,7 +128,7 @@ describe('MessageService', () => {
                     memberName: testReceiver.username,
                 },
             ],
-            name: 'testGroup1',
+            name: 'testSender',
             _id: 'groupId1',
         };
 
@@ -191,12 +185,10 @@ describe('MessageService', () => {
             } satisfies Contact;
 
             messageRepository.create.mockResolvedValue(testMessage as any);
-            contactService.addContactIfNotExists.mockImplementationOnce(
-                async () => {
-                    testReceiver.contacts.push(newContact);
-                    return newContact;
-                },
-            );
+            eventBus.emitAsync.mockImplementationOnce(async () => {
+                testReceiver.contacts.push(newContact);
+                return newContact;
+            });
 
             const result = await messageService.sendMessage(
                 testMessage.fromUserId,
@@ -208,15 +200,18 @@ describe('MessageService', () => {
             expect(result).toEqual({ status: 201, body: testMessage });
             expect(userRepository.findById).toHaveBeenCalled();
             expect(messageRepository.create).toHaveBeenCalled();
-            expect(contactService.addContactIfNotExists).toHaveBeenCalled();
+            expect(eventBus.emitAsync).toHaveBeenCalled();
             expect(receiverMarkModifiedMock).toHaveBeenCalled();
             expect(receiverSaveMock).toHaveBeenCalled();
             expect(testSender.contacts[0].lastMessage).toEqual(testMessage._id);
             expect(testReceiver.contacts).toHaveLength(1);
-            expect(gatewayEmitMock).toHaveBeenCalledTimes(2);
-            expect(gatewayEmitMock).toHaveBeenCalledWith(
-                'contactAutoAdded',
-                newContact,
+            expect(eventBus.emitAsync).toHaveBeenCalledTimes(2);
+            expect(eventBus.emitAsync).toHaveBeenCalledWith(
+                EventNames.CONTACT_AUTO_ADD,
+                {
+                    userId: testMessage.toUserId,
+                    contactUserId: testMessage.fromUserId,
+                } satisfies ContactAutoAddEvent,
             );
         });
 
@@ -246,12 +241,10 @@ describe('MessageService', () => {
                 avatarFileName: testSender.avatarFileName,
                 isAccepted: false,
             };
-            contactService.addContactIfNotExists.mockImplementationOnce(
-                async () => {
-                    testReceiver.contacts.push(newContact);
-                    return newContact;
-                },
-            );
+            eventBus.emitAsync.mockImplementationOnce(async () => {
+                testReceiver.contacts.push(newContact);
+                return newContact;
+            });
 
             const result = await messageService.sendMessage(
                 testMessage.fromUserId,
@@ -269,14 +262,22 @@ describe('MessageService', () => {
             expect(testReceiver.contacts[0].lastMessage).toEqual(
                 testMessage._id,
             );
-            expect(gatewayEmitMock).toHaveBeenCalledTimes(2);
-            expect(gatewayEmitMock).toHaveBeenCalledWith(
-                'contactAutoAdded',
-                newContact,
+            expect(eventBus.emitAsync).toHaveBeenCalledTimes(2);
+            expect(eventBus.emitAsync).toHaveBeenNthCalledWith(
+                1,
+                EventNames.CONTACT_AUTO_ADD,
+                {
+                    userId: testMessage.toUserId,
+                    contactUserId: testMessage.fromUserId,
+                } satisfies ContactAutoAddEvent,
             );
-            expect(gatewayEmitMock).toHaveBeenCalledWith(
-                'message',
-                testMessage,
+            expect(eventBus.emitAsync).toHaveBeenNthCalledWith(
+                2,
+                EventNames.MESSAGE_SENT,
+                {
+                    message: testMessage,
+                    toUserId: testMessage.toUserId,
+                } satisfies MessageSentEvent,
             );
         });
 
@@ -295,10 +296,6 @@ describe('MessageService', () => {
 
             messageRepository.create.mockResolvedValue(testMessage as any);
 
-            contactGroupService.computeGroupNamesForUser.mockResolvedValue([
-                { ...testReceiverGroup, lastMessage: testMessage._id },
-            ]);
-
             const result = await messageService.sendMessage(
                 testMessage.fromUserId,
                 testMessage.toUserId,
@@ -315,17 +312,22 @@ describe('MessageService', () => {
             expect(receiverSaveMock).toHaveBeenCalledTimes(0);
             expect(testReceiverGroup.lastMessage).toEqual(testMessage._id);
 
-            expect(gatewayEmitMock).toHaveBeenCalledTimes(2);
-            expect(gatewayEmitMock).toHaveBeenCalledWith(
-                'contactGroupAutoAdded',
+            expect(eventBus.emitAsync).toHaveBeenCalledTimes(2);
+            expect(eventBus.emitAsync).toHaveBeenNthCalledWith(
+                1,
+                EventNames.CONTACT_GROUP_AUTO_ADD,
                 {
-                    ...testReceiverGroup,
-                    lastMessage: testMessage._id,
-                },
+                    userId: testReceiver._id,
+                    group: testReceiverGroup,
+                } satisfies ContactGroupAutoAddEvent,
             );
-            expect(gatewayEmitMock).toHaveBeenCalledWith(
-                'message',
-                testMessage,
+            expect(eventBus.emitAsync).toHaveBeenNthCalledWith(
+                2,
+                EventNames.MESSAGE_SENT,
+                {
+                    message: testMessage satisfies Message,
+                    toUserId: testReceiver._id,
+                } satisfies MessageSentEvent,
             );
         });
     });

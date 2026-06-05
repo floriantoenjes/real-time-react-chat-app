@@ -1,10 +1,8 @@
 import { Message } from '../../shared/message.contract';
 
 export interface MessageSentEvent {
-    fromUserId: string;
-    toUserId: string;
     message: Message;
-    isGroup: boolean;
+    toUserId: string;
 }
 
 export interface MessageReadEvent {
