@@ -63,62 +63,14 @@ export class RealTimeChatGateway
      * Set up event listeners after module initialization
      */
     onModuleInit(): void {
-        // Listen for message.sent events and broadcast via WebSocket
-        this.eventBus.on<MessageSentEvent>(
-            'message.sent',
-            (payload: MessageSentEvent) => {
-                this.logger.debug(
-                    `Broadcasting message ${payload.messageId} to ${payload.toUserId}`,
-                );
-                this.server
-                    .to(payload.toUserId)
-                    .emit(SocketMessageTypes.message, payload.message);
-            },
-        );
+        this.processMessageEvents();
 
-        // Listen for message.read events and broadcast via WebSocket
-        this.eventBus.on<MessageReadEvent>(
-            'message.read',
-            (payload: MessageReadEvent) => {
-                this.logger.debug(
-                    `Broadcasting message read ${payload.messageId} to ${payload.readerUserId}`,
-                );
-                this.server
-                    .to(payload.readerUserId)
-                    .emit(SocketMessageTypes.messageRead, payload.messageId);
-            },
-        );
+        this.processContactEvents();
 
-        // Listen for contact.added events and broadcast via WebSocket
-        this.eventBus.on<ContactAddedEvent>(
-            'contact.added',
-            (payload: ContactAddedEvent) => {
-                this.logger.debug(
-                    `Broadcasting contact added ${payload.contact._id} for user ${payload.userId}`,
-                );
-                this.server
-                    .to(payload.userId)
-                    .emit(SocketMessageTypes.contactAutoAdded, payload.contact);
-            },
-        );
+        this.processIgnoreEvents();
+    }
 
-        // Listen for contact-group.auto-add events and broadcast via WebSocket
-        this.eventBus.on<ContactGroupAutoAddEvent>(
-            'contact-group.auto-add',
-            (payload: ContactGroupAutoAddEvent) => {
-                this.logger.debug(
-                    `Auto-adding group ${payload.group._id} for user ${payload.userId}`,
-                );
-                this.server
-                    .to(payload.userId)
-                    .emit(
-                        SocketMessageTypes.contactGroupAutoAdded,
-                        payload.group,
-                    );
-            },
-        );
-
-        // Listen for user.ignored events and broadcast via WebSocket
+    private processIgnoreEvents() {
         this.eventBus.on<UserIgnoredEvent>(
             'user.ignored',
             (payload: UserIgnoredEvent) => {
@@ -134,7 +86,6 @@ export class RealTimeChatGateway
             },
         );
 
-        // Listen for user.unignored events and broadcast via WebSocket
         this.eventBus.on<UserUnignoredEvent>(
             'user.unignored',
             (payload: UserUnignoredEvent) => {
@@ -147,6 +98,61 @@ export class RealTimeChatGateway
                         SocketMessageTypes.userUnignored,
                         payload.unignoredUserId,
                     );
+            },
+        );
+    }
+
+    private processContactEvents() {
+        this.eventBus.on<ContactAddedEvent>(
+            'contact.added',
+            (payload: ContactAddedEvent) => {
+                this.logger.debug(
+                    `Broadcasting contact added ${payload.contact._id} for user ${payload.userId}`,
+                );
+                this.server
+                    .to(payload.userId)
+                    .emit(SocketMessageTypes.contactAutoAdded, payload.contact);
+            },
+        );
+
+        this.eventBus.on<ContactGroupAutoAddEvent>(
+            'contact-group.auto-add',
+            (payload: ContactGroupAutoAddEvent) => {
+                this.logger.debug(
+                    `Auto-adding group ${payload.group._id} for user ${payload.userId}`,
+                );
+                this.server
+                    .to(payload.userId)
+                    .emit(
+                        SocketMessageTypes.contactGroupAutoAdded,
+                        payload.group,
+                    );
+            },
+        );
+    }
+
+    private processMessageEvents() {
+        this.eventBus.on<MessageSentEvent>(
+            'message.sent',
+            (payload: MessageSentEvent) => {
+                this.logger.debug(
+                    `Broadcasting message ${payload.messageId} to ${payload.toUserId}`,
+                );
+                this.server
+                    .to(payload.toUserId)
+                    .emit(SocketMessageTypes.message, payload.message);
+            },
+        );
+
+        this.eventBus.on<MessageReadEvent>(
+            'message.read',
+            (payload: MessageReadEvent) => {
+                this.logger.debug(
+                    `Broadcasting message read ${payload.messageId} to ${payload.readerUserId}`,
+                );
+                this.server
+                    .to(payload.readerUserId)
+                    .emit(SocketMessageTypes.messageRead, payload.messageId);
             },
         );
     }

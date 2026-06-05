@@ -11,10 +11,8 @@ import { ContactRequestEntity } from '../schemas/contact-request.schema';
 import { IgnoredUserService } from './ignored-user.service';
 import { UserIsIgnoredException } from '../errors/external/user-is-ignored.exception';
 import { EventBusService } from './event-bus.service';
-import {
-    ContactAutoAddEvent,
-    ContactAddedEvent,
-} from '../events';
+import { EventNames } from '../events/event-names.enum';
+import { ContactAddedEvent, ContactAutoAddEvent } from '../events';
 
 @Injectable()
 export class ContactService implements OnModuleInit {
@@ -30,9 +28,12 @@ export class ContactService implements OnModuleInit {
     ) {}
 
     onModuleInit(): void {
-        // Listen for contact.auto-add events from MessageService
+        this.listenOnEvents();
+    }
+
+    private listenOnEvents() {
         this.eventBus.on<ContactAutoAddEvent>(
-            'contact.auto-add',
+            EventNames.CONTACT_AUTO_ADD,
             async (payload: ContactAutoAddEvent) => {
                 this.logger.debug(
                     `Handling auto-add contact: user=${payload.userId}, contact=${payload.contactUserId}`,
@@ -44,7 +45,7 @@ export class ContactService implements OnModuleInit {
                     );
                     if (contact) {
                         this.eventBus.emitAsync<ContactAddedEvent>(
-                            'contact.added',
+                            EventNames.CONTACT_ADDED,
                             {
                                 userId: payload.userId,
                                 contact,

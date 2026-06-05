@@ -97,7 +97,6 @@ export class ContactRequestService {
             throw new ObjectNotFoundException();
         }
 
-        // Emit event for IgnoredUserService to handle
         this.eventBus.emitAsync<UserIgnoredEvent>('user.ignore-request', {
             userId,
             ignoredUserId: contactRequest.initiatorId,

@@ -20,6 +20,7 @@ import { UserService } from './user.service';
 import { IgnoredUserService } from './ignored-user.service';
 import { UserIsIgnoredException } from '../errors/external/user-is-ignored.exception';
 import { EventBusService } from './event-bus.service';
+import { EventNames } from '../events/event-names.enum';
 import {
     ContactAutoAddEvent,
     ContactGroupAutoAddEvent,
@@ -96,10 +97,13 @@ export class MessageService {
                     { _id: message._id },
                     { read: true },
                 );
-                this.eventBus.emitAsync<MessageReadEvent>('message.read', {
-                    messageId: message._id.toString(),
-                    readerUserId: userId,
-                });
+                this.eventBus.emitAsync<MessageReadEvent>(
+                    EventNames.MESSAGE_READ,
+                    {
+                        messageId: message._id.toString(),
+                        readerUserId: userId,
+                    },
+                );
             }
         }
 
@@ -227,14 +231,15 @@ export class MessageService {
         };
 
         if (isNotContactGroup) {
-            // Emit contact auto-add event
-            this.eventBus.emitAsync<ContactAutoAddEvent>('contact.auto-add', {
-                userId: toUserId,
-                contactUserId: fromUserId,
-            });
-            // Emit message sent event for WebSocket broadcast
+            this.eventBus.emitAsync<ContactAutoAddEvent>(
+                EventNames.CONTACT_AUTO_ADD,
+                {
+                    userId: toUserId,
+                    contactUserId: fromUserId,
+                },
+            );
             this.eventBus.emitAsync<MessageSentEvent>(
-                'message.sent',
+                EventNames.MESSAGE_SENT,
                 messageSentPayload,
             );
         } else if (contactGroup) {
@@ -244,15 +249,14 @@ export class MessageService {
                 contactGroup,
             );
 
-            // Emit event for each group member
+            // Emit event for each group member except sender
             for (const memberRef of contactGroup.memberRefs) {
                 if (memberRef.memberId === fromUserId) {
                     continue;
                 }
 
-                // Emit contact group auto-add event
                 this.eventBus.emitAsync<ContactGroupAutoAddEvent>(
-                    'contact-group.auto-add',
+                    EventNames.CONTACT_GROUP_AUTO_ADD,
                     {
                         userId: memberRef.memberId,
                         group: {
@@ -268,11 +272,13 @@ export class MessageService {
                     },
                 );
 
-                // Emit message sent event for each member
-                this.eventBus.emitAsync<MessageSentEvent>('message.sent', {
-                    ...messageSentPayload,
-                    toUserId: memberRef.memberId,
-                });
+                this.eventBus.emitAsync<MessageSentEvent>(
+                    EventNames.MESSAGE_SENT,
+                    {
+                        ...messageSentPayload,
+                        toUserId: memberRef.memberId,
+                    },
+                );
             }
         } else {
             throw new ContactNotFoundException();
@@ -318,7 +324,7 @@ export class MessageService {
         msg.read = true;
         const updatedMsg = await msg.save();
 
-        this.eventBus.emitAsync<MessageReadEvent>('message.read', {
+        this.eventBus.emitAsync<MessageReadEvent>(EventNames.MESSAGE_READ, {
             messageId: updatedMsg._id.toString(),
             readerUserId: updatedMsg.toUserId.toString(),
         });

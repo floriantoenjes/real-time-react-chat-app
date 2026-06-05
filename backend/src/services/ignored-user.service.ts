@@ -8,6 +8,7 @@ import { CannotIgnoreSelfException } from '../errors/external/cannot-ignore-self
 import { AlreadyIgnoredException } from '../errors/external/already-ignored.exception';
 import { UserNotIgnoredException } from '../errors/external/user-not-ignored.exception';
 import { EventBusService } from './event-bus.service';
+import { EventNames } from '../events/event-names.enum';
 import { UserIgnoredEvent, UserUnignoredEvent } from '../events';
 
 export interface PaginationParams {
@@ -35,9 +36,12 @@ export class IgnoredUserService implements OnModuleInit {
     ) {}
 
     onModuleInit(): void {
-        // Listen for ignore requests from ContactRequestService
+        this.listenOnEvents();
+    }
+
+    private listenOnEvents() {
         this.eventBus.on<UserIgnoredEvent>(
-            'user.ignore-request',
+            EventNames.USER_IGNORE_REQUEST,
             async (payload: UserIgnoredEvent) => {
                 this.logger.debug(
                     `Handling ignore request: ${payload.userId} -> ${payload.ignoredUserId}`,
@@ -108,8 +112,7 @@ export class IgnoredUserService implements OnModuleInit {
 
         await this.removeContactFromUserEntity(user, ignoredUserId);
 
-        // Emit event for WebSocket broadcast
-        this.eventBus.emitAsync<UserIgnoredEvent>('user.ignored', {
+        this.eventBus.emitAsync<UserIgnoredEvent>(EventNames.USER_IGNORED, {
             userId,
             ignoredUserId,
         });
@@ -147,8 +150,7 @@ export class IgnoredUserService implements OnModuleInit {
             throw new UserNotIgnoredException();
         }
 
-        // Emit event for WebSocket broadcast
-        this.eventBus.emitAsync<UserUnignoredEvent>('user.unignored', {
+        this.eventBus.emitAsync<UserUnignoredEvent>(EventNames.USER_UNIGNORED, {
             userId,
             unignoredUserId: ignoredUserId,
         });

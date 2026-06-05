@@ -17,7 +17,7 @@ export class EventBusService {
      * @param payload - Event payload data
      */
     emitAsync<T>(eventName: string, payload: T): void {
-        this.eventEmitter.emitAsync(eventName, payload);
+        void this.eventEmitter.emitAsync(eventName, payload);
     }
 
     /**
