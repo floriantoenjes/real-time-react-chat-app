@@ -8,7 +8,7 @@ import { CannotIgnoreSelfException } from '../errors/external/cannot-ignore-self
 import { AlreadyIgnoredException } from '../errors/external/already-ignored.exception';
 import { UserNotIgnoredException } from '../errors/external/user-not-ignored.exception';
 import { EventBusService } from './event-bus.service';
-import { UserIgnoredEvent, UserUnignoredEvent } from '../events/user.events';
+import { UserIgnoredEvent, UserUnignoredEvent } from '../events';
 
 export interface PaginationParams {
     page?: number;
@@ -43,7 +43,10 @@ export class IgnoredUserService implements OnModuleInit {
                     `Handling ignore request: ${payload.userId} -> ${payload.ignoredUserId}`,
                 );
                 try {
-                    await this.ignoreUser(payload.userId, payload.ignoredUserId);
+                    await this.ignoreUser(
+                        payload.userId,
+                        payload.ignoredUserId,
+                    );
                 } catch (error) {
                     this.logger.error(
                         `Failed to handle ignore request: ${error}`,

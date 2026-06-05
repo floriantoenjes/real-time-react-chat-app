@@ -21,10 +21,10 @@ import { IgnoredUserService } from './ignored-user.service';
 import { UserIsIgnoredException } from '../errors/external/user-is-ignored.exception';
 import { EventBusService } from './event-bus.service';
 import {
-    MessageSentEvent,
-    MessageReadEvent,
     ContactAutoAddEvent,
     ContactGroupAutoAddEvent,
+    MessageReadEvent,
+    MessageSentEvent,
 } from '../events';
 
 @Injectable()
@@ -228,13 +228,10 @@ export class MessageService {
 
         if (isNotContactGroup) {
             // Emit contact auto-add event
-            this.eventBus.emitAsync<ContactAutoAddEvent>(
-                'contact.auto-add',
-                {
-                    userId: toUserId,
-                    contactUserId: fromUserId,
-                },
-            );
+            this.eventBus.emitAsync<ContactAutoAddEvent>('contact.auto-add', {
+                userId: toUserId,
+                contactUserId: fromUserId,
+            });
             // Emit message sent event for WebSocket broadcast
             this.eventBus.emitAsync<MessageSentEvent>(
                 'message.sent',
@@ -259,10 +256,12 @@ export class MessageService {
                     {
                         userId: memberRef.memberId,
                         group: {
-                            ...contactGroup.toObject(),
+                            ...contactGroup,
                             _id: contactGroup._id.toString(),
                             name: contactGroup.memberRefs
-                                .filter((m) => m.memberId !== memberRef.memberId)
+                                .filter(
+                                    (m) => m.memberId !== memberRef.memberId,
+                                )
                                 .map((m) => m.memberName)
                                 .join(', '),
                         } as ContactGroup,

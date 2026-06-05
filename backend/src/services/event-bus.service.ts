@@ -83,7 +83,9 @@ export class EventBusService {
             if (timeoutMs) {
                 setTimeout(() => {
                     this.off(eventName, listener);
-                    reject(new Error(`Timeout waiting for event: ${eventName}`));
+                    reject(
+                        new Error(`Timeout waiting for event: ${eventName}`),
+                    );
                 }, timeoutMs);
             }
         });

@@ -54,6 +54,7 @@ import {
 } from './schemas/ignored-user.schema';
 import { ContactRequestController } from './controllers/contact-request.controller';
 import { IgnoredUserController } from './controllers/ignored-user.controller';
+import { EventBusService } from './services/event-bus.service';
 
 @Module({
     imports: [

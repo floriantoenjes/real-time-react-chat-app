@@ -18,11 +18,10 @@ import { WsConnectionThrottledException } from '../errors/ws/ws-connection-throt
 import { ConfigService } from '@nestjs/config';
 import { EventBusService } from '../services/event-bus.service';
 import {
-    MessageSentEvent,
-    MessageReadEvent,
-    ContactAutoAddEvent,
-    ContactGroupAutoAddEvent,
     ContactAddedEvent,
+    ContactGroupAutoAddEvent,
+    MessageReadEvent,
+    MessageSentEvent,
     UserIgnoredEvent,
     UserUnignoredEvent,
 } from '../events';
@@ -35,7 +34,7 @@ import {
     },
 })
 export class RealTimeChatGateway
-    implements OnGatewayConnection, OnGatewayDisconnect
+    implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit
 {
     private readonly JWT_SECRET: string;
 
@@ -112,7 +111,10 @@ export class RealTimeChatGateway
                 );
                 this.server
                     .to(payload.userId)
-                    .emit(SocketMessageTypes.contactGroupAutoAdded, payload.group);
+                    .emit(
+                        SocketMessageTypes.contactGroupAutoAdded,
+                        payload.group,
+                    );
             },
         );
 
@@ -125,7 +127,10 @@ export class RealTimeChatGateway
                 );
                 this.server
                     .to(payload.userId)
-                    .emit(SocketMessageTypes.userIgnored, payload.ignoredUserId);
+                    .emit(
+                        SocketMessageTypes.userIgnored,
+                        payload.ignoredUserId,
+                    );
             },
         );
 
@@ -138,7 +143,10 @@ export class RealTimeChatGateway
                 );
                 this.server
                     .to(payload.userId)
-                    .emit(SocketMessageTypes.userUnignored, payload.unignoredUserId);
+                    .emit(
+                        SocketMessageTypes.userUnignored,
+                        payload.unignoredUserId,
+                    );
             },
         );
     }

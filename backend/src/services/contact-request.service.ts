@@ -8,7 +8,7 @@ import { UserNotFoundException } from '../errors/internal/user-not-found.excepti
 import { ObjectNotFoundException } from '../errors/internal/object-not-found.exception';
 import { ContactNotFoundException } from '../errors/internal/contact-not-found.exception';
 import { EventBusService } from './event-bus.service';
-import { UserIgnoredEvent } from '../events/user.events';
+import { UserIgnoredEvent } from '../events';
 
 @Injectable()
 export class ContactRequestService {

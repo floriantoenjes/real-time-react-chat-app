@@ -1,5 +1,4 @@
 import { Message } from '../../shared/message.contract';
-import { ContactGroup } from '../../shared/contact-group.contract';
 
 /**
  * Emitted when a message is successfully sent
