@@ -276,7 +276,7 @@ describe('MessageService', () => {
                 EventNames.MESSAGE_SENT,
                 {
                     message: testMessage,
-                    toUserId: testMessage.toUserId,
+                    recipientId: testMessage.toUserId,
                 } satisfies MessageSentEvent,
             );
         });
@@ -326,7 +326,7 @@ describe('MessageService', () => {
                 EventNames.MESSAGE_SENT,
                 {
                     message: testMessage satisfies Message,
-                    toUserId: testReceiver._id,
+                    recipientId: testReceiver._id,
                 } satisfies MessageSentEvent,
             );
         });

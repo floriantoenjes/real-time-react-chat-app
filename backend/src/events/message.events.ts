@@ -2,7 +2,7 @@ import { Message } from '../../shared/message.contract';
 
 export interface MessageSentEvent {
     message: Message;
-    toUserId: string;
+    recipientId: string;
 }
 
 export interface MessageReadEvent {

@@ -231,7 +231,7 @@ export class MessageService {
             );
             this.eventBus.emitAsync<MessageSentEvent>(EventNames.MESSAGE_SENT, {
                 message: newlyCreatedMessage,
-                toUserId,
+                recipientId: toUserId,
             });
         } else if (contactGroup) {
             contactGroup.lastMessage = newlyCreatedMessage._id;
@@ -267,7 +267,7 @@ export class MessageService {
                     EventNames.MESSAGE_SENT,
                     {
                         message: newlyCreatedMessage,
-                        toUserId: memberRef.memberId,
+                        recipientId: memberRef.memberId,
                     },
                 );
             }
