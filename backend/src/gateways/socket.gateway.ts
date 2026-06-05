@@ -147,10 +147,10 @@ export class RealTimeChatGateway
             EventNames.MESSAGE_READ,
             (payload: MessageReadEvent) => {
                 this.logger.debug(
-                    `Broadcasting message read ${payload.messageId} to ${payload.readerUserId}`,
+                    `Broadcasting message read ${payload.messageId} to ${payload.messageAuthorId}`,
                 );
                 this.server
-                    .to(payload.readerUserId)
+                    .to(payload.messageAuthorId)
                     .emit(SocketMessageTypes.messageRead, payload.messageId);
             },
         );

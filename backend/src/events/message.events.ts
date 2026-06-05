@@ -7,5 +7,5 @@ export interface MessageSentEvent {
 
 export interface MessageReadEvent {
     messageId: string;
-    readerUserId: string;
+    messageAuthorId: string;
 }

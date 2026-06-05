@@ -100,7 +100,7 @@ export class MessageService {
                     EventNames.MESSAGE_READ,
                     {
                         messageId: message._id.toString(),
-                        readerUserId: userId,
+                        messageAuthorId: userId,
                     },
                 );
             }
@@ -317,7 +317,7 @@ export class MessageService {
 
         this.eventBus.emitAsync<MessageReadEvent>(EventNames.MESSAGE_READ, {
             messageId: updatedMsg._id.toString(),
-            readerUserId: updatedMsg.toUserId.toString(),
+            messageAuthorId: updatedMsg.fromUserId.toString(),
         });
 
         return { status: 200 as const, body: true };
