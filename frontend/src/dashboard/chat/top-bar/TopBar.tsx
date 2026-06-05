@@ -122,7 +122,7 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
                             {LL.LEAVE_GROUP()}
                         </MenuItem>
                     ) : (
-                        <>
+                        <span>
                             <MenuItem
                                 onClick={() =>
                                     deleteChat(selectedContact, handleClose)
@@ -140,7 +140,7 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
                                     {LL.IGNORE()}
                                 </MenuItem>
                             )}
-                        </>
+                        </span>
                     )}
                 </Menu>
             </div>
