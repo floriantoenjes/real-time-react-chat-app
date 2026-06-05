@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
 import { IgnoredUserEntity } from '../schemas/ignored-user.schema';
@@ -7,8 +7,8 @@ import { UserNotFoundException } from '../errors/internal/user-not-found.excepti
 import { CannotIgnoreSelfException } from '../errors/external/cannot-ignore-self.exception';
 import { AlreadyIgnoredException } from '../errors/external/already-ignored.exception';
 import { UserNotIgnoredException } from '../errors/external/user-not-ignored.exception';
-import { RealTimeChatGateway } from '../gateways/socket.gateway';
-import { SocketMessageTypes } from '../../shared/socket-message-types.enum';
+import { EventBusService } from './event-bus.service';
+import { UserIgnoredEvent, UserUnignoredEvent } from '../events/user.events';
 
 export interface PaginationParams {
     page?: number;
@@ -31,8 +31,7 @@ export class IgnoredUserService {
         private readonly ignoredUserModel: Model<IgnoredUserEntity>,
         @InjectModel(UserEntity.name)
         private readonly userModel: Model<UserEntity>,
-        @Inject(forwardRef(() => RealTimeChatGateway))
-        private readonly gateway: RealTimeChatGateway,
+        private readonly eventBus: EventBusService,
     ) {}
 
     /**
@@ -87,10 +86,11 @@ export class IgnoredUserService {
 
         await this.removeContactFromUserEntity(user, ignoredUserId);
 
-        // Emit WebSocket event to the user who ignored
-        this.gateway
-            .prepareSendMessage(userId)
-            ?.emit(SocketMessageTypes.userIgnored, ignoredUserId);
+        // Emit event for WebSocket broadcast
+        this.eventBus.emitAsync<UserIgnoredEvent>('user.ignored', {
+            userId,
+            ignoredUserId,
+        });
 
         this.logger.log(`User ${userId} ignored user ${ignoredUserId}`);
     }
@@ -125,10 +125,11 @@ export class IgnoredUserService {
             throw new UserNotIgnoredException();
         }
 
-        // Emit WebSocket event to the user who un-ignored
-        this.gateway
-            .prepareSendMessage(userId)
-            ?.emit(SocketMessageTypes.userUnignored, ignoredUserId);
+        // Emit event for WebSocket broadcast
+        this.eventBus.emitAsync<UserUnignoredEvent>('user.unignored', {
+            userId,
+            unignoredUserId: ignoredUserId,
+        });
 
         this.logger.log(`User ${userId} un-ignored user ${ignoredUserId}`);
     }

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Contact } from '../../shared/contact.contract';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserEntity } from '../schemas/user.schema';
@@ -10,9 +10,15 @@ import { ContactAlreadyExistsException } from '../errors/internal/contact-alread
 import { ContactRequestEntity } from '../schemas/contact-request.schema';
 import { IgnoredUserService } from './ignored-user.service';
 import { UserIsIgnoredException } from '../errors/external/user-is-ignored.exception';
+import { EventBusService } from './event-bus.service';
+import {
+    ContactAutoAddEvent,
+    ContactAddedEvent,
+    ContactGroupAutoAddEvent,
+} from '../events';
 
 @Injectable()
-export class ContactService {
+export class ContactService implements OnModuleInit {
     private readonly logger = new Logger(ContactService.name);
 
     constructor(
@@ -21,7 +27,51 @@ export class ContactService {
         private readonly onlineStatusService: OnlineStatusService,
         @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
         private readonly ignoredUserService: IgnoredUserService,
+        private readonly eventBus: EventBusService,
     ) {}
+
+    onModuleInit(): void {
+        // Listen for contact.auto-add events from MessageService
+        this.eventBus.on<ContactAutoAddEvent>(
+            'contact.auto-add',
+            async (payload: ContactAutoAddEvent) => {
+                this.logger.debug(
+                    `Handling auto-add contact: user=${payload.userId}, contact=${payload.contactUserId}`,
+                );
+                try {
+                    const contact = await this.addContactIfNotExists(
+                        payload.userId,
+                        payload.contactUserId,
+                    );
+                    if (contact) {
+                        this.eventBus.emitAsync<ContactAddedEvent>(
+                            'contact.added',
+                            {
+                                userId: payload.userId,
+                                contact,
+                            },
+                        );
+                    }
+                } catch (error) {
+                    this.logger.error(
+                        `Failed to handle contact.auto-add event: ${error}`,
+                    );
+                }
+            },
+        );
+
+        // Listen for contact-group.auto-add events from MessageService
+        this.eventBus.on<ContactGroupAutoAddEvent>(
+            'contact-group.auto-add',
+            (payload: ContactGroupAutoAddEvent) => {
+                this.logger.debug(
+                    `Handling auto-add group: user=${payload.userId}, group=${payload.group._id}`,
+                );
+                // The group is already personalized for the user in the event payload
+                // Just re-emit it for any additional processing if needed
+            },
+        );
+    }
 
     async getUserContacts(userId: string) {
         const user = await this.userModel.findOne({

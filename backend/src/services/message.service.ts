@@ -3,26 +3,29 @@ import { InjectModel } from '@nestjs/mongoose';
 import { MessageEntity } from '../schemas/message.schema';
 import { HydratedDocument, Model } from 'mongoose';
 import { UserEntity } from '../schemas/user.schema';
-import { UserService } from './user.service';
 import { Message, MessageType } from '../../shared/message.contract';
-import { SocketMessageTypes } from '../../shared/socket-message-types.enum';
-import { RealTimeChatGateway } from '../gateways/socket.gateway';
 import { ObjectStorageService } from './object-storage.service';
 import { ContactGroupEntity } from '../schemas/contact-group.schema';
 import { MessageNotFoundException } from '../errors/internal/message-not-found.exception';
 import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
-import { ContactService } from './contact.service';
 import {
     validateAndSanitizeAudioFile,
     validateAndSanitizeImageFile,
     ValidatedFile,
 } from '../utils/file-validation.util';
 import { FileAccessEntity } from '../schemas/file-access.schema';
-import { ContactGroupService } from './contact-group.service';
 import { ContactGroup } from '../../shared/contact-group.contract';
 import { ContactNotFoundException } from '../errors/internal/contact-not-found.exception';
+import { UserService } from './user.service';
 import { IgnoredUserService } from './ignored-user.service';
 import { UserIsIgnoredException } from '../errors/external/user-is-ignored.exception';
+import { EventBusService } from './event-bus.service';
+import {
+    MessageSentEvent,
+    MessageReadEvent,
+    ContactAutoAddEvent,
+    ContactGroupAutoAddEvent,
+} from '../events';
 
 @Injectable()
 export class MessageService {
@@ -31,18 +34,16 @@ export class MessageService {
     constructor(
         @InjectModel(ContactGroupEntity.name)
         private readonly contactGroupModel: Model<ContactGroupEntity>,
-        private readonly contactGroupService: ContactGroupService,
-        private readonly contactService: ContactService,
         @InjectModel(FileAccessEntity.name)
         private readonly fileAccessModel: Model<FileAccessEntity>,
-        private readonly gateway: RealTimeChatGateway,
         @InjectModel(MessageEntity.name)
         private readonly messageModel: Model<MessageEntity>,
-        private readonly objectStorageService: ObjectStorageService,
         @InjectModel(UserEntity.name)
         private readonly userModel: Model<UserEntity>,
+        private readonly objectStorageService: ObjectStorageService,
         private readonly userService: UserService,
         private readonly ignoredUserService: IgnoredUserService,
+        private readonly eventBus: EventBusService,
     ) {}
 
     async getMessageById(messageId: string) {
@@ -95,9 +96,10 @@ export class MessageService {
                     { _id: message._id },
                     { read: true },
                 );
-                this.gateway
-                    .prepareSendMessage(message.fromUserId)
-                    ?.emit(SocketMessageTypes.messageRead, message._id);
+                this.eventBus.emitAsync<MessageReadEvent>('message.read', {
+                    messageId: message._id.toString(),
+                    readerUserId: userId,
+                });
             }
         }
 
@@ -216,10 +218,28 @@ export class MessageService {
 
         const newlyCreatedMessage = await this.messageModel.create(newMessage);
 
-        if (isNotContactGroup) {
-            await this.autoAddSenderToReceiverContacts(fromUserId, toUserId);
+        const messageSentPayload: MessageSentEvent = {
+            fromUserId,
+            toUserId,
+            messageId: newlyCreatedMessage._id.toString(),
+            message: newlyCreatedMessage,
+            isGroup: !!contactGroup,
+        };
 
-            this.emitMessageViaWebSocket(toUserId, newlyCreatedMessage);
+        if (isNotContactGroup) {
+            // Emit contact auto-add event
+            this.eventBus.emitAsync<ContactAutoAddEvent>(
+                'contact.auto-add',
+                {
+                    userId: toUserId,
+                    contactUserId: fromUserId,
+                },
+            );
+            // Emit message sent event for WebSocket broadcast
+            this.eventBus.emitAsync<MessageSentEvent>(
+                'message.sent',
+                messageSentPayload,
+            );
         } else if (contactGroup) {
             contactGroup.lastMessage = newlyCreatedMessage._id;
             await this.contactGroupModel.updateOne(
@@ -227,21 +247,33 @@ export class MessageService {
                 contactGroup,
             );
 
-            // Send to all members except the sender
+            // Emit event for each group member
             for (const memberRef of contactGroup.memberRefs) {
                 if (memberRef.memberId === fromUserId) {
                     continue;
                 }
 
-                await this.autoAddSenderGroupToReceiverContactGroups(
-                    contactGroup,
-                    memberRef.memberId,
+                // Emit contact group auto-add event
+                this.eventBus.emitAsync<ContactGroupAutoAddEvent>(
+                    'contact-group.auto-add',
+                    {
+                        userId: memberRef.memberId,
+                        group: {
+                            ...contactGroup.toObject(),
+                            _id: contactGroup._id.toString(),
+                            name: contactGroup.memberRefs
+                                .filter((m) => m.memberId !== memberRef.memberId)
+                                .map((m) => m.memberName)
+                                .join(', '),
+                        } as ContactGroup,
+                    },
                 );
 
-                this.emitMessageViaWebSocket(
-                    memberRef.memberId,
-                    newlyCreatedMessage,
-                );
+                // Emit message sent event for each member
+                this.eventBus.emitAsync<MessageSentEvent>('message.sent', {
+                    ...messageSentPayload,
+                    toUserId: memberRef.memberId,
+                });
             }
         } else {
             throw new ContactNotFoundException();
@@ -287,9 +319,10 @@ export class MessageService {
         msg.read = true;
         const updatedMsg = await msg.save();
 
-        this.gateway
-            .prepareSendMessage(updatedMsg.fromUserId)
-            ?.emit(SocketMessageTypes.messageRead, updatedMsg._id);
+        this.eventBus.emitAsync<MessageReadEvent>('message.read', {
+            messageId: updatedMsg._id.toString(),
+            readerUserId: updatedMsg.toUserId.toString(),
+        });
 
         return { status: 200 as const, body: true };
     }
@@ -336,58 +369,5 @@ export class MessageService {
         contactGroupId: string,
     ): Promise<ContactGroupEntity | null> {
         return this.contactGroupModel.findOne({ _id: contactGroupId }).lean();
-    }
-
-    private emitMessageViaWebSocket(
-        userSocketId: string,
-        messageToSend: Message,
-    ) {
-        this.gateway
-            .prepareSendMessage(userSocketId)
-            ?.emit(SocketMessageTypes.message, messageToSend);
-    }
-
-    private async autoAddSenderToReceiverContacts(
-        senderId: string,
-        receiverId: string,
-    ): Promise<void> {
-        try {
-            const newContact = await this.contactService.addContactIfNotExists(
-                receiverId,
-                senderId,
-            );
-
-            if (newContact) {
-                this.gateway
-                    .prepareSendMessage(receiverId)
-                    ?.emit(SocketMessageTypes.contactAutoAdded, newContact);
-            }
-        } catch (error) {
-            this.logger.error(
-                `Failed to auto-add sender ${senderId} to receiver ${receiverId}'s contacts: ${error}`,
-            );
-        }
-    }
-
-    private async autoAddSenderGroupToReceiverContactGroups(
-        senderGroup: ContactGroup,
-        receiverId: string,
-    ): Promise<void> {
-        try {
-            senderGroup = (
-                await this.contactGroupService.computeGroupNamesForUser(
-                    [senderGroup],
-                    receiverId,
-                )
-            )[0];
-
-            this.gateway
-                .prepareSendMessage(receiverId)
-                ?.emit(SocketMessageTypes.contactGroupAutoAdded, senderGroup);
-        } catch (error) {
-            this.logger.error(
-                `Failed to auto-add sender group ${senderGroup._id} to receiver ${receiverId}'s contact groups: ${error}`,
-            );
-        }
     }
 }

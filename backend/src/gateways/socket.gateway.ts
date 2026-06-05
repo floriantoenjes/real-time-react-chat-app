@@ -5,7 +5,7 @@ import {
     WebSocketGateway,
     WebSocketServer,
 } from '@nestjs/websockets';
-import { Logger } from '@nestjs/common';
+import { Logger, OnModuleInit } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { parse as parseCookie } from 'cookie';
 import { ContactService } from '../services/contact.service';
@@ -16,6 +16,16 @@ import { SocketMessageTypes } from '../../shared/socket-message-types.enum';
 import { WsConnectionThrottlerService } from '../services/ws-connection-throttler.service';
 import { WsConnectionThrottledException } from '../errors/ws/ws-connection-throttled.exception';
 import { ConfigService } from '@nestjs/config';
+import { EventBusService } from '../services/event-bus.service';
+import {
+    MessageSentEvent,
+    MessageReadEvent,
+    ContactAutoAddEvent,
+    ContactGroupAutoAddEvent,
+    ContactAddedEvent,
+    UserIgnoredEvent,
+    UserUnignoredEvent,
+} from '../events';
 
 @WebSocketGateway({
     cors: {
@@ -40,6 +50,7 @@ export class RealTimeChatGateway
         private readonly jwtService: JwtService,
         private readonly onlineStatusService: OnlineStatusService,
         private readonly wsThrottler: WsConnectionThrottlerService,
+        private readonly eventBus: EventBusService,
     ) {
         const jwtSecret = this.configService.get('JWT_SECRET');
         if (!jwtSecret) {
@@ -47,6 +58,89 @@ export class RealTimeChatGateway
         }
 
         this.JWT_SECRET = jwtSecret;
+    }
+
+    /**
+     * Set up event listeners after module initialization
+     */
+    onModuleInit(): void {
+        // Listen for message.sent events and broadcast via WebSocket
+        this.eventBus.on<MessageSentEvent>(
+            'message.sent',
+            (payload: MessageSentEvent) => {
+                this.logger.debug(
+                    `Broadcasting message ${payload.messageId} to ${payload.toUserId}`,
+                );
+                this.server
+                    .to(payload.toUserId)
+                    .emit(SocketMessageTypes.message, payload.message);
+            },
+        );
+
+        // Listen for message.read events and broadcast via WebSocket
+        this.eventBus.on<MessageReadEvent>(
+            'message.read',
+            (payload: MessageReadEvent) => {
+                this.logger.debug(
+                    `Broadcasting message read ${payload.messageId} to ${payload.readerUserId}`,
+                );
+                this.server
+                    .to(payload.readerUserId)
+                    .emit(SocketMessageTypes.messageRead, payload.messageId);
+            },
+        );
+
+        // Listen for contact.added events and broadcast via WebSocket
+        this.eventBus.on<ContactAddedEvent>(
+            'contact.added',
+            (payload: ContactAddedEvent) => {
+                this.logger.debug(
+                    `Broadcasting contact added ${payload.contact._id} for user ${payload.userId}`,
+                );
+                this.server
+                    .to(payload.userId)
+                    .emit(SocketMessageTypes.contactAutoAdded, payload.contact);
+            },
+        );
+
+        // Listen for contact-group.auto-add events and broadcast via WebSocket
+        this.eventBus.on<ContactGroupAutoAddEvent>(
+            'contact-group.auto-add',
+            (payload: ContactGroupAutoAddEvent) => {
+                this.logger.debug(
+                    `Auto-adding group ${payload.group._id} for user ${payload.userId}`,
+                );
+                this.server
+                    .to(payload.userId)
+                    .emit(SocketMessageTypes.contactGroupAutoAdded, payload.group);
+            },
+        );
+
+        // Listen for user.ignored events and broadcast via WebSocket
+        this.eventBus.on<UserIgnoredEvent>(
+            'user.ignored',
+            (payload: UserIgnoredEvent) => {
+                this.logger.debug(
+                    `Broadcasting user ignored: ${payload.ignoredUserId} by ${payload.userId}`,
+                );
+                this.server
+                    .to(payload.userId)
+                    .emit(SocketMessageTypes.userIgnored, payload.ignoredUserId);
+            },
+        );
+
+        // Listen for user.unignored events and broadcast via WebSocket
+        this.eventBus.on<UserUnignoredEvent>(
+            'user.unignored',
+            (payload: UserUnignoredEvent) => {
+                this.logger.debug(
+                    `Broadcasting user unignored: ${payload.unignoredUserId} by ${payload.userId}`,
+                );
+                this.server
+                    .to(payload.userId)
+                    .emit(SocketMessageTypes.userUnignored, payload.unignoredUserId);
+            },
+        );
     }
 
     async handleConnection(socket: Socket): Promise<void> {
