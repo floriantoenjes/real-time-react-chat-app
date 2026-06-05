@@ -21,12 +21,11 @@ import { IgnoredUserService } from './ignored-user.service';
 import { UserIsIgnoredException } from '../errors/external/user-is-ignored.exception';
 import { EventBusService } from './event-bus.service';
 import { EventNames } from '../events/event-names.enum';
+import { MessageReadEvent, MessageSentEvent } from '../events/message.events';
 import {
     ContactAutoAddEvent,
     ContactGroupAutoAddEvent,
-    MessageReadEvent,
-    MessageSentEvent,
-} from '../events';
+} from '../events/contact.events';
 
 @Injectable()
 export class MessageService {

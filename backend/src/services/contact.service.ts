@@ -12,7 +12,10 @@ import { IgnoredUserService } from './ignored-user.service';
 import { UserIsIgnoredException } from '../errors/external/user-is-ignored.exception';
 import { EventBusService } from './event-bus.service';
 import { EventNames } from '../events/event-names.enum';
-import { ContactAddedEvent, ContactAutoAddEvent } from '../events';
+import {
+    ContactAddedEvent,
+    ContactAutoAddEvent,
+} from '../events/contact.events';
 
 @Injectable()
 export class ContactService implements OnModuleInit {

@@ -9,7 +9,7 @@ import { AlreadyIgnoredException } from '../errors/external/already-ignored.exce
 import { UserNotIgnoredException } from '../errors/external/user-not-ignored.exception';
 import { EventBusService } from './event-bus.service';
 import { EventNames } from '../events/event-names.enum';
-import { UserIgnoredEvent, UserUnignoredEvent } from '../events';
+import { UserIgnoredEvent, UserUnignoredEvent } from '../events/user.events';
 
 export interface PaginationParams {
     page?: number;

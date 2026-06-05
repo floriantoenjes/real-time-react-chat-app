@@ -17,14 +17,12 @@ import { WsConnectionThrottlerService } from '../services/ws-connection-throttle
 import { WsConnectionThrottledException } from '../errors/ws/ws-connection-throttled.exception';
 import { ConfigService } from '@nestjs/config';
 import { EventBusService } from '../services/event-bus.service';
+import { UserIgnoredEvent, UserUnignoredEvent } from '../events/user.events';
 import {
     ContactAddedEvent,
     ContactGroupAutoAddEvent,
-    MessageReadEvent,
-    MessageSentEvent,
-    UserIgnoredEvent,
-    UserUnignoredEvent,
-} from '../events';
+} from '../events/contact.events';
+import { MessageReadEvent, MessageSentEvent } from '../events/message.events';
 
 @WebSocketGateway({
     cors: {
