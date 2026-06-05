@@ -9,6 +9,7 @@ import { ObjectNotFoundException } from '../errors/internal/object-not-found.exc
 import { ContactNotFoundException } from '../errors/internal/contact-not-found.exception';
 import { EventBusService } from './event-bus.service';
 import { UserIgnoredEvent } from '../events/user.events';
+import { EventNames } from '../events/event-names.enum';
 
 @Injectable()
 export class ContactRequestService {
@@ -97,10 +98,13 @@ export class ContactRequestService {
             throw new ObjectNotFoundException();
         }
 
-        this.eventBus.emitAsync<UserIgnoredEvent>('user.ignore-request', {
-            userId,
-            ignoredUserId: contactRequest.initiatorId,
-        });
+        this.eventBus.emitAsync<UserIgnoredEvent>(
+            EventNames.USER_IGNORE_REQUEST,
+            {
+                userId,
+                ignoredUserId: contactRequest.initiatorId,
+            },
+        );
 
         await contactRequest.deleteOne();
     }
