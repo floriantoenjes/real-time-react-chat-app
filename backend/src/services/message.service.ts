@@ -224,7 +224,6 @@ export class MessageService {
         const messageSentPayload: MessageSentEvent = {
             fromUserId,
             toUserId,
-            messageId: newlyCreatedMessage._id.toString(),
             message: newlyCreatedMessage,
             isGroup: !!contactGroup,
         };

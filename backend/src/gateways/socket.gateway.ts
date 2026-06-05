@@ -134,7 +134,7 @@ export class RealTimeChatGateway
             'message.sent',
             (payload: MessageSentEvent) => {
                 this.logger.debug(
-                    `Broadcasting message ${payload.messageId} to ${payload.toUserId}`,
+                    `Broadcasting message ${payload.message._id.toString()} to ${payload.toUserId}`,
                 );
                 this.server
                     .to(payload.toUserId)
