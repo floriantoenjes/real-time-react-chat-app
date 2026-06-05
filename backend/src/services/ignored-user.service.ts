@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
 import { IgnoredUserEntity } from '../schemas/ignored-user.schema';
@@ -23,7 +23,7 @@ export interface PaginatedResult<T> {
 }
 
 @Injectable()
-export class IgnoredUserService {
+export class IgnoredUserService implements OnModuleInit {
     private readonly logger = new Logger(IgnoredUserService.name);
 
     constructor(
@@ -33,6 +33,25 @@ export class IgnoredUserService {
         private readonly userModel: Model<UserEntity>,
         private readonly eventBus: EventBusService,
     ) {}
+
+    onModuleInit(): void {
+        // Listen for ignore requests from ContactRequestService
+        this.eventBus.on<UserIgnoredEvent>(
+            'user.ignore-request',
+            async (payload: UserIgnoredEvent) => {
+                this.logger.debug(
+                    `Handling ignore request: ${payload.userId} -> ${payload.ignoredUserId}`,
+                );
+                try {
+                    await this.ignoreUser(payload.userId, payload.ignoredUserId);
+                } catch (error) {
+                    this.logger.error(
+                        `Failed to handle ignore request: ${error}`,
+                    );
+                }
+            },
+        );
+    }
 
     /**
      * Add a user to the ignore list
