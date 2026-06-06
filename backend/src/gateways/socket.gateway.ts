@@ -63,9 +63,7 @@ export class RealTimeChatGateway
      */
     onModuleInit(): void {
         this.processMessageEvents();
-
         this.processContactEvents();
-
         this.processIgnoreEvents();
     }
 
