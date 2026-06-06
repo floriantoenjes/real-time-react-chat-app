@@ -54,6 +54,7 @@ A WhatsApp-style real-time chat application featuring video/voice calls, group m
 - **JWT** authentication with secure HTTP-only cookies
 - **Bcrypt** password hashing
 - Custom **PeerJS server** fork with pub/sub functionality
+- Uses an internal **event bus** to decouple its services
 
 ### API Design
 - **ts-rest** for type-safe API contracts between frontend and backend

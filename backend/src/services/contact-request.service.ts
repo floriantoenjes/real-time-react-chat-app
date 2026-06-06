@@ -7,16 +7,18 @@ import { UserEntity } from '../schemas/user.schema';
 import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
 import { ObjectNotFoundException } from '../errors/internal/object-not-found.exception';
 import { ContactNotFoundException } from '../errors/internal/contact-not-found.exception';
-import { IgnoredUserService } from './ignored-user.service';
+import { EventBusService } from './event-bus.service';
+import { UserIgnoredEvent } from '../events/user.events';
+import { EventNames } from '../events/event-names.enum';
 
 @Injectable()
 export class ContactRequestService {
     constructor(
         @InjectModel(ContactRequestEntity.name)
         private readonly contactRequestModel: Model<ContactRequestEntity>,
-        private readonly ignoredUserService: IgnoredUserService,
         @InjectModel(UserEntity.name)
         private readonly userModel: Model<UserEntity>,
+        private readonly eventBus: EventBusService,
     ) {}
 
     public async getContactRequestByInitiatorAndTargetUserIds(
@@ -96,9 +98,12 @@ export class ContactRequestService {
             throw new ObjectNotFoundException();
         }
 
-        await this.ignoredUserService.ignoreUser(
-            userId,
-            contactRequest.initiatorId,
+        this.eventBus.emitAsync<UserIgnoredEvent>(
+            EventNames.USER_IGNORE_REQUEST,
+            {
+                userId,
+                ignoredUserId: contactRequest.initiatorId,
+            },
         );
 
         await contactRequest.deleteOne();

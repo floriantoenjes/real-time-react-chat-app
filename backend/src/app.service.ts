@@ -15,6 +15,7 @@ import { Cache } from 'cache-manager';
 import { ContactGroupEntity } from './schemas/contact-group.schema';
 import { FileAccessEntity } from './schemas/file-access.schema';
 import { ContactRequestEntity } from './schemas/contact-request.schema';
+import { IgnoredUserEntity } from './schemas/ignored-user.schema';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
@@ -29,6 +30,8 @@ export class AppService implements OnApplicationBootstrap {
         private readonly contactRequestModel: Model<ContactRequestEntity>,
         @InjectModel(FileAccessEntity.name)
         private readonly fileAccessModel: Model<FileAccessEntity>,
+        @InjectModel(IgnoredUserEntity.name)
+        private readonly ignoredUserModel: Model<IgnoredUserEntity>,
         @InjectModel(MessageEntity.name)
         private readonly messageModel: Model<MessageEntity>,
         @InjectModel(UserEntity.name)
@@ -37,6 +40,10 @@ export class AppService implements OnApplicationBootstrap {
 
     async onApplicationBootstrap() {
         await this.cache.clear();
+
+        this.logger.log('Deleting all user ignores...');
+        await this.ignoredUserModel.deleteMany({});
+        this.logger.log('All user ignores have been deleted.');
 
         this.logger.log('Deleting all messages...');
         await this.messageModel.deleteMany({});

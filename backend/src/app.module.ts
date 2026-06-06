@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { RealTimeChatGateway } from './gateways/socket.gateway';
 import { MongooseModule } from '@nestjs/mongoose';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import {
     ContactGroupEntity,
     ContactGroupSchema,
@@ -53,6 +54,7 @@ import {
 } from './schemas/ignored-user.schema';
 import { ContactRequestController } from './controllers/contact-request.controller';
 import { IgnoredUserController } from './controllers/ignored-user.controller';
+import { EventBusService } from './services/event-bus.service';
 
 @Module({
     imports: [
@@ -99,6 +101,7 @@ import { IgnoredUserController } from './controllers/ignored-user.controller';
                 };
             },
         }),
+        EventEmitterModule.forRoot(),
     ],
     controllers: [
         AppController,
@@ -117,6 +120,7 @@ import { IgnoredUserController } from './controllers/ignored-user.controller';
         ContactService,
         ContactGroupService,
         ContactRequestService,
+        EventBusService,
         IgnoredUserService,
         MessageService,
         ObjectStorageService,

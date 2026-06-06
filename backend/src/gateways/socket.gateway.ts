@@ -5,7 +5,7 @@ import {
     WebSocketGateway,
     WebSocketServer,
 } from '@nestjs/websockets';
-import { Logger } from '@nestjs/common';
+import { Logger, OnModuleInit } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { parse as parseCookie } from 'cookie';
 import { ContactService } from '../services/contact.service';
@@ -16,6 +16,14 @@ import { SocketMessageTypes } from '../../shared/socket-message-types.enum';
 import { WsConnectionThrottlerService } from '../services/ws-connection-throttler.service';
 import { WsConnectionThrottledException } from '../errors/ws/ws-connection-throttled.exception';
 import { ConfigService } from '@nestjs/config';
+import { EventBusService } from '../services/event-bus.service';
+import { UserIgnoredEvent, UserUnignoredEvent } from '../events/user.events';
+import {
+    ContactAddedEvent,
+    ContactGroupAutoAddEvent,
+} from '../events/contact.events';
+import { MessageReadEvent, MessageSentEvent } from '../events/message.events';
+import { EventNames } from '../events/event-names.enum';
 
 @WebSocketGateway({
     cors: {
@@ -25,7 +33,7 @@ import { ConfigService } from '@nestjs/config';
     },
 })
 export class RealTimeChatGateway
-    implements OnGatewayConnection, OnGatewayDisconnect
+    implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit
 {
     private readonly JWT_SECRET: string;
 
@@ -40,6 +48,7 @@ export class RealTimeChatGateway
         private readonly jwtService: JwtService,
         private readonly onlineStatusService: OnlineStatusService,
         private readonly wsThrottler: WsConnectionThrottlerService,
+        private readonly eventBus: EventBusService,
     ) {
         const jwtSecret = this.configService.get('JWT_SECRET');
         if (!jwtSecret) {
@@ -47,6 +56,102 @@ export class RealTimeChatGateway
         }
 
         this.JWT_SECRET = jwtSecret;
+    }
+
+    /**
+     * Set up event listeners after module initialization
+     */
+    onModuleInit(): void {
+        this.processMessageEvents();
+        this.processContactEvents();
+        this.processIgnoreEvents();
+    }
+
+    private processIgnoreEvents() {
+        this.eventBus.on<UserIgnoredEvent>(
+            EventNames.USER_IGNORED,
+            (payload: UserIgnoredEvent) => {
+                this.logger.debug(
+                    `Broadcasting user ignored: ${payload.ignoredUserId} by ${payload.userId}`,
+                );
+                this.server
+                    .to(payload.userId)
+                    .emit(
+                        SocketMessageTypes.userIgnored,
+                        payload.ignoredUserId,
+                    );
+            },
+        );
+
+        this.eventBus.on<UserUnignoredEvent>(
+            EventNames.USER_UNIGNORED,
+            (payload: UserUnignoredEvent) => {
+                this.logger.debug(
+                    `Broadcasting user unignored: ${payload.unignoredUserId} by ${payload.userId}`,
+                );
+                this.server
+                    .to(payload.userId)
+                    .emit(
+                        SocketMessageTypes.userUnignored,
+                        payload.unignoredUserId,
+                    );
+            },
+        );
+    }
+
+    private processContactEvents() {
+        this.eventBus.on<ContactAddedEvent>(
+            EventNames.CONTACT_ADDED,
+            (payload: ContactAddedEvent) => {
+                this.logger.debug(
+                    `Broadcasting contact added ${payload.contact._id} for user ${payload.userId}`,
+                );
+                this.server
+                    .to(payload.userId)
+                    .emit(SocketMessageTypes.contactAutoAdded, payload.contact);
+            },
+        );
+
+        this.eventBus.on<ContactGroupAutoAddEvent>(
+            EventNames.CONTACT_GROUP_AUTO_ADD,
+            (payload: ContactGroupAutoAddEvent) => {
+                this.logger.debug(
+                    `Auto-adding group ${payload.group._id} for user ${payload.userId}`,
+                );
+                this.server
+                    .to(payload.userId)
+                    .emit(
+                        SocketMessageTypes.contactGroupAutoAdded,
+                        payload.group,
+                    );
+            },
+        );
+    }
+
+    private processMessageEvents() {
+        this.eventBus.on<MessageSentEvent>(
+            EventNames.MESSAGE_SENT,
+            (payload: MessageSentEvent) => {
+                this.logger.debug(
+                    `Broadcasting message ${payload.message._id.toString()} to ${payload.recipientId}`,
+                );
+                this.server
+                    .to(payload.recipientId)
+                    .emit(SocketMessageTypes.message, payload.message);
+            },
+        );
+
+        this.eventBus.on<MessageReadEvent>(
+            EventNames.MESSAGE_READ,
+            (payload: MessageReadEvent) => {
+                this.logger.debug(
+                    `Broadcasting message read ${payload.messageId} to ${payload.messageAuthorId}`,
+                );
+                this.server
+                    .to(payload.messageAuthorId)
+                    .emit(SocketMessageTypes.messageRead, payload.messageId);
+            },
+        );
     }
 
     async handleConnection(socket: Socket): Promise<void> {

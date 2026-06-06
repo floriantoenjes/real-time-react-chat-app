@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
 import { IgnoredUserEntity } from '../schemas/ignored-user.schema';
@@ -7,8 +7,9 @@ import { UserNotFoundException } from '../errors/internal/user-not-found.excepti
 import { CannotIgnoreSelfException } from '../errors/external/cannot-ignore-self.exception';
 import { AlreadyIgnoredException } from '../errors/external/already-ignored.exception';
 import { UserNotIgnoredException } from '../errors/external/user-not-ignored.exception';
-import { RealTimeChatGateway } from '../gateways/socket.gateway';
-import { SocketMessageTypes } from '../../shared/socket-message-types.enum';
+import { EventBusService } from './event-bus.service';
+import { EventNames } from '../events/event-names.enum';
+import { UserIgnoredEvent, UserUnignoredEvent } from '../events/user.events';
 
 export interface PaginationParams {
     page?: number;
@@ -23,7 +24,7 @@ export interface PaginatedResult<T> {
 }
 
 @Injectable()
-export class IgnoredUserService {
+export class IgnoredUserService implements OnModuleInit {
     private readonly logger = new Logger(IgnoredUserService.name);
 
     constructor(
@@ -31,9 +32,33 @@ export class IgnoredUserService {
         private readonly ignoredUserModel: Model<IgnoredUserEntity>,
         @InjectModel(UserEntity.name)
         private readonly userModel: Model<UserEntity>,
-        @Inject(forwardRef(() => RealTimeChatGateway))
-        private readonly gateway: RealTimeChatGateway,
+        private readonly eventBus: EventBusService,
     ) {}
+
+    onModuleInit(): void {
+        this.listenOnEvents();
+    }
+
+    private listenOnEvents() {
+        this.eventBus.on<UserIgnoredEvent>(
+            EventNames.USER_IGNORE_REQUEST,
+            async (payload: UserIgnoredEvent) => {
+                this.logger.debug(
+                    `Handling ignore request: ${payload.userId} -> ${payload.ignoredUserId}`,
+                );
+                try {
+                    await this.ignoreUser(
+                        payload.userId,
+                        payload.ignoredUserId,
+                    );
+                } catch (error) {
+                    this.logger.error(
+                        `Failed to handle ignore request: ${error}`,
+                    );
+                }
+            },
+        );
+    }
 
     /**
      * Add a user to the ignore list
@@ -87,10 +112,10 @@ export class IgnoredUserService {
 
         await this.removeContactFromUserEntity(user, ignoredUserId);
 
-        // Emit WebSocket event to the user who ignored
-        this.gateway
-            .prepareSendMessage(userId)
-            ?.emit(SocketMessageTypes.userIgnored, ignoredUserId);
+        this.eventBus.emitAsync<UserIgnoredEvent>(EventNames.USER_IGNORED, {
+            userId,
+            ignoredUserId,
+        });
 
         this.logger.log(`User ${userId} ignored user ${ignoredUserId}`);
     }
@@ -125,10 +150,10 @@ export class IgnoredUserService {
             throw new UserNotIgnoredException();
         }
 
-        // Emit WebSocket event to the user who un-ignored
-        this.gateway
-            .prepareSendMessage(userId)
-            ?.emit(SocketMessageTypes.userUnignored, ignoredUserId);
+        this.eventBus.emitAsync<UserUnignoredEvent>(EventNames.USER_UNIGNORED, {
+            userId,
+            unignoredUserId: ignoredUserId,
+        });
 
         this.logger.log(`User ${userId} un-ignored user ${ignoredUserId}`);
     }
