@@ -1,5 +1,5 @@
 export interface UserIgnoredEvent {
-    userId: string; // User who did the ignoring
+    userId: string;
     ignoredUserId: string;
 }
 
