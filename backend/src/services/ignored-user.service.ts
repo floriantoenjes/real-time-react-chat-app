@@ -196,19 +196,4 @@ export class IgnoredUserService implements OnModuleInit {
             totalPages,
         };
     }
-
-    /**
-     * Check if a user is ignored by another user
-     */
-    public async isUserIgnored(
-        userId: string,
-        targetUserId: string,
-    ): Promise<boolean> {
-        const ignoreEntry = await this.ignoredUserModel.findOne({
-            userId,
-            ignoredUserId: targetUserId,
-        });
-
-        return !!ignoreEntry;
-    }
 }
