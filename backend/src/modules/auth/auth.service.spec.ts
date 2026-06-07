@@ -8,6 +8,7 @@ import { Mocked } from '@suites/doubles.jest';
 import { UnauthorizedException } from '../../errors/external/unauthorized.exception';
 import { AuthUser } from '../../../shared/auth.contract';
 import { AuthUserEntity } from './auth.schema';
+import { EmailAlreadyTakenException } from '../../errors/external/email-already-taken.exception';
 
 describe('Auth Service', () => {
     let authService: AuthService;
@@ -34,6 +35,7 @@ describe('Auth Service', () => {
             .mock(getModelToken(AuthUserEntity.name))
             .impl((stubFn) => {
                 mockAuthUserModel = {
+                    create: stubFn().mockResolvedValue(null),
                     findOne: stubFn().mockImplementation((filter) => {
                         // Return a query-like object that has a select method
                         const user =
@@ -163,7 +165,7 @@ describe('Auth Service', () => {
                 .mockImplementationOnce((token) => {
                     throw new Error('Invalid token ' + token);
                 })
-                .mockImplementationOnce((refreshToken) => {
+                .mockImplementationOnce(() => {
                     return {};
                 });
 
@@ -203,6 +205,36 @@ describe('Auth Service', () => {
                 async () =>
                     await authService.refresh('testToken', 'testRefreshToken'),
             ).rejects.toThrow(UnauthorizedException);
+        });
+    });
+
+    describe('createAuthUser', () => {
+        it('should throw email already taken', async () => {
+            mockAuthUserModel.create.mockRejectedValueOnce(
+                new Error('email already taken'),
+            );
+
+            await expect(async () => {
+                await authService.createAuthUser(
+                    testCredentials.email,
+                    testCredentials.password,
+                    'testUserName1',
+                );
+            }).rejects.toThrow(EmailAlreadyTakenException);
+        });
+
+        it('should create user successfully', async () => {
+            const newUser = { ...baseTestUserEntity, password: 'hash' };
+            mockAuthUserModel.create.mockResolvedValueOnce(newUser);
+
+            const result = await authService.createAuthUser(
+                testCredentials.email,
+                testCredentials.password,
+                'testUserName1',
+            );
+
+            expect(result?.password).toBe('');
+            expect(result?.email).toBe(testCredentials.email);
         });
     });
 });

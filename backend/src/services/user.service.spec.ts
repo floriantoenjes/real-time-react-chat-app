@@ -3,7 +3,6 @@ import { UserService } from './user.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { UserEntity } from '../schemas/user.schema';
 import * as bcrypt from 'bcrypt';
-import { EmailAlreadyTakenException } from '../errors/external/email-already-taken.exception';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 describe('User Service', () => {
@@ -61,37 +60,6 @@ describe('User Service', () => {
         expect(userService).toBeDefined();
     });
 
-    describe('createUser', () => {
-        it('should throw email already taken', async () => {
-            mockUserModel.create.mockRejectedValueOnce(
-                new Error('email already taken'),
-            );
-
-            await expect(async () => {
-                await userService.createUser(
-                    testCredentials.email,
-                    testCredentials.password,
-                    'testUserName1',
-                );
-            }).rejects.toThrow(EmailAlreadyTakenException);
-        });
-
-        it('should create user successfully', async () => {
-            const newUser = { ...baseTestUserEntity, password: 'hash' };
-            mockUserModel.create.mockResolvedValueOnce(newUser);
-            mockCache.del.mockResolvedValueOnce(null);
-
-            const result = await userService.createUser(
-                testCredentials.email,
-                testCredentials.password,
-                'testUserName1',
-            );
-
-            expect(result?.password).toBe('');
-            expect(result?.email).toBe(testCredentials.email);
-        });
-    });
-
     describe('findUsersBy', () => {
         it('should return users from database', async () => {
             const users = [{ ...baseTestUserEntity, password: '' }];
@@ -101,7 +69,6 @@ describe('User Service', () => {
             const result = await userService.findUsersBy();
 
             expect(result.length).toBe(1);
-            expect(result[0].password).toBe('');
         });
 
         it('should return users from cache', async () => {
@@ -125,7 +92,6 @@ describe('User Service', () => {
             });
 
             expect(result).not.toBeNull();
-            expect(result?.password).toBe('');
         });
 
         it('should return null when user not found', async () => {
@@ -147,7 +113,6 @@ describe('User Service', () => {
             const result = await userService.findUserById('testUserId1');
 
             expect(result).not.toBeNull();
-            expect(result?.password).toBe('');
         });
 
         it('should return null when user not found', async () => {
