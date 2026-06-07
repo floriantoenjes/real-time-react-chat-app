@@ -16,8 +16,7 @@ import {
 import { FileAccessEntity } from '../schemas/file-access.schema';
 import { ContactGroup } from '../../shared/contact-group.contract';
 import { ContactNotFoundException } from '../errors/internal/contact-not-found.exception';
-import { UserService } from './user.service';
-import { IgnoredUserService } from './ignored-user.service';
+import { UserRelationshipQueryService } from './user-relationship-query.service';
 import { UserIsIgnoredException } from '../errors/external/user-is-ignored.exception';
 import { EventBusService } from './event-bus.service';
 import { EventNames } from '../events/event-names.enum';
@@ -41,8 +40,7 @@ export class MessageService {
         @InjectModel(UserEntity.name)
         private readonly userModel: Model<UserEntity>,
         private readonly objectStorageService: ObjectStorageService,
-        private readonly userService: UserService,
-        private readonly ignoredUserService: IgnoredUserService,
+        private readonly userRelationshipQueryService: UserRelationshipQueryService,
         private readonly eventBus: EventBusService,
     ) {}
 
@@ -60,7 +58,7 @@ export class MessageService {
     }
 
     async getMessages(userId: string, contactId: string) {
-        const user = await this.userService.findUserBy({
+        const user = await this.userModel.findOne({
             _id: userId,
         });
 
@@ -177,7 +175,7 @@ export class MessageService {
         type: MessageType,
     ) {
         // Check if sender has ignored the receiver
-        const isIgnored = await this.ignoredUserService.isUserIgnored(
+        const isIgnored = await this.userRelationshipQueryService.isUserIgnored(
             fromUserId,
             toUserId,
         );

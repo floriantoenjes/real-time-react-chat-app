@@ -44,6 +44,7 @@ import {
 } from './schemas/file-access.schema';
 import { ContactRequestService } from './services/contact-request.service';
 import { IgnoredUserService } from './services/ignored-user.service';
+import { UserRelationshipQueryService } from './services/user-relationship-query.service';
 import {
     ContactRequestEntity,
     ContactRequestSchema,
@@ -123,6 +124,7 @@ import { EventBusService } from './services/event-bus.service';
         EventBusService,
         IgnoredUserService,
         MessageService,
+        UserRelationshipQueryService,
         ObjectStorageService,
         OnlineStatusService,
         RealTimeChatGateway,

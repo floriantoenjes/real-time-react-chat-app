@@ -8,7 +8,7 @@ import { UserNotFoundException } from '../errors/internal/user-not-found.excepti
 import { ContactNotFoundException } from '../errors/internal/contact-not-found.exception';
 import { ContactAlreadyExistsException } from '../errors/internal/contact-already-exists.exception';
 import { ContactRequestEntity } from '../schemas/contact-request.schema';
-import { IgnoredUserService } from './ignored-user.service';
+import { UserRelationshipQueryService } from './user-relationship-query.service';
 import { UserIsIgnoredException } from '../errors/external/user-is-ignored.exception';
 import { EventBusService } from './event-bus.service';
 import { EventNames } from '../events/event-names.enum';
@@ -26,7 +26,7 @@ export class ContactService implements OnModuleInit {
         private contactRequestModel: Model<ContactRequestEntity>,
         private readonly onlineStatusService: OnlineStatusService,
         @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
-        private readonly ignoredUserService: IgnoredUserService,
+        private readonly userRelationshipQueryService: UserRelationshipQueryService,
         private readonly eventBus: EventBusService,
     ) {}
 
@@ -143,8 +143,7 @@ export class ContactService implements OnModuleInit {
             isAccepted: true,
         } as Contact;
 
-        // Check if user is ignored
-        const isIgnored = await this.ignoredUserService.isUserIgnored(
+        const isIgnored = await this.userRelationshipQueryService.isUserIgnored(
             userId,
             newContactId,
         );
@@ -180,8 +179,7 @@ export class ContactService implements OnModuleInit {
         userId: string,
         newContactId: string,
     ): Promise<Contact | null> {
-        // Check if user has ignored the new contact
-        const isIgnored = await this.ignoredUserService.isUserIgnored(
+        const isIgnored = await this.userRelationshipQueryService.isUserIgnored(
             userId,
             newContactId,
         );
