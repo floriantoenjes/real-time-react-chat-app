@@ -1,9 +1,22 @@
 import { User, userContract } from "@t/user.contract";
 import { ClientService } from "./ClientService";
 import { AuthService } from "./AuthService";
+import { authContract, AuthUser } from "@t/auth.contract";
 
 export class UserService {
     constructor(private clientService: ClientService) {}
+
+    async getSignedInUser() {
+        const res = await this.clientService
+            .getClient(userContract)
+            .getSignedInUser({});
+
+        if (res.status === 200) {
+            return res.body;
+        }
+
+        return false;
+    }
 
     async getUsers() {
         const res = await this.clientService.getClient(userContract).getAll({});
@@ -16,7 +29,7 @@ export class UserService {
     }
 
     async signIn(email: string, password: string) {
-        const res = await this.clientService.getClient(userContract).signIn({
+        const res = await this.clientService.getClient(authContract).signIn({
             body: { email, password },
         });
 
@@ -29,15 +42,15 @@ export class UserService {
 
     async signOut() {
         const res = await this.clientService
-            .getClient(userContract)
+            .getClient(authContract)
             .signOut({});
 
         return res.status === 204;
     }
 
-    async refresh(): Promise<{ user: User } | false> {
+    async refresh(): Promise<{ authUser: AuthUser } | false> {
         const res = await this.clientService
-            .getClient(userContract)
+            .getClient(authContract)
             .refresh({});
 
         if (res.status === 200) {
@@ -48,7 +61,7 @@ export class UserService {
     }
 
     async signUp(email: string, password: string, username: string) {
-        const res = await this.clientService.getClient(userContract).signUp({
+        const res = await this.clientService.getClient(authContract).signUp({
             body: { email, password, username },
         });
 

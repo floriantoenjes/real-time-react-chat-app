@@ -15,10 +15,10 @@ import { MessageController } from './controllers/message.controller';
 import { UserController } from './controllers/user.controller';
 import { ContactGroupController } from './controllers/contact-group.controller';
 import { UserService } from './services/user.service';
+import { AuthModule } from './modules/auth/auth.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ObjectStorageService } from './services/object-storage.service';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guards/auth.guard';
@@ -55,15 +55,17 @@ import {
 } from './schemas/ignored-user.schema';
 import { ContactRequestController } from './controllers/contact-request.controller';
 import { IgnoredUserController } from './controllers/ignored-user.controller';
-import { EventBusService } from './services/event-bus.service';
+import { AuthUserEntity, AuthUserSchema } from './modules/auth/auth.schema';
+import { GlobalModule } from './modules/global/global.module';
 
 @Module({
     imports: [
         SentryModule.forRoot(),
-        ConfigModule.forRoot(),
+        ConfigModule.forRoot({ isGlobal: true }),
         ThrottlerModule.forRoot({
             throttlers: [{ limit: 100, ttl: 60 * 1000 }],
         }),
+        AuthModule,
         ServeStaticModule.forRoot({
             serveRoot: '/frontend',
             rootPath: join(__dirname, '..', '..', '..', 'frontend/dist'),
@@ -74,6 +76,7 @@ import { EventBusService } from './services/event-bus.service';
             dbName: 'real-time-chat',
         }),
         MongooseModule.forFeature([
+            { name: AuthUserEntity.name, schema: AuthUserSchema },
             { name: ContactGroupEntity.name, schema: ContactGroupSchema },
             { name: ContactRequestEntity.name, schema: ContactRequestSchema },
             { name: FileAccessEntity.name, schema: FileAccessSchema },
@@ -89,10 +92,12 @@ import { EventBusService } from './services/event-bus.service';
                     expiresIn: '600s',
                 },
             }),
+            global: true,
             inject: [ConfigService],
             imports: [ConfigModule.forRoot()],
         }),
         CacheModule.registerAsync({
+            isGlobal: true,
             useFactory: async () => {
                 return {
                     stores: [
@@ -103,6 +108,7 @@ import { EventBusService } from './services/event-bus.service';
             },
         }),
         EventEmitterModule.forRoot(),
+        GlobalModule,
     ],
     controllers: [
         AppController,
@@ -121,11 +127,9 @@ import { EventBusService } from './services/event-bus.service';
         ContactService,
         ContactGroupService,
         ContactRequestService,
-        EventBusService,
         IgnoredUserService,
         MessageService,
         UserRelationshipQueryService,
-        ObjectStorageService,
         OnlineStatusService,
         RealTimeChatGateway,
         UserService,

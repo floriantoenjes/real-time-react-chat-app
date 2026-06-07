@@ -90,23 +90,19 @@ describe('MessageService', () => {
     beforeEach(async () => {
         testSender = {
             _id: 'userId1',
-            email: 'test1@email.com',
-            password: 'testPassword',
             username: 'testSender',
             contacts: [],
             contactGroupIds: [],
             leftGroupIds: [],
-        };
+        } satisfies User;
 
         testReceiver = {
             _id: 'userId2',
-            email: 'test2@email.com',
-            password: 'testPassword',
             username: 'testReceiver',
             contacts: [],
             contactGroupIds: [],
             leftGroupIds: [],
-        };
+        } satisfies User;
 
         testSender.contacts.push({
             _id: testReceiver._id,

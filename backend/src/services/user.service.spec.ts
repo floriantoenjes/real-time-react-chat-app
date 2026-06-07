@@ -1,94 +1,59 @@
 import { TestBed } from '@suites/unit';
 import { UserService } from './user.service';
-import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
 import { getModelToken } from '@nestjs/mongoose';
 import { UserEntity } from '../schemas/user.schema';
 import * as bcrypt from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
-import { Mocked } from '@suites/doubles.jest';
-import { UnauthorizedException } from '../errors/external/unauthorized.exception';
 import { EmailAlreadyTakenException } from '../errors/external/email-already-taken.exception';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 describe('User Service', () => {
     let userService: UserService;
-    let jwtService: Mocked<JwtService>;
+    let mockUserModel: any;
+    let mockCache: any;
 
     const testCredentials = { email: 'test1@email.com', password: 'testPw1' };
-    let testUserEntity: UserEntity;
+    const baseTestUserEntity = {
+        _id: 'testUserId1',
+        email: testCredentials.email,
+        password: testCredentials.password,
+        username: 'testUserName1',
+        contacts: [],
+        contactGroupIds: [],
+        leftGroupIds: [],
+    };
 
-    const bcryptCompare = jest.fn().mockImplementation(async (pw1, pw2) => {
-        return pw1 === pw2;
-    });
     const bcryptHash = jest.fn().mockResolvedValue('hash');
 
-    (bcrypt.compare as jest.Mock) = bcryptCompare;
     (bcrypt.hash as jest.Mock) = bcryptHash;
 
-    type Email = string;
-
     beforeAll(async () => {
-        const mockUserDb = new Set<Email>();
-
-        const { unit, unitRef } = await TestBed.solitary(UserService)
+        const { unit } = await TestBed.solitary(UserService)
             .mock(getModelToken(UserEntity.name))
-            .impl((stubFn) => ({
-                findOne: stubFn().mockImplementation((filter) => {
-                    if (
-                        filter.email === testCredentials.email ||
-                        filter.username === 'testUserName1'
-                    ) {
-                        return {
-                            select: stubFn().mockResolvedValue(testUserEntity),
-                            lean: stubFn().mockResolvedValue(testUserEntity),
-                        };
-                    } else {
-                        return {
-                            select: stubFn().mockResolvedValue(null),
-                            lean: stubFn().mockResolvedValue(null),
-                        };
-                    }
-                }),
-                create: stubFn().mockImplementation((filter) => {
-                    if (mockUserDb.has(filter.email)) {
-                        throw new Error('email already taken');
-                    }
-
-                    if (filter.email === testCredentials.email) {
-                        mockUserDb.add(filter.email);
-                    }
-                }),
-            }))
-            .mock(JwtService)
-            .impl((stubFn) => ({
-                signAsync: stubFn().mockResolvedValue('signedPayload'),
-                decode: stubFn().mockImplementation((accessToken: string) => {
-                    if (
-                        accessToken === 'testToken' ||
-                        accessToken === 'testRefreshToken'
-                    ) {
-                        return { username: 'testUserName1' };
-                    } else {
-                        return null;
-                    }
-                }),
-            }))
+            .impl((stubFn) => {
+                mockUserModel = {
+                    find: stubFn().mockResolvedValue([]),
+                    findById: stubFn().mockResolvedValue(null),
+                    findOne: stubFn().mockResolvedValue(null),
+                    create: stubFn().mockResolvedValue(null),
+                    updateOne: stubFn().mockResolvedValue({}),
+                };
+                return mockUserModel;
+            })
+            .mock(CACHE_MANAGER)
+            .impl((stubFn) => {
+                mockCache = {
+                    get: stubFn().mockResolvedValue(null),
+                    set: stubFn().mockResolvedValue(null),
+                    del: stubFn().mockResolvedValue(null),
+                };
+                return mockCache;
+            })
             .compile();
 
         userService = unit;
-        jwtService = unitRef.get(JwtService);
     });
 
     beforeEach(async () => {
-        testUserEntity = {
-            _id: 'testUserId1',
-            email: testCredentials.email,
-            password: testCredentials.password,
-            username: 'testUserName1',
-            contacts: [],
-            contactGroupIds: [],
-            leftGroupIds: [],
-        };
-
         jest.clearAllMocks();
     });
 
@@ -96,113 +61,101 @@ describe('User Service', () => {
         expect(userService).toBeDefined();
     });
 
-    describe('signIn', () => {
-        it('should throw exception when user not found', async () => {
-            await expect(
-                async () =>
-                    await userService.signIn(
-                        'non_existent@email.com',
-                        testCredentials.password,
-                    ),
-            ).rejects.toThrow(UserNotFoundException);
-        });
-
-        it('should successfully sign in user with right credentials', async () => {
-            const result = await userService.signIn(
-                testCredentials.email,
-                testCredentials.password,
-            );
-
-            expect(result).toEqual({
-                accessToken: 'signedPayload',
-                refreshToken: 'signedPayload',
-                user: {
-                    _id: 'testUserId1',
-                    contactGroupIds: [],
-                    contacts: [],
-                    email: 'test1@email.com',
-                    leftGroupIds: [],
-                    password: '',
-                    username: 'testUserName1',
-                },
-            });
-        });
-    });
-
-    describe('refresh', () => {
-        it('respond with new token on valid access token', async () => {
-            const result = await userService.refresh(
-                'testToken',
-                'testRefreshToken',
-            );
-
-            expect(result).toEqual({
-                accessToken: 'signedPayload',
-                refreshToken: 'signedPayload',
-                user: testUserEntity,
-            });
-        });
-
-        it('throw unauthorized on invalid access token', async () => {
-            await expect(
-                async () =>
-                    await userService.refresh(
-                        'invalidTestToken',
-                        'testRefreshToken',
-                    ),
-            ).rejects.toThrow(UnauthorizedException);
-        });
-
-        it('respond with new token on invalid access token and valid refresh token', async () => {
-            jwtService.verify.mockImplementationOnce((token) => {
-                throw new Error('Invalid token ' + token);
-            });
-            testUserEntity.refreshTokenEncrypted = 'testRefreshToken';
-
-            const result = await userService.refresh(
-                'testToken',
-                'testRefreshToken',
-            );
-
-            expect(result).toEqual({
-                accessToken: 'signedPayload',
-                refreshToken: 'signedPayload',
-                user: testUserEntity,
-            });
-        });
-
-        it('respond with new token on invalid access token and valid refresh token', async () => {
-            jwtService.verify
-                .mockImplementationOnce((token) => {
-                    throw new Error('Invalid token ' + token);
-                })
-                .mockImplementationOnce((refreshToken) => {
-                    throw new Error('Invalid refresh token ' + refreshToken);
-                });
-            testUserEntity.refreshTokenEncrypted = 'testRefreshToken';
-
-            await expect(
-                async () =>
-                    await userService.refresh('testToken', 'testRefreshToken'),
-            ).rejects.toThrow(UnauthorizedException);
-        });
-    });
-
     describe('createUser', () => {
         it('should throw email already taken', async () => {
+            mockUserModel.create.mockRejectedValueOnce(
+                new Error('email already taken'),
+            );
+
             await expect(async () => {
                 await userService.createUser(
-                    testUserEntity.email,
-                    testUserEntity.password,
-                    testUserEntity.username,
-                );
-
-                await userService.createUser(
-                    testUserEntity.email,
-                    'anotherPassword',
-                    'anotherUsername',
+                    testCredentials.email,
+                    testCredentials.password,
+                    'testUserName1',
                 );
             }).rejects.toThrow(EmailAlreadyTakenException);
+        });
+
+        it('should create user successfully', async () => {
+            const newUser = { ...baseTestUserEntity, password: 'hash' };
+            mockUserModel.create.mockResolvedValueOnce(newUser);
+            mockCache.del.mockResolvedValueOnce(null);
+
+            const result = await userService.createUser(
+                testCredentials.email,
+                testCredentials.password,
+                'testUserName1',
+            );
+
+            expect(result?.password).toBe('');
+            expect(result?.email).toBe(testCredentials.email);
+        });
+    });
+
+    describe('findUsersBy', () => {
+        it('should return users from database', async () => {
+            const users = [{ ...baseTestUserEntity, password: '' }];
+            mockUserModel.find.mockResolvedValueOnce(users);
+            mockCache.get.mockResolvedValueOnce(null);
+
+            const result = await userService.findUsersBy();
+
+            expect(result.length).toBe(1);
+            expect(result[0].password).toBe('');
+        });
+
+        it('should return users from cache', async () => {
+            const cachedUsers = [{ ...baseTestUserEntity, password: '' }];
+            mockCache.get.mockResolvedValueOnce(cachedUsers);
+
+            const result = await userService.findUsersBy();
+
+            expect(result).toEqual(cachedUsers);
+            expect(mockUserModel.find).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('findUserBy', () => {
+        it('should return user by email', async () => {
+            const user = { ...baseTestUserEntity };
+            mockUserModel.findOne.mockResolvedValueOnce(user);
+
+            const result = await userService.findUserBy({
+                email: testCredentials.email,
+            });
+
+            expect(result).not.toBeNull();
+            expect(result?.password).toBe('');
+        });
+
+        it('should return null when user not found', async () => {
+            mockUserModel.findOne.mockResolvedValueOnce(null);
+
+            const result = await userService.findUserBy({
+                email: 'non_existent@email.com',
+            });
+
+            expect(result).toBeNull();
+        });
+    });
+
+    describe('findUserById', () => {
+        it('should return user by id', async () => {
+            const user = { ...baseTestUserEntity };
+            mockUserModel.findById.mockResolvedValueOnce(user);
+
+            const result = await userService.findUserById('testUserId1');
+
+            expect(result).not.toBeNull();
+            expect(result?.password).toBe('');
+        });
+
+        it('should return null when user not found', async () => {
+            mockUserModel.findById.mockResolvedValueOnce(null);
+
+            const result = await userService.findUserById('non_existent_id');
+
+            expect(result).toBeNull();
         });
     });
 });

@@ -14,6 +14,7 @@ export enum EventNames {
     CONTACT_GROUP_AUTO_ADD = 'contact-group.auto-add',
 
     // User events
+    USER_CREATED = 'user.created',
     USER_IGNORED = 'user.ignored',
     USER_UNIGNORED = 'user.unignored',
     USER_IGNORE_REQUEST = 'user.ignore-request',

@@ -8,7 +8,6 @@ import { MessageEntity } from './schemas/message.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserEntity } from './schemas/user.schema';
-import { ContactEntity } from './schemas/contact.schema';
 import * as bcrypt from 'bcrypt';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -16,12 +15,16 @@ import { ContactGroupEntity } from './schemas/contact-group.schema';
 import { FileAccessEntity } from './schemas/file-access.schema';
 import { ContactRequestEntity } from './schemas/contact-request.schema';
 import { IgnoredUserEntity } from './schemas/ignored-user.schema';
+import { AuthUserEntity } from './modules/auth/auth.schema';
+import { ContactEntity } from './schemas/contact.schema';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
     private readonly logger = new Logger(AppService.name);
 
     constructor(
+        @InjectModel(AuthUserEntity.name)
+        private readonly authUserModel: Model<AuthUserEntity>,
         @Inject(CACHE_MANAGER)
         private readonly cache: Cache,
         @InjectModel(ContactGroupEntity.name)
@@ -53,6 +56,10 @@ export class AppService implements OnApplicationBootstrap {
         await this.userModel.deleteMany({});
         this.logger.log('All users have been deleted.');
 
+        this.logger.log('Deleting all auth users...');
+        await this.authUserModel.deleteMany({});
+        this.logger.log('All auth users have been deleted.');
+
         this.logger.log('Deleting all contact requests...');
         await this.contactRequestModel.deleteMany({});
         this.logger.log('All contact requests have been deleted.');
@@ -72,34 +79,54 @@ export class AppService implements OnApplicationBootstrap {
         const saltOrRounds = 10;
         const password = await bcrypt.hash('password', saltOrRounds);
 
-        const user1 = {
-            username: 'Florian',
-            email: 'florian@email.com',
+        let authUser1 = {
             password,
+            email: 'florian@email.com',
+        } as AuthUserEntity;
+        authUser1 = await this.authUserModel.create(authUser1);
+
+        const user1 = {
+            authUserId: authUser1._id,
+            username: 'Florian',
             avatarFileName: 'avatar1.svg',
         } as UserEntity;
         const user1Doc = await this.userModel.create(user1);
 
-        const user2 = {
-            username: 'Alex',
-            email: 'alex@email.com',
+        let authUser2 = {
             password,
+            email: 'alex@email.com',
+        } as AuthUserEntity;
+        authUser2 = await this.authUserModel.create(authUser2);
+
+        const user2 = {
+            authUserId: authUser2._id,
+            username: 'Alex',
             avatarFileName: 'avatar3.svg',
         } as UserEntity;
         const user2Doc = await this.userModel.create(user2);
 
-        const user3 = {
-            username: 'Tom',
-            email: 'tom@email.com',
+        let authUser3 = {
             password,
+            email: 'tom@email.com',
+        } as AuthUserEntity;
+        authUser3 = await this.authUserModel.create(authUser3);
+
+        const user3 = {
+            authUserId: authUser3._id,
+            username: 'Tom',
             avatarFileName: 'avatar2.svg',
         } as UserEntity;
         const user3Doc = await this.userModel.create(user3);
 
-        const user4 = {
-            username: 'Stella',
-            email: 'stella@email.com',
+        let authUser4 = {
             password,
+            email: 'stella@email.com',
+        } as AuthUserEntity;
+        authUser4 = await this.authUserModel.create(authUser4);
+
+        const user4 = {
+            authUserId: authUser4._id,
+            username: 'Stella',
             avatarFileName: 'avatar4.svg',
         } as UserEntity;
         const user4Doc = await this.userModel.create(user4);

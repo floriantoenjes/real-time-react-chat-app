@@ -1,3 +1,8 @@
+export interface UserCreatedEvent {
+    authUserId: string;
+    username: string;
+}
+
 export interface UserIgnoredEvent {
     userId: string;
     ignoredUserId: string;

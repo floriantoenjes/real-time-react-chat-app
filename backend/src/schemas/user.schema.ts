@@ -6,11 +6,8 @@ import { User } from '../../shared/user.contract';
 export class UserEntity implements User {
     _id: any;
 
-    @Prop({ unique: true })
-    email!: string;
-
-    @Prop({ select: false })
-    password!: string;
+    @Prop({ required: true, unique: true, index: true })
+    authUserId!: string;
 
     @Prop()
     username!: string;
@@ -26,9 +23,6 @@ export class UserEntity implements User {
 
     @Prop()
     avatarFileName?: string;
-
-    @Prop()
-    refreshTokenEncrypted?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserEntity);

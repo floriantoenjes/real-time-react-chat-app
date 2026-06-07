@@ -34,7 +34,7 @@ export class AuthService {
 
         AuthService.setSignInData();
 
-        return body.user;
+        return body.authUser;
     }
 
     async refresh() {
@@ -50,7 +50,7 @@ export class AuthService {
         }
         AuthService.setSignInData();
 
-        return res.user;
+        return res.authUser;
     }
 
     async signUp(email: string, password: string, username: string) {
@@ -78,7 +78,8 @@ export class AuthService {
         }
 
         try {
-            const loggedInUser = await this.refresh();
+            await this.refresh();
+            const loggedInUser = await this.userService.getSignedInUser();
             if (loggedInUser) {
                 setUserWithAvatarBytes(setUser)(loggedInUser);
                 return;
