@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Contact } from '../../shared/contact.contract';
-import { User } from '../../shared/user.contract';
+import { Contact } from '../../../shared/contact.contract';
+import { User } from '../../../shared/user.contract';
 
 @Schema({ collection: 'users' })
 export class UserEntity implements User {

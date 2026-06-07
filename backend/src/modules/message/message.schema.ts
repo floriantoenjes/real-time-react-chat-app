@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Message } from '../../shared/message.contract';
+import { Message } from '../../../shared/message.contract';
 
 @Schema({ collection: 'messages' })
 export class MessageEntity implements Message {

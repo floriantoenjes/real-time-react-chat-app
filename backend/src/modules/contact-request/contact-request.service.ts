@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { ContactRequest } from '../../shared/contact-request.contract';
+import { ContactRequest } from '../../../shared/contact-request.contract';
 import { InjectModel } from '@nestjs/mongoose';
-import { ContactRequestEntity } from '../schemas/contact-request.schema';
+import { ContactRequestEntity } from './contact-request.schema';
 import { Model } from 'mongoose';
-import { UserEntity } from '../schemas/user.schema';
-import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
-import { ObjectNotFoundException } from '../errors/internal/object-not-found.exception';
-import { ContactNotFoundException } from '../errors/internal/contact-not-found.exception';
-import { EventBusService } from './event-bus.service';
-import { UserIgnoredEvent } from '../events/user.events';
-import { EventNames } from '../events/event-names.enum';
+import { UserEntity } from '../user/user.schema';
+import { UserNotFoundException } from '../../errors/internal/user-not-found.exception';
+import { ObjectNotFoundException } from '../../errors/internal/object-not-found.exception';
+import { ContactNotFoundException } from '../../errors/internal/contact-not-found.exception';
+import { EventBusService } from '../global/event-bus.service';
+import { UserIgnoredEvent } from '../../events/user.events';
+import { EventNames } from '../../events/event-names.enum';
 
 @Injectable()
 export class ContactRequestService {

@@ -8,15 +8,15 @@ import {
 import { Logger, OnModuleInit } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { parse as parseCookie } from 'cookie';
-import { ContactService } from '../services/contact.service';
+import { ContactService } from '../modules/contact/contact.service';
 import { User } from '../../shared/user.contract';
 import { JwtService } from '@nestjs/jwt';
-import { OnlineStatusService } from '../services/online-status.service';
+import { OnlineStatusService } from '../modules/online-status/online-status.service';
 import { SocketMessageTypes } from '../../shared/socket-message-types.enum';
 import { WsConnectionThrottlerService } from '../services/ws-connection-throttler.service';
 import { WsConnectionThrottledException } from '../errors/ws/ws-connection-throttled.exception';
 import { ConfigService } from '@nestjs/config';
-import { EventBusService } from '../services/event-bus.service';
+import { EventBusService } from '../modules/global/event-bus.service';
 import { UserIgnoredEvent, UserUnignoredEvent } from '../events/user.events';
 import {
     ContactAddedEvent,

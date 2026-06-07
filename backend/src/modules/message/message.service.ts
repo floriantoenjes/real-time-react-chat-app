@@ -1,30 +1,33 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { MessageEntity } from '../schemas/message.schema';
+import { MessageEntity } from './message.schema';
 import { HydratedDocument, Model } from 'mongoose';
-import { UserEntity } from '../schemas/user.schema';
-import { Message, MessageType } from '../../shared/message.contract';
-import { ObjectStorageService } from './object-storage.service';
-import { ContactGroupEntity } from '../schemas/contact-group.schema';
-import { MessageNotFoundException } from '../errors/internal/message-not-found.exception';
-import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
+import { UserEntity } from '../user/user.schema';
+import { Message, MessageType } from '../../../shared/message.contract';
+import { ObjectStorageService } from '../global/object-storage.service';
+import { ContactGroupEntity } from '../contact-group/contact-group.schema';
+import { MessageNotFoundException } from '../../errors/internal/message-not-found.exception';
+import { UserNotFoundException } from '../../errors/internal/user-not-found.exception';
 import {
     validateAndSanitizeAudioFile,
     validateAndSanitizeImageFile,
     ValidatedFile,
-} from '../utils/file-validation.util';
-import { FileAccessEntity } from '../schemas/file-access.schema';
-import { ContactGroup } from '../../shared/contact-group.contract';
-import { ContactNotFoundException } from '../errors/internal/contact-not-found.exception';
-import { UserRelationshipQueryService } from './user-relationship-query.service';
-import { UserIsIgnoredException } from '../errors/external/user-is-ignored.exception';
-import { EventBusService } from './event-bus.service';
-import { EventNames } from '../events/event-names.enum';
-import { MessageReadEvent, MessageSentEvent } from '../events/message.events';
+} from '../../utils/file-validation.util';
+import { FileAccessEntity } from '../file/file-access.schema';
+import { ContactGroup } from '../../../shared/contact-group.contract';
+import { ContactNotFoundException } from '../../errors/internal/contact-not-found.exception';
+import { UserRelationshipQueryService } from '../user-relationship-query/user-relationship-query.service';
+import { UserIsIgnoredException } from '../../errors/external/user-is-ignored.exception';
+import { EventBusService } from '../global/event-bus.service';
+import { EventNames } from '../../events/event-names.enum';
+import {
+    MessageReadEvent,
+    MessageSentEvent,
+} from '../../events/message.events';
 import {
     ContactAutoAddEvent,
     ContactGroupAutoAddEvent,
-} from '../events/contact.events';
+} from '../../events/contact.events';
 
 @Injectable()
 export class MessageService {

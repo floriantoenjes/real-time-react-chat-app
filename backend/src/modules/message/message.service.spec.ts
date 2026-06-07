@@ -1,23 +1,23 @@
 import { TestBed } from '@suites/unit';
 import { MessageService } from './message.service';
-import { UserEntity } from '../schemas/user.schema';
+import { UserEntity } from '../user/user.schema';
 import { Model } from 'mongoose';
-import { User } from '../../shared/user.contract';
-import { Message } from '../../shared/message.contract';
+import { User } from '../../../shared/user.contract';
+import { Message } from '../../../shared/message.contract';
 import { Mocked } from '@suites/doubles.jest';
 import { getModelToken } from '@nestjs/mongoose';
-import { ContactGroupEntity } from '../schemas/contact-group.schema';
-import { MessageEntity } from '../schemas/message.schema';
-import { Contact } from '../../shared/contact.contract';
-import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
-import { ContactGroup } from '../../shared/contact-group.contract';
-import { EventBusService } from './event-bus.service';
-import { EventNames } from '../events/event-names.enum';
-import { MessageSentEvent } from '../events/message.events';
+import { ContactGroupEntity } from '../contact-group/contact-group.schema';
+import { MessageEntity } from './message.schema';
+import { Contact } from '../../../shared/contact.contract';
+import { UserNotFoundException } from '../../errors/internal/user-not-found.exception';
+import { ContactGroup } from '../../../shared/contact-group.contract';
+import { EventBusService } from '../global/event-bus.service';
+import { EventNames } from '../../events/event-names.enum';
+import { MessageSentEvent } from '../../events/message.events';
 import {
     ContactAutoAddEvent,
     ContactGroupAutoAddEvent,
-} from '../events/contact.events';
+} from '../../events/contact.events';
 
 describe('MessageService', () => {
     let messageService: MessageService;

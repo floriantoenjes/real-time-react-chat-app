@@ -10,7 +10,7 @@ import { AuthUser } from '../../../shared/auth.contract';
 import { EmailAlreadyTakenException } from '../../errors/external/email-already-taken.exception';
 import { UserCreatedEvent } from '../../events/user.events';
 import { EventNames } from '../../events/event-names.enum';
-import { EventBusService } from '../../services/event-bus.service';
+import { EventBusService } from '../global/event-bus.service';
 
 @Injectable()
 export class AuthService {

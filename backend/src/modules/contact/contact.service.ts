@@ -1,21 +1,21 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Contact } from '../../shared/contact.contract';
+import { Contact } from '../../../shared/contact.contract';
 import { InjectModel } from '@nestjs/mongoose';
-import { UserEntity } from '../schemas/user.schema';
+import { UserEntity } from '../user/user.schema';
 import { Model } from 'mongoose';
-import { OnlineStatusService } from './online-status.service';
-import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
-import { ContactNotFoundException } from '../errors/internal/contact-not-found.exception';
-import { ContactAlreadyExistsException } from '../errors/internal/contact-already-exists.exception';
-import { ContactRequestEntity } from '../schemas/contact-request.schema';
-import { UserRelationshipQueryService } from './user-relationship-query.service';
-import { UserIsIgnoredException } from '../errors/external/user-is-ignored.exception';
-import { EventBusService } from './event-bus.service';
-import { EventNames } from '../events/event-names.enum';
+import { OnlineStatusService } from '../online-status/online-status.service';
+import { UserNotFoundException } from '../../errors/internal/user-not-found.exception';
+import { ContactNotFoundException } from '../../errors/internal/contact-not-found.exception';
+import { ContactAlreadyExistsException } from '../../errors/internal/contact-already-exists.exception';
+import { ContactRequestEntity } from '../contact-request/contact-request.schema';
+import { UserRelationshipQueryService } from '../user-relationship-query/user-relationship-query.service';
+import { UserIsIgnoredException } from '../../errors/external/user-is-ignored.exception';
+import { EventBusService } from '../global/event-bus.service';
+import { EventNames } from '../../events/event-names.enum';
 import {
     ContactAddedEvent,
     ContactAutoAddEvent,
-} from '../events/contact.events';
+} from '../../events/contact.events';
 
 @Injectable()
 export class ContactService implements OnModuleInit {

@@ -1,17 +1,17 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { User } from '../../shared/user.contract';
+import { User } from '../../../shared/user.contract';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { UserEntity } from '../schemas/user.schema';
+import { UserEntity } from './user.schema';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
-import { findUsersByCacheKey } from '../cache/cache-keys';
+import { findUsersByCacheKey } from '../../cache/cache-keys';
 import { Jimp } from 'jimp';
-import { ObjectStorageService } from './object-storage.service';
-import { UserNotFoundException } from '../errors/internal/user-not-found.exception';
-import { ObjectNotFoundException } from '../errors/internal/object-not-found.exception';
-import { EventBusService } from './event-bus.service';
-import { UserCreatedEvent } from '../events/user.events';
-import { EventNames } from '../events/event-names.enum';
+import { ObjectStorageService } from '../global/object-storage.service';
+import { UserNotFoundException } from '../../errors/internal/user-not-found.exception';
+import { ObjectNotFoundException } from '../../errors/internal/object-not-found.exception';
+import { EventBusService } from '../global/event-bus.service';
+import { UserCreatedEvent } from '../../events/user.events';
+import { EventNames } from '../../events/event-names.enum';
 
 @Injectable()
 export class UserService implements OnModuleInit {

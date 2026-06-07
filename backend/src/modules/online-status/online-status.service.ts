@@ -4,7 +4,7 @@ import {
     PubSubFactoryInterface,
     PubSubFactoryToken,
     SubClient,
-} from '../interfaces/pub-sub.factory.interface';
+} from '../../interfaces/pub-sub.factory.interface';
 
 enum ServerSyncEvent {
     UserOnline = 'userOnlineServerSync',

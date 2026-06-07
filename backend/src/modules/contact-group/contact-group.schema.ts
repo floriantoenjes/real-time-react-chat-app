@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ContactGroup } from '../../shared/contact-group.contract';
+import { ContactGroup } from '../../../shared/contact-group.contract';
 
 @Schema({ collection: 'contactGroups' })
 export class ContactGroupEntity implements ContactGroup {

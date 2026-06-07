@@ -5,11 +5,11 @@ import {
     UseInterceptors,
 } from '@nestjs/common';
 import { TsRestHandler, tsRestHandler } from '@ts-rest/nest';
-import { userContract } from '../../shared/user.contract';
-import { UserService } from '../services/user.service';
+import { userContract } from '../../../shared/user.contract';
+import { UserService } from './user.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { returnEntityOrNotFound } from './utils/controller-utils';
-import { UserId } from '../decorators/user-id.decorator';
+import { returnEntityOrNotFound } from '../../controllers/utils/controller-utils';
+import { UserId } from '../../decorators/user-id.decorator';
 
 @Controller()
 export class UserController {

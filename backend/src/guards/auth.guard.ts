@@ -6,7 +6,7 @@ import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { UnauthorizedException } from '../errors/external/unauthorized.exception';
 import { InjectModel } from '@nestjs/mongoose';
-import { UserEntity } from '../schemas/user.schema';
+import { UserEntity } from '../modules/user/user.schema';
 import { Model } from 'mongoose';
 
 @Injectable()

@@ -5,12 +5,12 @@ import {
     UseInterceptors,
 } from '@nestjs/common';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
-import { messageContract } from '../../shared/message.contract';
+import { messageContract } from '../../../shared/message.contract';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { MessageService } from '../services/message.service';
-import { UserId } from '../decorators/user-id.decorator';
-import { StrictThrottle } from '../decorators/throttle.decorators';
-import { MAX_FILE_SIZE_BYTES } from '../errors/external/file-too-large.exception';
+import { MessageService } from './message.service';
+import { UserId } from '../../decorators/user-id.decorator';
+import { StrictThrottle } from '../../decorators/throttle.decorators';
+import { MAX_FILE_SIZE_BYTES } from '../../errors/external/file-too-large.exception';
 
 @Controller()
 export class MessageController {

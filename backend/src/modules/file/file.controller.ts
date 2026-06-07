@@ -1,12 +1,12 @@
 import { Controller } from '@nestjs/common';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
-import { fileContract } from '../../shared/file.contract';
-import { ObjectStorageService } from '../services/object-storage.service';
-import { UserId } from '../decorators/user-id.decorator';
+import { fileContract } from '../../../shared/file.contract';
+import { ObjectStorageService } from '../global/object-storage.service';
+import { UserId } from '../../decorators/user-id.decorator';
 import { InjectModel } from '@nestjs/mongoose';
-import { FileAccessEntity } from '../schemas/file-access.schema';
+import { FileAccessEntity } from './file-access.schema';
 import { Model } from 'mongoose';
-import { UnauthorizedException } from '../errors/external/unauthorized.exception';
+import { UnauthorizedException } from '../../errors/external/unauthorized.exception';
 
 @Controller()
 export class FileController {

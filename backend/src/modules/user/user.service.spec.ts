@@ -1,7 +1,7 @@
 import { TestBed } from '@suites/unit';
 import { UserService } from './user.service';
 import { getModelToken } from '@nestjs/mongoose';
-import { UserEntity } from '../schemas/user.schema';
+import { UserEntity } from './user.schema';
 import * as bcrypt from 'bcrypt';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
