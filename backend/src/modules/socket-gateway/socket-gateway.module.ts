@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { RealTimeChatGateway } from './socket.gateway';
 import { ContactModule } from '../contact/contact.module';
 import { OnlineStatusModule } from '../online-status/online-status.module';
-import { WsConnectionThrottlerService } from '../../services/ws-connection-throttler.service';
+import { WsConnectionThrottlerService } from './ws-connection-throttler.service';
 
 @Module({
     imports: [ContactModule, OnlineStatusModule],

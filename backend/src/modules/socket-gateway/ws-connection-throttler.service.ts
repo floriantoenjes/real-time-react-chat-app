@@ -4,7 +4,7 @@ import { Socket } from 'socket.io';
 import {
     WS_MESSAGE_THROTTLE_CONFIG,
     WS_THROTTLE_CONFIG,
-} from '../config/ws-throttle.config';
+} from '../../config/ws-throttle.config';
 
 export interface ThrottleResult {
     allowed: boolean;

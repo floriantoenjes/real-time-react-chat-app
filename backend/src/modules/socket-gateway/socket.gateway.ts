@@ -13,13 +13,19 @@ import { User } from '../../../shared/user.contract';
 import { JwtService } from '@nestjs/jwt';
 import { OnlineStatusService } from '../online-status/online-status.service';
 import { SocketMessageTypes } from '../../../shared/socket-message-types.enum';
-import { WsConnectionThrottlerService } from '../../services/ws-connection-throttler.service';
+import { WsConnectionThrottlerService } from './ws-connection-throttler.service';
 import { WsConnectionThrottledException } from '../../errors/ws/ws-connection-throttled.exception';
 import { ConfigService } from '@nestjs/config';
 import { EventBusService } from '../global/event-bus.service';
 import { UserIgnoredEvent, UserUnignoredEvent } from '../../events/user.events';
-import { ContactAddedEvent, ContactGroupAutoAddEvent, } from '../../events/contact.events';
-import { MessageReadEvent, MessageSentEvent } from '../../events/message.events';
+import {
+    ContactAddedEvent,
+    ContactGroupAutoAddEvent,
+} from '../../events/contact.events';
+import {
+    MessageReadEvent,
+    MessageSentEvent,
+} from '../../events/message.events';
 import { EventNames } from '../../events/event-names.enum';
 
 @WebSocketGateway({
