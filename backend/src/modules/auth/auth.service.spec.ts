@@ -16,10 +16,11 @@ describe('Auth Service', () => {
     let mockAuthUserModel: any;
 
     const testCredentials = { email: 'test1@email.com', password: 'testPw1' };
-    const baseTestUserEntity = {
+    const baseTestAuthUserEntity = {
         _id: 'testUserId1',
         email: testCredentials.email,
         password: testCredentials.password,
+        refreshTokenEncrypted: 'testRefreshToken',
     } satisfies AuthUser;
 
     const bcryptCompare = jest.fn().mockImplementation(async (pw1, pw2) => {
@@ -38,19 +39,21 @@ describe('Auth Service', () => {
                     create: stubFn().mockResolvedValue(null),
                     findOne: stubFn().mockImplementation((filter) => {
                         // Return a query-like object that has a select method
-                        const user =
+                        const authUser =
                             filter.email === testCredentials.email
-                                ? { ...baseTestUserEntity }
+                                ? { ...baseTestAuthUserEntity }
                                 : filter.username === 'testUserName1'
-                                  ? { ...baseTestUserEntity }
+                                  ? { ...baseTestAuthUserEntity }
                                   : null;
 
-                        if (user) {
+                        if (authUser) {
                             return {
                                 select: () =>
                                     Promise.resolve({
-                                        ...user,
-                                        password: user.password,
+                                        ...authUser,
+                                        password: authUser.password,
+                                        refreshTokenEncrypted:
+                                            authUser.refreshTokenEncrypted,
                                     }),
                             };
                         }
@@ -70,7 +73,7 @@ describe('Auth Service', () => {
                         accessToken === 'testToken' ||
                         accessToken === 'testRefreshToken'
                     ) {
-                        return { username: 'testUserName1' };
+                        return { email: testCredentials.email };
                     } else {
                         return null;
                     }
@@ -107,10 +110,13 @@ describe('Auth Service', () => {
         });
 
         it('should successfully sign in user with right credentials', async () => {
-            const user = { ...baseTestUserEntity };
+            const authUser = { ...baseTestAuthUserEntity };
             mockAuthUserModel.findOne.mockReturnValueOnce({
                 select: () =>
-                    Promise.resolve({ ...user, password: user.password }),
+                    Promise.resolve({
+                        ...authUser,
+                        password: authUser.password,
+                    }),
             });
 
             const result = await authService.signIn(
@@ -126,10 +132,10 @@ describe('Auth Service', () => {
 
     describe('refresh', () => {
         it('respond with new token on valid access token', async () => {
-            const user = { ...baseTestUserEntity };
+            const authUser = { ...baseTestAuthUserEntity };
             // For findUserByUsername, findOne is called without select
             mockAuthUserModel.findOne.mockReturnValueOnce(
-                Promise.resolve(user),
+                Promise.resolve(authUser),
             );
 
             const result = await authService.refresh(
@@ -148,19 +154,11 @@ describe('Auth Service', () => {
             });
 
             await expect(
-                async () =>
-                    await authService.refresh(
-                        'invalidTestToken',
-                        'testRefreshToken',
-                    ),
+                async () => await authService.refresh('invalidTestToken'),
             ).rejects.toThrow(UnauthorizedException);
         });
 
         it('respond with new token on invalid access token and valid refresh token', async () => {
-            const user = {
-                ...baseTestUserEntity,
-                refreshTokenEncrypted: 'hashedRefreshToken',
-            };
             jwtService.verify
                 .mockImplementationOnce((token) => {
                     throw new Error('Invalid token ' + token);
@@ -169,9 +167,6 @@ describe('Auth Service', () => {
                     return {};
                 });
 
-            mockAuthUserModel.findOne.mockReturnValueOnce(
-                Promise.resolve(user),
-            );
             (bcrypt.compare as jest.Mock).mockResolvedValueOnce(true);
 
             const result = await authService.refresh(
@@ -185,8 +180,8 @@ describe('Auth Service', () => {
         });
 
         it('throw unauthorized on invalid refresh token', async () => {
-            const user = {
-                ...baseTestUserEntity,
+            const authUser = {
+                ...baseTestAuthUserEntity,
                 refreshTokenEncrypted: 'testRefreshToken',
             };
             jwtService.verify
@@ -198,7 +193,7 @@ describe('Auth Service', () => {
                 });
 
             mockAuthUserModel.findOne.mockReturnValueOnce(
-                Promise.resolve(user),
+                Promise.resolve(authUser),
             );
 
             await expect(
@@ -224,7 +219,7 @@ describe('Auth Service', () => {
         });
 
         it('should create user successfully', async () => {
-            const newUser = { ...baseTestUserEntity, password: 'hash' };
+            const newUser = { ...baseTestAuthUserEntity, password: 'hash' };
             mockAuthUserModel.create.mockResolvedValueOnce(newUser);
 
             const result = await authService.createAuthUser(
