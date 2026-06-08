@@ -13,7 +13,6 @@ import { CustomThrottlerGuard } from './guards/custom-throttler.guard';
 import * as process from 'node:process';
 import { LoggingController } from './controllers/logging.controller';
 import { RedisPubSubFactory } from './factories/redisPubSubFactory';
-import { WsConnectionThrottlerService } from './services/ws-connection-throttler.service';
 import { PubSubFactoryToken } from './interfaces/pub-sub.factory.interface';
 import { CoturnController } from './controllers/coturn.controller';
 import { ThrottlerModule } from '@nestjs/throttler';
@@ -28,6 +27,7 @@ import { UserModule } from './modules/user/user.module';
 import { ContactGroupModule } from './modules/contact-group/contact-group.module';
 import { FileModule } from './modules/file/file.module';
 import { InitModule } from './modules/init/init.module';
+import { SocketGatewayModule } from './modules/socket-gateway/socket-gateway.module';
 
 @Module({
     imports: [
@@ -79,12 +79,12 @@ import { InitModule } from './modules/init/init.module';
         IgnoredUserModule,
         InitModule,
         MessageModule,
+        SocketGatewayModule,
         UserModule,
     ],
     controllers: [AppController, CoturnController, LoggingController],
     providers: [
         AppService,
-        WsConnectionThrottlerService,
         { provide: PubSubFactoryToken, useClass: RedisPubSubFactory },
         {
             provide: APP_GUARD,

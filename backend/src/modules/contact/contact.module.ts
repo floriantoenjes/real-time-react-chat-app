@@ -15,5 +15,6 @@ import { ContactRequestModule } from '../contact-request/contact-request.module'
     ],
     controllers: [ContactController],
     providers: [ContactService],
+    exports: [ContactService],
 })
 export class ContactModule {}
