@@ -8,8 +8,6 @@ import { UserNotFoundException } from '../../errors/internal/user-not-found.exce
 import { ObjectNotFoundException } from '../../errors/internal/object-not-found.exception';
 import { ContactNotFoundException } from '../../errors/internal/contact-not-found.exception';
 import { EventBusService } from '../global/event-bus.service';
-import { UserIgnoredEvent } from '../../events/user.events';
-import { EventNames } from '../../events/event-names.enum';
 
 @Injectable()
 export class ContactRequestService {
@@ -81,31 +79,5 @@ export class ContactRequestService {
             targetUser.markModified('contacts');
             await targetUser.save();
         }
-    }
-
-    public async ignoreFromContactRequest(
-        userId: string,
-        contactRequestId: string,
-    ) {
-        const contactRequest =
-            await this.contactRequestModel.findById(contactRequestId);
-
-        if (!contactRequest) {
-            throw new ObjectNotFoundException();
-        }
-
-        if (contactRequest.targetUserId !== userId) {
-            throw new ObjectNotFoundException();
-        }
-
-        this.eventBus.emitAsync<UserIgnoredEvent>(
-            EventNames.USER_IGNORE_REQUEST,
-            {
-                userId,
-                ignoredUserId: contactRequest.initiatorId,
-            },
-        );
-
-        await contactRequest.deleteOne();
     }
 }

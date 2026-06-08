@@ -26,10 +26,4 @@ export class IgnoredUserService {
 
         return res.body;
     }
-
-    async ignoreFromContactRequest(contactRequestId: string) {
-        return this.clientService
-            .getClient(ignoredUserContract)
-            .ignoreFromContactRequest({ body: { contactRequestId } });
-    }
 }

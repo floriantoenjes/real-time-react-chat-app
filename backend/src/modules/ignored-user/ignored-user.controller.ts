@@ -3,16 +3,12 @@ import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { UserId } from '../../decorators/user-id.decorator';
 import { ignoredUserContract } from '../../../shared/ignored-user.contract';
 import { IgnoredUserService } from './ignored-user.service';
-import { ContactRequestService } from '../contact-request/contact-request.service';
 
 @Controller()
 export class IgnoredUserController {
     private readonly logger = new Logger(IgnoredUserController.name);
 
-    constructor(
-        private readonly ignoredUserService: IgnoredUserService,
-        private readonly contactRequestService: ContactRequestService,
-    ) {}
+    constructor(private readonly ignoredUserService: IgnoredUserService) {}
 
     @TsRestHandler(ignoredUserContract.ignoreUser)
     async ignoreUser(@UserId() userId: string) {
@@ -64,24 +60,6 @@ export class IgnoredUserController {
                 return {
                     status: 200 as const,
                     body: result,
-                };
-            },
-        );
-    }
-
-    @TsRestHandler(ignoredUserContract.ignoreFromContactRequest)
-    async ignoreFromContactRequest(@UserId() userId: string) {
-        return tsRestHandler(
-            ignoredUserContract.ignoreFromContactRequest,
-            async ({ body }) => {
-                await this.contactRequestService.ignoreFromContactRequest(
-                    userId,
-                    body.contactRequestId,
-                );
-
-                return {
-                    status: 201 as const,
-                    body: undefined,
                 };
             },
         );

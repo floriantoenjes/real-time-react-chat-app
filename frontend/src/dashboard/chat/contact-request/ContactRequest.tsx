@@ -143,9 +143,7 @@ export function ContactRequest({ selectedContact }: ContactRequestProps) {
                     if (!contactRequest || !selectedContact) {
                         return;
                     }
-                    await ignoredUserService.ignoreFromContactRequest(
-                        contactRequest._id,
-                    );
+                    await ignoredUserService.ignoreUser(selectedContact._id);
                     setContacts((prevState) => {
                         return prevState.filter(
                             (c) => c._id !== contactRequest.initiatorId,

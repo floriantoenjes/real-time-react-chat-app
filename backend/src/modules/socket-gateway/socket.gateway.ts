@@ -8,22 +8,19 @@ import {
 import { Logger, OnModuleInit } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { parse as parseCookie } from 'cookie';
-import { ContactService } from '../modules/contact/contact.service';
-import { User } from '../../shared/user.contract';
+import { ContactService } from '../contact/contact.service';
+import { User } from '../../../shared/user.contract';
 import { JwtService } from '@nestjs/jwt';
-import { OnlineStatusService } from '../modules/online-status/online-status.service';
-import { SocketMessageTypes } from '../../shared/socket-message-types.enum';
-import { WsConnectionThrottlerService } from '../services/ws-connection-throttler.service';
-import { WsConnectionThrottledException } from '../errors/ws/ws-connection-throttled.exception';
+import { OnlineStatusService } from '../online-status/online-status.service';
+import { SocketMessageTypes } from '../../../shared/socket-message-types.enum';
+import { WsConnectionThrottlerService } from '../../services/ws-connection-throttler.service';
+import { WsConnectionThrottledException } from '../../errors/ws/ws-connection-throttled.exception';
 import { ConfigService } from '@nestjs/config';
-import { EventBusService } from '../modules/global/event-bus.service';
-import { UserIgnoredEvent, UserUnignoredEvent } from '../events/user.events';
-import {
-    ContactAddedEvent,
-    ContactGroupAutoAddEvent,
-} from '../events/contact.events';
-import { MessageReadEvent, MessageSentEvent } from '../events/message.events';
-import { EventNames } from '../events/event-names.enum';
+import { EventBusService } from '../global/event-bus.service';
+import { UserIgnoredEvent, UserUnignoredEvent } from '../../events/user.events';
+import { ContactAddedEvent, ContactGroupAutoAddEvent, } from '../../events/contact.events';
+import { MessageReadEvent, MessageSentEvent } from '../../events/message.events';
+import { EventNames } from '../../events/event-names.enum';
 
 @WebSocketGateway({
     cors: {
