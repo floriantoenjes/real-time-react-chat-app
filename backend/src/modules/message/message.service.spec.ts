@@ -6,7 +6,7 @@ import { User } from '../../../shared/user.contract';
 import { Message } from '../../../shared/message.contract';
 import { Mocked } from '@suites/doubles.jest';
 import { getModelToken } from '@nestjs/mongoose';
-import { ContactGroupEntity } from '../contact-group/contact-group.schema';
+import { ContactGroupEntity } from '../relationships/contact-group/contact-group.schema';
 import { MessageEntity } from './message.schema';
 import { Contact } from '../../../shared/contact.contract';
 import { UserNotFoundException } from '../../errors/internal/user-not-found.exception';

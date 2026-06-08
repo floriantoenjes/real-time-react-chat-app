@@ -8,14 +8,14 @@ import { AuthUserEntity } from '../auth/auth.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
-import { ContactGroupEntity } from '../contact-group/contact-group.schema';
-import { ContactRequestEntity } from '../contact-request/contact-request.schema';
+import { ContactGroupEntity } from '../relationships/contact-group/contact-group.schema';
+import { ContactRequestEntity } from '../relationships/contact-request/contact-request.schema';
 import { FileAccessEntity } from '../file/file-access.schema';
-import { IgnoredUserEntity } from '../ignored-user/ignored-user.schema';
+import { IgnoredUserEntity } from '../relationships/ignored-user/ignored-user.schema';
 import { MessageEntity } from '../message/message.schema';
 import { UserEntity } from '../user/user.schema';
 import * as bcrypt from 'bcrypt';
-import { ContactEntity } from '../contact/contact.schema';
+import { ContactEntity } from '../relationships/contact/contact.schema';
 
 @Injectable()
 export class InitService implements OnApplicationBootstrap {

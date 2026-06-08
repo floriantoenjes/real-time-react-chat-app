@@ -1,7 +1,7 @@
 import { Controller, Logger } from '@nestjs/common';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
-import { UserId } from '../../decorators/user-id.decorator';
-import { ignoredUserContract } from '../../../shared/ignored-user.contract';
+import { UserId } from '../../../decorators/user-id.decorator';
+import { ignoredUserContract } from '../../../../shared/ignored-user.contract';
 import { IgnoredUserService } from './ignored-user.service';
 
 @Controller()

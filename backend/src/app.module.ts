@@ -21,14 +21,12 @@ import { CacheModule } from '@nestjs/cache-manager';
 import KeyvRedis from '@keyv/redis';
 import { GlobalModule } from './modules/global/global.module';
 import { MessageModule } from './modules/message/message.module';
-import { ContactModule } from './modules/contact/contact.module';
-import { IgnoredUserModule } from './modules/ignored-user/ignored-user.module';
 import { UserModule } from './modules/user/user.module';
-import { ContactGroupModule } from './modules/contact-group/contact-group.module';
 import { FileModule } from './modules/file/file.module';
 import { InitModule } from './modules/init/init.module';
 import { SocketGatewayModule } from './modules/socket-gateway/socket-gateway.module';
 import { AuthGuard } from './guards/auth.guard';
+import { RelationshipsModule } from './modules/relationships/relationships.module';
 
 @Module({
     imports: [
@@ -73,13 +71,11 @@ import { AuthGuard } from './guards/auth.guard';
 
         // Self defined modules
         AuthModule,
-        ContactGroupModule,
-        ContactModule,
         FileModule,
         GlobalModule,
-        IgnoredUserModule,
         InitModule,
         MessageModule,
+        RelationshipsModule,
         SocketGatewayModule,
         UserModule,
     ],

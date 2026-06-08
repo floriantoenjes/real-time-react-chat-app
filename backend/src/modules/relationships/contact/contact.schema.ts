@@ -1,5 +1,5 @@
 import { SchemaFactory } from '@nestjs/mongoose';
-import { Contact } from '../../../shared/contact.contract';
+import { Contact } from '../../../../shared/contact.contract';
 
 export class ContactEntity implements Contact {
     _id: any;

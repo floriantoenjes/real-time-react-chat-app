@@ -1,13 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { UserEntity } from '../user/user.schema';
+import { UserEntity } from '../../user/user.schema';
 import { Model, Types } from 'mongoose';
-import { ContactGroup } from '../../../shared/contact-group.contract';
+import { ContactGroup } from '../../../../shared/contact-group.contract';
 import { ContactGroupEntity } from './contact-group.schema';
-import { UserNotFoundException } from '../../errors/internal/user-not-found.exception';
-import { MembersNotFoundException } from '../../errors/internal/members-not-found.exception';
-import { ContactGroupNotFoundException } from '../../errors/internal/contact-group-not-found.exception';
-import { NotAGroupMemberException } from '../../errors/internal/not-a-group-member.exception';
+import { UserNotFoundException } from '../../../errors/internal/user-not-found.exception';
+import { MembersNotFoundException } from '../../../errors/internal/members-not-found.exception';
+import { ContactGroupNotFoundException } from '../../../errors/internal/contact-group-not-found.exception';
+import { NotAGroupMemberException } from '../../../errors/internal/not-a-group-member.exception';
 
 @Injectable()
 export class ContactGroupService {

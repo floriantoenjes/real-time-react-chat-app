@@ -8,7 +8,7 @@ import {
 import { Logger, OnModuleInit } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { parse as parseCookie } from 'cookie';
-import { ContactService } from '../contact/contact.service';
+import { ContactService } from '../relationships/contact/contact.service';
 import { User } from '../../../shared/user.contract';
 import { JwtService } from '@nestjs/jwt';
 import { OnlineStatusService } from '../online-status/online-status.service';

@@ -1,8 +1,8 @@
 import { Controller, Logger } from '@nestjs/common';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
-import { contactGroupContract } from '../../../shared/contact-group.contract';
+import { contactGroupContract } from '../../../../shared/contact-group.contract';
 import { ContactGroupService } from './contact-group.service';
-import { UserId } from '../../decorators/user-id.decorator';
+import { UserId } from '../../../decorators/user-id.decorator';
 
 @Controller()
 export class ContactGroupController {

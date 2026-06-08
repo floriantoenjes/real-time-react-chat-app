@@ -3,20 +3,18 @@ import { MessageController } from './message.controller';
 import { MessageService } from './message.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MessageEntity, MessageSchema } from './message.schema';
-import { UserRelationshipQueryModule } from '../user-relationship-query/user-relationship-query.module';
 import { UserModule } from '../user/user.module';
 import { FileModule } from '../file/file.module';
-import { ContactGroupModule } from '../contact-group/contact-group.module';
+import { RelationshipsModule } from '../relationships/relationships.module';
 
 @Module({
     imports: [
         MongooseModule.forFeature([
             { name: MessageEntity.name, schema: MessageSchema },
         ]),
-        ContactGroupModule,
         FileModule,
+        RelationshipsModule,
         UserModule,
-        UserRelationshipQueryModule,
     ],
     controllers: [MessageController],
     providers: [MessageService],

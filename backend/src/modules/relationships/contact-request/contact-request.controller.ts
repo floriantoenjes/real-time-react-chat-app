@@ -1,7 +1,7 @@
 import { Controller, Logger } from '@nestjs/common';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
-import { UserId } from '../../decorators/user-id.decorator';
-import { contactRequestContract } from '../../../shared/contact-request.contract';
+import { UserId } from '../../../decorators/user-id.decorator';
+import { contactRequestContract } from '../../../../shared/contact-request.contract';
 import { ContactRequestService } from './contact-request.service';
 
 @Controller()

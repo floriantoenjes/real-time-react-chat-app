@@ -1,4 +1,4 @@
-import { ContactRequest } from '../../../shared/contact-request.contract';
+import { ContactRequest } from '../../../../shared/contact-request.contract';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 @Schema({ collection: 'contactRequests' })

@@ -2,14 +2,17 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
 import { IgnoredUserEntity } from './ignored-user.schema';
-import { UserEntity } from '../user/user.schema';
-import { UserNotFoundException } from '../../errors/internal/user-not-found.exception';
-import { CannotIgnoreSelfException } from '../../errors/external/cannot-ignore-self.exception';
-import { AlreadyIgnoredException } from '../../errors/external/already-ignored.exception';
-import { UserNotIgnoredException } from '../../errors/external/user-not-ignored.exception';
-import { EventBusService } from '../global/event-bus.service';
-import { EventNames } from '../../events/event-names.enum';
-import { UserIgnoredEvent, UserUnignoredEvent } from '../../events/user.events';
+import { UserEntity } from '../../user/user.schema';
+import { UserNotFoundException } from '../../../errors/internal/user-not-found.exception';
+import { CannotIgnoreSelfException } from '../../../errors/external/cannot-ignore-self.exception';
+import { AlreadyIgnoredException } from '../../../errors/external/already-ignored.exception';
+import { UserNotIgnoredException } from '../../../errors/external/user-not-ignored.exception';
+import { EventBusService } from '../../global/event-bus.service';
+import { EventNames } from '../../../events/event-names.enum';
+import {
+    UserIgnoredEvent,
+    UserUnignoredEvent,
+} from '../../../events/user.events';
 
 export interface PaginationParams {
     page?: number;

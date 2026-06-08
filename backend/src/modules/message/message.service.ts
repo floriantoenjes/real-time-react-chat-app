@@ -5,7 +5,7 @@ import { HydratedDocument, Model } from 'mongoose';
 import { UserEntity } from '../user/user.schema';
 import { Message, MessageType } from '../../../shared/message.contract';
 import { ObjectStorageService } from '../global/object-storage.service';
-import { ContactGroupEntity } from '../contact-group/contact-group.schema';
+import { ContactGroupEntity } from '../relationships/contact-group/contact-group.schema';
 import { MessageNotFoundException } from '../../errors/internal/message-not-found.exception';
 import { UserNotFoundException } from '../../errors/internal/user-not-found.exception';
 import {
@@ -16,7 +16,7 @@ import {
 import { FileAccessEntity } from '../file/file-access.schema';
 import { ContactGroup } from '../../../shared/contact-group.contract';
 import { ContactNotFoundException } from '../../errors/internal/contact-not-found.exception';
-import { UserRelationshipQueryService } from '../user-relationship-query/user-relationship-query.service';
+import { UserRelationshipQueryService } from '../relationships/user-relationship-query/user-relationship-query.service';
 import { UserIsIgnoredException } from '../../errors/external/user-is-ignored.exception';
 import { EventBusService } from '../global/event-bus.service';
 import { EventNames } from '../../events/event-names.enum';
