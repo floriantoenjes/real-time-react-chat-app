@@ -167,6 +167,8 @@ export class AuthService {
             },
         );
 
+        authUser.refreshTokenEncrypted = '';
+
         return {
             authUser,
             accessToken: await this.jwtService.signAsync(payload),
@@ -175,7 +177,9 @@ export class AuthService {
     }
 
     private async findAuthUserByEmail(email: string): Promise<AuthUser | null> {
-        const authUser = await this.authUserModel.findOne({ email });
+        const authUser = await this.authUserModel
+            .findOne({ email })
+            .select('+refreshTokenEncrypted');
         if (authUser) {
             authUser.password = '';
         }

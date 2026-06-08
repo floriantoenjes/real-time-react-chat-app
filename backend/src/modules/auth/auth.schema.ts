@@ -11,7 +11,7 @@ export class AuthUserEntity implements AuthUser {
     @Prop({ select: false })
     password!: string;
 
-    @Prop()
+    @Prop({ select: false })
     refreshTokenEncrypted?: string;
 }
 
