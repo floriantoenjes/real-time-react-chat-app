@@ -202,8 +202,6 @@ export class AuthService {
 
             this.logger.log(`Created auth user "${createdAuthUser._id}"`);
 
-            // await this.cache.del(findUsersByCacheKey());
-
             createdAuthUser.password = '';
 
             return createdAuthUser;

@@ -28,10 +28,14 @@ export class UserService implements OnModuleInit {
         this.eventBus.on<UserCreatedEvent>(
             EventNames.USER_CREATED,
             async (event) => {
-                void this.userModel.create({
-                    authUserId: event.authUserId,
-                    username: event.username,
-                });
+                this.userModel
+                    .create({
+                        authUserId: event.authUserId,
+                        username: event.username,
+                    })
+                    .then(() => {
+                        void this.cache.del(findUsersByCacheKey());
+                    });
             },
         );
     }
