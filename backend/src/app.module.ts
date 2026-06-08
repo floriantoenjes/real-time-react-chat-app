@@ -28,6 +28,7 @@ import { ContactGroupModule } from './modules/contact-group/contact-group.module
 import { FileModule } from './modules/file/file.module';
 import { InitModule } from './modules/init/init.module';
 import { SocketGatewayModule } from './modules/socket-gateway/socket-gateway.module';
+import { AuthGuard } from './guards/auth.guard';
 
 @Module({
     imports: [
@@ -89,6 +90,10 @@ import { SocketGatewayModule } from './modules/socket-gateway/socket-gateway.mod
         {
             provide: APP_GUARD,
             useClass: CustomThrottlerGuard,
+        },
+        {
+            provide: APP_GUARD,
+            useClass: AuthGuard,
         },
     ],
 })
