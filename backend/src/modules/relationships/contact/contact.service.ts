@@ -3,7 +3,6 @@ import { Contact } from '../../../../shared/contact.contract';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserEntity } from '../../user/user.schema';
 import { Model } from 'mongoose';
-import { OnlineStatusService } from '../../online-status/online-status.service';
 import { UserNotFoundException } from '../../../errors/internal/user-not-found.exception';
 import { ContactNotFoundException } from '../../../errors/internal/contact-not-found.exception';
 import { ContactAlreadyExistsException } from '../../../errors/internal/contact-already-exists.exception';
@@ -24,7 +23,6 @@ export class ContactService implements OnModuleInit {
     constructor(
         @InjectModel(ContactRequestEntity.name)
         private contactRequestModel: Model<ContactRequestEntity>,
-        private readonly onlineStatusService: OnlineStatusService,
         @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
         private readonly userRelationshipQueryService: UserRelationshipQueryService,
         private readonly eventBus: EventBusService,
@@ -265,19 +263,6 @@ export class ContactService implements OnModuleInit {
         return {
             status: 204 as const,
             body: true,
-        };
-    }
-
-    async getContactsOnlineStatus(body: string[]) {
-        const onlineStatusMapObject = {};
-        for (const userId of body) {
-            onlineStatusMapObject[userId] =
-                this.onlineStatusService.isUserOnline(userId);
-        }
-
-        return {
-            status: 200 as const,
-            body: onlineStatusMapObject,
         };
     }
 }

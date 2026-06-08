@@ -39,14 +39,4 @@ export class ContactController {
             },
         );
     }
-
-    @TsRestHandler(contactContract.getContactsOnlineStatus)
-    async getContactsOnlineStatus() {
-        return tsRestHandler(
-            contactContract.getContactsOnlineStatus,
-            async ({ body }) => {
-                return this.contactService.getContactsOnlineStatus(body);
-            },
-        );
-    }
 }

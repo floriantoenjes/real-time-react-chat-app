@@ -46,13 +46,4 @@ export const contactContract = c.router({
         }),
         summary: 'Remove a contact',
     },
-    getContactsOnlineStatus: {
-        method: 'POST',
-        path: '/contacts/online',
-        responses: {
-            200: z.record(z.string(), z.boolean()),
-        },
-        body: z.array(z.string()),
-        summary: 'Fetch online status of contacts by userIds',
-    },
 });

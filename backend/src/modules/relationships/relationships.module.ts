@@ -17,7 +17,6 @@ import {
     ContactRequestEntity,
     ContactRequestSchema,
 } from './contact-request/contact-request.schema';
-import { OnlineStatusModule } from '../online-status/online-status.module';
 import { UserModule } from '../user/user.module';
 import {
     IgnoredUserEntity,
@@ -32,7 +31,6 @@ import {
             { name: IgnoredUserEntity.name, schema: IgnoredUserSchema },
         ]),
 
-        OnlineStatusModule,
         UserModule,
     ],
     controllers: [

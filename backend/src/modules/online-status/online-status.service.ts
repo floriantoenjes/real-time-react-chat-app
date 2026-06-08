@@ -57,6 +57,18 @@ export class OnlineStatusService {
         }
     }
 
+    getContactsOnlineStatus(body: string[]) {
+        const onlineStatusMapObject: Record<string, boolean> = {};
+        for (const userId of body) {
+            onlineStatusMapObject[userId] = this.isUserOnline(userId);
+        }
+
+        return {
+            status: 200 as const,
+            body: onlineStatusMapObject,
+        };
+    }
+
     isUserOnline(userId: string) {
         return this.onlineUsersSet.has(userId);
     }
