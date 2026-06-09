@@ -11,6 +11,7 @@ import { EmailAlreadyTakenException } from '../../errors/external/email-already-
 import { UserCreatedEvent } from '../../events/user.events';
 import { EventNames } from '../../events/event-names.enum';
 import { EventBusService } from '../global/event-bus.service';
+import { JwtPayload } from '../../types/jwt.types';
 
 @Injectable()
 export class AuthService {
@@ -92,14 +93,14 @@ export class AuthService {
         refreshToken: string;
     }> {
         try {
-            this.jwtService.verify(accessToken);
+            this.jwtService.verify<JwtPayload>(accessToken);
 
-            const decodedJwt = this.jwtService.decode(accessToken);
+            const decodedJwt = this.jwtService.decode<JwtPayload>(accessToken);
 
-            const authUser = await this.findAuthUserByEmail(decodedJwt?.email);
+            const authUser = await this.findAuthUserByEmail(decodedJwt.email);
             if (!authUser) {
                 this.logger.warn(
-                    `Refresh failed: user not found for username ${decodedJwt?.username}`,
+                    `Refresh failed: user not found for user ${decodedJwt.email}`,
                 );
                 throw new UserNotFoundException();
             }
@@ -114,7 +115,7 @@ export class AuthService {
             }
 
             try {
-                this.jwtService.verify(refreshToken);
+                this.jwtService.verify<JwtPayload>(refreshToken);
             } catch (verifyError: any) {
                 this.logger.warn(
                     `Refresh failed: invalid refresh token - ${verifyError.message}`,
@@ -122,14 +123,14 @@ export class AuthService {
                 throw new UnauthorizedException(verifyError);
             }
 
-            const decodedJwt = this.jwtService.decode(refreshToken);
+            const decodedJwt = this.jwtService.decode<JwtPayload>(refreshToken);
 
-            const authUser = await this.findAuthUserByEmail(decodedJwt?.email);
+            const authUser = await this.findAuthUserByEmail(decodedJwt.email);
             const refreshTokenFromDb = authUser?.refreshTokenEncrypted;
 
             if (!authUser) {
                 this.logger.warn(
-                    `Refresh failed: user not found for username ${decodedJwt?.username}`,
+                    `Refresh failed: user not found for user ${decodedJwt.email}`,
                 );
                 throw new UserNotFoundException();
             }

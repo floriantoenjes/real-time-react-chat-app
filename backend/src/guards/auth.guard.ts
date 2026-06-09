@@ -8,6 +8,7 @@ import { UnauthorizedException } from '../errors/external/unauthorized.exception
 import { InjectModel } from '@nestjs/mongoose';
 import { UserEntity } from '../modules/user/user.schema';
 import { Model } from 'mongoose';
+import { JwtPayload } from '../types/jwt.types';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -43,9 +44,12 @@ export class AuthGuard implements CanActivate {
             throw new UnauthorizedException();
         }
         try {
-            const payload = await this.jwtService.verifyAsync(token, {
-                secret: this.JWT_SECRET,
-            });
+            const payload = await this.jwtService.verifyAsync<JwtPayload>(
+                token,
+                {
+                    secret: this.JWT_SECRET,
+                },
+            );
 
             // 💡 We're assigning the payload to the request object here
             // so that we can access it in our route handlers

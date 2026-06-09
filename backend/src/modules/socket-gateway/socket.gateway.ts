@@ -27,6 +27,7 @@ import {
     MessageSentEvent,
 } from '../../events/message.events';
 import { EventNames } from '../../events/event-names.enum';
+import { JwtPayload } from '../../types/jwt.types';
 
 @WebSocketGateway({
     cors: {
@@ -208,7 +209,7 @@ export class RealTimeChatGateway
         }
 
         try {
-            this.jwtService.verify(token, {
+            this.jwtService.verify<JwtPayload>(token, {
                 secret: this.JWT_SECRET,
             });
             return true;

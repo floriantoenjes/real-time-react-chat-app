@@ -66,6 +66,7 @@ export function SendMessageBar(props: {
                     void sendIsTyping();
                 }}
                 multiline={true}
+                autoFocus={true}
                 // inputRef={(input) => input && input.focus()}
             ></TextField>
 
