@@ -60,6 +60,7 @@ export function Login() {
                             type="email"
                             label={LL.EMAIL()}
                             error={!!formState.errors.email}
+                            autoFocus={true}
                             {...register("email", {
                                 required: true,
                                 validate: (value) => {
@@ -91,11 +92,7 @@ export function Login() {
 
                     <div className="w-fit mx-auto">
                         <span className={"mr-3"}>
-                            <Button
-                                variant={"contained"}
-                                autoFocus={true}
-                                type={"submit"}
-                            >
+                            <Button variant={"contained"} type={"submit"}>
                                 {LL.SIGN_IN()}
                             </Button>
                         </span>
