@@ -8,10 +8,8 @@ import { UnauthorizedException } from '../../errors/external/unauthorized.except
 import { AuthUserEntity } from './auth.schema';
 import { AuthUser } from '../../../shared/auth.contract';
 import { EmailAlreadyTakenException } from '../../errors/external/email-already-taken.exception';
-import { UserCreatedEvent } from '../../events/user.events';
-import { EventNames } from '../../events/event-names.enum';
-import { EventBusService } from '../global/event-bus.service';
 import { JwtPayload } from '../../types/jwt.types';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AuthService {
@@ -21,8 +19,8 @@ export class AuthService {
     constructor(
         @InjectModel(AuthUserEntity.name)
         private readonly authUserModel: Model<AuthUserEntity>,
-        private readonly eventBus: EventBusService,
         private readonly jwtService: JwtService,
+        private readonly userService: UserService,
     ) {}
 
     async verifyCredentials(
@@ -196,11 +194,7 @@ export class AuthService {
                 password: hash,
             });
 
-            this.eventBus.emit<UserCreatedEvent>(EventNames.USER_CREATED, {
-                authUserId: createdAuthUser._id,
-                username: username,
-            });
-
+            await this.userService.createUser(createdAuthUser._id, username);
             this.logger.log(`Created auth user "${createdAuthUser._id}"`);
 
             createdAuthUser.password = '';

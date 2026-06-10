@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { User } from '../../../shared/user.contract';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -9,35 +9,24 @@ import { Jimp } from 'jimp';
 import { ObjectStorageService } from '../global/object-storage.service';
 import { UserNotFoundException } from '../../errors/internal/user-not-found.exception';
 import { ObjectNotFoundException } from '../../errors/internal/object-not-found.exception';
-import { EventBusService } from '../global/event-bus.service';
-import { UserCreatedEvent } from '../../events/user.events';
-import { EventNames } from '../../events/event-names.enum';
 
 @Injectable()
-export class UserService implements OnModuleInit {
+export class UserService {
     private readonly logger = new Logger(UserService.name);
 
     constructor(
         @Inject(CACHE_MANAGER)
         private readonly cache: Cache,
-        private readonly eventBus: EventBusService,
         @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
         private readonly objectStorageService: ObjectStorageService,
     ) {}
-    onModuleInit() {
-        this.eventBus.on<UserCreatedEvent>(
-            EventNames.USER_CREATED,
-            async (event) => {
-                this.userModel
-                    .create({
-                        authUserId: event.authUserId,
-                        username: event.username,
-                    })
-                    .then(() => {
-                        void this.cache.del(findUsersByCacheKey());
-                    });
-            },
-        );
+
+    async createUser(authUserId: string, username: string) {
+        await this.userModel.create({
+            authUserId,
+            username,
+        });
+        await this.cache.del(findUsersByCacheKey());
     }
 
     async findUsersBy(filter?: Partial<{ [k in keyof UserEntity]: any }>) {
