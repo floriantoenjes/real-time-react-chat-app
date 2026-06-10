@@ -1,7 +1,5 @@
 import { User, userContract } from "@t/user.contract";
 import { ClientService } from "./ClientService";
-import { AuthService } from "./AuthService";
-import { authContract, AuthUser } from "@t/auth.contract";
 
 export class UserService {
     constructor(private clientService: ClientService) {}
@@ -22,52 +20,6 @@ export class UserService {
         const res = await this.clientService.getClient(userContract).getAll({});
 
         if (res.status === 200) {
-            return res.body;
-        }
-
-        return false;
-    }
-
-    async signIn(email: string, password: string) {
-        const res = await this.clientService.getClient(authContract).signIn({
-            body: { email, password },
-        });
-
-        if (res.status === 200) {
-            return res.body;
-        }
-
-        return false;
-    }
-
-    async signOut() {
-        const res = await this.clientService
-            .getClient(authContract)
-            .signOut({});
-
-        return res.status === 204;
-    }
-
-    async refresh(): Promise<{ authUser: AuthUser } | false> {
-        const res = await this.clientService
-            .getClient(authContract)
-            .refresh({});
-
-        if (res.status === 200) {
-            return res.body;
-        }
-
-        return false;
-    }
-
-    async signUp(email: string, password: string, username: string) {
-        const res = await this.clientService.getClient(authContract).signUp({
-            body: { email, password, username },
-        });
-
-        if (res.status === 201) {
-            AuthService.setSignInData();
-
             return res.body;
         }
 

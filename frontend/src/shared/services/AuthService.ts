@@ -1,11 +1,16 @@
 import { UserService } from "./UserService";
 import { User } from "@t/user.contract";
 import React, { Dispatch, SetStateAction } from "react";
+import { ClientService } from "./ClientService";
+import { authContract } from "@t/auth.contract";
 
 export class AuthService {
     public static readonly LOCAL_STORAGE_SIGNED_IN_FLAG = "signedIn";
 
-    constructor(private readonly userService: UserService) {}
+    constructor(
+        private readonly clientService: ClientService,
+        private readonly userService: UserService,
+    ) {}
 
     static setSignInData() {
         localStorage.setItem(
@@ -15,7 +20,10 @@ export class AuthService {
     }
 
     async signOut(callback?: () => void) {
-        if (!(await this.userService.signOut())) {
+        if (
+            (await this.clientService.getClient(authContract).signOut({}))
+                .status !== 204
+        ) {
             return false;
         }
         localStorage.removeItem(AuthService.LOCAL_STORAGE_SIGNED_IN_FLAG);
@@ -27,14 +35,16 @@ export class AuthService {
     }
 
     async signIn(email: string, password: string) {
-        const body = await this.userService.signIn(email, password);
-        if (!body) {
-            return;
+        const res = await this.clientService
+            .getClient(authContract)
+            .signIn({ body: { email, password } });
+        if (res.status !== 200) {
+            return false;
         }
 
         AuthService.setSignInData();
 
-        return body.authUser;
+        return res.body.authUser;
     }
 
     async refresh() {
@@ -44,17 +54,29 @@ export class AuthService {
         if (!signedIn) {
             return;
         }
-        const res = await this.userService.refresh();
-        if (!res) {
+        const res = await this.clientService
+            .getClient(authContract)
+            .refresh({});
+        if (res.status !== 200) {
             return;
         }
         AuthService.setSignInData();
 
-        return res.authUser;
+        return res.body.authUser;
     }
 
     async signUp(email: string, password: string, username: string) {
-        return this.userService.signUp(email, password, username);
+        const res = await this.clientService.getClient(authContract).signUp({
+            body: { email, password, username },
+        });
+
+        if (res.status !== 201) {
+            return false;
+        }
+
+        AuthService.setSignInData();
+
+        return res.body;
     }
 
     async authenticateUserAndFetchAvatar(

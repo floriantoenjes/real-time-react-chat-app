@@ -15,7 +15,7 @@ const clientService = new ClientService();
 const userService = new UserService(clientService);
 
 const container = {
-    AuthService: new AuthService(userService),
+    AuthService: new AuthService(clientService, userService),
     ContactGroupService: new ContactGroupService(clientService),
     ContactService: new ContactService(clientService, userService),
     ContactRequestService: new ContactRequestService(clientService),
