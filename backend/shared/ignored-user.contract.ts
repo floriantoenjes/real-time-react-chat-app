@@ -57,16 +57,4 @@ export const ignoredUserContract = c.router({
         }),
         summary: 'Get paginated list of ignored users',
     },
-
-    ignoreFromContactRequest: {
-        method: 'POST',
-        path: '/contact-requests/ignore',
-        responses: {
-            201: z.undefined(),
-        },
-        body: z.object({
-            contactRequestId: z.string(),
-        }),
-        summary: 'Ignore a user from a contact request',
-    },
 });

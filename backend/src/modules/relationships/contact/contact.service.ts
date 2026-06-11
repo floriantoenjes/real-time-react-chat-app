@@ -1,0 +1,268 @@
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Contact } from '../../../../shared/contact.contract';
+import { InjectModel } from '@nestjs/mongoose';
+import { UserEntity } from '../../user/user.schema';
+import { Model } from 'mongoose';
+import { UserNotFoundException } from '../../../errors/internal/user-not-found.exception';
+import { ContactNotFoundException } from '../../../errors/internal/contact-not-found.exception';
+import { ContactAlreadyExistsException } from '../../../errors/internal/contact-already-exists.exception';
+import { ContactRequestEntity } from '../contact-request/contact-request.schema';
+import { UserRelationshipQueryService } from '../user-relationship-query/user-relationship-query.service';
+import { UserIsIgnoredException } from '../../../errors/external/user-is-ignored.exception';
+import { EventBusService } from '../../global/event-bus.service';
+import { EventNames } from '../../../events/event-names.enum';
+import {
+    ContactAddedEvent,
+    ContactAutoAddEvent,
+} from '../../../events/contact.events';
+
+@Injectable()
+export class ContactService implements OnModuleInit {
+    private readonly logger = new Logger(ContactService.name);
+
+    constructor(
+        @InjectModel(ContactRequestEntity.name)
+        private contactRequestModel: Model<ContactRequestEntity>,
+        @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
+        private readonly userRelationshipQueryService: UserRelationshipQueryService,
+        private readonly eventBus: EventBusService,
+    ) {}
+
+    onModuleInit(): void {
+        this.listenOnEvents();
+    }
+
+    private listenOnEvents() {
+        this.eventBus.on<ContactAutoAddEvent>(
+            EventNames.CONTACT_AUTO_ADD,
+            async (payload: ContactAutoAddEvent) => {
+                this.logger.debug(
+                    `Handling auto-add contact: user=${payload.userId}, contact=${payload.contactUserId}`,
+                );
+                try {
+                    const contact = await this.addContactIfNotExists(
+                        payload.userId,
+                        payload.contactUserId,
+                    );
+                    if (contact) {
+                        this.eventBus.emitAsync<ContactAddedEvent>(
+                            EventNames.CONTACT_ADDED,
+                            {
+                                userId: payload.userId,
+                                contact,
+                            },
+                        );
+                    }
+                } catch (error) {
+                    this.logger.error(
+                        `Failed to handle contact.auto-add event: ${error}`,
+                    );
+                }
+            },
+        );
+    }
+
+    async getUserContacts(userId: string) {
+        const user = await this.userModel.findOne({
+            _id: userId,
+        });
+
+        if (!user) {
+            this.logger.warn(`Get contacts failed: user ${userId} not found`);
+            throw new UserNotFoundException();
+        }
+
+        const userContacts = user.contacts ?? [];
+        if (userContacts.length === 0) {
+            return [];
+        }
+
+        const contactIds = userContacts.map((contact) => contact._id);
+        const contactUsers = await this.userModel
+            .find({ _id: { $in: contactIds } })
+            .lean();
+
+        const contactUserMap = new Map(
+            contactUsers.map((cu) => [cu._id.toString(), cu]),
+        );
+
+        const contacts: Contact[] = [];
+        for (const contact of userContacts) {
+            const contactUser = contactUserMap.get(contact._id);
+
+            if (!contactUser) {
+                this.logger.warn(
+                    `Get contacts failed: contact ${contact._id} not found for user ${userId}`,
+                );
+                throw new ContactNotFoundException();
+            }
+
+            contacts.push({
+                ...contact,
+                ...contactUser,
+                lastMessage: contact.lastMessage,
+            });
+        }
+
+        return contacts;
+    }
+
+    async getUsersThatHaveContact(contactUserId: string) {
+        return this.userModel
+            .find({
+                'contacts._id': contactUserId,
+            })
+            .lean();
+    }
+
+    async addContact(userId: string, newContactId: string) {
+        const user = await this.userModel.findOne({ _id: userId });
+
+        if (!user) {
+            this.logger.warn(`Add contact failed: user ${userId} not found`);
+            throw new UserNotFoundException();
+        }
+
+        const contact = await this.userModel.findOne({
+            _id: newContactId,
+        });
+
+        if (!contact) {
+            this.logger.warn(
+                `Add contact failed: contact ${newContactId} not found for user ${userId}`,
+            );
+            throw new ContactNotFoundException();
+        }
+
+        const newContact = {
+            _id: newContactId,
+            name: contact.username,
+            avatarFileName: contact.avatarFileName,
+            isAccepted: true,
+        } as Contact;
+
+        const isIgnored = await this.userRelationshipQueryService.isUserIgnored(
+            userId,
+            newContactId,
+        );
+        if (isIgnored) {
+            this.logger.warn(
+                `User ${userId} tried to add ignored user ${newContactId} as contact`,
+            );
+            throw new UserIsIgnoredException();
+        }
+
+        const contactAlreadyExists = user.contacts.find(
+            (uc) => uc._id === newContact._id,
+        );
+        if (contactAlreadyExists) {
+            this.logger.warn(
+                `User ${userId} tried to add already existing contact ${newContactId}`,
+            );
+            throw new ContactAlreadyExistsException();
+        }
+
+        user.contacts.push(newContact);
+        user.markModified('contacts');
+
+        await user.save();
+
+        return {
+            status: 201 as const,
+            body: newContact,
+        };
+    }
+
+    async addContactIfNotExists(
+        userId: string,
+        newContactId: string,
+    ): Promise<Contact | null> {
+        const isIgnored = await this.userRelationshipQueryService.isUserIgnored(
+            userId,
+            newContactId,
+        );
+        if (isIgnored) {
+            this.logger.warn(
+                `Auto-add contact failed: user ${userId} has ignored user ${newContactId}`,
+            );
+            return null;
+        }
+
+        const user = await this.userModel.findOne({ _id: userId });
+
+        if (!user) {
+            this.logger.warn(
+                `Auto-add contact failed: user ${userId} not found`,
+            );
+            return null;
+        }
+
+        const contactAlreadyExists = user.contacts.find(
+            (uc) => uc._id === newContactId,
+        );
+        if (contactAlreadyExists) {
+            return null;
+        }
+
+        await this.contactRequestModel.create({
+            initiatorId: newContactId,
+            targetUserId: userId,
+            sentAt: new Date(),
+        });
+
+        const contact = await this.userModel.findOne({
+            _id: newContactId,
+        });
+
+        if (!contact) {
+            this.logger.warn(
+                `Auto-add contact failed: contact ${newContactId} not found`,
+            );
+            return null;
+        }
+
+        const newContact = {
+            _id: newContactId,
+            name: contact.username,
+            avatarFileName: contact.avatarFileName,
+            isAccepted: false,
+        } satisfies Contact;
+
+        user.contacts.push(newContact);
+        user.markModified('contacts');
+
+        await user.save();
+
+        this.logger.log(
+            `Auto-added contact ${newContactId} to user ${userId}'s contacts`,
+        );
+
+        return newContact;
+    }
+
+    async removeContact(userId: string, contactId: string) {
+        const user = await this.userModel.findOne({ _id: userId });
+        if (!user) {
+            this.logger.warn(`Remove contact failed: user ${userId} not found`);
+            throw new UserNotFoundException();
+        }
+
+        const contact = user.contacts.find((uc) => uc._id === contactId);
+        if (!contact) {
+            this.logger.warn(
+                `Remove contact failed: contact ${contactId} not found for user ${userId}`,
+            );
+            throw new ContactNotFoundException();
+        }
+
+        user.contacts = user.contacts.filter((u) => u._id !== contactId);
+        user.markModified('contacts');
+
+        await user.save();
+
+        return {
+            status: 204 as const,
+            body: true,
+        };
+    }
+}

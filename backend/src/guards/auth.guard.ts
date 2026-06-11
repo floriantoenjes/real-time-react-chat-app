@@ -5,6 +5,10 @@ import { IS_PUBLIC_KEY } from '../constants/auth-constants';
 import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { UnauthorizedException } from '../errors/external/unauthorized.exception';
+import { InjectModel } from '@nestjs/mongoose';
+import { UserEntity } from '../modules/user/user.schema';
+import { Model } from 'mongoose';
+import { JwtPayload } from '../types/jwt.types';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -14,6 +18,8 @@ export class AuthGuard implements CanActivate {
         private configService: ConfigService,
         private jwtService: JwtService,
         private reflector: Reflector,
+        @InjectModel(UserEntity.name)
+        private userModel: Model<UserEntity>,
     ) {
         const jwtSecret = this.configService.get('JWT_SECRET');
         if (!jwtSecret) {
@@ -38,12 +44,23 @@ export class AuthGuard implements CanActivate {
             throw new UnauthorizedException();
         }
         try {
-            const payload = await this.jwtService.verifyAsync(token, {
-                secret: this.JWT_SECRET,
-            });
+            const payload = await this.jwtService.verifyAsync<JwtPayload>(
+                token,
+                {
+                    secret: this.JWT_SECRET,
+                },
+            );
+
             // 💡 We're assigning the payload to the request object here
             // so that we can access it in our route handlers
-            request['user'] = payload;
+            const user = await this.userModel
+                .findOne({ authUserId: payload.sub })
+                .lean();
+            if (!user) {
+                throw new UnauthorizedException();
+            }
+
+            request['user'] = { ...payload, sub: user._id.toString() };
         } catch {
             throw new UnauthorizedException();
         }

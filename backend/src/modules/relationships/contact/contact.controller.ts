@@ -1,0 +1,42 @@
+import { Controller, Logger } from '@nestjs/common';
+import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
+import { contactContract } from '../../../../shared/contact.contract';
+import { ContactService } from './contact.service';
+import { UserId } from '../../../decorators/user-id.decorator';
+
+@Controller()
+export class ContactController {
+    private readonly logger = new Logger(ContactController.name);
+
+    constructor(private readonly contactService: ContactService) {}
+
+    @TsRestHandler(contactContract.getContacts)
+    async getContacts(@UserId() userId: string) {
+        return tsRestHandler(contactContract.getContacts, async () => {
+            return {
+                status: 200 as const,
+                body: await this.contactService.getUserContacts(userId),
+            };
+        });
+    }
+
+    @TsRestHandler(contactContract.addContact)
+    async addContact(@UserId() userId: string) {
+        return tsRestHandler(contactContract.addContact, async ({ body }) => {
+            return this.contactService.addContact(userId, body.newContactId);
+        });
+    }
+
+    @TsRestHandler(contactContract.removeContact)
+    async removeContact(@UserId() userId: string) {
+        return tsRestHandler(
+            contactContract.removeContact,
+            async ({ body }) => {
+                return this.contactService.removeContact(
+                    userId,
+                    body.contactId,
+                );
+            },
+        );
+    }
+}

@@ -3,6 +3,7 @@ import { UserService } from "./UserService";
 import { UserFactory } from "../factories/user.factory";
 import { ClientService } from "./ClientService";
 import { ContactGroup } from "@t/contact-group.contract";
+import { onlineStatusContract } from "@t/online-status.contract";
 
 export class ContactService {
     constructor(
@@ -45,7 +46,7 @@ export class ContactService {
 
     async getContactsOnlineStatus(contactIds: string[]) {
         return await this.clientService
-            .getClient(contactContract)
+            .getClient(onlineStatusContract)
             .getContactsOnlineStatus({ body: contactIds });
     }
 }

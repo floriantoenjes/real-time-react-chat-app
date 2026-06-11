@@ -1,60 +1,25 @@
 import { User, userContract } from "@t/user.contract";
 import { ClientService } from "./ClientService";
-import { AuthService } from "./AuthService";
 
 export class UserService {
     constructor(private clientService: ClientService) {}
+
+    async getSignedInUser() {
+        const res = await this.clientService
+            .getClient(userContract)
+            .getSignedInUser({});
+
+        if (res.status === 200) {
+            return res.body;
+        }
+
+        return false;
+    }
 
     async getUsers() {
         const res = await this.clientService.getClient(userContract).getAll({});
 
         if (res.status === 200) {
-            return res.body;
-        }
-
-        return false;
-    }
-
-    async signIn(email: string, password: string) {
-        const res = await this.clientService.getClient(userContract).signIn({
-            body: { email, password },
-        });
-
-        if (res.status === 200) {
-            return res.body;
-        }
-
-        return false;
-    }
-
-    async signOut() {
-        const res = await this.clientService
-            .getClient(userContract)
-            .signOut({});
-
-        return res.status === 204;
-    }
-
-    async refresh(): Promise<{ user: User } | false> {
-        const res = await this.clientService
-            .getClient(userContract)
-            .refresh({});
-
-        if (res.status === 200) {
-            return res.body;
-        }
-
-        return false;
-    }
-
-    async signUp(email: string, password: string, username: string) {
-        const res = await this.clientService.getClient(userContract).signUp({
-            body: { email, password, username },
-        });
-
-        if (res.status === 201) {
-            AuthService.setSignInData();
-
             return res.body;
         }
 
