@@ -39,9 +39,9 @@ import { RelationshipsModule } from './modules/relationships/relationships.modul
             serveRoot: '/frontend',
             rootPath: join(__dirname, '..', '..', '..', 'frontend/dist'),
         }),
-        MongooseModule.forRoot(process.env.uri ?? '', {
-            user: process.env.user,
-            pass: process.env.pass,
+        MongooseModule.forRoot(process.env.MONGO_URI ?? '', {
+            user: process.env.MONGO_USER,
+            pass: process.env.MONGO_PASS,
             dbName: 'real-time-chat',
         }),
         JwtModule.registerAsync({
