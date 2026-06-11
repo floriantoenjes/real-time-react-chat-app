@@ -1,0 +1,42 @@
+services:
+  mongo:
+    image: mongodb/mongodb-community-server
+    command: mongod --replSet rs0 --bind_ip_all
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: mongosh --eval "db.adminCommand('ping')" --quiet
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    expose:
+      - "6379"
+  s3mock:
+    image: adobe/s3mock:latest
+    environment:
+      - initialBuckets=florians-realtime-chat-bucket
+    ports:
+      - 9090:9090
+
+  mongo-init:
+    image: mongodb/mongodb-community-server
+    depends_on:
+      mongo:
+        condition: service_healthy
+    command: >
+      mongosh --host mongo --eval '
+        rs.initiate({
+          _id: "rs0",
+          members: [{ _id: 0, host: "mongo:27017" }]
+        })
+      '
+    restart: on-failure:3
+
+volumes:
+  mongo_data:
