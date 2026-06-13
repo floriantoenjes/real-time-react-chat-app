@@ -211,6 +211,8 @@ export class AuthService {
 
             createdAuthUser.password = '';
 
+            await session.commitTransaction();
+
             return createdAuthUser;
         } catch (error: any) {
             this.logger.warn(
