@@ -179,3 +179,8 @@ affinity: {}
 # Pod anti-affinity for replica set members (set to true to enable)
 podAntiAffinity:
   enabled: true
+
+# StatefulSet Configuration
+statefulSet:
+  # Disable persistent volumes for local development without StorageClass
+  usePersistentVolume: false

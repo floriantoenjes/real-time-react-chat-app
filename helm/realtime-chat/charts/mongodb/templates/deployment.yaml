@@ -62,8 +62,10 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.volumeMounts }}
           volumeMounts:
+            - name: data
+              mountPath: /data/db
+          {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
       {{- with .Values.volumes }}
@@ -77,11 +79,13 @@ spec:
       {{- if .Values.podAntiAffinity.enabled }}
       affinity:
         podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchLabels:
-                  {{- include "mongodb.selectorLabels" . | nindent 20 }}
-              topologyKey: kubernetes.io/hostname
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    {{- include "mongodb.selectorLabels" . | nindent 22 }}
+                topologyKey: kubernetes.io/hostname
       {{- else }}
       {{- with .Values.affinity }}
       affinity:
@@ -92,6 +96,7 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+  {{- if .Values.statefulSet.usePersistentVolume }}
   volumeClaimTemplates:
     - metadata:
         name: data
@@ -100,6 +105,11 @@ spec:
         resources:
           requests:
             storage: 10Gi
+  {{- else }}
+      volumes:
+        - name: data
+          emptyDir: {}
+  {{- end }}
 {{- else }}
 apiVersion: apps/v1
 kind: Deployment
@@ -158,8 +168,10 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.volumeMounts }}
           volumeMounts:
+            - name: data
+              mountPath: /data/db
+          {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
       {{- with .Values.volumes }}
