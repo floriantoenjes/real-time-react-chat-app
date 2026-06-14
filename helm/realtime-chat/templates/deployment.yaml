@@ -66,8 +66,10 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           env:
+            - name: MONGO_URI
+              value: {{ .Values.mongodb.connectionString | quote }}
             - name: uri
-              value: "mongodb://realtime-chat-mongodb:27017"
+              value: {{ .Values.mongodb.connectionString | quote }}
             - name: redis
               value: "redis://realtime-chat-redis:6379"
             - name: REDIS_HOST

@@ -183,6 +183,11 @@ tolerations: []
 
 affinity: {}
 
+# MongoDB Configuration
+mongodb:
+  # Connection string for MongoDB replica set
+  connectionString: "mongodb://realtime-chat-mongodb:27017/?replicaSet=rs0"
+
 # Realtime Chat Application Specifics
 coturn:
   secret:
