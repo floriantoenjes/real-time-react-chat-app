@@ -1,6 +1,6 @@
 services:
   mongo:
-    image: mongodb/mongodb-community-server
+    image: mongodb/mongodb-community-server:8.3.4-ubi8
     command: mongod --replSet rs0 --bind_ip_all
     ports:
       - "27017:27017"

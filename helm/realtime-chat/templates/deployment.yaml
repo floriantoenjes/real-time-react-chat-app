@@ -68,8 +68,6 @@ spec:
           env:
             - name: MONGO_URI
               value: {{ .Values.mongodb.connectionString | quote }}
-            - name: uri
-              value: {{ .Values.mongodb.connectionString | quote }}
             - name: redis
               value: "redis://realtime-chat-redis:6379"
             - name: REDIS_HOST
