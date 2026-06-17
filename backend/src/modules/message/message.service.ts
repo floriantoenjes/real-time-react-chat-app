@@ -150,9 +150,9 @@ export class MessageService {
 
                 message.markModified('owners');
                 await message.save({ session });
-
-                await session.commitTransaction();
             }
+
+            await session.commitTransaction();
         } catch (error: any) {
             this.logger.warn(`Error deleting messages: ${error}`);
             await session.abortTransaction();
