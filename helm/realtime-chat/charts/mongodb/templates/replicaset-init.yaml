@@ -23,17 +23,17 @@ spec:
             - sh
             - -c
             - |
-              until mongosh --host {{ include "mongodb.fullname" . }}-0.{{ include "mongodb.fullname" . }}-headless --eval "db.adminCommand('ping')" >/dev/null 2>&1; do
+              until mongosh --host {{ include "mongodb.fullname" . }}-0.{{ include "mongodb.fullname" . }}-headless.{{ .Release.Namespace }}.svc.cluster.local --eval "db.adminCommand('ping')" >/dev/null 2>&1; do
                 echo "Waiting for primary pod to be ready..."
                 sleep 5
               done
-              mongosh --host {{ include "mongodb.fullname" . }}-0.{{ include "mongodb.fullname" . }}-headless --eval '
+              mongosh --host {{ include "mongodb.fullname" . }}-0.{{ include "mongodb.fullname" . }}-headless.{{ .Release.Namespace }}.svc.cluster.local --eval '
                 var cfg = {
                   _id: "{{ .Values.replicaSet.name }}",
                   members: [
                     {{- range $i := until (int .Values.replicaCount) }}
                     {{- if $i }},{{ end }}
-                    { _id: {{ $i }}, host: "{{ include "mongodb.fullname" $ }}-{{ $i }}.{{ include "mongodb.fullname" $ }}-headless:{{ $.Values.service.port }}" }
+                    { _id: {{ $i }}, host: "{{ include "mongodb.fullname" $ }}-{{ $i }}.{{ include "mongodb.fullname" $ }}-headless.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.service.port }}" }
                     {{- end }}
                   ]
                 };

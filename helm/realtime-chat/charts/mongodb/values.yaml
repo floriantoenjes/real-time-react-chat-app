@@ -182,5 +182,5 @@ podAntiAffinity:
 
 # StatefulSet Configuration
 statefulSet:
-  # Disable persistent volumes for local development without StorageClass
-  usePersistentVolume: false
+  # Enable persistent volumes for local development to survive pod restarts
+  usePersistentVolume: true
