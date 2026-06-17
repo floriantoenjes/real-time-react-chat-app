@@ -16,9 +16,9 @@ export default defineConfig({
         tailwindcss(),
     ],
     base: "/frontend/",
-    // build: {
-    //     sourcemap: "inline", // TODO: Comment out after debugging
-    // },
+    build: {
+        sourcemap: "inline", // TODO: Comment out after debugging
+    },
     resolve: {
         alias: [
             {
