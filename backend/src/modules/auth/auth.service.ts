@@ -186,25 +186,42 @@ export class AuthService {
     }
 
     async createAuthUser(email: string, password: string, username: string) {
+        const session = await this.authUserModel.startSession();
+        session.startTransaction();
+
         try {
             const hash = await bcrypt.hash(password, this.SALT_OR_ROUNDS);
 
-            const createdAuthUser = await this.authUserModel.create({
-                email,
-                password: hash,
-            });
+            const [createdAuthUser] = await this.authUserModel.create(
+                [
+                    {
+                        email,
+                        password: hash,
+                    },
+                ],
+                { session },
+            );
 
-            await this.userService.createUser(createdAuthUser._id, username);
+            await this.userService.createUser(
+                createdAuthUser._id,
+                username,
+                session,
+            );
             this.logger.log(`Created auth user "${createdAuthUser._id}"`);
 
             createdAuthUser.password = '';
+
+            await session.commitTransaction();
 
             return createdAuthUser;
         } catch (error: any) {
             this.logger.warn(
                 `User creation failed for email ${email}: ${error.message}`,
             );
+            await session.abortTransaction();
             throw new EmailAlreadyTakenException(error);
+        } finally {
+            void session.endSession();
         }
     }
 }

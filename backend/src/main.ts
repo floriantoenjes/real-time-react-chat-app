@@ -27,7 +27,7 @@ function maskUri(uri: string | undefined): string {
 }
 
 async function bootstrap() {
-    console.log(`Connecting to db: ${maskUri(process.env.uri)}`);
+    console.log(`Connecting to db: ${process.env.MONGO_URI}`);
 
     console.log(
         `Connecting to S3: ${maskUri(process.env.S3_URL)} at ${process.env.S3_REGION}`,

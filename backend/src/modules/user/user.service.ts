@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { User } from '../../../shared/user.contract';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { ClientSession, Model, Types } from 'mongoose';
 import { UserEntity } from './user.schema';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { findUsersByCacheKey } from '../../cache/cache-keys';
@@ -21,11 +21,20 @@ export class UserService {
         private readonly objectStorageService: ObjectStorageService,
     ) {}
 
-    async createUser(authUserId: string, username: string) {
-        await this.userModel.create({
-            authUserId,
-            username,
-        });
+    async createUser(
+        authUserId: string,
+        username: string,
+        session: ClientSession,
+    ) {
+        await this.userModel.create(
+            [
+                {
+                    authUserId,
+                    username,
+                },
+            ],
+            { session },
+        );
         await this.cache.del(findUsersByCacheKey());
     }
 

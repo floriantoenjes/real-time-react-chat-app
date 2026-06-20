@@ -1,0 +1,51 @@
+{{- if .Values.replicaSet.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "mongodb.fullname" . }}-replicaset-init
+  labels:
+    {{- include "mongodb.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    metadata:
+      labels:
+        {{- include "mongodb.selectorLabels" . | nindent 8 }}
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: replicaset-init
+          image: "mongodb/mongodb-community-server:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - |
+              until mongosh --host {{ include "mongodb.fullname" . }}-0.{{ include "mongodb.fullname" . }}-headless.{{ .Release.Namespace }}.svc.cluster.local --eval "db.adminCommand('ping')" >/dev/null 2>&1; do
+                echo "Waiting for primary pod to be ready..."
+                sleep 5
+              done
+              mongosh --host {{ include "mongodb.fullname" . }}-0.{{ include "mongodb.fullname" . }}-headless.{{ .Release.Namespace }}.svc.cluster.local --eval '
+                var cfg = {
+                  _id: "{{ .Values.replicaSet.name }}",
+                  members: [
+                    {{- range $i := until (int .Values.replicaCount) }}
+                    {{- if $i }},{{ end }}
+                    { _id: {{ $i }}, host: "{{ include "mongodb.fullname" $ }}-{{ $i }}.{{ include "mongodb.fullname" $ }}-headless.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.service.port }}" }
+                    {{- end }}
+                  ]
+                };
+                var replConfig = db.getSiblingDB("local").system.replset.findOne();
+                if (replConfig) {
+                  print("Replica set config exists, forcing reconfig...");
+                  rs.reconfig(cfg, {force: true});
+                } else {
+                  print("No replica set config, initiating...");
+                  rs.initiate(cfg);
+                }
+                sleep(5000);
+                rs.status();
+              '
+{{- end }}

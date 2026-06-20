@@ -3,15 +3,22 @@
 # Declare variables to be passed into your templates.
 
 # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
-replicaCount: 1
+replicaCount: 3
+
+# MongoDB Replica Set configuration
+replicaSet:
+  # Enable replica set mode
+  enabled: true
+  # Name of the replica set
+  name: rs0
 
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
-  repository: mongo
+  repository: mongodb/mongodb-community-server
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "6.0.13-jammy"
+  tag: "8.3.4-ubi8"
 
 # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
@@ -168,3 +175,12 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+# Pod anti-affinity for replica set members (set to true to enable)
+podAntiAffinity:
+  enabled: true
+
+# StatefulSet Configuration
+statefulSet:
+  # Enable persistent volumes for local development to survive pod restarts
+  usePersistentVolume: true

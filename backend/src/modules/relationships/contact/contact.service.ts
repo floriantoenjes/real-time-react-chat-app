@@ -204,12 +204,6 @@ export class ContactService implements OnModuleInit {
             return null;
         }
 
-        await this.contactRequestModel.create({
-            initiatorId: newContactId,
-            targetUserId: userId,
-            sentAt: new Date(),
-        });
-
         const contact = await this.userModel.findOne({
             _id: newContactId,
         });
@@ -221,23 +215,49 @@ export class ContactService implements OnModuleInit {
             return null;
         }
 
-        const newContact = {
-            _id: newContactId,
-            name: contact.username,
-            avatarFileName: contact.avatarFileName,
-            isAccepted: false,
-        } satisfies Contact;
+        const session = await this.contactRequestModel.startSession();
+        session.startTransaction();
 
-        user.contacts.push(newContact);
-        user.markModified('contacts');
+        try {
+            await this.contactRequestModel.create(
+                [
+                    {
+                        initiatorId: newContactId,
+                        targetUserId: userId,
+                        sentAt: new Date(),
+                    },
+                ],
+                { session },
+            );
 
-        await user.save();
+            const newContact = {
+                _id: newContactId,
+                name: contact.username,
+                avatarFileName: contact.avatarFileName,
+                isAccepted: false,
+            } satisfies Contact;
 
-        this.logger.log(
-            `Auto-added contact ${newContactId} to user ${userId}'s contacts`,
-        );
+            user.contacts.push(newContact);
+            user.markModified('contacts');
 
-        return newContact;
+            await user.save({ session });
+
+            this.logger.log(
+                `Auto-added contact ${newContactId} to user ${userId}'s contacts`,
+            );
+
+            await session.commitTransaction();
+
+            return newContact;
+        } catch (error: any) {
+            this.logger.warn(
+                `Auto-add contact ${newContactId} to user ${userId}'s contacts failed: ${error.message}`,
+            );
+            await session.abortTransaction();
+            return null;
+        } finally {
+            void session.endSession();
+        }
     }
 
     async removeContact(userId: string, contactId: string) {

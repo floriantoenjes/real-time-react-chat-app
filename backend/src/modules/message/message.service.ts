@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { MessageEntity } from './message.schema';
-import { HydratedDocument, Model } from 'mongoose';
+import { ClientSession, HydratedDocument, Model } from 'mongoose';
 import { UserEntity } from '../user/user.schema';
 import { Message, MessageType } from '../../../shared/message.contract';
 import { ObjectStorageService } from '../global/object-storage.service';
@@ -114,38 +114,50 @@ export class MessageService {
     }
 
     async deleteMessages(fromUserId: string, toUserId: string) {
-        await this.deleteLastContactMessage(fromUserId, toUserId);
-        await this.deleteLastContactMessage(toUserId, fromUserId);
+        const session = await this.userModel.startSession();
+        session.startTransaction();
 
-        const toUserIdIsContactGroupId = !!(await this.contactGroupModel
-            .findById(toUserId)
-            .lean());
+        try {
+            await this.deleteLastContactMessage(fromUserId, toUserId, session);
+            await this.deleteLastContactMessage(toUserId, fromUserId, session);
 
-        let affectedMessages: HydratedDocument<MessageEntity>[];
-        if (toUserIdIsContactGroupId) {
-            affectedMessages = await this.messageModel.find({
-                toUserId,
-                owners: fromUserId,
-            });
-        } else {
-            affectedMessages = await this.messageModel.find({
-                fromUserId: { $in: [fromUserId, toUserId] },
-                toUserId: { $in: [toUserId, fromUserId] },
-            });
-        }
+            const toUserIdIsContactGroupId = !!(await this.contactGroupModel
+                .findById(toUserId)
+                .lean());
 
-        for (const message of affectedMessages) {
-            message.owners = message.owners.filter(
-                (owner) => owner !== fromUserId,
-            );
-
-            if (message.owners.length === 0) {
-                await message.deleteOne();
-                continue;
+            let affectedMessages: HydratedDocument<MessageEntity>[];
+            if (toUserIdIsContactGroupId) {
+                affectedMessages = await this.messageModel.find({
+                    toUserId,
+                    owners: fromUserId,
+                });
+            } else {
+                affectedMessages = await this.messageModel.find({
+                    fromUserId: { $in: [fromUserId, toUserId] },
+                    toUserId: { $in: [toUserId, fromUserId] },
+                });
             }
 
-            message.markModified('owners');
-            await message.save();
+            for (const message of affectedMessages) {
+                message.owners = message.owners.filter(
+                    (owner) => owner !== fromUserId,
+                );
+
+                if (message.owners.length === 0) {
+                    await message.deleteOne({ session });
+                    continue;
+                }
+
+                message.markModified('owners');
+                await message.save({ session });
+            }
+
+            await session.commitTransaction();
+        } catch (error: any) {
+            this.logger.warn(`Error deleting messages: ${error}`);
+            await session.abortTransaction();
+        } finally {
+            void session.endSession();
         }
 
         return { status: 204 as const, body: true };
@@ -154,6 +166,7 @@ export class MessageService {
     private async deleteLastContactMessage(
         fromUserId: string,
         toUserId: string,
+        session: ClientSession,
     ) {
         const fromUser = await this.userModel.findById(fromUserId);
         if (!fromUser) {
@@ -168,7 +181,7 @@ export class MessageService {
         fromContact.lastMessage = undefined;
         fromUser.markModified('contacts');
 
-        await fromUser.save();
+        await fromUser.save({ session });
     }
 
     async sendMessage(
@@ -220,86 +233,113 @@ export class MessageService {
             );
         }
 
-        const newlyCreatedMessage = await this.messageModel.create(newMessage);
+        const session = await this.messageModel.startSession();
+        session.startTransaction();
 
-        if (isNotContactGroup) {
-            this.eventBus.emitAsync<ContactAutoAddEvent>(
-                EventNames.CONTACT_AUTO_ADD,
-                {
-                    userId: toUserId,
-                    contactUserId: fromUserId,
-                },
-            );
-            this.eventBus.emitAsync<MessageSentEvent>(EventNames.MESSAGE_SENT, {
-                message: newlyCreatedMessage,
-                recipientId: toUserId,
-            });
-        } else if (contactGroup) {
-            contactGroup.lastMessage = newlyCreatedMessage._id;
-            await this.contactGroupModel.updateOne(
-                { _id: contactGroup._id },
-                contactGroup,
-            );
+        try {
+            const newlyCreatedMessage = (
+                await this.messageModel.create([newMessage], { session })
+            )[0];
 
-            // Emit event for each group member except sender
-            for (const memberRef of contactGroup.memberRefs) {
-                if (memberRef.memberId === fromUserId) {
-                    continue;
-                }
-
-                this.eventBus.emitAsync<ContactGroupAutoAddEvent>(
-                    EventNames.CONTACT_GROUP_AUTO_ADD,
+            if (isNotContactGroup) {
+                this.eventBus.emitAsync<ContactAutoAddEvent>(
+                    EventNames.CONTACT_AUTO_ADD,
                     {
-                        userId: memberRef.memberId,
-                        group: {
-                            ...contactGroup,
-                            _id: contactGroup._id.toString(),
-                            name: contactGroup.memberRefs
-                                .filter(
-                                    (m) => m.memberId !== memberRef.memberId,
-                                )
-                                .map((m) => m.memberName)
-                                .join(', '),
-                        } as ContactGroup,
+                        userId: toUserId,
+                        contactUserId: fromUserId,
                     },
                 );
-
                 this.eventBus.emitAsync<MessageSentEvent>(
                     EventNames.MESSAGE_SENT,
                     {
                         message: newlyCreatedMessage,
-                        recipientId: memberRef.memberId,
+                        recipientId: toUserId,
                     },
                 );
+            } else if (contactGroup) {
+                contactGroup.lastMessage = newlyCreatedMessage._id;
+                await this.contactGroupModel.updateOne(
+                    { _id: contactGroup._id },
+                    contactGroup,
+                    { session },
+                );
+
+                // Emit event for each group member except sender
+                for (const memberRef of contactGroup.memberRefs) {
+                    if (memberRef.memberId === fromUserId) {
+                        continue;
+                    }
+
+                    this.eventBus.emitAsync<ContactGroupAutoAddEvent>(
+                        EventNames.CONTACT_GROUP_AUTO_ADD,
+                        {
+                            userId: memberRef.memberId,
+                            group: {
+                                ...contactGroup,
+                                _id: contactGroup._id.toString(),
+                                name: contactGroup.memberRefs
+                                    .filter(
+                                        (m) =>
+                                            m.memberId !== memberRef.memberId,
+                                    )
+                                    .map((m) => m.memberName)
+                                    .join(', '),
+                            } as ContactGroup,
+                        },
+                    );
+
+                    this.eventBus.emitAsync<MessageSentEvent>(
+                        EventNames.MESSAGE_SENT,
+                        {
+                            message: newlyCreatedMessage,
+                            recipientId: memberRef.memberId,
+                        },
+                    );
+                }
+            } else {
+                throw new ContactNotFoundException();
             }
-        } else {
-            throw new ContactNotFoundException();
+
+            this.persistLastMessageForSender(
+                sender,
+                toUserId,
+                newlyCreatedMessage,
+                session,
+            );
+
+            const receiverContact = receiver?.contacts.find(
+                (c) => c._id === sender._id.toString(),
+            );
+            if (receiver && receiverContact) {
+                receiverContact.lastMessage =
+                    newlyCreatedMessage._id.toString();
+                receiver.markModified('contacts');
+                void receiver.save({ session });
+            }
+
+            await session.commitTransaction();
+
+            return { status: 201 as const, body: newlyCreatedMessage };
+        } catch (error: any) {
+            this.logger.warn(`Error sending message: ${error}`);
+            void session.abortTransaction();
+            throw error;
+        } finally {
+            void session.endSession();
         }
-
-        this.persistLastMessageForSender(sender, toUserId, newlyCreatedMessage);
-
-        const receiverContact = receiver?.contacts.find(
-            (c) => c._id === sender._id.toString(),
-        );
-        if (receiver && receiverContact) {
-            receiverContact.lastMessage = newlyCreatedMessage._id.toString();
-            receiver.markModified('contacts');
-            void receiver.save();
-        }
-
-        return { status: 201 as const, body: newlyCreatedMessage };
     }
 
     private persistLastMessageForSender(
         sender: HydratedDocument<UserEntity>,
         toUserId: string,
         message: Message,
+        session: ClientSession,
     ) {
         const userContact = sender.contacts.find((uc) => uc._id === toUserId);
         if (userContact) {
             userContact.lastMessage = message._id.toString();
             sender.markModified('contacts');
-            void sender.save();
+            void sender.save({ session });
         }
     }
 
