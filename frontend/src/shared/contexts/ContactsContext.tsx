@@ -19,14 +19,18 @@ import { UserContext } from "./UserContext";
 export const ContactsContext = createContext<{
     contacts: [Contact[], Dispatch<SetStateAction<Contact[]>>];
     contactGroups: [ContactGroup[], Dispatch<SetStateAction<ContactGroup[]>>];
+    leftGroups: [ContactGroup[], Dispatch<SetStateAction<ContactGroup[]>>];
     selectedContact: [
         Contact | ContactGroup | undefined,
         Dispatch<SetStateAction<Contact | ContactGroup | undefined>>,
     ];
+    rejoinGroup: (groupId: string) => Promise<boolean>;
 }>({
     contacts: [[], () => {}],
     contactGroups: [[], () => {}],
+    leftGroups: [[], () => {}],
     selectedContact: [undefined, () => {}],
+    rejoinGroup: async () => false,
 });
 
 export function ContactsProvider({ children }: { children: ReactNode }) {
@@ -43,6 +47,7 @@ export function ContactsProvider({ children }: { children: ReactNode }) {
     );
     const [contacts, setContacts] = useState<Contact[]>([]);
     const [contactGroups, setContactGroups] = useState<ContactGroup[]>([]);
+    const [leftGroups, setLeftGroups] = useState<ContactGroup[]>([]);
 
     useEffect(() => {
         (async () => {
@@ -51,6 +56,7 @@ export function ContactsProvider({ children }: { children: ReactNode }) {
             }
             setContacts(await contactService.getContacts());
             setContactGroups(await contactGroupService.getContactGroups());
+            setLeftGroups(await contactGroupService.getLeftGroups());
         })();
     }, [user?._id]);
 
@@ -101,6 +107,25 @@ export function ContactsProvider({ children }: { children: ReactNode }) {
         };
     }, [socket, setContacts]);
 
+    const rejoinGroup = async (groupId: string): Promise<boolean> => {
+        const result = await contactGroupService.rejoinContactGroup(groupId);
+        if (!result) {
+            return false;
+        }
+
+        // Remove from leftGroups and add to contactGroups
+        setLeftGroups((prev) => prev.filter((g) => g._id !== groupId));
+        setContactGroups((prev) => {
+            const exists = prev.some((g) => g._id === result._id);
+            if (exists) {
+                return prev;
+            }
+            return [...prev, result];
+        });
+
+        return true;
+    };
+
     const updateContactLastMessage = useEffectEvent((message: Message) => {
         // Check if the message belongs to a contact group
         const contactGroupWithNewMessage = contactGroups.find(
@@ -137,7 +162,9 @@ export function ContactsProvider({ children }: { children: ReactNode }) {
             value={{
                 contacts: [contacts, setContacts],
                 contactGroups: [contactGroups, setContactGroups],
+                leftGroups: [leftGroups, setLeftGroups],
                 selectedContact: [selectedContact, setSelectedContact],
+                rejoinGroup,
             }}
         >
             {children}

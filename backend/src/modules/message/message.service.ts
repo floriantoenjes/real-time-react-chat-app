@@ -264,9 +264,27 @@ export class MessageService {
                     { session },
                 );
 
-                // Emit event for each group member except sender
+                // Get members who have NOT left this group
+                const allMemberIds = contactGroup.memberRefs.map(
+                    (m) => m.memberId,
+                );
+                const activeMemberIds =
+                    await this.getActiveGroupMembers(
+                        contactGroup._id.toString(),
+                        allMemberIds,
+                    );
+
+                // Emit event for each active group member except sender
                 for (const memberRef of contactGroup.memberRefs) {
                     if (memberRef.memberId === fromUserId) {
+                        continue;
+                    }
+
+                    // Skip members who have left this group
+                    if (!activeMemberIds.includes(memberRef.memberId)) {
+                        this.logger.debug(
+                            `Skipping message for ${memberRef.memberId} - user has left group ${contactGroup._id}`,
+                        );
                         continue;
                     }
 
@@ -400,6 +418,23 @@ export class MessageService {
             status: 201 as const,
             body: validatedFile.sanitizedFilename,
         };
+    }
+
+    /**
+     * Get list of member IDs who have NOT left the specified group
+     */
+    private async getActiveGroupMembers(
+        groupId: string,
+        allMemberIds: string[],
+    ): Promise<string[]> {
+        const users = await this.userModel
+            .find({ _id: { $in: allMemberIds } })
+            .select('leftGroupIds')
+            .lean();
+
+        return users
+            .filter((user) => !user.leftGroupIds?.includes(groupId))
+            .map((user) => user._id.toString());
     }
 
     private async getContactGroup(

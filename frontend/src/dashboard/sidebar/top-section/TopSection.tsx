@@ -1,5 +1,6 @@
 import { Drawer, IconButton, Menu, MenuItem, Tooltip } from "@mui/material";
 import {
+    ArrowPathIcon,
     ArrowRightStartOnRectangleIcon,
     ChevronDownIcon,
     GlobeAltIcon,
@@ -13,6 +14,7 @@ import { Avatar } from "../../../shared/components/Avatar";
 import { UserProfile } from "./user-profile/UserProfile";
 import { GroupCreation } from "./group-creation/GroupCreation";
 import { IgnoredUsersList } from "../ignored-users-list/IgnoredUsersList";
+import { LeftGroupsList } from "../left-groups-list/LeftGroupsList";
 import { useI18nContext } from "../../../i18n/i18n-react";
 import { LanguageModal } from "./language-modal/LanguageModal";
 import { useSidebarTopSectionUI } from "../../../shared/hooks/useSidebarTopSectionUI";
@@ -93,6 +95,10 @@ export function TopSection() {
                             <UserMinusIcon className={"w-4 mr-2"} />
                             {LL.IGNORED_USERS()}
                         </MenuItem>
+                        <MenuItem onClick={toggleDrawer("left", true, "leftGroups")}>
+                            <ArrowPathIcon className={"w-4 mr-2"} />
+                            {LL.LEFT_GROUPS()}
+                        </MenuItem>
                         <MenuItem onClick={signOut}>
                             <ArrowRightStartOnRectangleIcon
                                 className={"w-4 mr-2"}
@@ -116,6 +122,7 @@ export function TopSection() {
                         <UserProfile toggleDrawer={toggleDrawer} />
                     )}
                     {section === "ignoredUsers" && <IgnoredUsersList />}
+                    {section === "leftGroups" && <LeftGroupsList />}
                 </Drawer>
             </div>
             <LanguageModal modalOpen={modalOpen} setModalOpen={setModalOpen} />
