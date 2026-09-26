@@ -5,6 +5,7 @@ import { TopBar } from "./top-bar/TopBar";
 import { ContactsContext } from "../../shared/contexts/ContactsContext";
 import { ContactRequest } from "./contact-request/ContactRequest";
 import { useMessageCache } from "../../shared/hooks/useMessageCache";
+import { isContactGroup } from "@t/contact-group.contract";
 
 export function Chat() {
     const [selectedContact] = useContext(ContactsContext).selectedContact;
@@ -14,10 +15,10 @@ export function Chat() {
     return selectedContact ? (
         <div className={"h-screen w-full overflow-y-scroll"}>
             <TopBar selectedContact={selectedContact} />
-            {selectedContact.isAccepted ? (
-                <MainChat />
-            ) : (
+            {!isContactGroup(selectedContact) && !selectedContact.isAccepted ? (
                 <ContactRequest selectedContact={selectedContact} />
+            ) : (
+                <MainChat />
             )}
             <SendMessageBar selectedContact={selectedContact} />
         </div>
