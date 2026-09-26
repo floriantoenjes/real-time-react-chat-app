@@ -25,12 +25,14 @@ export const ContactsContext = createContext<{
         Dispatch<SetStateAction<Contact | ContactGroup | undefined>>,
     ];
     rejoinGroup: (groupId: string) => Promise<boolean>;
+    leaveGroup: (groupId: string) => Promise<boolean>;
 }>({
     contacts: [[], () => {}],
     contactGroups: [[], () => {}],
     leftGroups: [[], () => {}],
     selectedContact: [undefined, () => {}],
     rejoinGroup: async () => false,
+    leaveGroup: async () => false,
 });
 
 export function ContactsProvider({ children }: { children: ReactNode }) {
@@ -126,6 +128,19 @@ export function ContactsProvider({ children }: { children: ReactNode }) {
         return true;
     };
 
+    const leaveGroup = async (groupId: string): Promise<boolean> => {
+        const result = await contactGroupService.leaveContactGroup(groupId);
+        if (!result) {
+            return false;
+        }
+
+        // Remove from contactGroups and refresh leftGroups
+        setContactGroups((prev) => prev.filter((g) => g._id !== groupId));
+        setLeftGroups(await contactGroupService.getLeftGroups());
+
+        return true;
+    };
+
     const updateContactLastMessage = useEffectEvent((message: Message) => {
         // Check if the message belongs to a contact group
         const contactGroupWithNewMessage = contactGroups.find(
@@ -165,6 +180,7 @@ export function ContactsProvider({ children }: { children: ReactNode }) {
                 leftGroups: [leftGroups, setLeftGroups],
                 selectedContact: [selectedContact, setSelectedContact],
                 rejoinGroup,
+                leaveGroup,
             }}
         >
             {children}

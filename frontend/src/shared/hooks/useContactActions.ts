@@ -18,6 +18,7 @@ export function useContactActions() {
         useContext(ContactsContext).contactGroups;
     const [, setSelectedContact] = useContext(ContactsContext).selectedContact;
     const [, setMessages] = useContext(MessageContext).messages;
+    const contactsContext = useContext(ContactsContext);
     const messageCache = useMessageContext().messageCache;
 
     const {
@@ -100,7 +101,7 @@ export function useContactActions() {
             return false;
         }
 
-        const leaveResult = await contactGroupService.leaveContactGroup(
+        const leaveResult = await contactsContext.leaveGroup(
             selectedContact._id,
         );
 
@@ -112,9 +113,7 @@ export function useContactActions() {
             return false;
         }
 
-        setContactGroups(
-            contactGroups.filter((cg) => cg._id !== selectedContact._id),
-        );
+        // contactsContext.leaveGroup already updates contactGroups and leftGroups
         setSelectedContact(undefined);
 
         snackbarService.showSnackbar(
