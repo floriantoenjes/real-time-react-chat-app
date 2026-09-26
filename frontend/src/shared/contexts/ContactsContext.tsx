@@ -80,6 +80,10 @@ export function ContactsProvider({ children }: { children: ReactNode }) {
         };
 
         const handleContactGroupAutoAdded = (newContactGroup: ContactGroup) => {
+            // Skip auto-adding groups that the user has left
+            if (user?.leftGroupIds?.includes(newContactGroup._id)) {
+                return;
+            }
             setContactGroups((prevContactGroups) => {
                 const exists = prevContactGroups.some(
                     (c) => c._id === newContactGroup._id,
@@ -142,6 +146,11 @@ export function ContactsProvider({ children }: { children: ReactNode }) {
     };
 
     const updateContactLastMessage = useEffectEvent((message: Message) => {
+        // Skip messages from groups that the user has left
+        if (user?.leftGroupIds?.includes(message.toUserId)) {
+            return;
+        }
+
         // Check if the message belongs to a contact group
         const contactGroupWithNewMessage = contactGroups.find(
             (cg) => cg._id === message.toUserId,

@@ -17,6 +17,9 @@ import { WsConnectionThrottlerService } from './ws-connection-throttler.service'
 import { WsConnectionThrottledException } from '../../errors/ws/ws-connection-throttled.exception';
 import { ConfigService } from '@nestjs/config';
 import { EventBusService } from '../global/event-bus.service';
+import { InjectModel } from '@nestjs/mongoose';
+import { UserEntity } from '../user/user.schema';
+import { Model } from 'mongoose';
 import { UserIgnoredEvent, UserUnignoredEvent } from '../../events/user.events';
 import {
     ContactAddedEvent,
@@ -53,6 +56,8 @@ export class RealTimeChatGateway
         private readonly onlineStatusService: OnlineStatusService,
         private readonly wsThrottler: WsConnectionThrottlerService,
         private readonly eventBus: EventBusService,
+        @InjectModel(UserEntity.name)
+        private readonly userModel: Model<UserEntity>,
     ) {
         const jwtSecret = this.configService.get('JWT_SECRET');
         if (!jwtSecret) {
@@ -118,7 +123,20 @@ export class RealTimeChatGateway
 
         this.eventBus.on<ContactGroupAutoAddEvent>(
             EventNames.CONTACT_GROUP_AUTO_ADD,
-            (payload: ContactGroupAutoAddEvent) => {
+            async (payload: ContactGroupAutoAddEvent) => {
+                // Check if user has left this group before broadcasting
+                const user = await this.userModel
+                    .findById(payload.userId)
+                    .select('leftGroupIds')
+                    .lean();
+
+                if (user?.leftGroupIds?.includes(payload.group._id)) {
+                    this.logger.debug(
+                        `Skipping CONTACT_GROUP_AUTO_ADD for user ${payload.userId} - has left group ${payload.group._id}`,
+                    );
+                    return;
+                }
+
                 this.logger.debug(
                     `Auto-adding group ${payload.group._id} for user ${payload.userId}`,
                 );
