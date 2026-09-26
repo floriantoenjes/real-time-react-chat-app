@@ -179,7 +179,7 @@ export class ContactGroupService {
 
         const group = await this.contactGroupModel.findOne({
             _id: contactGroupId,
-        });
+        }).lean();
 
         if (!group) {
             this.logger.warn(
@@ -227,7 +227,7 @@ export class ContactGroupService {
 
         const group = await this.contactGroupModel.findOne({
             _id: contactGroupId,
-        });
+        }).lean();
 
         if (!group) {
             this.logger.warn(
