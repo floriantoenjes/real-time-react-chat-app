@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ContactRequestEntity } from './contact-request.schema';
 import { Model } from 'mongoose';
 import { UserEntity } from '../../user/user.schema';
+import { ContactGroupEntity } from '../contact-group/contact-group.schema';
 import { UserNotFoundException } from '../../../errors/internal/user-not-found.exception';
 import { ObjectNotFoundException } from '../../../errors/internal/object-not-found.exception';
 import { ContactNotFoundException } from '../../../errors/internal/contact-not-found.exception';
@@ -16,6 +17,8 @@ export class ContactRequestService {
         private readonly contactRequestModel: Model<ContactRequestEntity>,
         @InjectModel(UserEntity.name)
         private readonly userModel: Model<UserEntity>,
+        @InjectModel(ContactGroupEntity.name)
+        private readonly contactGroupModel: Model<ContactGroupEntity>,
         private readonly eventBus: EventBusService,
     ) {}
 
@@ -23,6 +26,13 @@ export class ContactRequestService {
         initiatorId: string,
         targetUserId: string,
     ): Promise<ContactRequest> {
+        // Check if initiatorId is actually a contact group (not a user)
+        // This provides a defensive check in case frontend passes a group ID
+        const isContactGroup = await this.contactGroupModel.findById(initiatorId).lean();
+        if (isContactGroup) {
+            throw new ObjectNotFoundException();
+        }
+
         const initiator = await this.userModel.findById(initiatorId).lean();
         if (!initiator) {
             throw new UserNotFoundException();
