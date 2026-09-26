@@ -25,16 +25,20 @@ export function ContactRequest({ selectedContact }: ContactRequestProps) {
     const { LL } = useI18nContext();
     const [ignoreDialogOpen, setIgnoreDialogOpen] = useState(false);
 
+    // Contact groups should never use ContactRequest - they are automatically accepted
+    if (!selectedContact || 'memberRefs' in selectedContact) {
+        return null;
+    }
+
     useEffect(() => {
         (async () => {
-            // Contact groups should never use ContactRequest - they are automatically accepted
-            if (!selectedContact || selectedContact.isAccepted || ('memberRefs' in selectedContact)) {
+            if (!selectedContact || selectedContact.isAccepted) {
                 return;
             }
 
             const contactRequest =
                 await contactRequestService.getContactRequestByInitiatorId(
-                    selectedContact?._id,
+                    selectedContact._id,
                 );
             if (!contactRequest) {
                 return;
