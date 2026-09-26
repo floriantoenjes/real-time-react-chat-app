@@ -27,7 +27,8 @@ export function ContactRequest({ selectedContact }: ContactRequestProps) {
 
     useEffect(() => {
         (async () => {
-            if (!selectedContact || selectedContact.isAccepted) {
+            // Contact groups should never use ContactRequest - they are automatically accepted
+            if (!selectedContact || selectedContact.isAccepted || ('memberRefs' in selectedContact)) {
                 return;
             }
 
