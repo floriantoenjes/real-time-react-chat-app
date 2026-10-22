@@ -45,8 +45,10 @@ podAnnotations: {}
 # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 podLabels: {}
 
-podSecurityContext: {}
-  # fsGroup: 2000
+# mongod runs as a non-root user; fsGroup makes freshly provisioned volumes (e.g. GCE PDs, owned by root) writable for it
+podSecurityContext:
+  fsGroup: 2000
+  fsGroupChangePolicy: OnRootMismatch
 
 securityContext: {}
   # capabilities:
@@ -131,23 +133,32 @@ resources: {}
   #   memory: 128Mi
 
 # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+# mongosh is a Node.js CLI and takes a few seconds to start on small nodes, so the default
+# 1s probe timeout would make the kubelet kill a healthy mongod.
 livenessProbe:
   exec:
     command:
       - mongosh
+      - --quiet
+      - --norc
       - --eval
       - "db.adminCommand('ping')"
   initialDelaySeconds: 30
-  periodSeconds: 10
+  periodSeconds: 20
+  timeoutSeconds: 10
+  failureThreshold: 6
 
 readinessProbe:
   exec:
     command:
       - mongosh
+      - --quiet
+      - --norc
       - --eval
       - "db.adminCommand('ping')"
   initialDelaySeconds: 5
   periodSeconds: 10
+  timeoutSeconds: 10
 
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 autoscaling:
