@@ -106,6 +106,12 @@ with `image_tag=<tag>`. Terraform is the single owner of the Helm releases, so d
 - Certificate not ready: `kubectl describe certificate,certificaterequest,order,challenge -A` and
   `kubectl -n cert-manager logs deploy/cert-manager`. Usually the CNAME/NS records aren't live yet.
 - coturn pod stuck in `ContainerCreating`: it waits for the `wildcard-cert` Secret.
+- MongoDB replica set: the `replicaset-init` sidecar of pod 0 initiates `rs0` (or reconfigures it after a
+  `replicaCount` change) on every pod start. Check with
+  `kubectl -n realtime-chat logs realtime-chat-mongodb-0 -c replicaset-init` and
+  `kubectl -n realtime-chat exec realtime-chat-mongodb-0 -- mongosh --quiet --eval 'rs.status().members.map(m => m.name + " " + m.stateStr)'`.
+- A StatefulSet pod stuck crash-looping isn't replaced by a rolling update; delete it once
+  (`kubectl -n realtime-chat delete pod <name>`) after fixing the cause.
 - TLS on the TURN port: `openssl s_client -connect turn.floriantoenjes.com:5349 -servername turn.floriantoenjes.com`.
 - Calls connect only on the same network: check `chrome://webrtc-internals` for a `relay` candidate pair.
   With `no-udp`, the relay port range may need to be opened on the coturn Service.

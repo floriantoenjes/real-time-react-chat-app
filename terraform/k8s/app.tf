@@ -38,6 +38,16 @@ resource "helm_release" "realtime_chat" {
     s3mock = {
       enabled = false
     }
+    mongodb = {
+      # Single-member replica set: three members in one zone on 1-2 nodes add little availability
+      # but triple CPU/memory. Still a replica set, so the connection string stays the same.
+      replicaCount = 1
+      # With a limit, WiredTiger sizes its cache from the container instead of the whole node
+      resources = {
+        requests = { cpu = "100m", memory = "768Mi" }
+        limits   = { memory = "1536Mi" }
+      }
+    }
   })]
 
   set_sensitive = [
