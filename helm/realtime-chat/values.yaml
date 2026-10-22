@@ -59,6 +59,7 @@ service:
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
   enabled: true
+  # Set explicitly on GKE (e.g. "traefik"), otherwise the built-in GCE ingress controller claims the Ingress
   className: ""
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
@@ -192,6 +193,18 @@ mongodb:
 coturn:
   secret:
   realm: floriantoenjes.com
+  # Public IP of the coturn LoadBalancer
   externalIp: 127.0.0.1
   secretName: wildcard-cert
-  clusterIp: 10.104.196.154
+
+# S3-compatible object storage. Defaults target the in-cluster s3mock;
+# on GKE these point to GCS via its S3 interoperability API.
+s3:
+  url: "http://realtime-chat-s3mock:9090"
+  region: "fra1"
+  bucketName: "realtime-chat-bucket"
+  # Non-empty value enables path-style addressing (needed for s3mock, also works with GCS)
+  debug: "true"
+
+s3mock:
+  enabled: true

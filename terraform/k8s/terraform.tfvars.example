@@ -1,0 +1,4 @@
+tfstate_bucket          = "realtime-chat-xxxxxx-tfstate"
+acme_email              = "you@example.com"
+letsencrypt_environment = "staging"
+image_tag               = "1.9.10"

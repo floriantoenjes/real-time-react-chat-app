@@ -1,0 +1,5 @@
+apiVersion: v2
+name: cert-issuers
+description: Let's Encrypt ClusterIssuer (DNS-01 via Cloud DNS) and the wildcard Certificate
+type: application
+version: 0.1.0

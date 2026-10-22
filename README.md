@@ -107,7 +107,7 @@ The project uses GitHub Actions for continuous deployment:
 1. **Trigger**: Pipeline runs on tagged commits
 2. **Build**: Docker image built with Vite environment variables
 3. **Push**: Image pushed to Google Artifact Registry with version tag
-4. **Deploy**: Automatic deployment to GKE cluster via kubectl patch
+4. **Deploy**: `terraform apply` of the Kubernetes layer with the new image tag
 
 See [`.github/workflows/release.yaml`](.github/workflows/release.yaml) for the full pipeline.
 
@@ -127,3 +127,8 @@ helm/
 ├── loki-grafana/        # Logging and monitoring
 └── glitchtip/           # Error tracking
 ```
+
+## Infrastructure as Code
+
+The whole GKE environment (project, cluster, static IPs, DNS-01 certificates via cert-manager, Traefik,
+object storage on GCS, and the Helm release) is provisioned with Terraform. See [`terraform/README.md`](terraform/README.md).

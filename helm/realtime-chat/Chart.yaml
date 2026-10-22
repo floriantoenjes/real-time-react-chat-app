@@ -22,3 +22,15 @@ version: 0.2.20
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
 appVersion: "1.9.10"
+
+# Subcharts live unpacked in charts/; listing them here lets values toggle them.
+dependencies:
+  - name: coturn
+    version: 0.1.5
+  - name: mongodb
+    version: 0.1.0
+  - name: redis
+    version: 0.1.0
+  - name: s3mock
+    version: 0.1.0
+    condition: s3mock.enabled

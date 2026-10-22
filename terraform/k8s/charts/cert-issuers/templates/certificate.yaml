@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Values.certificate.secretName }}
+  namespace: {{ .Values.certificate.namespace }}
+spec:
+  secretName: {{ .Values.certificate.secretName }}
+  issuerRef:
+    kind: ClusterIssuer
+    # Changing the issuer (staging -> production) makes cert-manager reissue the certificate
+    name: letsencrypt-{{ .Values.environment }}
+  dnsNames:
+    {{- toYaml .Values.certificate.dnsNames | nindent 4 }}
