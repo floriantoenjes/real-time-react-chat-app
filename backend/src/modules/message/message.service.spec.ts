@@ -37,6 +37,13 @@ describe('MessageService', () => {
 
     let testReceiverGroup: ContactGroup;
 
+    const mockSession = {
+        startTransaction: jest.fn(),
+        commitTransaction: jest.fn().mockResolvedValue(undefined),
+        abortTransaction: jest.fn().mockResolvedValue(undefined),
+        endSession: jest.fn().mockResolvedValue(undefined),
+    };
+
     beforeAll(async () => {
         const { unit, unitRef } = await TestBed.solitary(MessageService)
             .mock(getModelToken(UserEntity.name))
@@ -60,6 +67,14 @@ describe('MessageService', () => {
                         }
                     },
                 })),
+                find: stubFn().mockImplementation((query: any) => ({
+                    select: () => ({
+                        lean: async () =>
+                            [testSender, testReceiver].filter((user) =>
+                                query._id.$in.includes(user._id),
+                            ),
+                    }),
+                })),
             }))
             .mock(getModelToken(ContactGroupEntity.name))
             .impl((stubFn) => ({
@@ -74,6 +89,11 @@ describe('MessageService', () => {
                     };
                 }),
                 updateOne: stubFn().mockResolvedValue({}),
+            }))
+            .mock(getModelToken(MessageEntity.name))
+            .impl((stubFn) => ({
+                create: stubFn(),
+                startSession: stubFn().mockResolvedValue(mockSession),
             }))
             .compile();
 
@@ -180,7 +200,7 @@ describe('MessageService', () => {
                 isAccepted: false,
             } satisfies Contact;
 
-            messageRepository.create.mockResolvedValue(testMessage as any);
+            messageRepository.create.mockResolvedValue([testMessage] as any);
             eventBus.emitAsync.mockImplementationOnce(async () => {
                 testReceiver.contacts.push(newContact);
                 return newContact;
@@ -195,10 +215,23 @@ describe('MessageService', () => {
 
             expect(result).toEqual({ status: 201, body: testMessage });
             expect(userRepository.findById).toHaveBeenCalled();
-            expect(messageRepository.create).toHaveBeenCalled();
+            expect(messageRepository.create).toHaveBeenCalledWith(
+                [expect.objectContaining({ message: testMessage.message })],
+                { session: mockSession },
+            );
+            expect(mockSession.commitTransaction).toHaveBeenCalled();
+            expect(mockSession.abortTransaction).not.toHaveBeenCalled();
+            expect(mockSession.endSession).toHaveBeenCalled();
             expect(eventBus.emitAsync).toHaveBeenCalled();
-            expect(receiverMarkModifiedMock).toHaveBeenCalled();
-            expect(receiverSaveMock).toHaveBeenCalled();
+            expect(
+                eventBus.emitAsync.mock.invocationCallOrder[0],
+            ).toBeGreaterThan(
+                mockSession.commitTransaction.mock.invocationCallOrder[0],
+            );
+            // Receiver has no contact for the sender yet; it is added by the
+            // CONTACT_AUTO_ADD listener after the transaction is committed
+            expect(receiverMarkModifiedMock).not.toHaveBeenCalled();
+            expect(receiverSaveMock).not.toHaveBeenCalled();
             expect(testSender.contacts[0].lastMessage).toEqual(testMessage._id);
             expect(testReceiver.contacts).toHaveLength(1);
             expect(eventBus.emitAsync).toHaveBeenCalledTimes(2);
@@ -230,7 +263,7 @@ describe('MessageService', () => {
                 owners: [testSender._id, testReceiver._id],
             } satisfies Message;
 
-            messageRepository.create.mockResolvedValue(testMessage as any);
+            messageRepository.create.mockResolvedValue([testMessage] as any);
             const newContact = {
                 _id: testSender._id,
                 name: testSender.username,
@@ -251,7 +284,13 @@ describe('MessageService', () => {
 
             expect(result).toEqual({ status: 201, body: testMessage });
             expect(userRepository.findById).toHaveBeenCalled();
-            expect(messageRepository.create).toHaveBeenCalled();
+            expect(messageRepository.create).toHaveBeenCalledWith(
+                [expect.objectContaining({ message: testMessage.message })],
+                { session: mockSession },
+            );
+            expect(mockSession.commitTransaction).toHaveBeenCalled();
+            expect(mockSession.abortTransaction).not.toHaveBeenCalled();
+            expect(mockSession.endSession).toHaveBeenCalled();
             expect(receiverMarkModifiedMock).toHaveBeenCalledTimes(1);
             expect(receiverSaveMock).toHaveBeenCalledTimes(1);
             expect(testSender.contacts[0].lastMessage).toEqual(testMessage._id);
@@ -290,7 +329,7 @@ describe('MessageService', () => {
                 owners: [testSender._id, testReceiverGroup._id],
             } satisfies Message;
 
-            messageRepository.create.mockResolvedValue(testMessage as any);
+            messageRepository.create.mockResolvedValue([testMessage] as any);
 
             const result = await messageService.sendMessage(
                 testMessage.fromUserId,
@@ -302,7 +341,13 @@ describe('MessageService', () => {
             expect(result).toEqual({ status: 201, body: testMessage });
             expect(userRepository.findById).toHaveBeenCalled();
             expect(contactGroupRepository.findOne).toHaveBeenCalled();
-            expect(messageRepository.create).toHaveBeenCalled();
+            expect(messageRepository.create).toHaveBeenCalledWith(
+                [expect.objectContaining({ message: testMessage.message })],
+                { session: mockSession },
+            );
+            expect(mockSession.commitTransaction).toHaveBeenCalled();
+            expect(mockSession.abortTransaction).not.toHaveBeenCalled();
+            expect(mockSession.endSession).toHaveBeenCalled();
 
             expect(receiverMarkModifiedMock).toHaveBeenCalledTimes(0);
             expect(receiverSaveMock).toHaveBeenCalledTimes(0);
@@ -325,6 +370,44 @@ describe('MessageService', () => {
                     recipientId: testReceiver._id,
                 } satisfies MessageSentEvent,
             );
+        });
+
+        it('should abort the transaction and emit no events when a write fails', async () => {
+            testReceiver.contacts.push({
+                _id: testSender._id,
+                name: testSender.username,
+                avatarFileName: testSender.avatarFileName,
+                isAccepted: true,
+            });
+            const testMessage = {
+                _id: 'messageId1',
+                message: 'Test message.',
+                type: 'text',
+                fromUserId: testSender._id,
+                toUserId: testReceiver._id,
+                at: new Date(),
+                read: false,
+                sent: false,
+                owners: [testSender._id, testReceiver._id],
+            } satisfies Message;
+
+            messageRepository.create.mockResolvedValue([testMessage] as any);
+            const saveError = new Error('write conflict');
+            receiverSaveMock.mockRejectedValueOnce(saveError);
+
+            await expect(
+                messageService.sendMessage(
+                    testMessage.fromUserId,
+                    testMessage.toUserId,
+                    testMessage.message,
+                    testMessage.type,
+                ),
+            ).rejects.toThrow(saveError);
+
+            expect(mockSession.abortTransaction).toHaveBeenCalled();
+            expect(mockSession.commitTransaction).not.toHaveBeenCalled();
+            expect(mockSession.endSession).toHaveBeenCalled();
+            expect(eventBus.emitAsync).not.toHaveBeenCalled();
         });
     });
 });

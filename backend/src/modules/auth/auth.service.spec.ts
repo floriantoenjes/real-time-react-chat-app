@@ -15,6 +15,13 @@ describe('Auth Service', () => {
     let jwtService: Mocked<JwtService>;
     let mockAuthUserModel: any;
 
+    const mockSession = {
+        startTransaction: jest.fn(),
+        commitTransaction: jest.fn().mockResolvedValue(undefined),
+        abortTransaction: jest.fn().mockResolvedValue(undefined),
+        endSession: jest.fn().mockResolvedValue(undefined),
+    };
+
     const testCredentials = { email: 'test1@email.com', password: 'testPw1' };
     const baseTestAuthUserEntity = {
         _id: 'testUserId1',
@@ -62,6 +69,7 @@ describe('Auth Service', () => {
                         };
                     }),
                     updateOne: stubFn().mockResolvedValue({}),
+                    startSession: stubFn().mockResolvedValue(mockSession),
                 };
                 return mockAuthUserModel;
             })
@@ -216,11 +224,15 @@ describe('Auth Service', () => {
                     'testUserName1',
                 );
             }).rejects.toThrow(EmailAlreadyTakenException);
+
+            expect(mockSession.abortTransaction).toHaveBeenCalled();
+            expect(mockSession.commitTransaction).not.toHaveBeenCalled();
+            expect(mockSession.endSession).toHaveBeenCalled();
         });
 
         it('should create user successfully', async () => {
             const newUser = { ...baseTestAuthUserEntity, password: 'hash' };
-            mockAuthUserModel.create.mockResolvedValueOnce(newUser);
+            mockAuthUserModel.create.mockResolvedValueOnce([newUser]);
 
             const result = await authService.createAuthUser(
                 testCredentials.email,
@@ -230,6 +242,13 @@ describe('Auth Service', () => {
 
             expect(result?.password).toBe('');
             expect(result?.email).toBe(testCredentials.email);
+            expect(mockAuthUserModel.create).toHaveBeenCalledWith(
+                [{ email: testCredentials.email, password: 'hash' }],
+                { session: mockSession },
+            );
+            expect(mockSession.commitTransaction).toHaveBeenCalled();
+            expect(mockSession.abortTransaction).not.toHaveBeenCalled();
+            expect(mockSession.endSession).toHaveBeenCalled();
         });
     });
 });

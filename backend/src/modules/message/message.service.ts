@@ -236,26 +236,31 @@ export class MessageService {
         const session = await this.messageModel.startSession();
         session.startTransaction();
 
+        // Events are only emitted once the transaction has been committed
+        const pendingEvents: (() => void)[] = [];
+
         try {
             const newlyCreatedMessage = (
                 await this.messageModel.create([newMessage], { session })
             )[0];
 
             if (isNotContactGroup) {
-                this.eventBus.emitAsync<ContactAutoAddEvent>(
-                    EventNames.CONTACT_AUTO_ADD,
-                    {
-                        userId: toUserId,
-                        contactUserId: fromUserId,
-                    },
-                );
-                this.eventBus.emitAsync<MessageSentEvent>(
-                    EventNames.MESSAGE_SENT,
-                    {
-                        message: newlyCreatedMessage,
-                        recipientId: toUserId,
-                    },
-                );
+                pendingEvents.push(() => {
+                    this.eventBus.emitAsync<ContactAutoAddEvent>(
+                        EventNames.CONTACT_AUTO_ADD,
+                        {
+                            userId: toUserId,
+                            contactUserId: fromUserId,
+                        },
+                    );
+                    this.eventBus.emitAsync<MessageSentEvent>(
+                        EventNames.MESSAGE_SENT,
+                        {
+                            message: newlyCreatedMessage,
+                            recipientId: toUserId,
+                        },
+                    );
+                });
             } else if (contactGroup) {
                 contactGroup.lastMessage = newlyCreatedMessage._id;
                 await this.contactGroupModel.updateOne(
@@ -268,11 +273,10 @@ export class MessageService {
                 const allMemberIds = contactGroup.memberRefs.map(
                     (m) => m.memberId,
                 );
-                const activeMemberIds =
-                    await this.getActiveGroupMembers(
-                        contactGroup._id.toString(),
-                        allMemberIds,
-                    );
+                const activeMemberIds = await this.getActiveGroupMembers(
+                    contactGroup._id.toString(),
+                    allMemberIds,
+                );
 
                 // Emit event for each active group member except sender
                 for (const memberRef of contactGroup.memberRefs) {
@@ -288,37 +292,37 @@ export class MessageService {
                         continue;
                     }
 
-                    this.eventBus.emitAsync<ContactGroupAutoAddEvent>(
-                        EventNames.CONTACT_GROUP_AUTO_ADD,
-                        {
-                            userId: memberRef.memberId,
-                            group: {
-                                ...contactGroup,
-                                _id: contactGroup._id.toString(),
-                                name: contactGroup.memberRefs
-                                    .filter(
-                                        (m) =>
-                                            m.memberId !== memberRef.memberId,
-                                    )
-                                    .map((m) => m.memberName)
-                                    .join(', '),
-                            } as ContactGroup,
-                        },
-                    );
+                    const group = {
+                        ...contactGroup,
+                        _id: contactGroup._id.toString(),
+                        name: contactGroup.memberRefs
+                            .filter((m) => m.memberId !== memberRef.memberId)
+                            .map((m) => m.memberName)
+                            .join(', '),
+                    } as ContactGroup;
 
-                    this.eventBus.emitAsync<MessageSentEvent>(
-                        EventNames.MESSAGE_SENT,
-                        {
-                            message: newlyCreatedMessage,
-                            recipientId: memberRef.memberId,
-                        },
-                    );
+                    pendingEvents.push(() => {
+                        this.eventBus.emitAsync<ContactGroupAutoAddEvent>(
+                            EventNames.CONTACT_GROUP_AUTO_ADD,
+                            {
+                                userId: memberRef.memberId,
+                                group,
+                            },
+                        );
+                        this.eventBus.emitAsync<MessageSentEvent>(
+                            EventNames.MESSAGE_SENT,
+                            {
+                                message: newlyCreatedMessage,
+                                recipientId: memberRef.memberId,
+                            },
+                        );
+                    });
                 }
             } else {
                 throw new ContactNotFoundException();
             }
 
-            this.persistLastMessageForSender(
+            await this.persistLastMessageForSender(
                 sender,
                 toUserId,
                 newlyCreatedMessage,
@@ -332,22 +336,24 @@ export class MessageService {
                 receiverContact.lastMessage =
                     newlyCreatedMessage._id.toString();
                 receiver.markModified('contacts');
-                void receiver.save({ session });
+                await receiver.save({ session });
             }
 
             await session.commitTransaction();
 
+            pendingEvents.forEach((emit) => emit());
+
             return { status: 201 as const, body: newlyCreatedMessage };
         } catch (error: any) {
             this.logger.warn(`Error sending message: ${error}`);
-            void session.abortTransaction();
+            await session.abortTransaction();
             throw error;
         } finally {
             void session.endSession();
         }
     }
 
-    private persistLastMessageForSender(
+    private async persistLastMessageForSender(
         sender: HydratedDocument<UserEntity>,
         toUserId: string,
         message: Message,
@@ -357,7 +363,7 @@ export class MessageService {
         if (userContact) {
             userContact.lastMessage = message._id.toString();
             sender.markModified('contacts');
-            void sender.save({ session });
+            await sender.save({ session });
         }
     }
 
