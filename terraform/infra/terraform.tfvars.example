@@ -1,0 +1,2 @@
+project_id     = "realtime-chat-xxxxxx"        # output of the bootstrap root
+tfstate_bucket = "realtime-chat-xxxxxx-tfstate" # output of the bootstrap root

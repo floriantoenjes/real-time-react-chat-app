@@ -1,0 +1,9 @@
+email: ""
+# staging | production
+environment: staging
+project: ""
+hostedZoneName: ""
+certificate:
+  namespace: realtime-chat
+  secretName: wildcard-cert
+  dnsNames: []

@@ -1,72 +1,78 @@
 name: Release
 on:
   push:
+    tags:
+      - '*'
+
+# Repository variables (Settings > Secrets and variables > Actions > Variables), values from `terraform output`:
+#   GCP_WORKLOAD_IDENTITY_PROVIDER  infra: github_workload_identity_provider
+#   GCP_SERVICE_ACCOUNT             infra: github_service_account
+#   IMAGE_REPOSITORY                infra: image_repository
+#   TF_STATE_BUCKET                 bootstrap: tfstate_bucket
+#   DOMAIN                          e.g. floriantoenjes.com
+#   ACME_EMAIL                      Let's Encrypt account email
+#   LETSENCRYPT_ENVIRONMENT         staging | production
 
 jobs:
-  docker-release:
-    name: Tagged Docker release to Google Artifact Registry
+  release:
+    name: Build image and deploy to GKE
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')  # <-- Notice that I'm filtering here to only run when a tagged commit is pushed
+    concurrency: deploy
 
     permissions:
       contents: 'read'
       id-token: 'write'
 
     steps:
-      - id: checkout
-        name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v7
 
       - id: auth
         name: Authenticate with Google Cloud
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@v3
         with:
           token_format: access_token
-          workload_identity_provider: ${{ secrets.GOOGLE_AUTH }}
-          service_account: my-service-account@my-project-1470767799419.iam.gserviceaccount.com
-          access_token_lifetime: 300s
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+
+      - id: image
+        name: Derive registry host
+        env:
+          IMAGE_REPOSITORY: ${{ vars.IMAGE_REPOSITORY }}
+        run: echo "registry=${IMAGE_REPOSITORY%%/*}" >> "$GITHUB_OUTPUT"
 
       - name: Login to Artifact Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v4
         with:
-          registry: europe-west3-docker.pkg.dev
+          registry: ${{ steps.image.outputs.registry }}
           username: oauth2accesstoken
           password: ${{ steps.auth.outputs.access_token }}
 
-      - name: Get tag
-        id: get-tag
-        run: echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
 
-      - id: docker-push-tagged
-        name: Tag Docker image and push to Google Artifact Registry
-        uses: docker/build-push-action@v2
+      - name: Build and push image
+        uses: docker/build-push-action@v7
         with:
           push: true
           tags: |
-            europe-west3-docker.pkg.dev/my-project-1470767799419/realtime-chat-repo/realtime-chat-gke:${{ steps.get-tag.outputs.short_ref }}
-            europe-west3-docker.pkg.dev/my-project-1470767799419/realtime-chat-repo/realtime-chat-gke:latest
+            ${{ vars.IMAGE_REPOSITORY }}:${{ github.ref_name }}
+            ${{ vars.IMAGE_REPOSITORY }}:latest
           build-args: |
-            VITE_PEERJS_SERVER_HOST=${{ secrets.VITE_PEERJS_SERVER_HOST }}
-            VITE_PEERJS_SERVER_PORT=${{ secrets.VITE_PEERJS_SERVER_PORT }}
-            VITE_TURN_SERVER_URL=${{ secrets.VITE_TURN_SERVER_URL }}
+            VITE_PEERJS_SERVER_HOST=peer.${{ vars.DOMAIN }}
+            VITE_PEERJS_SERVER_PORT=443
+            VITE_TURN_SERVER_URL=turns:turn.${{ vars.DOMAIN }}:5349
 
-      - name: Set up kubectl
-        uses: google-github-actions/setup-gcloud@v1
-        with:
-          project_id: my-project-1470767799419
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v4
 
-      - name: 'Install gke-gcloud-auth-plugin'
-        run: |
-          gcloud components install gke-gcloud-auth-plugin
-          gke-gcloud-auth-plugin --version
-
-      - name: Configure kubectl
-        run: |
-          gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER }} --zone ${{ secrets.GKE_ZONE }} --project my-project-1470767799419
-
-      - name: Update Kubernetes deployment with new annotation
+      - name: Deploy with Terraform
+        working-directory: terraform/k8s
         env:
-          KUBE_DEPLOYMENT: "realtime-chat"
+          TF_VAR_tfstate_bucket: ${{ vars.TF_STATE_BUCKET }}
+          TF_VAR_acme_email: ${{ vars.ACME_EMAIL }}
+          TF_VAR_letsencrypt_environment: ${{ vars.LETSENCRYPT_ENVIRONMENT }}
+          TF_VAR_image_tag: ${{ github.ref_name }}
         run: |
-          kubectl patch deployment $KUBE_DEPLOYMENT -p \
-            "{\"spec\": {\"template\": {\"metadata\": {\"annotations\": {\"lastUpdated\": \"$(date +'%s')\"}}}}}"
+          terraform init -input=false -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}"
+          terraform apply -input=false -auto-approve

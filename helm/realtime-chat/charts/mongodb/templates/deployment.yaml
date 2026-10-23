@@ -13,10 +13,13 @@ spec:
       {{- include "mongodb.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
+        # Restarts the pods when the replica set config (e.g. replicaCount) changes, so pod 0 re-runs the init
+        checksum/replicaset-init: {{ include (print $.Template.BasePath "/replicaset-init.yaml") . | sha256sum }}
+        kubectl.kubernetes.io/default-container: {{ .Chart.Name }}
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
       labels:
         {{- include "mongodb.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
@@ -32,6 +35,19 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
+        - name: replicaset-init
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["sh", "/scripts/init-replicaset.sh"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              memory: 256Mi
+          volumeMounts:
+            - name: replicaset-init
+              mountPath: /scripts
         - name: {{ .Chart.Name }}
           {{- with .Values.securityContext }}
           securityContext:
@@ -68,10 +84,17 @@ spec:
           {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- with .Values.volumes }}
       volumes:
+        - name: replicaset-init
+          configMap:
+            name: {{ include "mongodb.fullname" . }}-replicaset-init
+        {{- if not .Values.statefulSet.usePersistentVolume }}
+        - name: data
+          emptyDir: {}
+        {{- end }}
+        {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -105,10 +128,6 @@ spec:
         resources:
           requests:
             storage: 10Gi
-  {{- else }}
-      volumes:
-        - name: data
-          emptyDir: {}
   {{- end }}
 {{- else }}
 apiVersion: apps/v1

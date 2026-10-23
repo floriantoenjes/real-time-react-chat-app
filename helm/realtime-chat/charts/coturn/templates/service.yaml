@@ -6,7 +6,12 @@ metadata:
     {{- include "coturn.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
-  clusterIP: {{ .Values.clusterIp }}
+  {{- if eq .Values.service.type "LoadBalancer" }}
+  externalTrafficPolicy: Local
+  {{- with .Values.service.loadBalancerIP }}
+  loadBalancerIP: {{ . }}
+  {{- end }}
+  {{- end }}
   ports:
     - port: {{ .Values.service.port }}
       targetPort: 5349
