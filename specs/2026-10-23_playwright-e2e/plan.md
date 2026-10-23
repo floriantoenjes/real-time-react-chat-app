@@ -35,8 +35,8 @@ The current Cypress setup has one spec file (`cypress/e2e/spec.cy.ts`) with two 
 > rejected. Implemented instead:
 > - `backend/src/config/throttle-multiplier.config.ts`: `E2E_THROTTLE_MULTIPLIER` (process env, integer ≥ 1, default 1)
 >   scales the auth/strict/global REST limits and the WS connection/message limits. Unit-tested.
-> - Playwright's backend `webServer` sets it to `100`. A backend you start yourself for `reuseExistingServer`
->   needs it too: `E2E_THROTTLE_MULTIPLIER=100 npm run start:backend`.
+> - Playwright's backend `webServer` sets it to `1000` (raised from 100 in Phase 6 for `--repeat-each`). A backend you start yourself for `reuseExistingServer`
+>   needs it too: `E2E_THROTTLE_MULTIPLIER=1000 npm run start:backend`.
 > - `auth/throttle.spec.ts` mocks a 429 from `/login` and asserts the UI message, so the e2e suite covers how the
 >   frontend handles throttling. The limits themselves are no longer covered end to end.
 >
@@ -151,10 +151,10 @@ e2e/
 - i18n: switch to Deutsch → German labels; reload → still German
 - responsive (`mobile-chromium`): welcome message visible, open a chat → back button returns to the list
 
-### Phase 6: Stabilize & document
-**Task 6.1:** `npx playwright test --repeat-each=3 --workers=4` must be green. Fix flakiness at the root, not with retries.
-**Task 6.2:** README section "E2E tests" (prereqs, commands, how to debug with UI mode/trace viewer).
-**Task 6.3 (nice to have):** `.github/workflows/e2e.yaml` on `pull_request`: Node setup, `docker compose up -d --wait`, a backend `.env` built from `.example.env` with test secrets, `npx playwright install --with-deps chromium`, `npm run e2e`, upload `playwright-report/`.
+### Phase 6: Stabilize & document ✅
+**Task 6.1:** ✅ `npx playwright test --repeat-each=3 --workers=4` is green. The throttle multiplier was raised to 1000 for it.
+**Task 6.2:** ✅ README section "E2E tests" (prereqs, commands, how to debug with UI mode/trace viewer).
+**Task 6.3 (nice to have):** ✅ `.github/workflows/e2e.yaml` on pull requests and pushes to `main`: Node setup, `npm ci`, Chromium, `docker compose up -d` plus polling until the Mongo replica set has a primary and s3mock answers (`--wait` would trip over the one-shot `mongo-init` container), a backend `.env` from `.example.env` with random secrets, `npx playwright test`, report and `test-results/` uploaded as an artifact. Not run on GitHub yet.
 
 ## Risks / Open Questions
 - **Backend `.env` for tests:** the suite assumes the developer's existing `backend/.env` points at docker-compose. CI needs a committed `e2e.env` or values generated in the workflow.

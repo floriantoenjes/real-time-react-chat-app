@@ -113,6 +113,37 @@ release after that deploys itself.
 | Keyless CI/CD | GitHub Actions exchanges its OIDC token for short-lived GCP credentials, restricted to this repository |
 | Observability | Loki + Grafana stack for centralized logging across all services |
 
+## Testing
+
+### Unit tests
+
+```bash
+cd backend && npm test
+```
+
+### End-to-end tests
+
+The Playwright suite in [`e2e/`](e2e) covers every feature that runs locally, so everything except voice and video calls. It needs no Kubernetes: MongoDB, Redis and an S3 mock come from `local-development/docker-compose.yaml`, and Playwright starts the backend and the Vite dev server itself.
+
+```bash
+npm run e2e:infra    # start MongoDB (replica set), Redis and the S3 mock
+npm run e2e          # run the suite (starts backend + frontend if they aren't running)
+npm run e2e:ui       # interactive UI mode, handy for writing and debugging tests
+npm run e2e:headed   # watch the browsers
+npm run e2e:report   # open the HTML report of the last run
+```
+
+Prerequisites: Docker, Node.js, `backend/.env` created from `backend/.example.env`, and a one-time `npx playwright install chromium`.
+
+How the suite is set up:
+
+- **Isolation**: every test registers its own users through the REST API and signs them into fresh browser contexts, so tests run in parallel and never share data. Real-time features use several users at once.
+- **Rate limits**: all test users share one IP, so the backend started by Playwright runs with `E2E_THROTTLE_MULTIPLIER=1000`, which scales all REST and WebSocket rate limits. The variable defaults to `1`, so production limits are unchanged. If you start the backend yourself and let Playwright reuse it, set it there too: `E2E_THROTTLE_MULTIPLIER=1000 npm run start:backend`.
+- **Projects**: `chromium` (with a fake microphone for audio messages) runs everything except `responsive/`, which runs in `mobile-chromium` (Pixel 7). `E2E_ALL_BROWSERS=1` adds Firefox, which skips tests tagged `@chromium-only`.
+- **Debugging**: failed tests keep a screenshot and an `error-context.md` with the page snapshot in `test-results/`. On CI, the first retry also records a trace (`npx playwright show-trace <trace.zip>`).
+
+The plan, requirements and validation checklist for the suite are in [`specs/2026-10-23_playwright-e2e/`](specs/2026-10-23_playwright-e2e).
+
 ## CI/CD Pipeline
 
 The project uses GitHub Actions for continuous deployment:

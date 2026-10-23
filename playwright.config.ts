@@ -64,8 +64,10 @@ export default defineConfig({
             command: "npx nest start",
             cwd: "backend",
             // All test users share one IP, so the production rate limits would trip.
-            // When reusing a running backend, start it with this env var as well.
-            env: { E2E_THROTTLE_MULTIPLIER: "100" },
+            // 1000 leaves room for --repeat-each and parallel workers (~5 auth calls per
+            // test against 5/15min). When reusing a running backend, start it with this
+            // env var as well.
+            env: { E2E_THROTTLE_MULTIPLIER: "1000" },
             url: `${BACKEND_URL}/ready`,
             reuseExistingServer: !isCI,
             timeout: 120_000,
