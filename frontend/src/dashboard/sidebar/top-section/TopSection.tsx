@@ -48,6 +48,7 @@ export function TopSection() {
             <div className={"flex items-center mb-3"}>
                 <div
                     className={"ml-3 cursor-pointer"}
+                    data-testid="open-profile"
                     onClick={toggleDrawer("left", true, "profile")}
                 >
                     <Avatar user={user} />
@@ -55,6 +56,7 @@ export function TopSection() {
                 <div className={"block ml-auto mr-2"}>
                     <IconButton
                         className={"user-menu-button"}
+                        aria-label={LL.USER_MENU()}
                         onClick={handleClick}
                     >
                         <ChevronDownIcon className={"w-8"} />

@@ -1,10 +1,25 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "../support/test";
+import { LoginPage } from "../pages/auth.page";
 
 test("login page loads", async ({ page }) => {
-    await page.addInitScript(() => localStorage.setItem("language", "en"));
-    await page.goto("");
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
 
-    await expect(page.locator("[name=email]")).toBeVisible();
-    await expect(page.locator("[name=password]")).toBeVisible();
-    await expect(page.locator("[type=submit]")).toBeVisible();
+    await expect(loginPage.email).toBeVisible();
+    await expect(loginPage.password).toBeVisible();
+    await expect(loginPage.submit).toBeVisible();
+});
+
+test("fixtures sign in fresh users that can see each other", async ({
+    actor,
+    createActor,
+}) => {
+    const bob = await createActor("Bob");
+    await actor.api.addContact(bob.user._id);
+
+    await actor.page.reload();
+    await expect(
+        actor.dashboard.sidebar.contact(bob.user.username),
+    ).toBeVisible();
+    await expect(actor.dashboard.chat.welcomeMessage).toBeVisible();
 });

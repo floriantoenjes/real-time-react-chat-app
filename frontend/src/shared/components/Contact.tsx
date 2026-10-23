@@ -30,6 +30,8 @@ export function Contact(props: {
                 (props.selectedContact === props.contact ? " active" : "")
             }
             onClick={props.onContactSelect}
+            data-testid="contact"
+            data-contact-name={props.contact.name}
         >
             <Avatar
                 width={"3rem"}

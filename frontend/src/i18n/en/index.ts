@@ -77,6 +77,16 @@ const en = {
     IGNORE_CONFIRMATION: "Are you sure you want to ignore {contactName}?",
     UNIGNORE_CONFIRMATION: "Are you sure you want to un-ignore {username}?",
     CANCEL: "Cancel",
+    ATTACH_IMAGE: "Attach image",
+    SEND_MESSAGE: "Send message",
+    RECORD_AUDIO: "Record audio message",
+    STOP_RECORDING: "Stop recording",
+    BACK: "Back",
+    VIDEO_CALL: "Video call",
+    VOICE_CALL: "Voice call",
+    CHAT_MENU: "Chat menu",
+    USER_MENU: "User menu",
+    SAVE_AVATAR: "Save profile picture",
 } satisfies BaseTranslation;
 
 export default en;

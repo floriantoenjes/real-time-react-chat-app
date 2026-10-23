@@ -114,6 +114,7 @@ export function UserProfile(props: { toggleDrawer: any }) {
                 )}
                 <input
                     type="file"
+                    data-testid="avatar-input"
                     ref={fileInputRef}
                     hidden={true}
                     onChange={setFileToUpload}
@@ -121,7 +122,10 @@ export function UserProfile(props: { toggleDrawer: any }) {
                 <div className={"w-full"}>
                     <div className={"mt-auto mb-5 text-center"}>
                         {fileChanged && (
-                            <Fab onClick={handleAvatarSubmit}>
+                            <Fab
+                                aria-label={LL.SAVE_AVATAR()}
+                                onClick={handleAvatarSubmit}
+                            >
                                 <CheckIcon className={"w-8"} />
                             </Fab>
                         )}

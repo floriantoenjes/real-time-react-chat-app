@@ -1,10 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
+import { BACKEND_URL, FRONTEND_ORIGIN, FRONTEND_URL } from "./e2e/support/urls";
 
 const isCI = !!process.env.CI;
 const allBrowsers = !!process.env.E2E_ALL_BROWSERS;
-
-export const FRONTEND_URL = "http://localhost:5173/frontend/";
-export const BACKEND_URL = "http://localhost:4200";
 
 export default defineConfig({
     testDir: "e2e/tests",
@@ -16,6 +14,16 @@ export default defineConfig({
     reporter: isCI ? [["list"], ["html", { open: "never" }]] : "html",
     use: {
         baseURL: FRONTEND_URL,
+        // Force English; the i18n spec switches the language explicitly.
+        storageState: {
+            cookies: [],
+            origins: [
+                {
+                    origin: FRONTEND_ORIGIN,
+                    localStorage: [{ name: "language", value: "en" }],
+                },
+            ],
+        },
         trace: "on-first-retry",
         video: "retain-on-failure",
         screenshot: "only-on-failure",

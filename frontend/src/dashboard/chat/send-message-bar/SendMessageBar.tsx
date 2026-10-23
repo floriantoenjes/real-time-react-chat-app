@@ -45,11 +45,15 @@ export function SendMessageBar(props: {
 
     return (
         <div className={"send-message-bar fixed bottom-0 bg-white p-3 flex"}>
-            <IconButton onClick={() => fileInputRef.current?.click()}>
+            <IconButton
+                aria-label={LL.ATTACH_IMAGE()}
+                onClick={() => fileInputRef.current?.click()}
+            >
                 <PlusIcon className={"w-8"} />
             </IconButton>
             <input
                 type="file"
+                data-testid="image-input"
                 ref={fileInputRef}
                 hidden={true}
                 onChange={(evt) => setFileToUpload(evt)}
@@ -72,6 +76,7 @@ export function SendMessageBar(props: {
 
             {formData.message.trim().length >= 1 && (
                 <IconButton
+                    aria-label={LL.SEND_MESSAGE()}
                     onPointerDown={async () => {
                         await sendMessage(formData.message.trim());
                         setFormData({ message: "" });
@@ -81,12 +86,18 @@ export function SendMessageBar(props: {
                 </IconButton>
             )}
             {formData.message.trim().length === 0 && !startOfRecording && (
-                <IconButton onPointerDown={startRecordAudio}>
+                <IconButton
+                    aria-label={LL.RECORD_AUDIO()}
+                    onPointerDown={startRecordAudio}
+                >
                     <MicrophoneIcon className={"send-audio-button w-8"} />
                 </IconButton>
             )}
             {formData.message.trim().length === 0 && startOfRecording && (
-                <IconButton onPointerDown={endRecordAudio}>
+                <IconButton
+                    aria-label={LL.STOP_RECORDING()}
+                    onPointerDown={endRecordAudio}
+                >
                     <StopIcon
                         className={"send-audio-button w-8 fill-red-500"}
                     />

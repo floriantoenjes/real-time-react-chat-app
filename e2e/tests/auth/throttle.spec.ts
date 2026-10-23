@@ -1,4 +1,5 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "../../support/test";
+import { LoginPage } from "../../pages/auth.page";
 import { ExternalErrors } from "../../../backend/shared/enums/errors.enum";
 
 // The e2e backend runs with E2E_THROTTLE_MULTIPLIER, so the real limit can't be hit here.
@@ -17,12 +18,10 @@ test("shows a rate limit message when sign in is throttled", async ({
             },
         }),
     );
-    await page.addInitScript(() => localStorage.setItem("language", "en"));
-    await page.goto("");
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
 
-    await page.locator("[name=email]").fill("florian@email.com");
-    await page.locator("[name=password]").fill("password");
-    await page.locator("[type=submit]").click();
+    await loginPage.signIn("florian@email.com", "password");
 
     await expect(
         page.getByText("Too many requests in a short period of time"),

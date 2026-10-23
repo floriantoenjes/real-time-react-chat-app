@@ -35,6 +35,7 @@ export function Avatar(props: {
                     className={
                         "bg-green-500 rounded-full w-3 h-3 absolute right-0 bottom-0"
                     }
+                    data-testid="online-indicator"
                 ></div>
             )}
             {!isContactGroup(props.user) &&

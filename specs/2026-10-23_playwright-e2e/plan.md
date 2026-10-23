@@ -123,11 +123,11 @@ e2e/
 **Task 1.5:** Write a smoke test that loads the login page, then make the D1 decision: verify that `x-forwarded-for` reaches both throttlers for REST and Socket.io. Implement D1b if it doesn't. ✅ Done → D1b
 
 ### Phase 2: Test infrastructure
-**Task 2.1:** `e2e/support/ids.ts`: unique email/username/IP generators.
-**Task 2.2:** `e2e/support/api.ts`: register/login through `request.newContext({ baseURL: 'http://localhost:4200', extraHTTPHeaders })`, plus helpers for setup shortcuts (add contact, create group, send message) through the ts-rest endpoints. Reuse the contract types from `backend/shared/*.contract.ts` where the import path works.
-**Task 2.3:** `e2e/support/test.ts`: `test.extend` with `createUser`, `signedInPage`, `actors` (D2/D3), and auto-close of all contexts it created.
-**Task 2.4:** Frontend selector additions (D5) + i18n keys. Run `npm run lint` in frontend.
-**Task 2.5:** Page objects (D4).
+**Task 2.1:** `e2e/support/ids.ts`: unique email/username generators (IPs dropped with D1b). ✅
+**Task 2.2:** ✅ `e2e/support/api.ts`: register/login through `request.newContext({ baseURL: 'http://localhost:4200', extraHTTPHeaders })`, plus helpers for setup shortcuts (add contact, create group, send message) through the ts-rest endpoints. Reuse the contract types from `backend/shared/*.contract.ts` where the import path works.
+**Task 2.3:** ✅ `e2e/support/test.ts`: `test.extend` with `createUser`, `signedInPage`, `actors` (D2/D3), and auto-close of all contexts it created.
+**Task 2.4:** ✅ Frontend selector additions (D5) + i18n keys. Regenerating `i18n-types.ts` also added the previously missing Left Groups keys.
+**Task 2.5:** ✅ Page objects (D4): `e2e/pages/auth.page.ts`, `e2e/pages/dashboard.page.ts`.
 
 ### Phase 3: Auth & session specs
 - register: success → redirected/snackbar "Your account has been created"; passwords don't match; invalid email; min-length/strength hint; email already taken error
