@@ -1,12 +1,14 @@
+import { scaleLimit } from './throttle-multiplier.config';
+
 export const WS_THROTTLE_CONFIG = {
     // Default limit: 10 connection attempts per 60 seconds per IP
     default: {
-        limit: 10,
+        limit: scaleLimit(10),
         ttlMs: 60 * 1000,
     },
     // Strict limit: 3 connection attempts per 5 minutes for suspected abuse
     strict: {
-        limit: 3,
+        limit: scaleLimit(3),
         ttlMs: 5 * 60 * 1000,
     },
     // Redis key prefix for throttle tracking
@@ -14,7 +16,7 @@ export const WS_THROTTLE_CONFIG = {
 } as const;
 
 export const WS_MESSAGE_THROTTLE_CONFIG = {
-    typing: { limit: 20, ttlMs: 10 * 1000 },
-    ping: { limit: 60, ttlMs: 60 * 1000 },
+    typing: { limit: scaleLimit(20), ttlMs: 10 * 1000 },
+    ping: { limit: scaleLimit(60), ttlMs: 60 * 1000 },
     keyPrefix: 'ws:msg:',
 } as const;

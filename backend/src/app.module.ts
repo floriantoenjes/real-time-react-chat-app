@@ -10,6 +10,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { CustomThrottlerGuard } from './guards/custom-throttler.guard';
+import { scaleLimit } from './config/throttle-multiplier.config';
 import * as process from 'node:process';
 import { LoggingController } from './controllers/logging.controller';
 import { RedisPubSubFactory } from './factories/redisPubSubFactory';
@@ -33,7 +34,7 @@ import { RelationshipsModule } from './modules/relationships/relationships.modul
         SentryModule.forRoot(),
         ConfigModule.forRoot({ isGlobal: true }),
         ThrottlerModule.forRoot({
-            throttlers: [{ limit: 100, ttl: 60 * 1000 }],
+            throttlers: [{ limit: scaleLimit(100), ttl: 60 * 1000 }],
         }),
         ServeStaticModule.forRoot({
             serveRoot: '/frontend',
