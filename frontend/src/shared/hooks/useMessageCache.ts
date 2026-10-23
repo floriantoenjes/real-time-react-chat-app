@@ -4,6 +4,9 @@ import { ContactsContext } from "../contexts/ContactsContext";
 import { MessageContext, useMessageContext } from "../contexts/MessageContext";
 import { useDiContext } from "../contexts/DiContext";
 import { MessageService } from "../services/MessageService";
+import { useUserContext } from "../contexts/UserContext";
+import { Contact } from "@t/contact.contract";
+import { ContactGroup, isContactGroup } from "@t/contact-group.contract";
 
 function markMessagesReadAndEmit(
     cached: Message[],
@@ -17,6 +20,20 @@ function markMessagesReadAndEmit(
     });
 }
 
+function isMessageOfChat(
+    msg: Message,
+    chat: Contact | ContactGroup,
+    userId: string,
+) {
+    if (isContactGroup(chat)) {
+        return msg.toUserId === chat._id;
+    }
+    return (
+        (msg.fromUserId === userId && msg.toUserId === chat._id) ||
+        (msg.fromUserId === chat._id && msg.toUserId === userId)
+    );
+}
+
 /**
  * Custom hook for managing message caching and fetching
  * Handles the complex logic of caching messages per contact and fetching from API
@@ -26,6 +43,7 @@ export function useMessageCache() {
     const [messages, setMessages] = useContext(MessageContext).messages;
     const messageService = useDiContext().MessageService;
     const messagesCache = useMessageContext().messageCache;
+    const [user] = useUserContext();
 
     // Fetch messages - check cache first
     useEffect(() => {
@@ -62,7 +80,17 @@ export function useMessageCache() {
             // Store in cache and display (use empty array if null)
             const messagesToSet = fetchedMessages ?? [];
             messagesCache.current.set(contactId, messagesToSet);
-            setMessages(messagesToSet);
+            // Keep messages of this chat that were sent or received while the
+            // history was loading; they are not part of the fetched result yet.
+            setMessages((prevState) => {
+                const fetchedIds = new Set(messagesToSet.map((msg) => msg._id));
+                const pendingMessages = prevState.filter(
+                    (msg) =>
+                        !fetchedIds.has(msg._id) &&
+                        isMessageOfChat(msg, selectedContact, user._id),
+                );
+                return [...messagesToSet, ...pendingMessages];
+            });
         }
         void fetchMessages();
 

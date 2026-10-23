@@ -13,7 +13,10 @@ import { UserNotFoundException } from '../../errors/internal/user-not-found.exce
 import { ContactGroup } from '../../../shared/contact-group.contract';
 import { EventBusService } from '../global/event-bus.service';
 import { EventNames } from '../../events/event-names.enum';
-import { MessageSentEvent } from '../../events/message.events';
+import {
+    MessageReadEvent,
+    MessageSentEvent,
+} from '../../events/message.events';
 import {
     ContactAutoAddEvent,
     ContactGroupAutoAddEvent,
@@ -42,12 +45,25 @@ describe('MessageService', () => {
         commitTransaction: jest.fn().mockResolvedValue(undefined),
         abortTransaction: jest.fn().mockResolvedValue(undefined),
         endSession: jest.fn().mockResolvedValue(undefined),
+        // Mirrors the driver: commit on success, abort and rethrow on failure
+        withTransaction: jest.fn(async (fn: () => Promise<unknown>) => {
+            mockSession.startTransaction();
+            try {
+                const result = await fn();
+                await mockSession.commitTransaction();
+                return result;
+            } catch (error) {
+                await mockSession.abortTransaction();
+                throw error;
+            }
+        }),
     };
 
     beforeAll(async () => {
         const { unit, unitRef } = await TestBed.solitary(MessageService)
             .mock(getModelToken(UserEntity.name))
             .impl((stubFn) => ({
+                findOne: stubFn(),
                 findById: stubFn().mockImplementation((userId: string) => ({
                     select: async () => {
                         if (userId === testSender._id) {
@@ -93,6 +109,8 @@ describe('MessageService', () => {
             .mock(getModelToken(MessageEntity.name))
             .impl((stubFn) => ({
                 create: stubFn(),
+                find: stubFn(),
+                updateOne: stubFn().mockResolvedValue({}),
                 startSession: stubFn().mockResolvedValue(mockSession),
             }))
             .compile();
@@ -408,6 +426,81 @@ describe('MessageService', () => {
             expect(mockSession.commitTransaction).not.toHaveBeenCalled();
             expect(mockSession.endSession).toHaveBeenCalled();
             expect(eventBus.emitAsync).not.toHaveBeenCalled();
+        });
+
+        it('should re-read the users and emit events once when the transaction is retried', async () => {
+            const testMessage = {
+                _id: 'messageId1',
+                message: 'Test message.',
+                type: 'text',
+                fromUserId: testSender._id,
+                toUserId: testReceiver._id,
+                at: new Date(),
+                read: false,
+                sent: false,
+                owners: [testSender._id, testReceiver._id],
+            } satisfies Message;
+            messageRepository.create.mockResolvedValue([testMessage] as any);
+
+            // Simulate the driver retrying after a transient write conflict
+            mockSession.withTransaction.mockImplementationOnce(
+                async (fn: () => Promise<unknown>) => {
+                    await fn();
+                    const result = await fn();
+                    await mockSession.commitTransaction();
+                    return result;
+                },
+            );
+
+            const result = await messageService.sendMessage(
+                testMessage.fromUserId,
+                testMessage.toUserId,
+                testMessage.message,
+                testMessage.type,
+            );
+
+            expect(result).toEqual({ status: 201, body: testMessage });
+            // Sender and receiver are fetched again on every attempt
+            expect(userRepository.findById).toHaveBeenCalledTimes(4);
+            expect(userRepository.findById).toHaveBeenCalledWith(
+                testSender._id,
+                null,
+                { session: mockSession },
+            );
+            // Only the events of the committed attempt are emitted
+            expect(eventBus.emitAsync).toHaveBeenCalledTimes(2);
+        });
+    });
+
+    describe('getMessages', () => {
+        it('should notify the author, not the reader, about messages marked read', async () => {
+            const unreadMessage = {
+                _id: 'messageId1',
+                message: 'Test message.',
+                type: 'text',
+                fromUserId: testSender._id,
+                toUserId: testReceiver._id,
+                at: new Date(),
+                read: false,
+                sent: true,
+                owners: [testSender._id, testReceiver._id],
+            } satisfies Message;
+            userRepository.findOne.mockResolvedValue(testReceiver as any);
+            messageRepository.find.mockResolvedValue([unreadMessage] as any);
+
+            await messageService.getMessages(testReceiver._id, testSender._id);
+
+            expect(messageRepository.updateOne).toHaveBeenCalledWith(
+                { _id: unreadMessage._id },
+                { read: true },
+            );
+            expect(eventBus.emitAsync).toHaveBeenCalledWith(
+                EventNames.MESSAGE_READ,
+                {
+                    messageId: unreadMessage._id,
+                    messageAuthorId: testSender._id,
+                } satisfies MessageReadEvent,
+            );
         });
     });
 });

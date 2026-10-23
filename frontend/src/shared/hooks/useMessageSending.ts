@@ -55,7 +55,7 @@ function updateContactGroupWithNewLastMessage(
  */
 export function useMessageSending(selectedContact: Contact | ContactGroup) {
     const [user] = useUserContext();
-    const [messages, setMessages] = useContext(MessageContext).messages;
+    const [, setMessages] = useContext(MessageContext).messages;
     const [, setContacts] = useContext(ContactsContext).contacts;
     const [, setContactGroups] = useContext(ContactsContext).contactGroups;
     const messageService = useDiContext().MessageService;
@@ -80,20 +80,19 @@ export function useMessageSending(selectedContact: Contact | ContactGroup) {
         };
 
         // Add temporary message to UI
-        const updatedMessages = [
-            ...messages,
+        const tempMessageId = MessageAddons.TEMP_PREFIX + +new Date();
+        setMessages((prevState) => [
+            ...prevState,
             {
                 ...messageToSend,
-                _id: MessageAddons.TEMP_PREFIX + +new Date(),
+                _id: tempMessageId,
                 at: new Date(),
                 read: false,
                 sent: false,
                 type,
                 owners: [messageToSend.fromUserId, messageToSend.toUserId],
             } satisfies Message,
-        ];
-        const updatedMessageIndex = updatedMessages.length - 1;
-        setMessages(updatedMessages);
+        ]);
 
         // Send message via service
         const messageObj = await messageService.sendMessage(
@@ -119,14 +118,18 @@ export function useMessageSending(selectedContact: Contact | ContactGroup) {
             );
         }
 
-        // Replace temporary message with real one
+        // Replace temporary message with real one. Match by id, not index: the
+        // list may have changed meanwhile (e.g. the chat history finished loading).
         setMessages((prevState) => {
-            prevState[updatedMessageIndex] = {
-                ...prevState[updatedMessageIndex],
-                _id: messageObj._id,
-                sent: messageObj.sent,
-            };
-            return [...prevState];
+            // The loaded history may already contain the real message
+            if (prevState.some((msg) => msg._id === messageObj._id)) {
+                return prevState.filter((msg) => msg._id !== tempMessageId);
+            }
+            return prevState.map((msg) =>
+                msg._id === tempMessageId
+                    ? { ...msg, _id: messageObj._id, sent: messageObj.sent }
+                    : msg,
+            );
         });
     }
 

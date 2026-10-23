@@ -101,7 +101,7 @@ export class MessageService {
                     EventNames.MESSAGE_READ,
                     {
                         messageId: message._id.toString(),
-                        messageAuthorId: userId,
+                        messageAuthorId: message.fromUserId.toString(),
                     },
                 );
             }
@@ -211,19 +211,6 @@ export class MessageService {
             owners: [fromUserId, toUserId],
         } satisfies Omit<Message, '_id' | 'sent' | 'read'>;
 
-        const sender = await this.userModel
-            .findById(fromUserId)
-            .select('+password');
-        if (!sender) {
-            this.logger.warn(
-                `Send message failed: sender ${fromUserId} not found`,
-            );
-            throw new UserNotFoundException();
-        }
-        const receiver = await this.userModel
-            .findById(toUserId)
-            .select('+password');
-
         const contactGroup = await this.getContactGroup(toUserId);
         const isNotContactGroup = !contactGroup;
 
@@ -234,119 +221,141 @@ export class MessageService {
         }
 
         const session = await this.messageModel.startSession();
-        session.startTransaction();
 
         // Events are only emitted once the transaction has been committed
-        const pendingEvents: (() => void)[] = [];
+        let pendingEvents: (() => void)[] = [];
 
         try {
-            const newlyCreatedMessage = (
-                await this.messageModel.create([newMessage], { session })
-            )[0];
+            // withTransaction retries transient errors (e.g. write conflicts when two
+            // users message each other at the same time), so every attempt has to
+            // read the users inside the transaction instead of reusing stale documents.
+            const sentMessage = await session.withTransaction(async () => {
+                pendingEvents = [];
 
-            if (isNotContactGroup) {
-                pendingEvents.push(() => {
-                    this.eventBus.emitAsync<ContactAutoAddEvent>(
-                        EventNames.CONTACT_AUTO_ADD,
-                        {
-                            userId: toUserId,
-                            contactUserId: fromUserId,
-                        },
+                const sender = await this.userModel
+                    .findById(fromUserId, null, { session })
+                    .select('+password');
+                if (!sender) {
+                    this.logger.warn(
+                        `Send message failed: sender ${fromUserId} not found`,
                     );
-                    this.eventBus.emitAsync<MessageSentEvent>(
-                        EventNames.MESSAGE_SENT,
-                        {
-                            message: newlyCreatedMessage,
-                            recipientId: toUserId,
-                        },
-                    );
-                });
-            } else if (contactGroup) {
-                contactGroup.lastMessage = newlyCreatedMessage._id;
-                await this.contactGroupModel.updateOne(
-                    { _id: contactGroup._id },
-                    contactGroup,
-                    { session },
-                );
+                    throw new UserNotFoundException();
+                }
+                const receiver = await this.userModel
+                    .findById(toUserId, null, { session })
+                    .select('+password');
 
-                // Get members who have NOT left this group
-                const allMemberIds = contactGroup.memberRefs.map(
-                    (m) => m.memberId,
-                );
-                const activeMemberIds = await this.getActiveGroupMembers(
-                    contactGroup._id.toString(),
-                    allMemberIds,
-                );
+                const newlyCreatedMessage = (
+                    await this.messageModel.create([newMessage], {
+                        session,
+                    })
+                )[0];
 
-                // Emit event for each active group member except sender
-                for (const memberRef of contactGroup.memberRefs) {
-                    if (memberRef.memberId === fromUserId) {
-                        continue;
-                    }
-
-                    // Skip members who have left this group
-                    if (!activeMemberIds.includes(memberRef.memberId)) {
-                        this.logger.debug(
-                            `Skipping message for ${memberRef.memberId} - user has left group ${contactGroup._id}`,
-                        );
-                        continue;
-                    }
-
-                    const group = {
-                        ...contactGroup,
-                        _id: contactGroup._id.toString(),
-                        name: contactGroup.memberRefs
-                            .filter((m) => m.memberId !== memberRef.memberId)
-                            .map((m) => m.memberName)
-                            .join(', '),
-                    } as ContactGroup;
-
+                if (isNotContactGroup) {
                     pendingEvents.push(() => {
-                        this.eventBus.emitAsync<ContactGroupAutoAddEvent>(
-                            EventNames.CONTACT_GROUP_AUTO_ADD,
+                        this.eventBus.emitAsync<ContactAutoAddEvent>(
+                            EventNames.CONTACT_AUTO_ADD,
                             {
-                                userId: memberRef.memberId,
-                                group,
+                                userId: toUserId,
+                                contactUserId: fromUserId,
                             },
                         );
                         this.eventBus.emitAsync<MessageSentEvent>(
                             EventNames.MESSAGE_SENT,
                             {
                                 message: newlyCreatedMessage,
-                                recipientId: memberRef.memberId,
+                                recipientId: toUserId,
                             },
                         );
                     });
+                } else if (contactGroup) {
+                    contactGroup.lastMessage = newlyCreatedMessage._id;
+                    await this.contactGroupModel.updateOne(
+                        { _id: contactGroup._id },
+                        contactGroup,
+                        { session },
+                    );
+
+                    // Get members who have NOT left this group
+                    const allMemberIds = contactGroup.memberRefs.map(
+                        (m) => m.memberId,
+                    );
+                    const activeMemberIds = await this.getActiveGroupMembers(
+                        contactGroup._id.toString(),
+                        allMemberIds,
+                    );
+
+                    // Emit event for each active group member except sender
+                    for (const memberRef of contactGroup.memberRefs) {
+                        if (memberRef.memberId === fromUserId) {
+                            continue;
+                        }
+
+                        // Skip members who have left this group
+                        if (!activeMemberIds.includes(memberRef.memberId)) {
+                            this.logger.debug(
+                                `Skipping message for ${memberRef.memberId} - user has left group ${contactGroup._id}`,
+                            );
+                            continue;
+                        }
+
+                        const group = {
+                            ...contactGroup,
+                            _id: contactGroup._id.toString(),
+                            name: contactGroup.memberRefs
+                                .filter(
+                                    (m) => m.memberId !== memberRef.memberId,
+                                )
+                                .map((m) => m.memberName)
+                                .join(', '),
+                        } as ContactGroup;
+
+                        pendingEvents.push(() => {
+                            this.eventBus.emitAsync<ContactGroupAutoAddEvent>(
+                                EventNames.CONTACT_GROUP_AUTO_ADD,
+                                {
+                                    userId: memberRef.memberId,
+                                    group,
+                                },
+                            );
+                            this.eventBus.emitAsync<MessageSentEvent>(
+                                EventNames.MESSAGE_SENT,
+                                {
+                                    message: newlyCreatedMessage,
+                                    recipientId: memberRef.memberId,
+                                },
+                            );
+                        });
+                    }
+                } else {
+                    throw new ContactNotFoundException();
                 }
-            } else {
-                throw new ContactNotFoundException();
-            }
 
-            await this.persistLastMessageForSender(
-                sender,
-                toUserId,
-                newlyCreatedMessage,
-                session,
-            );
+                await this.persistLastMessageForSender(
+                    sender,
+                    toUserId,
+                    newlyCreatedMessage,
+                    session,
+                );
 
-            const receiverContact = receiver?.contacts.find(
-                (c) => c._id === sender._id.toString(),
-            );
-            if (receiver && receiverContact) {
-                receiverContact.lastMessage =
-                    newlyCreatedMessage._id.toString();
-                receiver.markModified('contacts');
-                await receiver.save({ session });
-            }
+                const receiverContact = receiver?.contacts.find(
+                    (c) => c._id === sender._id.toString(),
+                );
+                if (receiver && receiverContact) {
+                    receiverContact.lastMessage =
+                        newlyCreatedMessage._id.toString();
+                    receiver.markModified('contacts');
+                    await receiver.save({ session });
+                }
 
-            await session.commitTransaction();
+                return newlyCreatedMessage;
+            });
 
             pendingEvents.forEach((emit) => emit());
 
-            return { status: 201 as const, body: newlyCreatedMessage };
+            return { status: 201 as const, body: sentMessage };
         } catch (error: any) {
             this.logger.warn(`Error sending message: ${error}`);
-            await session.abortTransaction();
             throw error;
         } finally {
             void session.endSession();

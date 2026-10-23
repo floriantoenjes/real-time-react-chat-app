@@ -38,27 +38,24 @@ test.describe("Read receipts", () => {
         await expect(sentMessage.getByTestId("message-read")).toBeVisible();
     });
 
-    test.fixme(
-        "marks a message read live when the recipient opens the chat later",
-        // Bug: MessageService.getMessages() marks fetched messages read but emits
-        // MESSAGE_READ with messageAuthorId = the reader instead of the author, so the
-        // sender never gets the live read receipt (see validation.md → Bugs Found).
-        async ({ createActor }) => {
-            const alice = await createActor("Alice");
-            const bob = await createActor("Bob");
-            await connectActors(alice, bob);
-            await alice.dashboard.sidebar.openChat(bob.user.username);
-            await alice.dashboard.chat.sendMessage("Read me live");
+    // Regression: the read event used to be sent to the reader instead of the author.
+    test("marks a message read live when the recipient opens the chat later", async ({
+        createActor,
+    }) => {
+        const alice = await createActor("Alice");
+        const bob = await createActor("Bob");
+        await connectActors(alice, bob);
+        await alice.dashboard.sidebar.openChat(bob.user.username);
+        await alice.dashboard.chat.sendMessage("Read me live");
 
-            await bob.dashboard.sidebar.openChat(alice.user.username);
+        await bob.dashboard.sidebar.openChat(alice.user.username);
 
-            await expect(
-                alice.dashboard.chat
-                    .message("Read me live")
-                    .getByTestId("message-read"),
-            ).toBeVisible();
-        },
-    );
+        await expect(
+            alice.dashboard.chat
+                .message("Read me live")
+                .getByTestId("message-read"),
+        ).toBeVisible();
+    });
 });
 
 test.describe("Typing indicator", () => {

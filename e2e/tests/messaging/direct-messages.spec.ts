@@ -82,52 +82,44 @@ test.describe("Direct messages", () => {
         ]);
     });
 
-    test.fixme(
-        "keeps a message intact when it is sent before the history has loaded",
-        // Bug: useMessageSending replaces the temporary message by array index. If the
-        // history fetch (useMessageCache) resolves in between, it overwrites the list and
-        // the replacement creates a message without text, sender or date
-        // (renders as ":" / "Invalid DateTime"). See validation.md → Bugs Found.
-        async ({ createActor }) => {
-            const alice = await createActor("Alice");
-            const bob = await createActor("Bob");
-            await connectActors(alice, bob);
-            const { chat, sidebar } = alice.dashboard;
+    // Regression: the history fetch used to overwrite the temporary message,
+    // which then turned into an empty ":" / "Invalid DateTime" bubble.
+    test("keeps a message intact when it is sent before the history has loaded", async ({
+        createActor,
+    }) => {
+        const alice = await createActor("Alice");
+        const bob = await createActor("Bob");
+        await connectActors(alice, bob);
+        const { chat, sidebar } = alice.dashboard;
 
-            // Deliberately not sidebar.openChat(): don't wait for the history.
-            await sidebar.contact(bob.user.username).click();
-            await chat.messageInput.fill("Sent right away");
-            await chat.messageInput.press("Enter");
+        // Deliberately not sidebar.openChat(): don't wait for the history.
+        await sidebar.contact(bob.user.username).click();
+        await chat.messageInput.fill("Sent right away");
+        await chat.messageInput.press("Enter");
 
-            await expect(
-                chat.message("Sent right away").getByTestId("message-sent"),
-            ).toBeVisible();
-            await expect(chat.messages).toHaveCount(1);
-        },
-    );
+        await expect(
+            chat.message("Sent right away").getByTestId("message-sent"),
+        ).toBeVisible();
+        await expect(chat.messages).toHaveCount(1);
+    });
 
-    test.fixme(
-        "delivers messages that both contacts send at the same time",
-        // Bug: MessageService.sendMessage() runs a manual Mongo transaction that writes
-        // both users' documents without retrying transient errors, so concurrent sends
-        // between the same two users fail with "An error occurred" (write conflict).
-        // See validation.md → Bugs Found.
-        async ({ createActor }) => {
-            const alice = await createActor("Alice");
-            const bob = await createActor("Bob");
-            await connectActors(alice, bob);
+    // Regression: concurrent sends used to fail with a Mongo write conflict.
+    test("delivers messages that both contacts send at the same time", async ({
+        createActor,
+    }) => {
+        const alice = await createActor("Alice");
+        const bob = await createActor("Bob");
+        await connectActors(alice, bob);
 
-            const sends = await Promise.allSettled([
-                alice.api.sendMessage(bob.user._id, "Simultaneous from Alice"),
-                bob.api.sendMessage(alice.user._id, "Simultaneous from Bob"),
-            ]);
+        const sends = await Promise.allSettled([
+            alice.api.sendMessage(bob.user._id, "Simultaneous from Alice"),
+            bob.api.sendMessage(alice.user._id, "Simultaneous from Bob"),
+        ]);
 
-            expect(sends.map((s) => s.status)).toEqual([
-                "fulfilled",
-                "fulfilled",
-            ]);
-        },
-    );
+        expect(sends.map((s) => s.status)).toEqual(["fulfilled", "fulfilled"]);
+        await alice.dashboard.sidebar.openChat(bob.user.username);
+        await expect(alice.dashboard.chat.messages).toHaveCount(2);
+    });
 
     test("deletes the chat messages", async ({ createActor }) => {
         const alice = await createActor("Alice");
