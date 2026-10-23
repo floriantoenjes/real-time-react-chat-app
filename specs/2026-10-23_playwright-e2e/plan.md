@@ -135,7 +135,7 @@ e2e/
 - session: reload stays signed in; `/dashboard` while signed out → login; sign out → "You have been logged out successfully" and the protected route is blocked again
 - throttle: mocked 429 on `/login` → "Too many requests in a short period of time" (done in Phase 1, see D1)
 
-### Phase 4: Contacts & messaging specs
+### Phase 4: Contacts & messaging specs ✅
 - contacts: search by username shows "`<name>` (add)", adding shows the snackbar, the list filter narrows results, delete chat removes the contact
 - contact request: bob messages alice (who has not added bob) → alice sees the accept question → accept → messaging enabled snackbar
 - direct messages: Enter and send button both work; alice → bob arrives live; last-message preview in bob's list; history after reload; delete messages → "Chat messages have been deleted"

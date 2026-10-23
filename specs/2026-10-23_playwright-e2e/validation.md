@@ -28,7 +28,7 @@ npx playwright test --repeat-each=3 --workers=4
 npx playwright test --grep-invert @chromium-only --project=firefox   # optional
 ```
 - [ ] 0 failures over 3 repetitions
-- [ ] `grep -rn "waitForTimeout" e2e/` → no results
+- [ ] `grep -rn "waitForTimeout" e2e/` → only the audio recording duration in `messaging/media.spec.ts` (deliberate: a recording needs real elapsed time; not used for synchronisation)
 - [ ] No test depends on execution order
 
 ### 4. Throttling Isolation
@@ -67,7 +67,9 @@ cd frontend && npm run build    # typesafe-i18n types regenerated, build passes
 
 ### 7. Bugs Found
 List any application bugs that tests uncovered (each has a `test.fixme` referencing it):
-- _none yet_
+- **Live read receipt missing when the recipient opens the chat later.** `MessageService.getMessages()` (`backend/src/modules/message/message.service.ts`) marks the fetched messages read, but emits `MESSAGE_READ` with `messageAuthorId: userId`, which is the *reader*. `SocketGateway` sends the event to `messageAuthorId`, so the sender never gets it and only sees the read tick after a reload. `markMessageRead()` passes the real author (`fromUserId`). Probable fix: `messageAuthorId: message.fromUserId.toString()`. Covered by `test.fixme` in `messaging/read-receipts-typing.spec.ts`.
+- **Message corrupted when sent before the chat history has loaded.** `useMessageSending.sendMessage()` (`frontend/src/shared/hooks/useMessageSending.ts`) adds a temporary message, then replaces it *by array index* when the server responds. If `useMessageCache` sets the fetched history in between, the index points at a different or missing entry and `{...undefined, _id, sent}` is written into the list. It renders as ":" with "Invalid DateTime". Probable fix: replace by temp `_id` instead of index. Covered by `test.fixme` in `messaging/direct-messages.spec.ts`; `Sidebar.openChat()` waits for `/get-messages` so the other tests are not affected.
+- **Concurrent messages between the same two users fail.** `MessageService.sendMessage()` (`backend/src/modules/message/message.service.ts`) uses a manual transaction (`startTransaction`/`commitTransaction`) that writes both users' documents, with no retry for transient errors. Two simultaneous sends conflict and the second returns a generic error ("An error occurred"). Seen in the e2e run (screenshot) but **not yet confirmed with backend logs**: look for `Error sending message: ... WriteConflict`. Probable fix: `session.withTransaction(...)`, which retries `TransientTransactionError`. Covered by `test.fixme` in `messaging/direct-messages.spec.ts`; `ChatView.sendMessage()` waits for the server-confirmed sent tick so sequential tests don't overlap.
 
 ## Success Criteria
 1. Cypress is gone and `npm run e2e` runs a green Playwright suite locally

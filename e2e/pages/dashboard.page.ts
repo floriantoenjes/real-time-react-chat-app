@@ -61,8 +61,23 @@ export class Sidebar {
         await this.contactSearch.fill(text);
     }
 
-    async openChat(name: string) {
+    /**
+     * Opens a chat and waits for its history to load. Sending before the history
+     * request finishes corrupts the sent message (see validation.md → Bugs Found).
+     * Pass `historyCached` when the chat was already opened since the last reload;
+     * the app then serves it from its cache without a request.
+     */
+    async openChat(name: string, options: { historyCached?: boolean } = {}) {
+        if (options.historyCached) {
+            await this.contact(name).click();
+            return;
+        }
+        const historyLoaded = this.page.waitForResponse(
+            (response) =>
+                response.url().endsWith("/get-messages") && response.ok(),
+        );
         await this.contact(name).click();
+        await historyLoaded;
     }
 
     async openUserMenuItem(name: string) {
@@ -167,7 +182,10 @@ export class ChatView {
         } else {
             await this.sendButton.click();
         }
-        await expect(this.message(text)).toBeVisible();
+        // Wait for the server to confirm, so consecutive sends really are sequential.
+        await expect(
+            this.message(text).last().getByTestId("message-sent"),
+        ).toBeVisible();
     }
 
     async openMenuItem(name: string) {
