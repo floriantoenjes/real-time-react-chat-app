@@ -61,7 +61,6 @@ export function Login() {
                             type="email"
                             label={LL.EMAIL()}
                             error={!!formState.errors.email}
-                            autoFocus={true}
                             {...register("email", {
                                 required: true,
                                 validate: (value) => {
