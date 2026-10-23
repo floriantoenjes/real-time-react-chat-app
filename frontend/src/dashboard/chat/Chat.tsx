@@ -14,7 +14,8 @@ export function Chat() {
     return selectedContact ? (
         <div className={"h-screen w-full overflow-y-scroll"}>
             <TopBar selectedContact={selectedContact} />
-            {!('memberRefs' in selectedContact) && !selectedContact.isAccepted ? (
+            {!("memberRefs" in selectedContact) &&
+            !selectedContact.isAccepted ? (
                 <ContactRequest selectedContact={selectedContact} />
             ) : (
                 <MainChat />
@@ -22,7 +23,7 @@ export function Chat() {
             <SendMessageBar selectedContact={selectedContact} />
         </div>
     ) : (
-        <div className={"w-full flex justify-center items-center"}>
+        <div className={"hidden md:flex w-full justify-center items-center"}>
             <h2 className={"text-2xl"}>Welcome to Florian's Chat!</h2>
         </div>
     );
