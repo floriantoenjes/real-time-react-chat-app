@@ -31,8 +31,11 @@ export class Sidebar {
     readonly userMenuButton: Locator;
     readonly openProfileButton: Locator;
     readonly drawer: Locator;
+    /** Chats opened since the last full page load; the app serves them from its cache. */
+    private readonly openedChats = new Set<string>();
 
     constructor(readonly page: Page) {
+        page.on("load", () => this.openedChats.clear());
         this.root = page.locator(".sidebar");
         this.contactSearch = page.getByRole("combobox", {
             name: "Filter for or add a contact",
@@ -62,13 +65,11 @@ export class Sidebar {
     }
 
     /**
-     * Opens a chat and waits for its history to load. Sending before the history
-     * request finishes corrupts the sent message (see validation.md → Bugs Found).
-     * Pass `historyCached` when the chat was already opened since the last reload;
-     * the app then serves it from its cache without a request.
+     * Opens a chat and, the first time since the last page load, waits for its
+     * history request. Later opens are served from the app's message cache.
      */
-    async openChat(name: string, options: { historyCached?: boolean } = {}) {
-        if (options.historyCached) {
+    async openChat(name: string) {
+        if (this.openedChats.has(name)) {
             await this.contact(name).click();
             return;
         }
@@ -78,6 +79,7 @@ export class Sidebar {
         );
         await this.contact(name).click();
         await historyLoaded;
+        this.openedChats.add(name);
     }
 
     async openUserMenuItem(name: string) {
@@ -124,9 +126,68 @@ export class Sidebar {
         ).toBeVisible();
     }
 
+    async unignore(username: string) {
+        await this.openIgnoredUsers();
+        await this.drawer
+            .getByRole("listitem")
+            .filter({ hasText: username })
+            .getByRole("button", { name: "Un-ignore" })
+            .click();
+        await this.page
+            .getByRole("dialog")
+            .getByRole("button", { name: "Un-ignore" })
+            .click();
+    }
+
+    async rejoinGroup(groupName: string) {
+        await this.openLeftGroups();
+        await this.drawer
+            .getByRole("listitem")
+            .filter({ hasText: groupName })
+            .getByRole("button", { name: "Rejoin" })
+            .click();
+    }
+
+    async uploadAvatar(filePath: string) {
+        await this.openProfileButton.click();
+        await expect(
+            this.drawer.getByRole("heading", { name: "Edit your Profile" }),
+        ).toBeVisible();
+        await this.page.getByTestId("avatar-input").setInputFiles(filePath);
+        await this.page
+            .getByRole("button", { name: "Save profile picture" })
+            .click();
+    }
+
+    /**
+     * Closes the drawer by clicking its backdrop (right of the drawer). Escape is
+     * unreliable: once the focused list entry is removed (rejoin, un-ignore), focus
+     * falls back to <body> and the drawer no longer receives the key.
+     */
     async closeDrawer() {
-        await this.page.keyboard.press("Escape");
+        await this.page.locator(".MuiDrawer-root .MuiBackdrop-root").click();
         await expect(this.drawer).toBeHidden();
+    }
+}
+
+export class LanguageModal {
+    readonly root: Locator;
+    readonly select: Locator;
+
+    constructor(readonly page: Page) {
+        this.root = page
+            .locator(".MuiModal-root")
+            .filter({ has: page.getByRole("combobox") });
+        this.select = this.root.getByRole("combobox");
+    }
+
+    /** Selects a language by its (untranslated) name and closes the modal. */
+    async choose(language: "English" | "Deutsch", closeLabel: string) {
+        await this.select.click();
+        await this.page.getByRole("option", { name: language }).click();
+        await expect(this.select).toHaveText(language);
+        await this.root.getByRole("button", { name: closeLabel }).click();
+        await expect(this.root).toBeHidden();
     }
 }
 

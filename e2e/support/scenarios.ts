@@ -1,6 +1,7 @@
 import path from "node:path";
 import { expect } from "@playwright/test";
 import type { Actor } from "./test";
+import type { TestUser } from "./api";
 
 export const FIXTURES_DIR = path.join(__dirname, "..", "fixtures");
 
@@ -32,4 +33,19 @@ export async function openChatBetween(a: Actor, b: Actor) {
     await b.dashboard.sidebar.openChat(a.user.username);
     await expect(a.dashboard.chat.messageInput).toBeVisible();
     await expect(b.dashboard.chat.messageInput).toBeVisible();
+}
+
+/**
+ * A group's name as `viewer` sees it: the other members' usernames, sorted.
+ * Mirrors ContactGroupService.computeGroupNamesForUser().
+ */
+export function groupNameFor(
+    viewer: Pick<TestUser, "_id">,
+    members: Pick<TestUser, "_id" | "username">[],
+) {
+    return members
+        .filter((member) => member._id !== viewer._id)
+        .map((member) => member.username)
+        .sort()
+        .join(", ");
 }

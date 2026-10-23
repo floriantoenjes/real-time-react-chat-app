@@ -142,7 +142,7 @@ e2e/
 - read receipts / typing: bob opens the chat → alice sees the read icon; alice types → bob sees "is typing..."
 - media: image upload → bob sees "Image message" preview → "Show Image" renders `<img>`; invalid type rejected; audio record → stop → audio element present for both (`@chromium-only`)
 
-### Phase 5: Groups, ignore, profile, presence, i18n, responsive
+### Phase 5: Groups, ignore, profile, presence, i18n, responsive ✅
 - groups: "You need at least two contacts to create a group" with fewer than 2 contacts; create a group with bob + carol; group message reaches both
 - left groups: carol leaves → "You have left the group …" → listed under "Left Groups" → alice sends → carol does not receive it and the group does not reappear → rejoin → next message arrives (the validation scenario from `specs/2026-06-21_left-groups`)
 - ignore: alice ignores bob (confirm dialog) → listed under "Ignored Users" → bob's message doesn't reach alice → un-ignore (confirm) → messages arrive again
