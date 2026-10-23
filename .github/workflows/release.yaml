@@ -10,8 +10,10 @@ on:
 #   IMAGE_REPOSITORY                infra: image_repository
 #   TF_STATE_BUCKET                 bootstrap: tfstate_bucket
 #   DOMAIN                          e.g. floriantoenjes.com
-#   ACME_EMAIL                      Let's Encrypt account email
 #   LETSENCRYPT_ENVIRONMENT         staging | production
+#
+# Repository secrets (Settings > Secrets and variables > Actions > Secrets):
+#   ACME_EMAIL                      Let's Encrypt account email (a secret only so it is masked in public logs)
 
 jobs:
   release:
@@ -70,7 +72,7 @@ jobs:
         working-directory: terraform/k8s
         env:
           TF_VAR_tfstate_bucket: ${{ vars.TF_STATE_BUCKET }}
-          TF_VAR_acme_email: ${{ vars.ACME_EMAIL }}
+          TF_VAR_acme_email: ${{ secrets.ACME_EMAIL }}
           TF_VAR_letsencrypt_environment: ${{ vars.LETSENCRYPT_ENVIRONMENT }}
           TF_VAR_image_tag: ${{ github.ref_name }}
         run: |
