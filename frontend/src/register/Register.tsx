@@ -211,11 +211,7 @@ export function Register() {
 
                     <div className="w-fit mx-auto">
                         <span className={"mr-3"}>
-                            <Button
-                                variant={"contained"}
-                                autoFocus={true}
-                                type={"submit"}
-                            >
+                            <Button variant={"contained"} type={"submit"}>
                                 {LL.SIGN_UP()}
                             </Button>
                         </span>

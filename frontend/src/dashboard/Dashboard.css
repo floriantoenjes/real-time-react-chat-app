@@ -1,6 +1,10 @@
 .sidebar {
-    width: 375px;
-    min-width: 375px;
+    width: 100%;
+
+    @media (width >= 48rem /* 768px */) {
+        width: 375px;
+        min-width: 375px;
+    }
 }
 
 .contact:hover {
