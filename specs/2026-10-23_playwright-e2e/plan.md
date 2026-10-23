@@ -129,9 +129,9 @@ e2e/
 **Task 2.4:** ✅ Frontend selector additions (D5) + i18n keys. Regenerating `i18n-types.ts` also added the previously missing Left Groups keys.
 **Task 2.5:** ✅ Page objects (D4): `e2e/pages/auth.page.ts`, `e2e/pages/dashboard.page.ts`.
 
-### Phase 3: Auth & session specs
+### Phase 3: Auth & session specs ✅
 - register: success → redirected/snackbar "Your account has been created"; passwords don't match; invalid email; min-length/strength hint; email already taken error
-- login: success → dashboard; wrong password / unknown email → "Email or password incorrect"
+- login: success → dashboard; wrong password / unknown email → "Invalid email or password" (backend error code `EXT_SIGN_IN_001`; the `EMAIL_OR_PASSWORD_INCORRECT` i18n key is unused)
 - session: reload stays signed in; `/dashboard` while signed out → login; sign out → "You have been logged out successfully" and the protected route is blocked again
 - throttle: mocked 429 on `/login` → "Too many requests in a short period of time" (done in Phase 1, see D1)
 

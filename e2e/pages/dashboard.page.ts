@@ -1,4 +1,5 @@
 import { expect, Locator, Page } from "@playwright/test";
+import { expectSnackbar, snackbar } from "../support/snackbar";
 
 export class DashboardPage {
     readonly sidebar: Sidebar;
@@ -15,11 +16,11 @@ export class DashboardPage {
     }
 
     snackbar(text: string | RegExp): Locator {
-        return this.page.getByRole("alert").filter({ hasText: text });
+        return snackbar(this.page, text);
     }
 
     async expectSnackbar(text: string | RegExp) {
-        await expect(this.snackbar(text)).toBeVisible();
+        await expectSnackbar(this.page, text);
     }
 }
 
