@@ -40,7 +40,9 @@ jobs:
           docker compose up -d
           # mongo-init initiates the replica set; wait until it has a primary
           timeout 120 bash -c 'until docker compose exec -T mongo mongosh --quiet --eval "db.hello().isWritablePrimary" | grep -q true; do sleep 2; done'
-          timeout 60 bash -c 'until curl -sf http://localhost:9090 > /dev/null; do sleep 2; done'
+          # Wait for the bucket itself (HEAD bucket), not just the S3 mock
+          timeout 60 bash -c 'until curl -sf -I http://localhost:9090/florians-realtime-chat-bucket > /dev/null; do sleep 2; done' \
+            || { echo "S3 mock bucket missing:"; curl -s http://localhost:9090; docker compose logs s3mock; exit 1; }
 
       - name: Configure backend
         run: |
