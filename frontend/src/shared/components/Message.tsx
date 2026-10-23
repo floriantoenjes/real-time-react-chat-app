@@ -68,7 +68,11 @@ export function Message(props: { messageModel: MessageModel; user: User }) {
     }
 
     return (
-        <div className={"chat-message w-full flex"}>
+        <div
+            className={"chat-message w-full flex"}
+            data-testid="chat-message"
+            data-message-type={props.messageModel.type}
+        >
             <div
                 className={
                     "border border-blue-100 w-fit rounded-sm p-3 m-3 max-w-96 flex flex-col" +
@@ -151,7 +155,10 @@ export function Message(props: { messageModel: MessageModel; user: User }) {
                     {props.messageModel.fromUserId ===
                         props.user._id.toString() &&
                         props.messageModel.sent && (
-                            <CheckIcon className={"w-4 h-4 mt-auto"} />
+                            <CheckIcon
+                                className={"w-4 h-4 mt-auto"}
+                                data-testid="message-sent"
+                            />
                         )}
                     {props.messageModel.fromUserId ===
                         props.user._id.toString() &&
@@ -159,6 +166,7 @@ export function Message(props: { messageModel: MessageModel; user: User }) {
                             <CheckIcon
                                 className={"w-4 h-4 mt-auto"}
                                 style={{ marginLeft: "-0.5rem" }}
+                                data-testid="message-read"
                             />
                         )}
                 </footer>

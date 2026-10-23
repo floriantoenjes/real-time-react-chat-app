@@ -2,3 +2,9 @@ node_modules
 local-kubernetes
 kubernetes/coturn.config-map.yaml
 .idea
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/e2e/.auth/

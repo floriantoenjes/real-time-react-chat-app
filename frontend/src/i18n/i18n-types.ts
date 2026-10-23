@@ -190,6 +190,10 @@ type RootTranslation = {
 		 * E​r​r​o​r​ ​u​n​-​i​g​n​o​r​i​n​g​ ​u​s​e​r
 		 */
 		COULD_NOT_UNIGNORE_USER: string
+		/**
+		 * E​r​r​o​r​ ​r​e​j​o​i​n​i​n​g​ ​g​r​o​u​p
+		 */
+		COULD_NOT_REJOIN_GROUP: string
 	}
 	/**
 	 * E​m​a​i​l​ ​o​r​ ​p​a​s​s​w​o​r​d​ ​i​n​c​o​r​r​e​c​t
@@ -264,6 +268,23 @@ type RootTranslation = {
 	 */
 	NO_IGNORED_USERS: string
 	/**
+	 * L​e​f​t​ ​G​r​o​u​p​s
+	 */
+	LEFT_GROUPS: string
+	/**
+	 * Y​o​u​ ​h​a​v​e​ ​n​o​t​ ​l​e​f​t​ ​a​n​y​ ​g​r​o​u​p​s
+	 */
+	NO_LEFT_GROUPS: string
+	/**
+	 * R​e​j​o​i​n
+	 */
+	REJOIN_GROUP: string
+	/**
+	 * Y​o​u​ ​h​a​v​e​ ​r​e​j​o​i​n​e​d​ ​{​g​r​o​u​p​N​a​m​e​}
+	 * @param {unknown} groupName
+	 */
+	REJOIN_GROUP_SUCCESS: RequiredParams<'groupName'>
+	/**
 	 * L​o​a​d​i​n​g​.​.​.
 	 */
 	LOADING: string
@@ -289,6 +310,46 @@ type RootTranslation = {
 	 * C​a​n​c​e​l
 	 */
 	CANCEL: string
+	/**
+	 * A​t​t​a​c​h​ ​i​m​a​g​e
+	 */
+	ATTACH_IMAGE: string
+	/**
+	 * S​e​n​d​ ​m​e​s​s​a​g​e
+	 */
+	SEND_MESSAGE: string
+	/**
+	 * R​e​c​o​r​d​ ​a​u​d​i​o​ ​m​e​s​s​a​g​e
+	 */
+	RECORD_AUDIO: string
+	/**
+	 * S​t​o​p​ ​r​e​c​o​r​d​i​n​g
+	 */
+	STOP_RECORDING: string
+	/**
+	 * B​a​c​k
+	 */
+	BACK: string
+	/**
+	 * V​i​d​e​o​ ​c​a​l​l
+	 */
+	VIDEO_CALL: string
+	/**
+	 * V​o​i​c​e​ ​c​a​l​l
+	 */
+	VOICE_CALL: string
+	/**
+	 * C​h​a​t​ ​m​e​n​u
+	 */
+	CHAT_MENU: string
+	/**
+	 * U​s​e​r​ ​m​e​n​u
+	 */
+	USER_MENU: string
+	/**
+	 * S​a​v​e​ ​p​r​o​f​i​l​e​ ​p​i​c​t​u​r​e
+	 */
+	SAVE_AVATAR: string
 }
 
 export type TranslationFunctions = {
@@ -465,6 +526,10 @@ export type TranslationFunctions = {
 		 * Error un-ignoring user
 		 */
 		COULD_NOT_UNIGNORE_USER: () => LocalizedString
+		/**
+		 * Error rejoining group
+		 */
+		COULD_NOT_REJOIN_GROUP: () => LocalizedString
 	}
 	/**
 	 * Email or password incorrect
@@ -535,6 +600,22 @@ export type TranslationFunctions = {
 	 */
 	NO_IGNORED_USERS: () => LocalizedString
 	/**
+	 * Left Groups
+	 */
+	LEFT_GROUPS: () => LocalizedString
+	/**
+	 * You have not left any groups
+	 */
+	NO_LEFT_GROUPS: () => LocalizedString
+	/**
+	 * Rejoin
+	 */
+	REJOIN_GROUP: () => LocalizedString
+	/**
+	 * You have rejoined {groupName}
+	 */
+	REJOIN_GROUP_SUCCESS: (arg: { groupName: unknown }) => LocalizedString
+	/**
 	 * Loading...
 	 */
 	LOADING: () => LocalizedString
@@ -558,6 +639,46 @@ export type TranslationFunctions = {
 	 * Cancel
 	 */
 	CANCEL: () => LocalizedString
+	/**
+	 * Attach image
+	 */
+	ATTACH_IMAGE: () => LocalizedString
+	/**
+	 * Send message
+	 */
+	SEND_MESSAGE: () => LocalizedString
+	/**
+	 * Record audio message
+	 */
+	RECORD_AUDIO: () => LocalizedString
+	/**
+	 * Stop recording
+	 */
+	STOP_RECORDING: () => LocalizedString
+	/**
+	 * Back
+	 */
+	BACK: () => LocalizedString
+	/**
+	 * Video call
+	 */
+	VIDEO_CALL: () => LocalizedString
+	/**
+	 * Voice call
+	 */
+	VOICE_CALL: () => LocalizedString
+	/**
+	 * Chat menu
+	 */
+	CHAT_MENU: () => LocalizedString
+	/**
+	 * User menu
+	 */
+	USER_MENU: () => LocalizedString
+	/**
+	 * Save profile picture
+	 */
+	SAVE_AVATAR: () => LocalizedString
 }
 
 export type Formatters = {}

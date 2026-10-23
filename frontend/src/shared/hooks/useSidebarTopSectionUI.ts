@@ -36,6 +36,7 @@ export function useSidebarTopSectionUI() {
         };
 
     function showLanguageModal() {
+        handleClose();
         setModalOpen(true);
     }
 

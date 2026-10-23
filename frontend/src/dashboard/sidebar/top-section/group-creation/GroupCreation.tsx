@@ -53,6 +53,7 @@ export function GroupCreation(props: { user: User; toggleDrawer: any }) {
                 {groupMembers.length >= 2 && (
                     <Fab
                         name={"create-group-button"}
+                        aria-label={LL.CREATE_GROUP()}
                         className={"mt-auto mb-5"}
                         onClick={() =>
                             createGroup(() => {

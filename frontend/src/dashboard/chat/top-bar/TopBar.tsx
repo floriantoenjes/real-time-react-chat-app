@@ -49,7 +49,10 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
             }
         >
             <div className={"sm:block md:hidden"}>
-                <IconButton onClick={() => setSelectedContact(undefined)}>
+                <IconButton
+                    aria-label={LL.BACK()}
+                    onClick={() => setSelectedContact(undefined)}
+                >
                     <ChevronLeftIcon className={"w-8"} />
                 </IconButton>
             </div>
@@ -63,13 +66,19 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
                 <div>
                     <p>{selectedContact.name}</p>
                     <Fade in={isTyping}>
-                        <p className={"text-xs absolute"}>{LL.IS_TYPING()}</p>
+                        <p
+                            className={"text-xs absolute"}
+                            data-testid="typing-indicator"
+                        >
+                            {LL.IS_TYPING()}
+                        </p>
                     </Fade>
                 </div>
             </div>
             <div className={"flex"}>
                 <IconButton
                     className={"mr-3"}
+                    aria-label={LL.VIDEO_CALL()}
                     disabled={
                         !contactsOnlineStatus.get(selectedContact._id ?? "")
                     }
@@ -79,6 +88,7 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
                 </IconButton>
                 <IconButton
                     className={"mr-3"}
+                    aria-label={LL.VOICE_CALL()}
                     disabled={
                         !contactsOnlineStatus.get(selectedContact._id ?? "")
                     }
@@ -92,6 +102,7 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
                 <IconButton
                     id="basic-button"
                     name="chat-menu-button"
+                    aria-label={LL.CHAT_MENU()}
                     aria-controls={open ? "basic-menu" : undefined}
                     aria-haspopup="true"
                     aria-expanded={open ? "true" : undefined}

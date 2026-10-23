@@ -122,6 +122,7 @@ export function Register() {
                         <div className={"ml-auto"}>
                             {locale.toUpperCase()}
                             <IconButton
+                                aria-label={LL.CHANGE_LANGUAGE()}
                                 onClick={() => setModalOpen(true)}
                                 color={"primary"}
                             >

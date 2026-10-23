@@ -20,6 +20,8 @@ services:
   s3mock:
     image: adobe/s3mock:latest
     environment:
+      # S3Mock 4.x only reads the long property name; older images used initialBuckets
+      - COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS=florians-realtime-chat-bucket
       - initialBuckets=florians-realtime-chat-bucket
     ports:
       - 9090:9090

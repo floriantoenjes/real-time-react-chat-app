@@ -48,6 +48,7 @@ export function Login() {
                         <div id={"switch-locale-button"} className={"ml-auto"}>
                             {locale.toUpperCase()}
                             <IconButton
+                                aria-label={LL.CHANGE_LANGUAGE()}
                                 onClick={() => setModalOpen(true)}
                                 color={"primary"}
                             >

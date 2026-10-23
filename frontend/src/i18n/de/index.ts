@@ -79,6 +79,16 @@ const de = {
     IGNORE_CONFIRMATION: "Möchten Sie {contactName} wirklich ignorieren?",
     UNIGNORE_CONFIRMATION: "Möchten Sie die Ignorierung von {username} wirklich aufheben?",
     CANCEL: "Abbrechen",
+    ATTACH_IMAGE: "Bild anhängen",
+    SEND_MESSAGE: "Nachricht senden",
+    RECORD_AUDIO: "Sprachnachricht aufnehmen",
+    STOP_RECORDING: "Aufnahme beenden",
+    BACK: "Zurück",
+    VIDEO_CALL: "Videoanruf",
+    VOICE_CALL: "Sprachanruf",
+    CHAT_MENU: "Chat-Menü",
+    USER_MENU: "Benutzermenü",
+    SAVE_AVATAR: "Profilbild speichern",
 } satisfies Translation;
 
 export default de;
