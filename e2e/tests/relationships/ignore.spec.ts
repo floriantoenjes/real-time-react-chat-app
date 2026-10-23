@@ -88,11 +88,8 @@ test.describe("Ignoring users", () => {
         ).toBeVisible();
         await sidebar.closeDrawer();
 
-        // The server removed Bob as a contact when he was ignored (the UI only
-        // shows that after a reload, see validation.md), so his next message
-        // arrives as a new contact request.
-        await alice.page.reload();
-        await expect(sidebar.userMenuButton).toBeVisible();
+        // Ignoring removed Bob as a contact, so he doesn't reappear after
+        // un-ignoring and his next message arrives as a new contact request.
         await expect(sidebar.contact(bobName)).toBeHidden();
         await bob.api.sendMessage(alice.user._id, "Friends again?");
         await expect(sidebar.contact(bobName)).toBeVisible();

@@ -428,6 +428,43 @@ describe('MessageService', () => {
             expect(eventBus.emitAsync).not.toHaveBeenCalled();
         });
 
+        it('should name an auto-added group with sorted member names', async () => {
+            // Member-id order (sender, receiver, Abe) differs from alphabetical order
+            testReceiverGroup.memberRefs.push({
+                memberId: 'userId3',
+                memberName: 'Abe',
+            });
+            const testMessage = {
+                _id: 'testMessageId1',
+                message: 'test message',
+                read: false,
+                sent: false,
+                type: 'text',
+                fromUserId: testSender._id,
+                toUserId: testReceiverGroup._id,
+                at: new Date(),
+                owners: [testSender._id, testReceiverGroup._id],
+            } satisfies Message;
+            messageRepository.create.mockResolvedValue([testMessage] as any);
+
+            await messageService.sendMessage(
+                testMessage.fromUserId,
+                testMessage.toUserId,
+                testMessage.message,
+                testMessage.type,
+            );
+
+            expect(eventBus.emitAsync).toHaveBeenCalledWith(
+                EventNames.CONTACT_GROUP_AUTO_ADD,
+                expect.objectContaining({
+                    userId: testReceiver._id,
+                    group: expect.objectContaining({
+                        name: `Abe, ${testSender.username}`,
+                    }),
+                }),
+            );
+        });
+
         it('should re-read the users and emit events once when the transaction is retried', async () => {
             const testMessage = {
                 _id: 'messageId1',

@@ -307,6 +307,8 @@ export class MessageService {
                                     (m) => m.memberId !== memberRef.memberId,
                                 )
                                 .map((m) => m.memberName)
+                                // Same order as ContactGroupService.computeGroupNamesForUser()
+                                .sort()
                                 .join(', '),
                         } as ContactGroup;
 

@@ -92,32 +92,28 @@ test.describe("Groups", () => {
         ).toHaveCount(1);
     });
 
-    test.fixme(
-        "names a live-added group the same as after a reload",
-        // Bug: MessageService.sendMessage() builds the CONTACT_GROUP_AUTO_ADD name from
-        // memberRefs in member-id order without sorting, while
-        // ContactGroupService.computeGroupNamesForUser() sorts the names. The name
-        // changes on reload (see validation.md → Bugs Found).
-        async ({ createActor }) => {
-            // Ids follow creation order, so create the alphabetically last user first.
-            const zora = await createActor("Zora");
-            const abe = await createActor("Abe");
-            const viewer = await createActor("Viewer");
-            const members = [zora.user, abe.user, viewer.user];
-            const group = await zora.api.createGroup("ignored by backend", [
-                abe.user._id,
-                viewer.user._id,
-            ]);
-            await zora.api.sendMessage(group._id, "Name check");
-            const expectedName = groupNameFor(viewer.user, members);
+    // Regression: live-added groups used to be named in member-id order.
+    test("names a live-added group the same as after a reload", async ({
+        createActor,
+    }) => {
+        // Ids follow creation order, so create the alphabetically last user first.
+        const zora = await createActor("Zora");
+        const abe = await createActor("Abe");
+        const viewer = await createActor("Viewer");
+        const members = [zora.user, abe.user, viewer.user];
+        const group = await zora.api.createGroup("ignored by backend", [
+            abe.user._id,
+            viewer.user._id,
+        ]);
+        await zora.api.sendMessage(group._id, "Name check");
+        const expectedName = groupNameFor(viewer.user, members);
 
-            await expect(
-                viewer.dashboard.sidebar.contact(expectedName),
-            ).toBeVisible();
-            await viewer.page.reload();
-            await expect(
-                viewer.dashboard.sidebar.contact(expectedName),
-            ).toBeVisible();
-        },
-    );
+        await expect(
+            viewer.dashboard.sidebar.contact(expectedName),
+        ).toBeVisible();
+        await viewer.page.reload();
+        await expect(
+            viewer.dashboard.sidebar.contact(expectedName),
+        ).toBeVisible();
+    });
 });

@@ -95,7 +95,19 @@ export function ContactsProvider({ children }: { children: ReactNode }) {
             });
         };
 
+        // The server removes the contact when a user is ignored; mirror that so
+        // an un-ignored user doesn't reappear as an (outdated) accepted contact.
+        const handleUserIgnored = (ignoredUserId: string) => {
+            setContacts((prevContacts) =>
+                prevContacts.filter((c) => c._id !== ignoredUserId),
+            );
+            setSelectedContact((prevSelected) =>
+                prevSelected?._id === ignoredUserId ? undefined : prevSelected,
+            );
+        };
+
         socket.on(SocketMessageTypes.contactAutoAdded, handleContactAutoAdded);
+        socket.on(SocketMessageTypes.userIgnored, handleUserIgnored);
         socket.on(
             SocketMessageTypes.contactGroupAutoAdded,
             handleContactGroupAutoAdded,
@@ -106,6 +118,7 @@ export function ContactsProvider({ children }: { children: ReactNode }) {
                 SocketMessageTypes.contactAutoAdded,
                 handleContactAutoAdded,
             );
+            socket.off(SocketMessageTypes.userIgnored, handleUserIgnored);
             socket.off(
                 SocketMessageTypes.contactGroupAutoAdded,
                 handleContactGroupAutoAdded,
