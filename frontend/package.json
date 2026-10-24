@@ -36,6 +36,7 @@
         "build": "vite build",
         "lint": "eslint \"src/**/*.{ts,tsx}\" --fix",
         "lint:check": "eslint \"src/**/*.{ts,tsx}\"",
+        "typecheck": "tsc --noEmit",
         "typesafe-i18n": "typesafe-i18n"
     },
     "browserslist": {
