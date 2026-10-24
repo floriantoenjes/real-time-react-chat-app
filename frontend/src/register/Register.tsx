@@ -1,5 +1,5 @@
 import { Button, IconButton, TextField } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router";
 import React, { useDeferredValue, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDiContext } from "../shared/contexts/DiContext";
