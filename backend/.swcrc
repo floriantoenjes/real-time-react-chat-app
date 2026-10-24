@@ -2,7 +2,8 @@
   "$schema": "https://swc.rs/schema.json",
   "sourceMaps": true,
   "module": {
-    "type": "commonjs"
+    "type": "commonjs",
+    "noInterop": true
   },
   "jsc": {
     "target": "es2021",
