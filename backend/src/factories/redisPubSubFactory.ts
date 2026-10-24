@@ -5,6 +5,7 @@ import {
     SubClient,
 } from '../interfaces/pub-sub.factory.interface';
 import { Injectable } from '@nestjs/common';
+import { getRedisUrl } from '../config/redis.config';
 
 @Injectable()
 export class RedisPubSubFactory implements PubSubFactoryInterface {
@@ -14,7 +15,7 @@ export class RedisPubSubFactory implements PubSubFactoryInterface {
         connectionPromise: Promise<unknown>;
     } {
         const pubClient = createClient({
-            url: process.env.redis ?? `redis://localhost:6379`,
+            url: getRedisUrl(),
         });
         const subClient = pubClient.duplicate();
 

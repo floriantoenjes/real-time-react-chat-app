@@ -5,6 +5,7 @@ import {
     WS_MESSAGE_THROTTLE_CONFIG,
     WS_THROTTLE_CONFIG,
 } from '../../config/ws-throttle.config';
+import { getRedisUrl } from '../../config/redis.config';
 
 export interface ThrottleResult {
     allowed: boolean;
@@ -20,9 +21,7 @@ export class WsConnectionThrottlerService implements OnModuleDestroy {
 
     constructor() {
         this.redisClient = createClient({
-            url:
-                process.env.redis ??
-                `redis://${process.env.REDIS_HOST ?? 'localhost'}:6379`,
+            url: getRedisUrl(),
         });
 
         this.connectionPromise = this.redisClient
