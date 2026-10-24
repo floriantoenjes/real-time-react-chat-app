@@ -1,19 +1,18 @@
 const { defineConfig, globalIgnores } = require("eslint/config");
-
+const tsEslintPlugin = require("@typescript-eslint/eslint-plugin");
 const tsParser = require("@typescript-eslint/parser");
-const typescriptEslintEslintPlugin = require("@typescript-eslint/eslint-plugin");
+const prettierRecommended = require("eslint-plugin-prettier/recommended");
 const globals = require("globals");
-const js = require("@eslint/js");
-
-const { FlatCompat } = require("@eslint/eslintrc");
-
-const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all,
-});
 
 module.exports = defineConfig([
+    globalIgnores([
+        "**/eslint.config.cjs",
+        "**/vite.config.js",
+        "**/tailwind.config.js",
+        "**/postcss.config.js",
+    ]),
+    ...tsEslintPlugin.configs["flat/recommended"],
+    prettierRecommended,
     {
         languageOptions: {
             parser: tsParser,
@@ -29,15 +28,6 @@ module.exports = defineConfig([
             },
         },
 
-        plugins: {
-            "@typescript-eslint": typescriptEslintEslintPlugin,
-        },
-
-        extends: compat.extends(
-            "plugin:@typescript-eslint/recommended",
-            "plugin:prettier/recommended",
-        ),
-
         rules: {
             "@typescript-eslint/interface-name-prefix": "off",
             "@typescript-eslint/explicit-function-return-type": "off",
@@ -45,10 +35,4 @@ module.exports = defineConfig([
             "@typescript-eslint/no-explicit-any": "off",
         },
     },
-    globalIgnores([
-        "**/eslint.config.cjs",
-        "**/vite.config.js",
-        "**/tailwind.config.js",
-        "**/postcss.config.js",
-    ]),
 ]);
