@@ -10,6 +10,11 @@ import { AuthUser } from '../../../shared/auth.contract';
 import { AuthUserEntity } from './auth.schema';
 import { EmailAlreadyTakenException } from '../../errors/external/email-already-taken.exception';
 
+jest.mock('bcrypt', () => ({
+    compare: jest.fn(async (pw1, pw2) => pw1 === pw2),
+    hash: jest.fn().mockResolvedValue('hash'),
+}));
+
 describe('Auth Service', () => {
     let authService: AuthService;
     let jwtService: Mocked<JwtService>;
@@ -29,14 +34,6 @@ describe('Auth Service', () => {
         password: testCredentials.password,
         refreshTokenEncrypted: 'testRefreshToken',
     } satisfies AuthUser;
-
-    const bcryptCompare = jest.fn().mockImplementation(async (pw1, pw2) => {
-        return pw1 === pw2;
-    });
-    const bcryptHash = jest.fn().mockResolvedValue('hash');
-
-    (bcrypt.compare as jest.Mock) = bcryptCompare;
-    (bcrypt.hash as jest.Mock) = bcryptHash;
 
     beforeAll(async () => {
         const { unit, unitRef } = await TestBed.solitary(AuthService)
