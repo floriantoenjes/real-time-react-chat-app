@@ -1,4 +1,4 @@
-FROM node:22-slim AS build
+FROM node:24-slim AS build
 
 ARG VITE_PEERJS_SERVER_HOST
 ARG VITE_PEERJS_SERVER_PORT
@@ -21,7 +21,7 @@ COPY . .
 RUN npm run build:frontend && npm run build -w backend
 
 
-FROM node:22-slim AS runtime
+FROM node:24-slim AS runtime
 
 ENV NODE_ENV=production
 
