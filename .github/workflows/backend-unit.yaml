@@ -32,5 +32,8 @@ jobs:
       - name: Type-check
         run: npm run typecheck -w backend
 
+      - name: Lint
+        run: npm run lint:check -w backend
+
       - name: Run unit tests
         run: npm test -w backend
