@@ -34,6 +34,7 @@ async function bootstrap() {
     );
 
     const app = await NestFactory.create(AppModule);
+    app.enableShutdownHooks();
 
     const redisIoAdapter = new RedisIoAdapter(app);
     await redisIoAdapter.connectToRedis();
