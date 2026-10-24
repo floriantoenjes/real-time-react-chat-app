@@ -1,6 +1,6 @@
 import { Button, IconButton, TextField } from "@mui/material";
 import { Link, useNavigate } from "react-router";
-import React, { useDeferredValue, useEffect, useState } from "react";
+import React, { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDiContext } from "../shared/contexts/DiContext";
 import { useI18nContext } from "../i18n/i18n-react";
@@ -12,14 +12,14 @@ import {
     SnackbarLevels,
     snackbarService,
 } from "../shared/contexts/SnackbarContext";
-import { zxcvbnAsync, zxcvbnOptions, ZxcvbnResult } from "@zxcvbn-ts/core";
+import { ZxcvbnFactory, ZxcvbnResult } from "@zxcvbn-ts/core";
 import * as zxcvbnCommonPackage from "@zxcvbn-ts/language-common";
 import * as zxcvbnEnPackage from "@zxcvbn-ts/language-en";
 import * as zxcvbnDePackage from "@zxcvbn-ts/language-de";
 import { Locales } from "../i18n/i18n-types";
 
-function setPasswordStrengthOptions(locale: Locales) {
-    const options = {
+function createPasswordStrengthChecker(locale: Locales) {
+    return new ZxcvbnFactory({
         dictionary: {
             ...zxcvbnCommonPackage.dictionary,
             ...zxcvbnEnPackage.dictionary,
@@ -31,8 +31,7 @@ function setPasswordStrengthOptions(locale: Locales) {
             locale === "en"
                 ? zxcvbnEnPackage.translations
                 : zxcvbnDePackage.translations,
-    };
-    zxcvbnOptions.setOptions(options);
+    });
 }
 
 const usePasswordStrength = (password: string) => {
@@ -40,14 +39,16 @@ const usePasswordStrength = (password: string) => {
     // NOTE: useDeferredValue is React v18 only, for v17 or lower use debouncing
     const deferredPassword = useDeferredValue(password);
     const { locale } = useI18nContext();
+    const zxcvbn = useMemo(
+        () => createPasswordStrengthChecker(locale),
+        [locale],
+    );
 
     useEffect(() => {
-        setPasswordStrengthOptions(locale);
-    }, [locale]);
-
-    useEffect(() => {
-        zxcvbnAsync(deferredPassword).then((response) => setResult(response));
-    }, [deferredPassword]);
+        zxcvbn
+            .checkAsync(deferredPassword)
+            .then((response) => setResult(response));
+    }, [deferredPassword, zxcvbn]);
 
     return result;
 };
