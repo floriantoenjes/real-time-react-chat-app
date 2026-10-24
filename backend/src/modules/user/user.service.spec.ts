@@ -2,8 +2,11 @@ import { TestBed } from '@suites/unit';
 import { UserService } from './user.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { UserEntity } from './user.schema';
-import * as bcrypt from 'bcrypt';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+
+jest.mock('bcrypt', () => ({
+    hash: jest.fn().mockResolvedValue('hash'),
+}));
 
 describe('User Service', () => {
     let userService: UserService;
@@ -20,10 +23,6 @@ describe('User Service', () => {
         contactGroupIds: [],
         leftGroupIds: [],
     };
-
-    const bcryptHash = jest.fn().mockResolvedValue('hash');
-
-    (bcrypt.hash as jest.Mock) = bcryptHash;
 
     beforeAll(async () => {
         const { unit } = await TestBed.solitary(UserService)

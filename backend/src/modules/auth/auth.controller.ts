@@ -116,7 +116,7 @@ export class AuthController {
                         refreshToken: userAndFreshTokens.refreshToken,
                     },
                 };
-            } catch (error: any) {
+            } catch {
                 throw new UnauthorizedException();
             }
         });

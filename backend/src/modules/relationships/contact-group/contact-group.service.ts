@@ -177,9 +177,11 @@ export class ContactGroupService {
             throw new UserNotFoundException();
         }
 
-        const group = await this.contactGroupModel.findOne({
-            _id: contactGroupId,
-        }).lean();
+        const group = await this.contactGroupModel
+            .findOne({
+                _id: contactGroupId,
+            })
+            .lean();
 
         if (!group) {
             this.logger.warn(
@@ -225,9 +227,11 @@ export class ContactGroupService {
             throw new UserNotFoundException();
         }
 
-        const group = await this.contactGroupModel.findOne({
-            _id: contactGroupId,
-        }).lean();
+        const group = await this.contactGroupModel
+            .findOne({
+                _id: contactGroupId,
+            })
+            .lean();
 
         if (!group) {
             this.logger.warn(
