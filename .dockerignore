@@ -1,2 +1,17 @@
 node_modules
 **/node_modules
+**/dist
+**/coverage
+**/.env
+.git
+.github
+.idea
+.claude
+**/.DS_Store
+playwright-report
+test-results
+cypress
+e2e
+helm
+terraform
+imgs

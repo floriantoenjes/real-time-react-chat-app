@@ -1,5 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
-import { BACKEND_URL, FRONTEND_ORIGIN, FRONTEND_URL } from "./e2e/support/urls";
+import {
+    BACKEND_URL,
+    FRONTEND_ORIGIN,
+    FRONTEND_URL,
+    USE_FRONTEND_BUILD,
+} from "./e2e/support/urls";
 
 const isCI = !!process.env.CI;
 const allBrowsers = !!process.env.E2E_ALL_BROWSERS;
@@ -10,7 +15,7 @@ export default defineConfig({
     fullyParallel: true,
     forbidOnly: isCI,
     retries: isCI ? 2 : 0,
-    workers: isCI ? 2 : undefined,
+    workers: isCI ? 4 : undefined,
     reporter: isCI ? [["list"], ["html", { open: "never" }]] : "html",
     use: {
         baseURL: FRONTEND_URL,
@@ -61,7 +66,11 @@ export default defineConfig({
     ],
     webServer: [
         {
-            command: "npx nest start",
+            // With USE_FRONTEND_BUILD the backend serves frontend/dist at /frontend, so a
+            // page load fetches a few bundled files instead of thousands of dev modules.
+            command: USE_FRONTEND_BUILD
+                ? "npm --prefix ../frontend run build && npx nest start"
+                : "npx nest start",
             cwd: "backend",
             // All test users share one IP, so the production rate limits would trip.
             // 1000 leaves room for --repeat-each and parallel workers (~5 auth calls per
@@ -69,17 +78,22 @@ export default defineConfig({
             // env var as well.
             env: { E2E_THROTTLE_MULTIPLIER: "1000" },
             url: `${BACKEND_URL}/ready`,
-            reuseExistingServer: !isCI,
+            // A reused backend might serve a stale or missing frontend build.
+            reuseExistingServer: !isCI && !USE_FRONTEND_BUILD,
             timeout: 120_000,
             stdout: "ignore",
             stderr: "pipe",
         },
-        {
-            command: "npx vite --port 5173 --strictPort",
-            cwd: "frontend",
-            url: FRONTEND_URL,
-            reuseExistingServer: !isCI,
-            timeout: 60_000,
-        },
+        ...(USE_FRONTEND_BUILD
+            ? []
+            : [
+                  {
+                      command: "npx vite --port 5173 --strictPort",
+                      cwd: "frontend",
+                      url: FRONTEND_URL,
+                      reuseExistingServer: !isCI,
+                      timeout: 60_000,
+                  },
+              ]),
     ],
 });

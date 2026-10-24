@@ -11,6 +11,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { CustomThrottlerGuard } from './guards/custom-throttler.guard';
 import { scaleLimit } from './config/throttle-multiplier.config';
+import { getRedisUrl } from './config/redis.config';
 import * as process from 'node:process';
 import { LoggingController } from './controllers/logging.controller';
 import { RedisPubSubFactory } from './factories/redisPubSubFactory';
@@ -61,9 +62,7 @@ import { RelationshipsModule } from './modules/relationships/relationships.modul
             isGlobal: true,
             useFactory: async () => {
                 return {
-                    stores: [
-                        new KeyvRedis(`redis://${process.env.REDIS_HOST}:6379`),
-                    ],
+                    stores: [new KeyvRedis(getRedisUrl())],
                     ttl: 3 * 60 * 1000,
                 };
             },
