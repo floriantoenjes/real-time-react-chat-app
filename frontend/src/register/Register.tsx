@@ -143,7 +143,7 @@ export function Register() {
                                             .string()
                                             .email()
                                             .parse(value);
-                                    } catch (e) {
+                                    } catch {
                                         return LL.ENTER_VALID_EMAIL();
                                     }
                                 },

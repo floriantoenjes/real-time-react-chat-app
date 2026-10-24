@@ -22,6 +22,12 @@ jobs:
     permissions:
       contents: 'read'
 
+  frontend-lint:
+    name: Frontend lint
+    uses: ./.github/workflows/frontend-lint.yaml
+    permissions:
+      contents: 'read'
+
   e2e:
     name: E2E tests
     uses: ./.github/workflows/e2e.yaml
@@ -30,7 +36,7 @@ jobs:
 
   release:
     name: Build image and deploy to GKE
-    needs: [backend-unit, e2e]
+    needs: [backend-unit, frontend-lint, e2e]
     runs-on: ubuntu-latest
     concurrency: deploy
 

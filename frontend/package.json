@@ -43,6 +43,7 @@
         "test": "react-scripts test",
         "eject": "react-scripts eject",
         "lint": "eslint \"src/**/*.{ts,tsx}\" --fix",
+        "lint:check": "eslint \"src/**/*.{ts,tsx}\"",
         "typesafe-i18n": "typesafe-i18n"
     },
     "browserslist": {

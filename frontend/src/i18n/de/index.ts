@@ -77,7 +77,8 @@ const de = {
     CONFIRM_IGNORE: "Ignorieren bestätigen",
     CONFIRM_UNIGNORE: "Ignorierung aufheben bestätigen",
     IGNORE_CONFIRMATION: "Möchten Sie {contactName} wirklich ignorieren?",
-    UNIGNORE_CONFIRMATION: "Möchten Sie die Ignorierung von {username} wirklich aufheben?",
+    UNIGNORE_CONFIRMATION:
+        "Möchten Sie die Ignorierung von {username} wirklich aufheben?",
     CANCEL: "Abbrechen",
     ATTACH_IMAGE: "Bild anhängen",
     SEND_MESSAGE: "Nachricht senden",

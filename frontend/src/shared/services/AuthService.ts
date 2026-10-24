@@ -110,7 +110,7 @@ export class AuthService {
             if (!loggedInUser) {
                 void this.signOut();
             }
-        } catch (e) {
+        } catch {
             void this.signOut();
         }
     }

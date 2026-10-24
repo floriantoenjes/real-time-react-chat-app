@@ -1,4 +1,10 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+} from "@mui/material";
 import { useI18nContext } from "../../i18n/i18n-react";
 
 interface IgnoreConfirmationDialogProps {
