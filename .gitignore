@@ -8,3 +8,6 @@ kubernetes/coturn.config-map.yaml
 /playwright-report/
 /blob-report/
 /e2e/.auth/
+
+# macOS
+.DS_Store
