@@ -6,7 +6,7 @@
         "@emotion/react": "^11.13.3",
         "@emotion/styled": "^11.13.0",
         "@heroicons/react": "^2.1.5",
-        "@mui/material": "^7.3.11",
+        "@mui/material": "^9.5.0",
         "@sentry/browser": "^10.76.2",
         "@tailwindcss/vite": "^4.3.3",
         "@testing-library/jest-dom": "^6.10.0",
