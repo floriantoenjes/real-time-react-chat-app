@@ -28,7 +28,9 @@ export class ContactRequestService {
     ): Promise<ContactRequest> {
         // Check if initiatorId is actually a contact group (not a user)
         // This provides a defensive check in case frontend passes a group ID
-        const isContactGroup = await this.contactGroupModel.findById(initiatorId).lean();
+        const isContactGroup = await this.contactGroupModel
+            .findById(initiatorId)
+            .lean();
         if (isContactGroup) {
             throw new ObjectNotFoundException();
         }

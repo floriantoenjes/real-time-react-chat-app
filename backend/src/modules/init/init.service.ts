@@ -115,7 +115,7 @@ export class InitService implements OnApplicationBootstrap {
             username: 'Tom',
             avatarFileName: 'avatar2.svg',
         } as UserEntity;
-        const user3Doc = await this.userModel.create(user3);
+        await this.userModel.create(user3);
 
         let authUser4 = {
             password,
@@ -128,7 +128,7 @@ export class InitService implements OnApplicationBootstrap {
             username: 'Stella',
             avatarFileName: 'avatar4.svg',
         } as UserEntity;
-        const user4Doc = await this.userModel.create(user4);
+        await this.userModel.create(user4);
 
         const user1Contacts: ContactEntity[] = [
             {

@@ -18,6 +18,8 @@ describe('throttle-multiplier.config', () => {
 
         let config!: typeof import('./throttle-multiplier.config');
         jest.isolateModules(() => {
+            // require() re-evaluates the module so it picks up the env var set above
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
             config = require('./throttle-multiplier.config');
         });
         return config;
