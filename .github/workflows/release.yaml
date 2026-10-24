@@ -16,8 +16,21 @@ on:
 #   ACME_EMAIL                      Let's Encrypt account email (a secret only so it is masked in public logs)
 
 jobs:
+  backend-unit:
+    name: Backend unit tests
+    uses: ./.github/workflows/backend-unit.yaml
+    permissions:
+      contents: 'read'
+
+  e2e:
+    name: E2E tests
+    uses: ./.github/workflows/e2e.yaml
+    permissions:
+      contents: 'read'
+
   release:
     name: Build image and deploy to GKE
+    needs: [backend-unit, e2e]
     runs-on: ubuntu-latest
     concurrency: deploy
 
