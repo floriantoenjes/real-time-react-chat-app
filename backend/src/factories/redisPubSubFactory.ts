@@ -16,6 +16,9 @@ export class RedisPubSubFactory implements PubSubFactoryInterface {
     } {
         const pubClient = createClient({
             url: getRedisUrl(),
+            // node-redis 6 defaults to RESP3; keep the RESP2 pub/sub wire
+            // format that @socket.io/redis-adapter is built against
+            RESP: 2,
         });
         const subClient = pubClient.duplicate();
 
