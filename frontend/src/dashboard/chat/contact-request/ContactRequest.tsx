@@ -26,7 +26,7 @@ export function ContactRequest({ selectedContact }: ContactRequestProps) {
     const [ignoreDialogOpen, setIgnoreDialogOpen] = useState(false);
 
     // Contact groups should never use ContactRequest - they are automatically accepted
-    if (!selectedContact || 'memberRefs' in selectedContact) {
+    if (!selectedContact || "memberRefs" in selectedContact) {
         return null;
     }
 

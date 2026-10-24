@@ -72,7 +72,7 @@ export function IgnoredUsersList() {
                 }),
                 SnackbarLevels.SUCCESS,
             );
-        } catch (error) {
+        } catch {
             snackbarService.showSnackbar(
                 LL.ERROR.COULD_NOT_UNIGNORE_USER(),
                 SnackbarLevels.ERROR,

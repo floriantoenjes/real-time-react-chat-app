@@ -141,7 +141,7 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
                     });
                 });
             }
-        } catch (e) {
+        } catch {
             console.log("Could not connect to Peer server!");
         }
     }, [user?.username]);

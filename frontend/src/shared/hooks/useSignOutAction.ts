@@ -4,7 +4,7 @@ import { useContext } from "react";
 import { SocketContext } from "../contexts/SocketContext";
 import { useDiContext } from "../contexts/DiContext";
 import { useI18nContext } from "../../i18n/i18n-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 export function useSignOutAction() {
     const [socket] = useContext(SocketContext);

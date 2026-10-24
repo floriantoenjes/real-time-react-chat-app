@@ -15,7 +15,7 @@ export const SnackbarContext = createContext({
         type: "info" as SnackbarLevels,
         isOpen: false,
     },
-    showSnackbar: (message: string, type: SnackbarLevels) => {},
+    showSnackbar: (() => {}) as (message: string, type: SnackbarLevels) => void,
     hideSnackbar: () => {},
 });
 

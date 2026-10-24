@@ -24,7 +24,7 @@ export class MessageEntity implements Message {
     sent: boolean = true;
 
     @Prop()
-    type!: 'text' | 'image';
+    type!: 'text' | 'image' | 'audio';
 
     @Prop()
     owners!: string[];

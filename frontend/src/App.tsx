@@ -1,6 +1,6 @@
 import React from "react";
 import "./App.css";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router";
 import { Login } from "./login/Login";
 import { Dashboard } from "./dashboard/Dashboard";
 import { UserProvider } from "./shared/contexts/UserContext";

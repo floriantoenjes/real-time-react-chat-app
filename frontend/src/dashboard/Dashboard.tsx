@@ -1,6 +1,6 @@
 import "./Dashboard.css";
 import React, { useContext } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate } from "react-router";
 import { RoutesEnum } from "../shared/enums/routes";
 import { MessageProvider } from "../shared/contexts/MessageContext";
 import { Sidebar } from "./sidebar/Sidebar";

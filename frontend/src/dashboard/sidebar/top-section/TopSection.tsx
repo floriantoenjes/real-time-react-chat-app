@@ -7,7 +7,7 @@ import {
     PlusIcon,
     UserMinusIcon,
 } from "@heroicons/react/24/outline";
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import "./TopSection.css";
 import { useUserContext } from "../../../shared/contexts/UserContext";
 import { Avatar } from "../../../shared/components/Avatar";
@@ -93,11 +93,15 @@ export function TopSection() {
                             <GlobeAltIcon className={"w-4 mr-2"} />
                             {LL.CHANGE_LANGUAGE()}
                         </MenuItem>
-                        <MenuItem onClick={toggleDrawer("left", true, "ignoredUsers")}>
+                        <MenuItem
+                            onClick={toggleDrawer("left", true, "ignoredUsers")}
+                        >
                             <UserMinusIcon className={"w-4 mr-2"} />
                             {LL.IGNORED_USERS()}
                         </MenuItem>
-                        <MenuItem onClick={toggleDrawer("left", true, "leftGroups")}>
+                        <MenuItem
+                            onClick={toggleDrawer("left", true, "leftGroups")}
+                        >
                             <ArrowPathIcon className={"w-4 mr-2"} />
                             {LL.LEFT_GROUPS()}
                         </MenuItem>

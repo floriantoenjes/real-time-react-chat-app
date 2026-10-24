@@ -6,7 +6,6 @@ import {
     ListItemText,
     Tooltip,
 } from "@mui/material";
-import { ContactGroup } from "@t/contact-group.contract";
 import { useContext } from "react";
 import { ContactsContext } from "../../../shared/contexts/ContactsContext";
 import { useI18nContext } from "../../../i18n/i18n-react";
@@ -37,7 +36,7 @@ export function LeftGroupsList() {
                     SnackbarLevels.SUCCESS,
                 );
             }
-        } catch (error) {
+        } catch {
             snackbarService.showSnackbar(
                 LL.ERROR.COULD_NOT_REJOIN_GROUP(),
                 SnackbarLevels.ERROR,

@@ -1,5 +1,5 @@
 import { Button, IconButton, TextField } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import React, { useState } from "react";
 import { useDiContext } from "../shared/contexts/DiContext";
 import { RoutesEnum } from "../shared/enums/routes";
@@ -69,7 +69,7 @@ export function Login() {
                                             .string()
                                             .email()
                                             .parse(value);
-                                    } catch (e) {
+                                    } catch {
                                         return LL.ENTER_VALID_EMAIL();
                                     }
                                 },

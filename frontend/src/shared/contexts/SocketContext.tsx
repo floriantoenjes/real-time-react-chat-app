@@ -12,7 +12,7 @@ import { BACKEND_URL } from "../../environment";
 import { SnackbarLevels, snackbarService } from "./SnackbarContext";
 import { RoutesEnum } from "../enums/routes";
 import { UserContext } from "./UserContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { useI18nContext } from "../../i18n/i18n-react";
 import { TranslationFunctions } from "../../i18n/i18n-types";
 import { SocketMessageTypes } from "@t/socket-message-types.enum";
