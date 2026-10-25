@@ -15,6 +15,8 @@ import { ClientFriendlyHttpException } from '../client-friendly-http.exception';
 import { AppHttpException } from '../app-http.exception';
 import * as Sentry from '@sentry/node';
 import { SentryExceptionCaptured } from '@sentry/nestjs';
+import { RequestValidationError } from '@ts-rest/nest';
+import { InvalidRequestException } from '../external/invalid-request.exception';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
@@ -25,6 +27,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
         const request = ctx.getRequest<Request>();
+
+        // ts-rest rejects invalid requests with a plain BadRequestException;
+        // map it so the client gets a 400 with an error code instead of a 500
+        if (exception instanceof RequestValidationError) {
+            exception = new InvalidRequestException(exception);
+        }
 
         const requestContext = {
             method: request.method,

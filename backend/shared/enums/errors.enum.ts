@@ -22,6 +22,9 @@ export enum ExternalErrors {
     // General errors
     EXT_GENERAL_001 = 'EXT_GENERAL_001', // Operation failed
 
+    // Validation errors
+    EXT_VALIDATION_001 = 'EXT_VALIDATION_001', // Invalid request
+
     // Authentication errors
     EXT_AUTH_001 = 'EXT_AUTH_001', // Email already taken
     EXT_AUTH_002 = 'EXT_AUTH_002', // Unauthorized
