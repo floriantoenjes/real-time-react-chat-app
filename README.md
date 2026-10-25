@@ -142,8 +142,6 @@ How the suite is set up:
 - **Projects**: `chromium` (with a fake microphone for audio messages) runs everything except `responsive/`, which runs in `mobile-chromium` (Pixel 7). `E2E_ALL_BROWSERS=1` adds Firefox, which skips tests tagged `@chromium-only`.
 - **Debugging**: failed tests keep a screenshot and an `error-context.md` with the page snapshot in `test-results/`. On CI, the first retry also records a trace (`npx playwright show-trace <trace.zip>`).
 
-The plan, requirements and validation checklist for the suite are in [`specs/2026-10-23_playwright-e2e/`](specs/2026-10-23_playwright-e2e).
-
 ## CI/CD Pipeline
 
 The project uses GitHub Actions for continuous deployment:

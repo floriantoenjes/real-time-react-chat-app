@@ -31,6 +31,7 @@ export class Sidebar {
     readonly userMenuButton: Locator;
     readonly openProfileButton: Locator;
     readonly drawer: Locator;
+    readonly statusTextInput: Locator;
     /** Chats opened since the last full page load; the app serves them from its cache. */
     private readonly openedChats = new Set<string>();
 
@@ -44,6 +45,7 @@ export class Sidebar {
         this.userMenuButton = page.getByRole("button", { name: "User menu" });
         this.openProfileButton = page.getByTestId("open-profile");
         this.drawer = page.locator(".MuiDrawer-paper");
+        this.statusTextInput = page.getByTestId("status-text-input");
     }
 
     contact(name: string): Locator {
@@ -148,15 +150,26 @@ export class Sidebar {
             .click();
     }
 
-    async uploadAvatar(filePath: string) {
+    async openProfile() {
         await this.openProfileButton.click();
         await expect(
             this.drawer.getByRole("heading", { name: "Edit your Profile" }),
         ).toBeVisible();
+    }
+
+    async uploadAvatar(filePath: string) {
+        await this.openProfile();
         await this.page.getByTestId("avatar-input").setInputFiles(filePath);
         await this.page
             .getByRole("button", { name: "Save profile picture" })
             .click();
+    }
+
+    /** Sets (or clears, with an empty string) the status text; the drawer stays open. */
+    async setStatusText(text: string) {
+        await this.openProfile();
+        await this.statusTextInput.fill(text);
+        await this.page.getByRole("button", { name: "Save status" }).click();
     }
 
     /**
@@ -205,6 +218,8 @@ export class ChatView {
     readonly voiceCallButton: Locator;
     readonly typingIndicator: Locator;
     readonly welcomeMessage: Locator;
+    readonly contactProfileButton: Locator;
+    readonly contactStatusText: Locator;
 
     constructor(readonly page: Page) {
         this.messageInput = page.getByRole("textbox", {
@@ -230,6 +245,14 @@ export class ChatView {
         this.welcomeMessage = page.getByRole("heading", {
             name: "Welcome to Florian's Chat!",
         });
+        this.contactProfileButton = page.getByTestId("open-contact-profile");
+        this.contactStatusText = page.getByTestId("contact-status-text");
+    }
+
+    /** Opens the drawer with the profile of the selected contact or group. */
+    async openContactProfile() {
+        await this.contactProfileButton.click();
+        await expect(this.page.locator(".MuiDrawer-paper")).toBeVisible();
     }
 
     message(text: string | RegExp): Locator {

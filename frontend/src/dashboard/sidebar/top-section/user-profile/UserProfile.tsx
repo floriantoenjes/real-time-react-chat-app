@@ -1,4 +1,4 @@
-import { Fab, IconButton } from "@mui/material";
+import { Fab, FormHelperText, IconButton, TextField } from "@mui/material";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 import React, { useRef, useState } from "react";
 import { useUserContext } from "../../../../shared/contexts/UserContext";
@@ -13,6 +13,7 @@ import {
     snackbarService,
 } from "../../../../shared/contexts/SnackbarContext";
 import { useI18nContext } from "../../../../i18n/i18n-react";
+import { STATUS_TEXT_MAX_LENGTH } from "@t/user.contract";
 
 export function UserProfile(props: { toggleDrawer: any }) {
     const { LL } = useI18nContext();
@@ -23,6 +24,9 @@ export function UserProfile(props: { toggleDrawer: any }) {
 
     const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
+
+    const [statusText, setStatusText] = useState(user.statusText ?? "");
+    const statusTextChanged = statusText.trim() !== (user.statusText ?? "");
 
     const [croppedArea, setCroppedArea] = useState<Area>();
     const onCropComplete = (croppedArea: Area, croppedAreaPixels: Area) => {
@@ -64,6 +68,40 @@ export function UserProfile(props: { toggleDrawer: any }) {
             });
     }
 
+    function handleStatusTextSubmit() {
+        if (!statusTextChanged) {
+            return;
+        }
+
+        void userService
+            .updateStatusText(statusText.trim())
+            .then((updatedUser) => {
+                if (!updatedUser) {
+                    snackbarService.showSnackbar(
+                        LL.ERROR.STATUS_TEXT_NOT_UPDATED(),
+                        SnackbarLevels.ERROR,
+                    );
+                    return;
+                }
+
+                // The server normalizes the text (trimmed, single line)
+                const savedStatusText = updatedUser.statusText ?? "";
+                setStatusText(savedStatusText);
+                setUser({ ...user, statusText: savedStatusText });
+                snackbarService.showSnackbar(
+                    LL.STATUS_TEXT_UPDATED(),
+                    SnackbarLevels.SUCCESS,
+                );
+            })
+            .catch((error) => {
+                snackbarService.showSnackbar(
+                    LL.ERROR.STATUS_TEXT_NOT_UPDATED(),
+                    SnackbarLevels.ERROR,
+                );
+                throw error;
+            });
+    }
+
     function setFileToUpload(event: any) {
         setFileChanged(true);
         setFile(event.target.files[0]);
@@ -97,6 +135,48 @@ export function UserProfile(props: { toggleDrawer: any }) {
                         height={"12rem"}
                         squared={true}
                     />
+                </div>
+                <div className={"w-full px-5 mt-5"}>
+                    {/* The counter is rendered outside of the TextField so the
+                        save button centers on the input alone */}
+                    <div className={"flex items-center"}>
+                        <TextField
+                            fullWidth
+                            label={LL.STATUS_TEXT()}
+                            placeholder={LL.STATUS_TEXT_PLACEHOLDER()}
+                            value={statusText}
+                            onChange={(event) =>
+                                setStatusText(event.target.value)
+                            }
+                            onKeyDown={(event) => {
+                                if (event.key === "Enter") {
+                                    handleStatusTextSubmit();
+                                }
+                            }}
+                            slotProps={{
+                                htmlInput: {
+                                    maxLength: STATUS_TEXT_MAX_LENGTH,
+                                    "data-testid": "status-text-input",
+                                    "aria-describedby": "status-text-counter",
+                                },
+                            }}
+                        />
+                        <IconButton
+                            className={"ml-2"}
+                            aria-label={LL.SAVE_STATUS_TEXT()}
+                            disabled={!statusTextChanged}
+                            onClick={handleStatusTextSubmit}
+                        >
+                            <CheckIcon className={"w-6"} />
+                        </IconButton>
+                    </div>
+                    {/* Same indent as a TextField's own helper text */}
+                    <FormHelperText
+                        id="status-text-counter"
+                        sx={{ mx: "14px" }}
+                    >
+                        {`${statusText.length}/${STATUS_TEXT_MAX_LENGTH}`}
+                    </FormHelperText>
                 </div>
                 {fileInputRef.current?.files?.[0] && (
                     <Cropper

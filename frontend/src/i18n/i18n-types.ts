@@ -153,6 +153,10 @@ type RootTranslation = {
 	 * Y​o​u​r​ ​p​r​o​f​i​l​e​ ​p​i​c​t​u​r​e​ ​h​a​s​ ​b​e​e​n​ ​u​p​d​a​t​e​d
 	 */
 	AVATAR_UPDATED: string
+	/**
+	 * Y​o​u​r​ ​s​t​a​t​u​s​ ​h​a​s​ ​b​e​e​n​ ​u​p​d​a​t​e​d
+	 */
+	STATUS_TEXT_UPDATED: string
 	ERROR: {
 		/**
 		 * C​o​u​l​d​ ​n​o​t​ ​f​e​t​c​h​ ​m​e​s​s​a​g​e​s
@@ -174,6 +178,10 @@ type RootTranslation = {
 		 * Y​o​u​r​ ​p​r​o​f​i​l​e​ ​p​i​c​t​u​r​e​ ​c​o​u​l​d​ ​n​o​t​ ​b​e​ ​u​p​d​a​t​e​d
 		 */
 		AVATAR_NOT_UPDATED: string
+		/**
+		 * Y​o​u​r​ ​s​t​a​t​u​s​ ​c​o​u​l​d​ ​n​o​t​ ​b​e​ ​u​p​d​a​t​e​d
+		 */
+		STATUS_TEXT_NOT_UPDATED: string
 		/**
 		 * E​r​r​o​r​ ​d​e​l​e​t​i​n​g​ ​c​o​n​t​a​c​t​ ​g​r​o​u​p
 		 */
@@ -350,6 +358,18 @@ type RootTranslation = {
 	 * S​a​v​e​ ​p​r​o​f​i​l​e​ ​p​i​c​t​u​r​e
 	 */
 	SAVE_AVATAR: string
+	/**
+	 * S​t​a​t​u​s
+	 */
+	STATUS_TEXT: string
+	/**
+	 * W​h​a​t​'​s​ ​o​n​ ​y​o​u​r​ ​m​i​n​d​?
+	 */
+	STATUS_TEXT_PLACEHOLDER: string
+	/**
+	 * S​a​v​e​ ​s​t​a​t​u​s
+	 */
+	SAVE_STATUS_TEXT: string
 }
 
 export type TranslationFunctions = {
@@ -489,6 +509,10 @@ export type TranslationFunctions = {
 	 * Your profile picture has been updated
 	 */
 	AVATAR_UPDATED: () => LocalizedString
+	/**
+	 * Your status has been updated
+	 */
+	STATUS_TEXT_UPDATED: () => LocalizedString
 	ERROR: {
 		/**
 		 * Could not fetch messages
@@ -510,6 +534,10 @@ export type TranslationFunctions = {
 		 * Your profile picture could not be updated
 		 */
 		AVATAR_NOT_UPDATED: () => LocalizedString
+		/**
+		 * Your status could not be updated
+		 */
+		STATUS_TEXT_NOT_UPDATED: () => LocalizedString
 		/**
 		 * Error deleting contact group
 		 */
@@ -679,6 +707,18 @@ export type TranslationFunctions = {
 	 * Save profile picture
 	 */
 	SAVE_AVATAR: () => LocalizedString
+	/**
+	 * Status
+	 */
+	STATUS_TEXT: () => LocalizedString
+	/**
+	 * What's on your mind?
+	 */
+	STATUS_TEXT_PLACEHOLDER: () => LocalizedString
+	/**
+	 * Save status
+	 */
+	SAVE_STATUS_TEXT: () => LocalizedString
 }
 
 export type Formatters = {}

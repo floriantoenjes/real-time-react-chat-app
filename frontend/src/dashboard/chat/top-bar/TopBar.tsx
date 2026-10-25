@@ -56,7 +56,11 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
                     <ChevronLeftIcon className={"w-8"} />
                 </IconButton>
             </div>
-            <div className={"flex items-center"} onClick={toggleDrawer(true)}>
+            <div
+                className={"flex items-center"}
+                data-testid="open-contact-profile"
+                onClick={toggleDrawer(true)}
+            >
                 <Avatar
                     user={selectedContact ?? user}
                     isOnline={contactsOnlineStatus.get(
@@ -182,16 +186,31 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
                             }
                         >
                             <div
-                                className={
-                                    "mt-3 avatar bg-blue-400 w-48 h-48 relative cursor-pointer rounded-xl"
-                                }
+                                className={"flex flex-col items-center w-full"}
                             >
-                                <Avatar
-                                    user={selectedContact}
-                                    width={"12rem"}
-                                    height={"12rem"}
-                                    squared={true}
-                                />
+                                <div
+                                    className={
+                                        "mt-3 avatar bg-blue-400 w-48 h-48 relative cursor-pointer rounded-xl"
+                                    }
+                                >
+                                    <Avatar
+                                        user={selectedContact}
+                                        width={"12rem"}
+                                        height={"12rem"}
+                                        squared={true}
+                                    />
+                                </div>
+                                {!isContactGroup(selectedContact) &&
+                                    selectedContact.statusText && (
+                                        <p
+                                            className={
+                                                "mt-5 px-5 w-full text-center break-words"
+                                            }
+                                            data-testid="contact-status-text"
+                                        >
+                                            {selectedContact.statusText}
+                                        </p>
+                                    )}
                             </div>
                         </div>
                     </div>

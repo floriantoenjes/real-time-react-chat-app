@@ -17,4 +17,5 @@ export enum EventNames {
     USER_IGNORED = 'user.ignored',
     USER_UNIGNORED = 'user.unignored',
     USER_IGNORE_REQUEST = 'user.ignore-request',
+    USER_PROFILE_UPDATED = 'user.profile-updated',
 }

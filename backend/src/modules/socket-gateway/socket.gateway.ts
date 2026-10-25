@@ -20,7 +20,11 @@ import { EventBusService } from '../global/event-bus.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserEntity } from '../user/user.schema';
 import { Model } from 'mongoose';
-import { UserIgnoredEvent, UserUnignoredEvent } from '../../events/user.events';
+import {
+    UserIgnoredEvent,
+    UserProfileUpdatedEvent,
+    UserUnignoredEvent,
+} from '../../events/user.events';
 import {
     ContactAddedEvent,
     ContactGroupAutoAddEvent,
@@ -74,6 +78,38 @@ export class RealTimeChatGateway
         this.processMessageEvents();
         this.processContactEvents();
         this.processIgnoreEvents();
+        this.processProfileEvents();
+    }
+
+    private processProfileEvents() {
+        this.eventBus.on<UserProfileUpdatedEvent>(
+            EventNames.USER_PROFILE_UPDATED,
+            async (payload: UserProfileUpdatedEvent) => {
+                try {
+                    const usersWithContact =
+                        await this.contactService.getUsersThatHaveContact(
+                            payload.userId,
+                        );
+                    this.logger.debug(
+                        `Broadcasting profile update of ${payload.userId} to ${usersWithContact.length} users`,
+                    );
+                    // The user's own room is included so their other sessions update as well
+                    this.server
+                        .to([
+                            ...usersWithContact.map((u) => u._id.toString()),
+                            payload.userId,
+                        ])
+                        .emit(
+                            SocketMessageTypes.contactProfileUpdated,
+                            payload,
+                        );
+                } catch (error) {
+                    this.logger.error(
+                        `Failed to broadcast profile update of ${payload.userId}: ${error}`,
+                    );
+                }
+            },
+        );
     }
 
     private processIgnoreEvents() {

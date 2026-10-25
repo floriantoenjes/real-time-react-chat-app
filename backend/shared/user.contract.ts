@@ -4,6 +4,8 @@ import { ContactSchema } from './contact.contract';
 
 const c = initContract();
 
+export const STATUS_TEXT_MAX_LENGTH = 140;
+
 export const UserSchema = z.object({
     _id: z.string(),
     authUserId: z.string().optional(),
@@ -13,9 +15,20 @@ export const UserSchema = z.object({
     leftGroupIds: z.array(z.string()),
     avatarFileName: z.string().optional(),
     avatarBase64: z.any().optional(),
+    statusText: z.string().optional(),
 });
 
 export type User = z.infer<typeof UserSchema>;
+
+/**
+ * Payload of the contactProfileUpdated socket message. Only the changed
+ * fields are set; the avatar image itself is not sent and has to be reloaded.
+ */
+export type ContactProfileUpdate = {
+    userId: string;
+    statusText?: string;
+    avatarUpdated?: boolean;
+};
 
 export const userContract = c.router({
     getSignedInUser: {
@@ -58,6 +71,18 @@ export const userContract = c.router({
             height: z.string(),
         }),
         summary: 'Upload user avatar',
+    },
+    updateStatusText: {
+        method: 'PATCH',
+        path: '/users/status-text',
+        responses: {
+            200: UserSchema,
+        },
+        body: z.object({
+            statusText: z.string().trim().max(STATUS_TEXT_MAX_LENGTH),
+        }),
+        summary:
+            'Set or clear (empty string) the status text of the signed in user',
     },
     loadAvatar: {
         method: 'GET',

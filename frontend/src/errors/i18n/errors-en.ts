@@ -3,6 +3,8 @@ import { ExternalErrorTypes } from "@t/enums/errors.enum";
 export const errorsEn = {
     EXT_GENERAL_001: "An error occurred",
 
+    EXT_VALIDATION_001: "Invalid request",
+
     EXT_AUTH_001: "This email is already taken",
     EXT_AUTH_002: "Unauthorized",
 

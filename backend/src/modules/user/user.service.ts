@@ -9,6 +9,9 @@ import { Jimp } from 'jimp';
 import { ObjectStorageService } from '../global/object-storage.service';
 import { UserNotFoundException } from '../../errors/internal/user-not-found.exception';
 import { ObjectNotFoundException } from '../../errors/internal/object-not-found.exception';
+import { EventBusService } from '../global/event-bus.service';
+import { EventNames } from '../../events/event-names.enum';
+import { UserProfileUpdatedEvent } from '../../events/user.events';
 
 @Injectable()
 export class UserService {
@@ -19,6 +22,7 @@ export class UserService {
         private readonly cache: Cache,
         @InjectModel(UserEntity.name) private userModel: Model<UserEntity>,
         private readonly objectStorageService: ObjectStorageService,
+        private readonly eventBus: EventBusService,
     ) {}
 
     async createUser(
@@ -139,10 +143,34 @@ export class UserService {
 
         this.logger.log(`Updated user avatar for ${userId}`);
 
+        this.eventBus.emitAsync<UserProfileUpdatedEvent>(
+            EventNames.USER_PROFILE_UPDATED,
+            { userId, avatarUpdated: true },
+        );
+
         return {
             status: 201 as const,
             body: true,
         };
+    }
+
+    async updateStatusText(userId: string, statusText: string) {
+        // Status texts are single line
+        const singleLineStatusText = statusText.replace(/\s*[\r\n]+\s*/g, ' ');
+
+        await this.updateUser({
+            _id: userId,
+            statusText: singleLineStatusText,
+        });
+
+        this.logger.log(`Updated status text for ${userId}`);
+
+        this.eventBus.emitAsync<UserProfileUpdatedEvent>(
+            EventNames.USER_PROFILE_UPDATED,
+            { userId, statusText: singleLineStatusText },
+        );
+
+        return this.findUserById(userId);
     }
 
     async getSignedInUser(signedInUserId: string) {

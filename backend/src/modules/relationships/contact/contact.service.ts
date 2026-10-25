@@ -169,7 +169,8 @@ export class ContactService implements OnModuleInit {
 
         return {
             status: 201 as const,
-            body: newContact,
+            // The status text is not stored on the embedded contact so it can't go stale
+            body: { ...newContact, statusText: contact.statusText },
         };
     }
 
@@ -248,7 +249,8 @@ export class ContactService implements OnModuleInit {
 
             await session.commitTransaction();
 
-            return newContact;
+            // The status text is not stored on the embedded contact so it can't go stale
+            return { ...newContact, statusText: contact.statusText };
         } catch (error: any) {
             this.logger.warn(
                 `Auto-add contact ${newContactId} to user ${userId}'s contacts failed: ${error.message}`,
