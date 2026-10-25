@@ -83,7 +83,7 @@ Today the own-profile drawer (`UserProfile.tsx`) only edits the avatar, and the 
 - [x] E2E spec `e2e/tests/profile/status-text.spec.ts`
 - [x] Extend `e2e/tests/profile/avatar.spec.ts`: Bob sees Alice's new avatar without `reload()`
 - [x] Add `setStatusText()` and contact-drawer helpers to the dashboard page object
-- [ ] Run lint, unit tests and full e2e suite (lint, type checks and backend unit tests pass; e2e not run yet, Docker is blocked in the agent sandbox)
+- [x] Run lint, unit tests and full e2e suite (63/63 e2e tests pass; the run surfaced that invalid requests returned 500, fixed to 400 in the global exception filter)
 
 ## File Changes Summary
 
