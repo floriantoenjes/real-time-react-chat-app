@@ -1,4 +1,4 @@
-import { Fab, IconButton, TextField } from "@mui/material";
+import { Fab, FormHelperText, IconButton, TextField } from "@mui/material";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 import React, { useRef, useState } from "react";
 import { useUserContext } from "../../../../shared/contexts/UserContext";
@@ -136,34 +136,47 @@ export function UserProfile(props: { toggleDrawer: any }) {
                         squared={true}
                     />
                 </div>
-                <div className={"flex items-start w-full px-5 mt-5"}>
-                    <TextField
-                        fullWidth
-                        label={LL.STATUS_TEXT()}
-                        placeholder={LL.STATUS_TEXT_PLACEHOLDER()}
-                        value={statusText}
-                        onChange={(event) => setStatusText(event.target.value)}
-                        onKeyDown={(event) => {
-                            if (event.key === "Enter") {
-                                handleStatusTextSubmit();
+                <div className={"w-full px-5 mt-5"}>
+                    {/* The counter is rendered outside of the TextField so the
+                        save button centers on the input alone */}
+                    <div className={"flex items-center"}>
+                        <TextField
+                            fullWidth
+                            label={LL.STATUS_TEXT()}
+                            placeholder={LL.STATUS_TEXT_PLACEHOLDER()}
+                            value={statusText}
+                            onChange={(event) =>
+                                setStatusText(event.target.value)
                             }
-                        }}
-                        helperText={`${statusText.length}/${STATUS_TEXT_MAX_LENGTH}`}
-                        slotProps={{
-                            htmlInput: {
-                                maxLength: STATUS_TEXT_MAX_LENGTH,
-                                "data-testid": "status-text-input",
-                            },
-                        }}
-                    />
-                    <IconButton
-                        className={"ml-2 mt-2"}
-                        aria-label={LL.SAVE_STATUS_TEXT()}
-                        disabled={!statusTextChanged}
-                        onClick={handleStatusTextSubmit}
+                            onKeyDown={(event) => {
+                                if (event.key === "Enter") {
+                                    handleStatusTextSubmit();
+                                }
+                            }}
+                            slotProps={{
+                                htmlInput: {
+                                    maxLength: STATUS_TEXT_MAX_LENGTH,
+                                    "data-testid": "status-text-input",
+                                    "aria-describedby": "status-text-counter",
+                                },
+                            }}
+                        />
+                        <IconButton
+                            className={"ml-2"}
+                            aria-label={LL.SAVE_STATUS_TEXT()}
+                            disabled={!statusTextChanged}
+                            onClick={handleStatusTextSubmit}
+                        >
+                            <CheckIcon className={"w-6"} />
+                        </IconButton>
+                    </div>
+                    {/* Same indent as a TextField's own helper text */}
+                    <FormHelperText
+                        id="status-text-counter"
+                        sx={{ mx: "14px" }}
                     >
-                        <CheckIcon className={"w-6"} />
-                    </IconButton>
+                        {`${statusText.length}/${STATUS_TEXT_MAX_LENGTH}`}
+                    </FormHelperText>
                 </div>
                 {fileInputRef.current?.files?.[0] && (
                     <Cropper
