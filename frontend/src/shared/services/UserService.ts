@@ -57,6 +57,18 @@ export class UserService {
         return res.status === 201;
     }
 
+    async updateStatusText(statusText: string): Promise<User | false> {
+        const res = await this.clientService
+            .getClient(userContract)
+            .updateStatusText({ body: { statusText } });
+
+        if (res.status === 200) {
+            return res.body;
+        }
+
+        return false;
+    }
+
     async loadAvatar(userId: string) {
         const res = (await this.clientService
             .getClient(userContract)

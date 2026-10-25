@@ -45,11 +45,11 @@ Today the own-profile drawer (`UserProfile.tsx`) only edits the avatar, and the 
 - `backend/src/modules/user/user.module.ts` (only if `EventBusService` isn't available through the global module)
 
 ### Phase 3: Frontend Edit Own Status (Est: 1-2 hours)
-- [ ] Add `UserService.updateStatusText(statusText)`
-- [ ] Add MUI `TextField` below the avatar in `UserProfile.tsx` (prefilled with `user.statusText`, `maxLength` 140, character counter, save via button / Enter)
-- [ ] On success: `setUser({ ...user, statusText })` + success snackbar; on error: error snackbar
-- [ ] Show own status text below the username in the sidebar top section (optional)
-- [ ] Add i18n keys (en + de) and regenerate typesafe-i18n:
+- [x] Add `UserService.updateStatusText(statusText)`
+- [x] Add MUI `TextField` below the avatar in `UserProfile.tsx` (prefilled with `user.statusText`, `maxLength` 140, character counter, save via button / Enter)
+- [x] On success: `setUser({ ...user, statusText })` + success snackbar; on error: error snackbar
+- [ ] Show own status text below the username in the sidebar top section (optional; skipped for now, the top section only shows the avatar, no username)
+- [x] Add i18n keys (en + de) and regenerate typesafe-i18n:
   `STATUS_TEXT`, `STATUS_TEXT_PLACEHOLDER`, `SAVE_STATUS_TEXT`, `STATUS_TEXT_UPDATED`, `ERROR.STATUS_TEXT_NOT_UPDATED`
 
 **Files:**

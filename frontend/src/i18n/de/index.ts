@@ -37,6 +37,7 @@ const de = {
     LEAVE_GROUP: "Gruppe verlassen",
     GROUP_LEFT: "Du hast die Gruppe {name} verlassen",
     AVATAR_UPDATED: "Profilbild wurde aktualisiert",
+    STATUS_TEXT_UPDATED: "Status wurde aktualisiert",
     ERROR: {
         COULD_NOT_FETCH_MESSAGES: "Chat-Nachrichten konnte nicht geholt werden",
         COULD_NOT_LOGOUT: "Fehler beim Ausloggen",
@@ -44,6 +45,7 @@ const de = {
             "Chat-Nachrichten konnten nicht gelöscht werden",
         COULD_NOT_ADD_CONTACT: "Kontakt konnte nicht hinzugefügt werden",
         AVATAR_NOT_UPDATED: "Profilbild konnte nicht aktualisiert werden",
+        STATUS_TEXT_NOT_UPDATED: "Status konnte nicht aktualisiert werden",
         COULD_NOT_DELETE_CONTACT_GROUP: "Gruppe konnte nicht entfernt werden",
         COULD_NOT_DELETE_CONTACT: "Kontakt konnte nicht entfernt werden",
         COULD_NOT_LEAVE_GROUP: "Gruppe konnte nicht verlassen werden",
@@ -90,6 +92,9 @@ const de = {
     CHAT_MENU: "Chat-Menü",
     USER_MENU: "Benutzermenü",
     SAVE_AVATAR: "Profilbild speichern",
+    STATUS_TEXT: "Status",
+    STATUS_TEXT_PLACEHOLDER: "Was gibt's Neues?",
+    SAVE_STATUS_TEXT: "Status speichern",
 } satisfies Translation;
 
 export default de;

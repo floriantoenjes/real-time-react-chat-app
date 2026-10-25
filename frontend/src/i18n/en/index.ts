@@ -37,12 +37,14 @@ const en = {
     LEAVE_GROUP: "Leave group",
     GROUP_LEFT: "You have left the group {name}",
     AVATAR_UPDATED: "Your profile picture has been updated",
+    STATUS_TEXT_UPDATED: "Your status has been updated",
     ERROR: {
         COULD_NOT_FETCH_MESSAGES: "Could not fetch messages",
         COULD_NOT_LOGOUT: "An error occured. You have not been logged out.",
         COULD_NOT_DELETE_CHAT_MESSAGES: "Chat messages could not be deleted",
         COULD_NOT_ADD_CONTACT: "Error adding contact",
         AVATAR_NOT_UPDATED: "Your profile picture could not be updated",
+        STATUS_TEXT_NOT_UPDATED: "Your status could not be updated",
         COULD_NOT_DELETE_CONTACT_GROUP: "Error deleting contact group",
         COULD_NOT_DELETE_CONTACT: "Error deleting contact",
         COULD_NOT_LEAVE_GROUP: "Error leaving group",
@@ -87,6 +89,9 @@ const en = {
     CHAT_MENU: "Chat menu",
     USER_MENU: "User menu",
     SAVE_AVATAR: "Save profile picture",
+    STATUS_TEXT: "Status",
+    STATUS_TEXT_PLACEHOLDER: "What's on your mind?",
+    SAVE_STATUS_TEXT: "Save status",
 } satisfies BaseTranslation;
 
 export default en;
