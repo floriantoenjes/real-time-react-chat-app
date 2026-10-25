@@ -145,6 +145,20 @@ export class UserService {
         };
     }
 
+    async updateStatusText(userId: string, statusText: string) {
+        // Status texts are single line
+        const singleLineStatusText = statusText.replace(/\s*[\r\n]+\s*/g, ' ');
+
+        await this.updateUser({
+            _id: userId,
+            statusText: singleLineStatusText,
+        });
+
+        this.logger.log(`Updated status text for ${userId}`);
+
+        return this.findUserById(userId);
+    }
+
     async getSignedInUser(signedInUserId: string) {
         return this.userModel.findById(signedInUserId);
     }

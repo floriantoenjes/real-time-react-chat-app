@@ -88,6 +88,7 @@ export class InitService implements OnApplicationBootstrap {
             authUserId: authUser1._id,
             username: 'Florian',
             avatarFileName: 'avatar1.svg',
+            statusText: 'Building a real-time chat app',
         } as UserEntity;
         const user1Doc = await this.userModel.create(user1);
 
@@ -101,6 +102,7 @@ export class InitService implements OnApplicationBootstrap {
             authUserId: authUser2._id,
             username: 'Alex',
             avatarFileName: 'avatar3.svg',
+            statusText: 'Available',
         } as UserEntity;
         const user2Doc = await this.userModel.create(user2);
 

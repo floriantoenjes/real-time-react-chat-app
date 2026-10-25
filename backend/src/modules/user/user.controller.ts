@@ -10,6 +10,7 @@ import { UserService } from './user.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { returnEntityOrNotFound } from '../../controllers/utils/controller-utils';
 import { UserId } from '../../decorators/user-id.decorator';
+import { StrictThrottle } from '../../decorators/throttle.decorators';
 
 @Controller()
 export class UserController {
@@ -52,6 +53,22 @@ export class UserController {
         return tsRestHandler(userContract.loadAvatar, async ({ params }) => {
             return this.userService.loadAvatar(params.userId);
         });
+    }
+
+    @TsRestHandler(userContract.updateStatusText)
+    @StrictThrottle()
+    async updateStatusText(@UserId() userId: string) {
+        return tsRestHandler(
+            userContract.updateStatusText,
+            async ({ body }) => {
+                return returnEntityOrNotFound(
+                    await this.userService.updateStatusText(
+                        userId,
+                        body.statusText,
+                    ),
+                );
+            },
+        );
     }
 
     @TsRestHandler(userContract.uploadAvatar)

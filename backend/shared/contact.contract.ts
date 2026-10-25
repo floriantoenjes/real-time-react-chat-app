@@ -9,6 +9,7 @@ export const ContactSchema = z.object({
     lastMessage: z.string().optional(),
     avatarFileName: z.string().optional(),
     avatarBase64: z.any().optional(),
+    statusText: z.string().optional(),
     isAccepted: z.boolean(),
 });
 
