@@ -79,11 +79,11 @@ Today the own-profile drawer (`UserProfile.tsx`) only edits the avatar, and the 
 - ~~possibly `frontend/src/shared/contexts/UserContext.tsx`~~ (not needed, `setUser` from the context is used)
 
 ### Phase 6: Testing & Validation (Est: 1-2 hours)
-- [ ] Backend unit tests for `updateStatusText` and event emission (see validation.md)
-- [ ] E2E spec `e2e/tests/profile/status-text.spec.ts`
-- [ ] Extend `e2e/tests/profile/avatar.spec.ts`: Bob sees Alice's new avatar without `reload()`
-- [ ] Add `setStatusText()` and contact-drawer helpers to the dashboard page object
-- [ ] Run lint, unit tests and full e2e suite
+- [x] Backend unit tests for `updateStatusText` and event emission (see validation.md)
+- [x] E2E spec `e2e/tests/profile/status-text.spec.ts`
+- [x] Extend `e2e/tests/profile/avatar.spec.ts`: Bob sees Alice's new avatar without `reload()`
+- [x] Add `setStatusText()` and contact-drawer helpers to the dashboard page object
+- [ ] Run lint, unit tests and full e2e suite (lint, type checks and backend unit tests pass; e2e not run yet, Docker is blocked in the agent sandbox)
 
 ## File Changes Summary
 

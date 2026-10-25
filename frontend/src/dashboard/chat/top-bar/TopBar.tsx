@@ -56,7 +56,11 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
                     <ChevronLeftIcon className={"w-8"} />
                 </IconButton>
             </div>
-            <div className={"flex items-center"} onClick={toggleDrawer(true)}>
+            <div
+                className={"flex items-center"}
+                data-testid="open-contact-profile"
+                onClick={toggleDrawer(true)}
+            >
                 <Avatar
                     user={selectedContact ?? user}
                     isOnline={contactsOnlineStatus.get(

@@ -113,6 +113,17 @@ export class ApiClient {
         );
     }
 
+    async updateStatusText(statusText: string): Promise<User> {
+        return this.expectJson(await this.patchStatusText(statusText), 200);
+    }
+
+    /** Raw request, for asserting rejected status texts. */
+    async patchStatusText(statusText: string) {
+        return this.context.patch("/users/status-text", {
+            data: { statusText },
+        });
+    }
+
     private async expectJson<T>(
         response: Awaited<ReturnType<APIRequestContext["get"]>>,
         status: number,
