@@ -116,6 +116,7 @@ export class InitService implements OnApplicationBootstrap {
             authUserId: authUser3._id,
             username: 'Tom',
             avatarFileName: 'avatar2.svg',
+            statusText: 'At the gym, back later',
         } as UserEntity;
         await this.userModel.create(user3);
 
@@ -129,6 +130,7 @@ export class InitService implements OnApplicationBootstrap {
             authUserId: authUser4._id,
             username: 'Stella',
             avatarFileName: 'avatar4.svg',
+            statusText: 'Coffee first, then code',
         } as UserEntity;
         await this.userModel.create(user4);
 
