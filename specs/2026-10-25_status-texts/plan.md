@@ -66,17 +66,17 @@ Today the own-profile drawer (`UserProfile.tsx`) only edits the avatar, and the 
 - `frontend/src/dashboard/chat/top-bar/TopBar.tsx`
 
 ### Phase 5: Frontend Live Profile Updates (Est: 1-2 hours)
-- [ ] Listen for `contactProfileUpdated` in `ContactsContext` (next to `contactAutoAdded`, with `socket.off` cleanup)
-- [ ] Add a helper that applies an update to a contact:
+- [x] Listen for `contactProfileUpdated` in `ContactsContext` (next to `contactAutoAdded`, with `socket.off` cleanup)
+- [x] Add a helper that applies an update to a contact:
   - set `statusText` if present in the payload
   - if `avatarUpdated`: set `avatarFileName = userId + "_avatar"` and reload bytes via `userService.loadAvatar(userId)`
-- [ ] Apply it to `contacts` (functional `setContacts`) and to `selectedContact` when its `_id` matches
-- [ ] If `payload.userId === user._id` (other own session): update `UserContext` the same way
-- [ ] Ignore updates for unknown contacts
+- [x] Apply it to `contacts` (functional `setContacts`) and to `selectedContact` when its `_id` matches
+- [x] If `payload.userId === user._id` (other own session): update `UserContext` the same way
+- [x] Ignore updates for unknown contacts
 
 **Files:**
 - `frontend/src/shared/contexts/ContactsContext.tsx`
-- possibly `frontend/src/shared/contexts/UserContext.tsx`
+- ~~possibly `frontend/src/shared/contexts/UserContext.tsx`~~ (not needed, `setUser` from the context is used)
 
 ### Phase 6: Testing & Validation (Est: 1-2 hours)
 - [ ] Backend unit tests for `updateStatusText` and event emission (see validation.md)

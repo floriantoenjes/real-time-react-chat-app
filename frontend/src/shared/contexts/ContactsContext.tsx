@@ -15,6 +15,7 @@ import { useDiContext } from "./DiContext";
 import { SocketContext } from "./SocketContext";
 import { SocketMessageTypes } from "@t/socket-message-types.enum";
 import { UserContext } from "./UserContext";
+import { ContactProfileUpdate } from "@t/user.contract";
 
 export const ContactsContext = createContext<{
     contacts: [Contact[], Dispatch<SetStateAction<Contact[]>>];
@@ -39,10 +40,11 @@ export function ContactsProvider({ children }: { children: ReactNode }) {
     const {
         ContactService: contactService,
         ContactGroupService: contactGroupService,
+        UserService: userService,
     } = useDiContext();
 
     const [socket] = useContext(SocketContext);
-    const [user] = useContext(UserContext);
+    const [user, setUser] = useContext(UserContext);
 
     const [selectedContact, setSelectedContact] = useState<Contact | undefined>(
         undefined,
@@ -193,6 +195,87 @@ export function ContactsProvider({ children }: { children: ReactNode }) {
             socket.off(SocketMessageTypes.message, updateContactLastMessage);
         };
     }, [socket, contacts, contactGroups]);
+
+    const handleContactProfileUpdated = useEffectEvent(
+        async (update: ContactProfileUpdate) => {
+            const isOwnProfile = update.userId === user?._id;
+            const isContact = contacts.some((c) => c._id === update.userId);
+            if (!isOwnProfile && !isContact) {
+                return;
+            }
+
+            const changes: Partial<Contact> = {};
+            if (update.statusText !== undefined) {
+                changes.statusText = update.statusText;
+            }
+
+            // Another session of the signed in user changed the profile;
+            // setUser reloads the avatar bytes itself. The session that made
+            // the change receives the update too, so skip it if nothing changed.
+            const ownProfileChanged =
+                update.avatarUpdated ||
+                (update.statusText !== undefined &&
+                    update.statusText !== user?.statusText);
+            if (isOwnProfile && user && ownProfileChanged) {
+                setUser({
+                    ...user,
+                    ...changes,
+                    ...(update.avatarUpdated && {
+                        avatarFileName: user._id + "_avatar",
+                    }),
+                });
+            }
+
+            if (!isContact) {
+                return;
+            }
+
+            if (update.avatarUpdated) {
+                // The file name stays the same, so the bytes have to be reloaded
+                changes.avatarFileName = update.userId + "_avatar";
+                try {
+                    const avatarBase64 = await userService.loadAvatar(
+                        update.userId,
+                    );
+                    if (avatarBase64) {
+                        changes.avatarBase64 = avatarBase64;
+                    }
+                } catch (error) {
+                    console.error(
+                        `Could not reload avatar of ${update.userId}`,
+                        error,
+                    );
+                }
+            }
+
+            setContacts((prevContacts) =>
+                prevContacts.map((c) =>
+                    c._id === update.userId ? { ...c, ...changes } : c,
+                ),
+            );
+            setSelectedContact((prevSelected) =>
+                prevSelected?._id === update.userId
+                    ? { ...prevSelected, ...changes }
+                    : prevSelected,
+            );
+        },
+    );
+
+    useEffect(() => {
+        if (!socket) {
+            return;
+        }
+        socket.on(
+            SocketMessageTypes.contactProfileUpdated,
+            handleContactProfileUpdated,
+        );
+        return () => {
+            socket.off(
+                SocketMessageTypes.contactProfileUpdated,
+                handleContactProfileUpdated,
+            );
+        };
+    }, [socket]);
 
     return (
         <ContactsContext.Provider
