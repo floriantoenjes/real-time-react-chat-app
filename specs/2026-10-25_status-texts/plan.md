@@ -59,8 +59,8 @@ Today the own-profile drawer (`UserProfile.tsx`) only edits the avatar, and the 
 - `frontend/src/i18n/en/index.ts`, `frontend/src/i18n/de/index.ts`, generated `i18n-types.ts`
 
 ### Phase 4: Frontend Show Contact Status (Est: 0.5-1 hour)
-- [ ] Render `selectedContact.statusText` below the avatar in the `TopBar` drawer when `!isContactGroup(selectedContact)` and the text is not empty
-- [ ] Add `data-testid="contact-status-text"` for e2e tests
+- [x] Render `selectedContact.statusText` below the avatar in the `TopBar` drawer when `!isContactGroup(selectedContact)` and the text is not empty
+- [x] Add `data-testid="contact-status-text"` for e2e tests
 
 **Files:**
 - `frontend/src/dashboard/chat/top-bar/TopBar.tsx`
