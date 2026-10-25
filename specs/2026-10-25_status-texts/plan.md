@@ -27,13 +27,13 @@ Today the own-profile drawer (`UserProfile.tsx`) only edits the avatar, and the 
 - `backend/src/modules/init/init.service.ts` (optional)
 
 ### Phase 2: Backend Live Profile Updates (Est: 1-2 hours)
-- [ ] Add `EventNames.USER_PROFILE_UPDATED = 'user.profile-updated'`
-- [ ] Add `UserProfileUpdatedEvent { userId: string; statusText?: string; avatarUpdated?: boolean }` to `user.events.ts`
-- [ ] Add `SocketMessageTypes.contactProfileUpdated = 'contactProfileUpdated'`
-- [ ] Add shared payload type `ContactProfileUpdate { userId, statusText?, avatarUpdated? }` (in `backend/shared`, so the frontend can use it)
-- [ ] Inject `EventBusService` into `UserService`; emit the event at the end of `updateStatusText` and `updateUserAvatar`
-- [ ] Handle the event in `SocketGateway`: `getUsersThatHaveContact(userId)` → `server.to([...contactIds, userId]).emit(contactProfileUpdated, payload)`
-- [ ] Wrap the handler in try/catch + log, like the existing handlers
+- [x] Add `EventNames.USER_PROFILE_UPDATED = 'user.profile-updated'`
+- [x] Add `UserProfileUpdatedEvent { userId: string; statusText?: string; avatarUpdated?: boolean }` to `user.events.ts`
+- [x] Add `SocketMessageTypes.contactProfileUpdated = 'contactProfileUpdated'`
+- [x] Add shared payload type `ContactProfileUpdate { userId, statusText?, avatarUpdated? }` (in `backend/shared`, so the frontend can use it)
+- [x] Inject `EventBusService` into `UserService`; emit the event at the end of `updateStatusText` and `updateUserAvatar`
+- [x] Handle the event in `SocketGateway`: `getUsersThatHaveContact(userId)` → `server.to([...contactIds, userId]).emit(contactProfileUpdated, payload)`
+- [x] Wrap the handler in try/catch + log, like the existing handlers
 
 **Files:**
 - `backend/src/events/event-names.enum.ts`
@@ -120,6 +120,7 @@ Today the own-profile drawer (`UserProfile.tsx`) only edits the avatar, and the 
 - `getUsersThatHaveContact()` query per profile update (fine for status/avatar frequency; throttled endpoint limits abuse)
 - `selectedContact` is a separate copy of the contact; forgetting to patch it leaves the open drawer stale
 - Avatar bytes: same file name after update, so any caching of `loadAvatar` responses (browser / HTTP cache headers) could serve the old image. Verify; if needed append a cache-busting query param or `Cache-Control: no-cache`
+  - Checked in Phase 2: `loadAvatar` is a JSON response without `Cache-Control`/`Last-Modified`, only Express' default `ETag`, so the browser revalidates and gets the new bytes. Confirm with the e2e test in Phase 6
 
 ### Mitigation
 - Reuse existing event bus / gateway patterns (`USER_IGNORED`, `CONTACT_ADDED`)

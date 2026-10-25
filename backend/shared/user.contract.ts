@@ -20,6 +20,16 @@ export const UserSchema = z.object({
 
 export type User = z.infer<typeof UserSchema>;
 
+/**
+ * Payload of the contactProfileUpdated socket message. Only the changed
+ * fields are set; the avatar image itself is not sent and has to be reloaded.
+ */
+export type ContactProfileUpdate = {
+    userId: string;
+    statusText?: string;
+    avatarUpdated?: boolean;
+};
+
 export const userContract = c.router({
     getSignedInUser: {
         method: 'GET',

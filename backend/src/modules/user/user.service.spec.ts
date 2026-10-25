@@ -4,15 +4,29 @@ import { getModelToken } from '@nestjs/mongoose';
 import { UserEntity } from './user.schema';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { UserNotFoundException } from '../../errors/internal/user-not-found.exception';
+import { EventBusService } from '../global/event-bus.service';
+import { EventNames } from '../../events/event-names.enum';
+import { Mocked } from '@suites/doubles.jest';
 
 jest.mock('bcrypt', () => ({
     hash: jest.fn().mockResolvedValue('hash'),
+}));
+
+jest.mock('jimp', () => ({
+    Jimp: {
+        fromBuffer: jest.fn().mockResolvedValue({
+            crop: jest.fn(),
+            resize: jest.fn(),
+            getBuffer: jest.fn().mockResolvedValue(Buffer.from('jpeg')),
+        }),
+    },
 }));
 
 describe('User Service', () => {
     let userService: UserService;
     let mockUserModel: any;
     let mockCache: any;
+    let eventBus: Mocked<EventBusService>;
 
     const testCredentials = { email: 'test1@email.com', password: 'testPw1' };
     const baseTestUserEntity = {
@@ -26,7 +40,7 @@ describe('User Service', () => {
     };
 
     beforeAll(async () => {
-        const { unit } = await TestBed.solitary(UserService)
+        const { unit, unitRef } = await TestBed.solitary(UserService)
             .mock(getModelToken(UserEntity.name))
             .impl((stubFn) => {
                 mockUserModel = {
@@ -50,6 +64,7 @@ describe('User Service', () => {
             .compile();
 
         userService = unit;
+        eventBus = unitRef.get(EventBusService);
     });
 
     beforeEach(async () => {
@@ -178,6 +193,17 @@ describe('User Service', () => {
             expect(mockCache.del).toHaveBeenCalled();
         });
 
+        it('should emit a profile update with the new status text', async () => {
+            mockUserModel.findOne.mockResolvedValueOnce(baseTestUserEntity);
+
+            await userService.updateStatusText(userId, 'Busy\nin a meeting');
+
+            expect(eventBus.emitAsync).toHaveBeenCalledWith(
+                EventNames.USER_PROFILE_UPDATED,
+                { userId, statusText: 'Busy in a meeting' },
+            );
+        });
+
         it('should throw when the user does not exist', async () => {
             mockUserModel.findOne.mockResolvedValueOnce(null);
 
@@ -185,6 +211,24 @@ describe('User Service', () => {
                 userService.updateStatusText(userId, 'Available'),
             ).rejects.toThrow(UserNotFoundException);
             expect(mockUserModel.updateOne).not.toHaveBeenCalled();
+            expect(eventBus.emitAsync).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('updateUserAvatar', () => {
+        const userId = '507f1f77bcf86cd799439011';
+
+        it('should emit a profile update after the avatar was stored', async () => {
+            mockUserModel.findOne.mockResolvedValueOnce(baseTestUserEntity);
+
+            await userService.updateUserAvatar(userId, 0, 0, 10, 10, {
+                buffer: Buffer.from('png'),
+            } as Express.Multer.File);
+
+            expect(eventBus.emitAsync).toHaveBeenCalledWith(
+                EventNames.USER_PROFILE_UPDATED,
+                { userId, avatarUpdated: true },
+            );
         });
     });
 });
