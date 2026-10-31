@@ -1,5 +1,3 @@
-<img src="./imgs/florians-chat.jpg" alt="Florian's Chat logo" width="200">
-
 # Florian's Chat - Real-Time Messaging App
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)
