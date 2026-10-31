@@ -277,16 +277,29 @@ export class ChatView {
         await this.page.getByRole("menuitem", { name }).click();
     }
 
+    get confirmationDialog(): Locator {
+        return this.page.getByRole("dialog");
+    }
+
+    /** Opens a chat menu item and confirms the dialog that follows. */
+    async openMenuItemAndConfirm(name: string, confirmLabel = name) {
+        await this.openMenuItem(name);
+        await this.confirmationDialog
+            .getByRole("button", { name: confirmLabel, exact: true })
+            .click();
+        await expect(this.confirmationDialog).toBeHidden();
+    }
+
     async emptyChat() {
-        await this.openMenuItem("Delete messages");
+        await this.openMenuItemAndConfirm("Delete messages");
     }
 
     async deleteChat() {
-        await this.openMenuItem("Delete chat");
+        await this.openMenuItemAndConfirm("Delete chat");
     }
 
     async leaveGroup() {
-        await this.openMenuItem("Leave group");
+        await this.openMenuItemAndConfirm("Leave group");
     }
 
     async ignoreContact() {

@@ -1,7 +1,15 @@
 services:
   mongo:
-    image: mongodb/mongodb-community-server
-    command: mongod --replSet rs0 --bind_ip_all
+    # Deliberately differs from production (helm/realtime-chat/charts/mongodb/values.yaml):
+    # mongod 8.3.4 refuses to start on Linux kernel 6.19+ (e.g. Docker Desktop).
+    image: mongodb/mongodb-community-server:8.2.12-ubuntu2204
+    # MongoDB 8.x's bundled tcmalloc breaks on Linux kernel 6.19+ (SERVER-121912). The rseq
+    # tunable works around it; the image's entrypoint refuses to start on these kernels
+    # regardless, so mongod is started directly (mongo-init initiates the replica set).
+    entrypoint: ["mongod"]
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    environment:
+      - GLIBC_TUNABLES=glibc.pthread.rseq=1
     ports:
       - "27017:27017"
     volumes:
@@ -27,7 +35,7 @@ services:
       - 9090:9090
 
   mongo-init:
-    image: mongodb/mongodb-community-server
+    image: mongodb/mongodb-community-server:8.2.12-ubuntu2204
     depends_on:
       mongo:
         condition: service_healthy

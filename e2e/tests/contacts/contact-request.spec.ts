@@ -51,6 +51,10 @@ test.describe("Contact requests", () => {
         await expect(sidebar.contact(aliceName)).toBeVisible();
         await sidebar.openChat(aliceName);
         await bob.page.getByRole("button", { name: "No", exact: true }).click();
+        await bob.page
+            .getByRole("dialog")
+            .getByRole("button", { name: "Decline", exact: true })
+            .click();
 
         await bob.dashboard.expectSnackbar(
             `${aliceName} is no longer a contact`,

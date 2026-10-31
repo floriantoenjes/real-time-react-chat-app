@@ -11,6 +11,7 @@ import {
 } from "../../../shared/contexts/SnackbarContext";
 import { useI18nContext } from "../../../i18n/i18n-react";
 import { IgnoreConfirmationDialog } from "../../../shared/components/IgnoreConfirmationDialog";
+import { ConfirmationDialog } from "../../../shared/components/ConfirmationDialog";
 
 interface ContactRequestProps {
     selectedContact?: Contact | ContactGroup;
@@ -24,6 +25,7 @@ export function ContactRequest({ selectedContact }: ContactRequestProps) {
     const [, setSelectedContact] = useContext(ContactsContext).selectedContact;
     const { LL } = useI18nContext();
     const [ignoreDialogOpen, setIgnoreDialogOpen] = useState(false);
+    const [declineDialogOpen, setDeclineDialogOpen] = useState(false);
 
     // Contact groups should never use ContactRequest - they are automatically accepted
     if (!selectedContact || "memberRefs" in selectedContact) {
@@ -99,36 +101,7 @@ export function ContactRequest({ selectedContact }: ContactRequestProps) {
                         >
                             Yes
                         </Button>
-                        <Button
-                            onClick={async () => {
-                                await contactRequestService.respondToContactRequest(
-                                    contactRequest._id,
-                                    false,
-                                );
-                                setContacts((prevState) => {
-                                    const contact = prevState.find(
-                                        (contact) =>
-                                            contact._id ===
-                                            contactRequest.initiatorId,
-                                    );
-                                    if (!contact) {
-                                        return prevState;
-                                    }
-                                    return [
-                                        ...prevState.filter(
-                                            (c) => c !== contact,
-                                        ),
-                                    ];
-                                });
-                                setSelectedContact(undefined);
-                                snackbarService.showSnackbar(
-                                    LL.CONTACT_REMOVED({
-                                        name: selectedContact.name,
-                                    }),
-                                    SnackbarLevels.SUCCESS,
-                                );
-                            }}
-                        >
+                        <Button onClick={() => setDeclineDialogOpen(true)}>
                             No
                         </Button>
                         <Button
@@ -140,6 +113,43 @@ export function ContactRequest({ selectedContact }: ContactRequestProps) {
                     </CardActions>
                 </Card>
             )}
+
+            <ConfirmationDialog
+                open={declineDialogOpen}
+                onClose={() => setDeclineDialogOpen(false)}
+                onConfirm={async () => {
+                    if (!contactRequest) {
+                        return;
+                    }
+                    await contactRequestService.respondToContactRequest(
+                        contactRequest._id,
+                        false,
+                    );
+                    setContacts((prevState) => {
+                        const contact = prevState.find(
+                            (contact) =>
+                                contact._id === contactRequest.initiatorId,
+                        );
+                        if (!contact) {
+                            return prevState;
+                        }
+                        return [...prevState.filter((c) => c !== contact)];
+                    });
+                    setSelectedContact(undefined);
+                    snackbarService.showSnackbar(
+                        LL.CONTACT_REMOVED({
+                            name: selectedContact.name,
+                        }),
+                        SnackbarLevels.SUCCESS,
+                    );
+                }}
+                title={LL.CONFIRM_DECLINE_CONTACT()}
+                message={LL.DECLINE_CONTACT_CONFIRMATION({
+                    name: selectedContact?.name ?? "",
+                })}
+                confirmLabel={LL.DECLINE()}
+                destructive={true}
+            />
 
             <IgnoreConfirmationDialog
                 open={ignoreDialogOpen}

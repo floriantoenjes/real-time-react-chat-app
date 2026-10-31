@@ -138,4 +138,25 @@ test.describe("Direct messages", () => {
         await expect(chat.messageInput).toBeVisible();
         await expect(chat.messages).toHaveCount(0);
     });
+
+    test("keeps the chat messages when deletion is cancelled", async ({
+        createActor,
+    }) => {
+        const alice = await createActor("Alice");
+        const bob = await createActor("Bob");
+        await openChatBetween(alice, bob);
+        const { chat } = alice.dashboard;
+        await chat.sendMessage("Here to stay");
+
+        await chat.openMenuItem("Delete messages");
+        await expect(chat.confirmationDialog).toContainText(
+            `Are you sure you want to delete all messages in your chat with ${bob.user.username}?`,
+        );
+        await chat.confirmationDialog
+            .getByRole("button", { name: "Cancel" })
+            .click();
+
+        await expect(chat.confirmationDialog).toBeHidden();
+        await expect(chat.messages).toHaveCount(1);
+    });
 });

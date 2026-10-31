@@ -79,6 +79,19 @@ const en = {
     IGNORE_CONFIRMATION: "Are you sure you want to ignore {contactName}?",
     UNIGNORE_CONFIRMATION: "Are you sure you want to un-ignore {username}?",
     CANCEL: "Cancel",
+    CONFIRM_EMPTY_CHAT: "Delete messages?",
+    EMPTY_CHAT_CONFIRMATION:
+        "Are you sure you want to delete all messages in your chat with {name}? This cannot be undone.",
+    CONFIRM_DELETE_CHAT: "Delete chat?",
+    DELETE_CHAT_CONFIRMATION:
+        "Are you sure you want to delete your chat with {name}? {name} will be removed from your contacts and all messages will be deleted.",
+    CONFIRM_LEAVE_GROUP: "Leave group?",
+    LEAVE_GROUP_CONFIRMATION:
+        "Are you sure you want to leave {name}? You can rejoin it later from Left Groups.",
+    CONFIRM_DECLINE_CONTACT: "Decline contact request?",
+    DECLINE_CONTACT_CONFIRMATION:
+        "Are you sure you want to decline the contact request from {name}?",
+    DECLINE: "Decline",
     ATTACH_IMAGE: "Attach image",
     SEND_MESSAGE: "Send message",
     RECORD_AUDIO: "Record audio message",
