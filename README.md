@@ -15,10 +15,13 @@ The complete production environment on Google Kubernetes Engine is reproducible 
 and one set of DNS records take an empty GCP billing account to a running, TLS-secured deployment, and every tagged
 release after that deploys itself.
 
+---
 <img src="./imgs/demo.gif" alt="Two users chatting in real time: typing indicator, live delivery, read receipts and image sharing" width="100%">
 
 <sub>Two browsers side by side: typing indicator, live delivery, read receipts and image sharing. Recorded automatically
 with Playwright, see [Demo GIF](#demo-gif).</sub>
+
+---
 
 ## Architecture Overview
 
