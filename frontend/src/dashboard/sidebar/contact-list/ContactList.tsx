@@ -23,9 +23,12 @@ export function ContactList(props: { nameFilter?: string }) {
         uc2Message?: Message,
     ) {
         if (uc1Message && uc2Message) {
-            return -uc1Message.at
-                .toString()
-                .localeCompare(uc2Message.at.toString());
+            // Newest first. Compare timestamps, not Date strings: those start with the
+            // weekday and drop the milliseconds.
+            return (
+                new Date(uc2Message.at).getTime() -
+                new Date(uc1Message.at).getTime()
+            );
         }
 
         return 0;

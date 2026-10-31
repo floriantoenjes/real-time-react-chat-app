@@ -1,4 +1,10 @@
-import { BrowserContext, test as base, Page } from "@playwright/test";
+import {
+    Browser,
+    BrowserContext,
+    BrowserContextOptions,
+    test as base,
+    Page,
+} from "@playwright/test";
 import { ApiClient, createUser, TestUser } from "./api";
 import { DashboardPage } from "../pages/dashboard.page";
 import { FRONTEND_ORIGIN } from "./urls";
@@ -31,35 +37,9 @@ export const test = base.extend<Fixtures>({
         const actors: Actor[] = [];
 
         await use(async (user) => {
-            // browser.newContext() inherits the project's `use` options (baseURL, viewport, ...).
-            const context = await browser.newContext({
-                storageState: {
-                    cookies: [
-                        authCookie("accessToken", user.accessToken, "/"),
-                        authCookie(
-                            "refreshToken",
-                            user.refreshToken,
-                            "/refresh",
-                        ),
-                    ],
-                    origins: [
-                        {
-                            origin: FRONTEND_ORIGIN,
-                            localStorage: [
-                                { name: "language", value: "en" },
-                                { name: "signedIn", value: "true" },
-                            ],
-                        },
-                    ],
-                },
-            });
-            const page = await context.newPage();
-            const dashboard = new DashboardPage(page);
-            const api = await ApiClient.create(user);
-            const actor = { user, context, page, dashboard, api };
+            const actor = await openSignedInActor(browser, user);
             actors.push(actor);
-
-            await dashboard.goto();
+            await actor.dashboard.goto();
             return actor;
         });
 
@@ -77,6 +57,41 @@ export const test = base.extend<Fixtures>({
         await use(await createActor("Me"));
     },
 });
+
+/**
+ * Opens a new browser context and page signed in as `user`, without navigating yet.
+ * The caller closes `context` and disposes `api`.
+ * `browser.newContext()` inherits the project's `use` options (baseURL, viewport, ...);
+ * `contextOptions` can add to them, e.g. `recordVideo`.
+ */
+export async function openSignedInActor(
+    browser: Browser,
+    user: TestUser,
+    contextOptions: BrowserContextOptions = {},
+): Promise<Actor> {
+    const context = await browser.newContext({
+        ...contextOptions,
+        storageState: {
+            cookies: [
+                authCookie("accessToken", user.accessToken, "/"),
+                authCookie("refreshToken", user.refreshToken, "/refresh"),
+            ],
+            origins: [
+                {
+                    origin: FRONTEND_ORIGIN,
+                    localStorage: [
+                        { name: "language", value: "en" },
+                        { name: "signedIn", value: "true" },
+                    ],
+                },
+            ],
+        },
+    });
+    const page = await context.newPage();
+    const dashboard = new DashboardPage(page);
+    const api = await ApiClient.create(user);
+    return { user, context, page, dashboard, api };
+}
 
 function authCookie(name: string, value: string, path: string) {
     return {

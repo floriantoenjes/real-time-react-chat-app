@@ -79,6 +79,14 @@ export class ApiClient {
         return this.expectJson(await this.context.get("/signed-in-user"), 200);
     }
 
+    async getContacts(): Promise<Contact[]> {
+        return this.expectJson(await this.context.post("/contacts"), 200);
+    }
+
+    async getContactGroups(): Promise<ContactGroup[]> {
+        return this.expectJson(await this.context.post("/contact-groups"), 200);
+    }
+
     async addContact(contactId: string): Promise<Contact> {
         return this.expectJson(
             await this.context.put("/contacts", {

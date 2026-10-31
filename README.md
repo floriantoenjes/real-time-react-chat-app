@@ -1,5 +1,3 @@
-<img src="./imgs/florians-chat.jpg" height="300px" width="400px">
-
 # Florian's Chat - Real-Time Messaging App
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)
@@ -17,7 +15,13 @@ The complete production environment on Google Kubernetes Engine is reproducible 
 and one set of DNS records take an empty GCP billing account to a running, TLS-secured deployment, and every tagged
 release after that deploys itself.
 
-<img src="./imgs/dashboard.png" style="width: 80%; ">
+---
+<img src="./imgs/demo.gif" alt="Two users chatting in real time: typing indicator, live delivery, read receipts and image sharing" width="100%">
+
+<sub>Two browsers side by side: typing indicator, live delivery, read receipts and image sharing. Recorded automatically
+with Playwright, see [Demo GIF](#demo-gif).</sub>
+
+---
 
 ## Architecture Overview
 
@@ -141,6 +145,18 @@ How the suite is set up:
 - **Rate limits**: all test users share one IP, so the backend started by Playwright runs with `E2E_THROTTLE_MULTIPLIER=1000`, which scales all REST and WebSocket rate limits. The variable defaults to `1`, so production limits are unchanged. If you start the backend yourself and let Playwright reuse it, set it there too: `E2E_THROTTLE_MULTIPLIER=1000 npm run start:backend`.
 - **Projects**: `chromium` (with a fake microphone for audio messages) runs everything except `responsive/`, which runs in `mobile-chromium` (Pixel 7). `E2E_ALL_BROWSERS=1` adds Firefox, which skips tests tagged `@chromium-only`.
 - **Debugging**: failed tests keep a screenshot and an `error-context.md` with the page snapshot in `test-results/`. On CI, the first retry also records a trace (`npx playwright show-trace <trace.zip>`).
+
+### Demo GIF
+
+The GIF at the top is generated, not screen-recorded, so it can be refreshed after every UI change:
+
+```bash
+npm run e2e:infra    # same infrastructure as the e2e suite
+npm run demo:gif     # records the scene and writes imgs/demo.gif (needs ffmpeg)
+```
+
+[`demo/demo.spec.ts`](demo/demo.spec.ts) reuses the e2e page objects to drive two signed-in users, and
+[`demo/make-gif.sh`](demo/make-gif.sh) trims both recordings to the scene and puts them side by side with ffmpeg.
 
 ## CI/CD Pipeline
 
