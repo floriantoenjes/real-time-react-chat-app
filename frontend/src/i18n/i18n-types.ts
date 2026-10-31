@@ -319,6 +319,46 @@ type RootTranslation = {
 	 */
 	CANCEL: string
 	/**
+	 * D​e​l​e​t​e​ ​m​e​s​s​a​g​e​s​?
+	 */
+	CONFIRM_EMPTY_CHAT: string
+	/**
+	 * A​r​e​ ​y​o​u​ ​s​u​r​e​ ​y​o​u​ ​w​a​n​t​ ​t​o​ ​d​e​l​e​t​e​ ​a​l​l​ ​m​e​s​s​a​g​e​s​ ​i​n​ ​y​o​u​r​ ​c​h​a​t​ ​w​i​t​h​ ​{​n​a​m​e​}​?​ ​T​h​i​s​ ​c​a​n​n​o​t​ ​b​e​ ​u​n​d​o​n​e​.
+	 * @param {unknown} name
+	 */
+	EMPTY_CHAT_CONFIRMATION: RequiredParams<'name'>
+	/**
+	 * D​e​l​e​t​e​ ​c​h​a​t​?
+	 */
+	CONFIRM_DELETE_CHAT: string
+	/**
+	 * A​r​e​ ​y​o​u​ ​s​u​r​e​ ​y​o​u​ ​w​a​n​t​ ​t​o​ ​d​e​l​e​t​e​ ​y​o​u​r​ ​c​h​a​t​ ​w​i​t​h​ ​{​n​a​m​e​}​?​ ​{​n​a​m​e​}​ ​w​i​l​l​ ​b​e​ ​r​e​m​o​v​e​d​ ​f​r​o​m​ ​y​o​u​r​ ​c​o​n​t​a​c​t​s​ ​a​n​d​ ​a​l​l​ ​m​e​s​s​a​g​e​s​ ​w​i​l​l​ ​b​e​ ​d​e​l​e​t​e​d​.
+	 * @param {unknown} name
+	 */
+	DELETE_CHAT_CONFIRMATION: RequiredParams<'name' | 'name'>
+	/**
+	 * L​e​a​v​e​ ​g​r​o​u​p​?
+	 */
+	CONFIRM_LEAVE_GROUP: string
+	/**
+	 * A​r​e​ ​y​o​u​ ​s​u​r​e​ ​y​o​u​ ​w​a​n​t​ ​t​o​ ​l​e​a​v​e​ ​{​n​a​m​e​}​?​ ​Y​o​u​ ​c​a​n​ ​r​e​j​o​i​n​ ​i​t​ ​l​a​t​e​r​ ​f​r​o​m​ ​L​e​f​t​ ​G​r​o​u​p​s​.
+	 * @param {unknown} name
+	 */
+	LEAVE_GROUP_CONFIRMATION: RequiredParams<'name'>
+	/**
+	 * D​e​c​l​i​n​e​ ​c​o​n​t​a​c​t​ ​r​e​q​u​e​s​t​?
+	 */
+	CONFIRM_DECLINE_CONTACT: string
+	/**
+	 * A​r​e​ ​y​o​u​ ​s​u​r​e​ ​y​o​u​ ​w​a​n​t​ ​t​o​ ​d​e​c​l​i​n​e​ ​t​h​e​ ​c​o​n​t​a​c​t​ ​r​e​q​u​e​s​t​ ​f​r​o​m​ ​{​n​a​m​e​}​?
+	 * @param {unknown} name
+	 */
+	DECLINE_CONTACT_CONFIRMATION: RequiredParams<'name'>
+	/**
+	 * D​e​c​l​i​n​e
+	 */
+	DECLINE: string
+	/**
 	 * A​t​t​a​c​h​ ​i​m​a​g​e
 	 */
 	ATTACH_IMAGE: string
@@ -667,6 +707,42 @@ export type TranslationFunctions = {
 	 * Cancel
 	 */
 	CANCEL: () => LocalizedString
+	/**
+	 * Delete messages?
+	 */
+	CONFIRM_EMPTY_CHAT: () => LocalizedString
+	/**
+	 * Are you sure you want to delete all messages in your chat with {name}? This cannot be undone.
+	 */
+	EMPTY_CHAT_CONFIRMATION: (arg: { name: unknown }) => LocalizedString
+	/**
+	 * Delete chat?
+	 */
+	CONFIRM_DELETE_CHAT: () => LocalizedString
+	/**
+	 * Are you sure you want to delete your chat with {name}? {name} will be removed from your contacts and all messages will be deleted.
+	 */
+	DELETE_CHAT_CONFIRMATION: (arg: { name: unknown }) => LocalizedString
+	/**
+	 * Leave group?
+	 */
+	CONFIRM_LEAVE_GROUP: () => LocalizedString
+	/**
+	 * Are you sure you want to leave {name}? You can rejoin it later from Left Groups.
+	 */
+	LEAVE_GROUP_CONFIRMATION: (arg: { name: unknown }) => LocalizedString
+	/**
+	 * Decline contact request?
+	 */
+	CONFIRM_DECLINE_CONTACT: () => LocalizedString
+	/**
+	 * Are you sure you want to decline the contact request from {name}?
+	 */
+	DECLINE_CONTACT_CONFIRMATION: (arg: { name: unknown }) => LocalizedString
+	/**
+	 * Decline
+	 */
+	DECLINE: () => LocalizedString
 	/**
 	 * Attach image
 	 */

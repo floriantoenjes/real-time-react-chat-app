@@ -1,16 +1,10 @@
-import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-} from "@mui/material";
 import { useI18nContext } from "../../i18n/i18n-react";
+import { ConfirmationDialog } from "./ConfirmationDialog";
 
 interface IgnoreConfirmationDialogProps {
     open: boolean;
     onClose: () => void;
-    onConfirm: () => void;
+    onConfirm: () => void | Promise<unknown>;
     contactName: string;
     isIgnore?: boolean;
 }
@@ -25,23 +19,17 @@ export function IgnoreConfirmationDialog({
     const { LL } = useI18nContext();
 
     return (
-        <Dialog open={open} onClose={onClose}>
-            <DialogTitle>
-                {isIgnore ? LL.CONFIRM_IGNORE() : LL.CONFIRM_UNIGNORE()}
-            </DialogTitle>
-            <DialogContent>
-                <p>
-                    {isIgnore
-                        ? LL.IGNORE_CONFIRMATION({ contactName })
-                        : LL.UNIGNORE_CONFIRMATION({ username: contactName })}
-                </p>
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={onClose}>{LL.CANCEL()}</Button>
-                <Button onClick={onConfirm} color="primary" autoFocus>
-                    {isIgnore ? LL.IGNORE() : LL.UNIGNORE()}
-                </Button>
-            </DialogActions>
-        </Dialog>
+        <ConfirmationDialog
+            open={open}
+            onClose={onClose}
+            onConfirm={onConfirm}
+            title={isIgnore ? LL.CONFIRM_IGNORE() : LL.CONFIRM_UNIGNORE()}
+            message={
+                isIgnore
+                    ? LL.IGNORE_CONFIRMATION({ contactName })
+                    : LL.UNIGNORE_CONFIRMATION({ username: contactName })
+            }
+            confirmLabel={isIgnore ? LL.IGNORE() : LL.UNIGNORE()}
+        />
     );
 }

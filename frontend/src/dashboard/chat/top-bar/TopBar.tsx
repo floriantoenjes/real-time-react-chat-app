@@ -20,10 +20,13 @@ import { useTopBarUI } from "../../../shared/hooks/useTopBarUI";
 import { ContactGroup, isContactGroup } from "@t/contact-group.contract";
 import { useDiContext } from "../../../shared/contexts/DiContext";
 import { IgnoreConfirmationDialog } from "../../../shared/components/IgnoreConfirmationDialog";
+import { ConfirmationDialog } from "../../../shared/components/ConfirmationDialog";
 import {
     SnackbarLevels,
     snackbarService,
 } from "../../../shared/contexts/SnackbarContext";
+
+type PendingChatAction = "emptyChat" | "deleteChat" | "leaveGroup";
 
 export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
     const { LL } = useI18nContext();
@@ -41,6 +44,50 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
     const { anchorEl, open, state, handleClick, handleClose, toggleDrawer } =
         useTopBarUI();
     const [ignoreDialogOpen, setIgnoreDialogOpen] = useState(false);
+    const [pendingAction, setPendingAction] = useState<PendingChatAction>();
+    // Keeps the dialog content stable while its closing transition runs.
+    const [lastPendingAction, setLastPendingAction] =
+        useState<PendingChatAction>("emptyChat");
+
+    function requestConfirmation(action: PendingChatAction) {
+        handleClose();
+        setLastPendingAction(action);
+        setPendingAction(action);
+    }
+
+    const chatActionDialogs: Record<
+        PendingChatAction,
+        {
+            title: string;
+            message: string;
+            confirmLabel: string;
+            run: () => Promise<unknown>;
+        }
+    > = {
+        emptyChat: {
+            title: LL.CONFIRM_EMPTY_CHAT(),
+            message: LL.EMPTY_CHAT_CONFIRMATION({ name: selectedContact.name }),
+            confirmLabel: LL.EMPTY_CHAT(),
+            run: () => emptyChat(selectedContact),
+        },
+        deleteChat: {
+            title: LL.CONFIRM_DELETE_CHAT(),
+            message: LL.DELETE_CHAT_CONFIRMATION({
+                name: selectedContact.name,
+            }),
+            confirmLabel: LL.DELETE_CHAT(),
+            run: () => deleteChat(selectedContact),
+        },
+        leaveGroup: {
+            title: LL.CONFIRM_LEAVE_GROUP(),
+            message: LL.LEAVE_GROUP_CONFIRMATION({
+                name: selectedContact.name,
+            }),
+            confirmLabel: LL.LEAVE_GROUP(),
+            run: () => leaveGroup(selectedContact),
+        },
+    };
+    const chatActionDialog = chatActionDialogs[lastPendingAction];
 
     return (
         <div
@@ -123,16 +170,12 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
                         list: { "aria-labelledby": "basic-button" },
                     }}
                 >
-                    <MenuItem
-                        onClick={() => emptyChat(selectedContact, handleClose)}
-                    >
+                    <MenuItem onClick={() => requestConfirmation("emptyChat")}>
                         {LL.EMPTY_CHAT()}
                     </MenuItem>
                     {isContactGroup(selectedContact) ? (
                         <MenuItem
-                            onClick={() =>
-                                leaveGroup(selectedContact, handleClose)
-                            }
+                            onClick={() => requestConfirmation("leaveGroup")}
                         >
                             {LL.LEAVE_GROUP()}
                         </MenuItem>
@@ -140,7 +183,7 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
                         <span>
                             <MenuItem
                                 onClick={() =>
-                                    deleteChat(selectedContact, handleClose)
+                                    requestConfirmation("deleteChat")
                                 }
                             >
                                 {LL.DELETE_CHAT()}
@@ -216,6 +259,16 @@ export function TopBar(props: { selectedContact: Contact | ContactGroup }) {
                     </div>
                 </Drawer>
             )}
+
+            <ConfirmationDialog
+                open={pendingAction !== undefined}
+                onClose={() => setPendingAction(undefined)}
+                onConfirm={chatActionDialog.run}
+                title={chatActionDialog.title}
+                message={chatActionDialog.message}
+                confirmLabel={chatActionDialog.confirmLabel}
+                destructive={true}
+            />
 
             <IgnoreConfirmationDialog
                 open={ignoreDialogOpen}

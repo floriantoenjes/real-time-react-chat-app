@@ -82,6 +82,19 @@ const de = {
     UNIGNORE_CONFIRMATION:
         "Möchten Sie die Ignorierung von {username} wirklich aufheben?",
     CANCEL: "Abbrechen",
+    CONFIRM_EMPTY_CHAT: "Chat leeren?",
+    EMPTY_CHAT_CONFIRMATION:
+        "Möchtest du wirklich alle Nachrichten in deinem Chat mit {name} löschen? Dies kann nicht rückgängig gemacht werden.",
+    CONFIRM_DELETE_CHAT: "Chat löschen?",
+    DELETE_CHAT_CONFIRMATION:
+        "Möchtest du deinen Chat mit {name} wirklich löschen? {name} wird aus deinen Kontakten entfernt und alle Nachrichten werden gelöscht.",
+    CONFIRM_LEAVE_GROUP: "Gruppe verlassen?",
+    LEAVE_GROUP_CONFIRMATION:
+        "Möchtest du {name} wirklich verlassen? Du kannst der Gruppe später über „Verlassene Gruppen“ wieder beitreten.",
+    CONFIRM_DECLINE_CONTACT: "Kontaktanfrage ablehnen?",
+    DECLINE_CONTACT_CONFIRMATION:
+        "Möchtest du die Kontaktanfrage von {name} wirklich ablehnen?",
+    DECLINE: "Ablehnen",
     ATTACH_IMAGE: "Bild anhängen",
     SEND_MESSAGE: "Nachricht senden",
     RECORD_AUDIO: "Sprachnachricht aufnehmen",
