@@ -1,4 +1,5 @@
 import { expect, test } from "../../support/test";
+import { ApiClient } from "../../support/api";
 
 test.describe("Contacts", () => {
     test("searches for a user and adds them as a contact", async ({
@@ -62,6 +63,42 @@ test.describe("Contacts", () => {
 
         await sidebar.filterContacts("");
         await expect(sidebar.contacts).toHaveCount(2);
+    });
+
+    // Regression: the list compared Date strings, which have second precision and
+    // start with the weekday, so messages within one second kept the old order.
+    test("moves the contact with the newest message to the top live", async ({
+        actor,
+        createUser,
+    }) => {
+        const bob = await createUser("Bob");
+        const carol = await createUser("Carol");
+        const bobApi = await ApiClient.create(bob);
+        const carolApi = await ApiClient.create(carol);
+        try {
+            await actor.api.addContact(bob._id);
+            await actor.api.addContact(carol._id);
+            await bobApi.addContact(actor.user._id);
+            await carolApi.addContact(actor.user._id);
+            await actor.page.reload();
+            const { sidebar } = actor.dashboard;
+            await expect(sidebar.contacts).toHaveCount(2);
+
+            // Back to back, so both usually land within the same second.
+            await bobApi.sendMessage(actor.user._id, "From Bob");
+            await carolApi.sendMessage(actor.user._id, "From Carol");
+
+            await expect(sidebar.contact(carol.username)).toContainText(
+                "From Carol",
+            );
+            await expect(sidebar.contacts.first()).toHaveAttribute(
+                "data-contact-name",
+                carol.username,
+            );
+        } finally {
+            await bobApi.dispose();
+            await carolApi.dispose();
+        }
     });
 
     test("deletes a chat and removes the contact", async ({
