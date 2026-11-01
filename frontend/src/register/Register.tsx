@@ -1,5 +1,5 @@
 import { Button, IconButton, TextField } from "@mui/material";
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 import React, { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDiContext } from "../shared/contexts/DiContext";
@@ -7,7 +7,6 @@ import { useI18nContext } from "../i18n/i18n-react";
 import { GlobeAltIcon } from "@heroicons/react/24/outline";
 import { LanguageModal } from "../dashboard/sidebar/top-section/language-modal/LanguageModal";
 import { z } from "zod";
-import { RoutesEnum } from "../shared/enums/routes";
 import {
     SnackbarLevels,
     snackbarService,
@@ -64,7 +63,6 @@ const MIN_PASSWORD_LENGTH = 8;
 
 export function Register() {
     const { LL } = useI18nContext();
-    const navigate = useNavigate();
     const authService = useDiContext().AuthService;
 
     const [modalOpen, setModalOpen] = useState(false);
@@ -77,17 +75,18 @@ export function Register() {
     const { register, handleSubmit, formState } = useForm<SignUpData>();
 
     async function signUp(formData: SignUpData) {
-        const signUpResponse = await authService.signUp(
+        const signUpSuccess = await authService.signUp(
             formData.email,
             formData.password,
             formData.username,
         );
 
-        if (!signUpResponse) {
+        if (!signUpSuccess) {
             return;
         }
 
-        navigate(RoutesEnum.LOGIN);
+        setTimeout(() => window.location.reload(), 2500);
+
         snackbarService.showSnackbar(LL.REGISTERED(), SnackbarLevels.SUCCESS);
     }
 
@@ -153,6 +152,14 @@ export function Register() {
                             helperText={formState.errors.email?.message}
                         />
                     </div>
+                    <div className="mb-3">
+                        <TextField
+                            type="text"
+                            label={LL.USERNAME()}
+                            {...register("username", { required: true })}
+                            className={"w-80"}
+                        />
+                    </div>
                     <div className={"mb-3"}>
                         <TextField
                             type="password"
@@ -175,10 +182,13 @@ export function Register() {
                             }
                         />
                     </div>
-                    <div className={"mb-3"} style={{ height: "0.5rem" }}>
+                    <div
+                        className={"mb-3 mx-auto"}
+                        style={{ height: "0.5rem", width: "98%" }}
+                    >
                         <hr className={getPasswordScoreColor()} />
                     </div>
-                    <div className="mb-3">
+                    <div className="mb-5">
                         <TextField
                             type="password"
                             label={LL.CONFIRM_PASSWORD()}
@@ -201,23 +211,16 @@ export function Register() {
                             }
                         />
                     </div>
-                    <div className="mb-3">
-                        <TextField
-                            type="text"
-                            label={LL.USERNAME()}
-                            {...register("username", { required: true })}
-                            className={"w-80"}
-                        />
-                    </div>
 
-                    <div className="w-fit mx-auto">
+                    <div className="w-fit mx-auto mb-5">
                         <span className={"mr-3"}>
                             <Button variant={"contained"} type={"submit"}>
                                 {LL.SIGN_UP()}
                             </Button>
                         </span>
                         <Link to={"/"}>
-                            {LL.OR()} {LL.SIGN_IN()}
+                            {LL.OR()}{" "}
+                            <Button variant={"text"}>{LL.SIGN_IN()}</Button>
                         </Link>
                     </div>
                 </form>

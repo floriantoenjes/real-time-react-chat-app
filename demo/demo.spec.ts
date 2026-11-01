@@ -7,7 +7,7 @@ import {
     test,
     type Actor,
 } from "../e2e/support/test";
-import { ApiClient, type TestUser } from "../e2e/support/api";
+import { ApiClient, readSetCookie, type TestUser } from "../e2e/support/api";
 import { groupNameFor } from "../e2e/support/scenarios";
 import { BACKEND_URL } from "../e2e/support/urls";
 import { DEFAULT_PASSWORD } from "../e2e/support/ids";
@@ -85,7 +85,8 @@ async function demoUser(username: string): Promise<TestUser> {
             signIn = await api.post("/login", { data: { email, password } });
         }
         expect(signIn.status(), await signIn.text()).toBe(200);
-        const { accessToken, refreshToken } = await signIn.json();
+        const accessToken = readSetCookie(signIn, "accessToken");
+        const refreshToken = readSetCookie(signIn, "refreshToken");
 
         const me = await api.get("/signed-in-user", {
             headers: { cookie: `accessToken=${accessToken}` },

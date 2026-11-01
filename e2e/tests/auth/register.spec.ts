@@ -15,7 +15,7 @@ test.describe("Register", () => {
         await registerPage.goto();
     });
 
-    test("creates an account that can sign in", async ({ page }) => {
+    test("creates an account and signs the user in", async ({ page }) => {
         const username = uniqueUsername("New");
         const email = uniqueEmail(username);
 
@@ -26,9 +26,25 @@ test.describe("Register", () => {
         });
 
         await expectSnackbar(page, "Your account has been created");
-        const loginPage = new LoginPage(page);
-        await expect(loginPage.submit).toBeVisible();
+        // Sign-up sets the auth cookies and reloads into the dashboard.
+        await expect(page).toHaveURL(/\/dashboard$/, { timeout: 10_000 });
+    });
 
+    test("created account can sign in again", async ({ page }) => {
+        const username = uniqueUsername("New");
+        const email = uniqueEmail(username);
+
+        await registerPage.register({
+            email,
+            password: DEFAULT_PASSWORD,
+            username,
+        });
+        await expect(page).toHaveURL(/\/dashboard$/, { timeout: 10_000 });
+
+        await page.context().clearCookies();
+        await page.evaluate(() => localStorage.clear());
+        const loginPage = new LoginPage(page);
+        await loginPage.goto();
         await loginPage.signIn(email, DEFAULT_PASSWORD);
         await expect(page).toHaveURL(/\/dashboard$/);
     });

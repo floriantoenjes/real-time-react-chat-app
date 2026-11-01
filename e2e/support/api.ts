@@ -1,4 +1,9 @@
-import { APIRequestContext, expect, request } from "@playwright/test";
+import {
+    APIRequestContext,
+    APIResponse,
+    expect,
+    request,
+} from "@playwright/test";
 import type { User } from "../../backend/shared/user.contract";
 import type { Contact } from "../../backend/shared/contact.contract";
 import type { ContactGroup } from "../../backend/shared/contact-group.contract";
@@ -35,7 +40,8 @@ export async function createUser(namePrefix?: string): Promise<TestUser> {
             data: { email, password },
         });
         expect(signIn.status(), await signIn.text()).toBe(200);
-        const { accessToken, refreshToken } = await signIn.json();
+        const accessToken = readSetCookie(signIn, "accessToken");
+        const refreshToken = readSetCookie(signIn, "refreshToken");
 
         const api = await ApiClient.create({ accessToken });
         try {
@@ -54,6 +60,17 @@ export async function createUser(namePrefix?: string): Promise<TestUser> {
     } finally {
         await anonymous.dispose();
     }
+}
+
+/** Extracts a cookie value from a response's `Set-Cookie` headers. */
+export function readSetCookie(response: APIResponse, name: string): string {
+    const header = response
+        .headersArray()
+        .filter((h) => h.name.toLowerCase() === "set-cookie")
+        .map((h) => h.value)
+        .find((value) => value.startsWith(`${name}=`));
+    expect(header, `missing ${name} cookie on ${response.url()}`).toBeTruthy();
+    return decodeURIComponent(header!.split(";")[0].slice(name.length + 1));
 }
 
 /**

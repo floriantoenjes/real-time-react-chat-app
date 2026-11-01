@@ -44,7 +44,7 @@ export class AuthService {
 
         AuthService.setSignInData();
 
-        return res.body.authUser;
+        return true;
     }
 
     async refresh() {
@@ -76,7 +76,7 @@ export class AuthService {
 
         AuthService.setSignInData();
 
-        return res.body;
+        return true;
     }
 
     async authenticateUserAndFetchAvatar(

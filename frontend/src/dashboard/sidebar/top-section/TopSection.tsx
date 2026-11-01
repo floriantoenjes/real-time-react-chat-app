@@ -46,12 +46,15 @@ export function TopSection() {
     return (
         <>
             <div className={"flex items-center mb-3"}>
-                <div
-                    className={"ml-3 cursor-pointer"}
-                    data-testid="open-profile"
-                    onClick={toggleDrawer("left", true, "profile")}
-                >
-                    <Avatar user={user} />
+                <div className={"flex items-center"}>
+                    <div
+                        className={"ml-3 cursor-pointer"}
+                        data-testid="open-profile"
+                        onClick={toggleDrawer("left", true, "profile")}
+                    >
+                        <Avatar user={user} />
+                    </div>
+                    {user.username}
                 </div>
                 <div className={"block ml-auto mr-2"}>
                     <IconButton

@@ -2,7 +2,7 @@ import { User } from "@t/user.contract";
 import { useEffect } from "react";
 import { Contact } from "@t/contact.contract";
 import { ContactGroup, isContactGroup } from "@t/contact-group.contract";
-import { UsersIcon } from "@heroicons/react/24/outline";
+import { UserIcon, UsersIcon } from "@heroicons/react/24/outline";
 
 export function Avatar(props: {
     width?: string;
@@ -39,6 +39,11 @@ export function Avatar(props: {
                 ></div>
             )}
             {!isContactGroup(props.user) &&
+                !props.user.avatarBase64 &&
+                !props.user.avatarFileName && (
+                    <UserIcon style={{ color: "white", padding: "0.25rem" }} />
+                )}
+            {!isContactGroup(props.user) &&
                 (props.user.avatarBase64 || props.user.avatarFileName) && (
                     <img
                         alt={"user avatar"}
@@ -57,7 +62,7 @@ export function Avatar(props: {
                     />
                 )}
             {isContactGroup(props.user) && (
-                <UsersIcon width={"2rem"} fill={"white"} />
+                <UsersIcon width={"2rem"} style={{ color: "white" }} />
             )}
         </div>
     );

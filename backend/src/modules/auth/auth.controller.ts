@@ -7,7 +7,6 @@ import { Request, Response } from 'express';
 import { InvalidEmailOrPasswordException } from '../../errors/external/invalid-email-or-password.exception';
 import { UserNotFoundException } from '../../errors/internal/user-not-found.exception';
 import { UnauthorizedException } from '../../errors/external/unauthorized.exception';
-import { returnEntityOrNotFound } from '../../controllers/utils/controller-utils';
 import { AuthThrottle } from '../../decorators/throttle.decorators';
 
 @Controller()
@@ -45,7 +44,7 @@ export class AuthController {
                     path: '/refresh',
                 });
 
-                return returnEntityOrNotFound(signInResult);
+                return { status: 200, body: undefined };
             } catch (error: any) {
                 if (error instanceof UserNotFoundException) {
                     throw new InvalidEmailOrPasswordException();
@@ -125,9 +124,9 @@ export class AuthController {
     @TsRestHandler(authContract.signUp)
     @Public()
     @AuthThrottle()
-    async signUp() {
+    async signUp(@Res({ passthrough: true }) res: Response) {
         return tsRestHandler(authContract.signUp, async ({ body }) => {
-            const authUser = await this.authService.createAuthUser(
+            await this.authService.createAuthUser(
                 body.email,
                 body.password,
                 body.username,
@@ -139,13 +138,23 @@ export class AuthController {
             );
             const { accessToken, refreshToken } = signInResponse;
 
+            const secureCookieOptions = {
+                secure: true,
+                httpOnly: true,
+                sameSite: 'lax' as const,
+                maxAge: 3_600_000,
+            };
+
+            res.cookie('accessToken', accessToken, secureCookieOptions);
+
+            res.cookie('refreshToken', refreshToken, {
+                ...secureCookieOptions,
+                path: '/refresh',
+            });
+
             return {
                 status: 201,
-                body: {
-                    authUserId: authUser._id.toString(),
-                    accessToken,
-                    refreshToken,
-                },
+                body: undefined,
             };
         });
     }

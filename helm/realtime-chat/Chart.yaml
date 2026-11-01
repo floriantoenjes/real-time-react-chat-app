@@ -21,7 +21,7 @@ version: 0.2.30
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "1.10.5"
+appVersion: "1.10.6"
 
 # Subcharts live unpacked in charts/; listing them here lets values toggle them.
 dependencies:

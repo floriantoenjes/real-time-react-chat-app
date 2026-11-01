@@ -23,11 +23,11 @@ export function Login() {
     const { register, handleSubmit, formState } = useForm<SignInData>();
 
     async function signIn(formData: SignInData) {
-        const user = await authService.signIn(
+        const signInSuccess = await authService.signIn(
             formData.email,
             formData.password,
         );
-        if (!user) {
+        if (!signInSuccess) {
             return;
         }
         window.location.reload();
@@ -97,7 +97,8 @@ export function Login() {
                             </Button>
                         </span>
                         <Link to={RoutesEnum.REGISTER}>
-                            {LL.OR()} {LL.SIGN_UP()}
+                            {LL.OR()}{" "}
+                            <Button variant={"text"}>{LL.SIGN_UP()}</Button>
                         </Link>
                     </div>
                 </form>
