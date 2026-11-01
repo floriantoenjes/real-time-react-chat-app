@@ -1,6 +1,5 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
-import { UserSchema } from './user.contract';
 
 export const AuthUserSchema = z.object({
     _id: z.string(),
@@ -56,11 +55,7 @@ export const authContract = c.router({
         method: 'POST',
         path: '/register',
         responses: {
-            201: z.object({
-                authUserId: UserSchema,
-                accessToken: z.string(),
-                refreshToken: z.string(),
-            }),
+            201: z.undefined(),
             400: z.object({ message: z.literal('Already exists') }),
         },
         body: z.object({

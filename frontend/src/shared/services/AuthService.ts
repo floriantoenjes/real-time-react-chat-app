@@ -76,7 +76,7 @@ export class AuthService {
 
         AuthService.setSignInData();
 
-        return res.body;
+        return true;
     }
 
     async authenticateUserAndFetchAvatar(

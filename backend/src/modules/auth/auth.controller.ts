@@ -125,9 +125,9 @@ export class AuthController {
     @TsRestHandler(authContract.signUp)
     @Public()
     @AuthThrottle()
-    async signUp() {
+    async signUp(@Res({ passthrough: true }) res: Response) {
         return tsRestHandler(authContract.signUp, async ({ body }) => {
-            const authUser = await this.authService.createAuthUser(
+            await this.authService.createAuthUser(
                 body.email,
                 body.password,
                 body.username,
@@ -139,13 +139,23 @@ export class AuthController {
             );
             const { accessToken, refreshToken } = signInResponse;
 
+            const secureCookieOptions = {
+                secure: true,
+                httpOnly: true,
+                sameSite: 'lax' as const,
+                maxAge: 3_600_000,
+            };
+
+            res.cookie('accessToken', accessToken, secureCookieOptions);
+
+            res.cookie('refreshToken', refreshToken, {
+                ...secureCookieOptions,
+                path: '/refresh',
+            });
+
             return {
                 status: 201,
-                body: {
-                    authUserId: authUser._id.toString(),
-                    accessToken,
-                    refreshToken,
-                },
+                body: undefined,
             };
         });
     }
