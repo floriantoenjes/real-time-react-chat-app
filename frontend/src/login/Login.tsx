@@ -97,7 +97,8 @@ export function Login() {
                             </Button>
                         </span>
                         <Link to={RoutesEnum.REGISTER}>
-                            {LL.OR()} {LL.SIGN_UP()}
+                            {LL.OR()}{" "}
+                            <Button variant={"text"}>{LL.SIGN_UP()}</Button>
                         </Link>
                     </div>
                 </form>

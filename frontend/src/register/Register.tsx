@@ -217,7 +217,8 @@ export function Register() {
                             </Button>
                         </span>
                         <Link to={"/"}>
-                            {LL.OR()} {LL.SIGN_IN()}
+                            {LL.OR()}{" "}
+                            <Button variant={"text"}>{LL.SIGN_IN()}</Button>
                         </Link>
                     </div>
                 </form>
