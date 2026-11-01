@@ -23,11 +23,11 @@ export function Login() {
     const { register, handleSubmit, formState } = useForm<SignInData>();
 
     async function signIn(formData: SignInData) {
-        const user = await authService.signIn(
+        const signInSuccess = await authService.signIn(
             formData.email,
             formData.password,
         );
-        if (!user) {
+        if (!signInSuccess) {
             return;
         }
         window.location.reload();

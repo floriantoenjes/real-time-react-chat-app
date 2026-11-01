@@ -17,11 +17,7 @@ export const authContract = c.router({
         method: 'POST',
         path: '/login',
         responses: {
-            200: z.object({
-                authUser: AuthUserSchema,
-                accessToken: z.string(),
-                refreshToken: z.string(),
-            }),
+            200: z.undefined(),
         },
         body: z.object({
             email: z.string().email(),

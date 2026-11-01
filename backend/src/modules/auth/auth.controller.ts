@@ -7,7 +7,6 @@ import { Request, Response } from 'express';
 import { InvalidEmailOrPasswordException } from '../../errors/external/invalid-email-or-password.exception';
 import { UserNotFoundException } from '../../errors/internal/user-not-found.exception';
 import { UnauthorizedException } from '../../errors/external/unauthorized.exception';
-import { returnEntityOrNotFound } from '../../controllers/utils/controller-utils';
 import { AuthThrottle } from '../../decorators/throttle.decorators';
 
 @Controller()
@@ -45,7 +44,7 @@ export class AuthController {
                     path: '/refresh',
                 });
 
-                return returnEntityOrNotFound(signInResult);
+                return { status: 200, body: undefined };
             } catch (error: any) {
                 if (error instanceof UserNotFoundException) {
                     throw new InvalidEmailOrPasswordException();

@@ -44,7 +44,7 @@ export class AuthService {
 
         AuthService.setSignInData();
 
-        return res.body.authUser;
+        return true;
     }
 
     async refresh() {
