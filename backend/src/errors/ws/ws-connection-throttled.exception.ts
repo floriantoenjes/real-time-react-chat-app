@@ -1,27 +1,13 @@
 import { ExternalErrors } from '../../../shared/enums/errors.enum';
+import { WsConnectError } from './ws-connect.error';
 
-export interface WsThrottleClientPayload {
-    error: string;
-    errorCode: string;
-    message: string;
-    retryAfterMs: number;
-}
-
-export class WsConnectionThrottledException extends Error {
-    constructor(
-        public readonly retryAfterMs: number,
-        public readonly errorCode: string = ExternalErrors.EXT_WS_THROTTLE_001,
-    ) {
-        super('WebSocket connection throttled. Too many connection attempts.');
+export class WsConnectionThrottledException extends WsConnectError {
+    constructor(public readonly retryAfterMs: number) {
+        super(
+            ExternalErrors.EXT_WS_THROTTLE_001,
+            'WebSocket connection throttled. Too many connection attempts.',
+            retryAfterMs,
+        );
         this.name = 'WsConnectionThrottledException';
-    }
-
-    toClientPayload(): WsThrottleClientPayload {
-        return {
-            error: 'CONNECTION_THROTTLED',
-            errorCode: this.errorCode,
-            message: this.message,
-            retryAfterMs: this.retryAfterMs,
-        };
     }
 }

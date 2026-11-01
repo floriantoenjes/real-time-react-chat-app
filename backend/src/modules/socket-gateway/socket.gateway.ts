@@ -1,6 +1,7 @@
 import {
     OnGatewayConnection,
     OnGatewayDisconnect,
+    OnGatewayInit,
     SubscribeMessage,
     WebSocketGateway,
     WebSocketServer,
@@ -15,6 +16,10 @@ import { OnlineStatusService } from '../online-status/online-status.service';
 import { SocketMessageTypes } from '../../../shared/socket-message-types.enum';
 import { WsConnectionThrottlerService } from './ws-connection-throttler.service';
 import { WsConnectionThrottledException } from '../../errors/ws/ws-connection-throttled.exception';
+import {
+    WsConnectError,
+    WsUnauthorizedError,
+} from '../../errors/ws/ws-connect.error';
 import { ConfigService } from '@nestjs/config';
 import { EventBusService } from '../global/event-bus.service';
 import { InjectModel } from '@nestjs/mongoose';
@@ -44,7 +49,11 @@ import { JwtPayload } from '../../types/jwt.types';
     },
 })
 export class RealTimeChatGateway
-    implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit
+    implements
+        OnGatewayInit,
+        OnGatewayConnection,
+        OnGatewayDisconnect,
+        OnModuleInit
 {
     private readonly JWT_SECRET: string;
 
@@ -212,27 +221,104 @@ export class RealTimeChatGateway
         );
     }
 
-    async handleConnection(socket: Socket): Promise<void> {
+    /**
+     * Registers the connection middleware. Socket.IO runs it before it confirms
+     * the connection to the client, so a client's `connect` event means the
+     * socket is authenticated and already in its user's room.
+     */
+    afterInit(server: Server): void {
+        server.use((socket, next) => {
+            this.authenticateConnection(socket).then(
+                () => next(),
+                (err: unknown) => {
+                    if (err instanceof WsConnectError) {
+                        next(err);
+                        return;
+                    }
+                    // e.g. Redis or MongoDB unavailable
+                    this.logger.error(
+                        `Unable to authenticate socket ${socket.id}: ${err instanceof Error ? err.message : 'Unknown error'}`,
+                        err instanceof Error ? err.stack : undefined,
+                    );
+                    next(new WsUnauthorizedError());
+                },
+            );
+        });
+    }
+
+    /**
+     * Throttles connection attempts, then resolves the chat user from the
+     * access token cookie and joins the socket to that user's room. Throws a
+     * WsConnectError, which Socket.IO sends to the client as `connect_error`.
+     * The user id comes from the verified token only; anything the client sends
+     * (e.g. the handshake query) is not trusted.
+     */
+    async authenticateConnection(socket: Socket): Promise<void> {
         // Check throttle first - before authentication
         const throttleResult = await this.wsThrottler.checkAndTrack(socket);
         if (!throttleResult.allowed) {
-            const exception = new WsConnectionThrottledException(
+            throw new WsConnectionThrottledException(
                 throttleResult.retryAfterMs ?? 60000,
             );
-            socket.emit('error', exception.toClientPayload());
+        }
+
+        const userId = await this.resolveUserId(socket);
+        socket.data.userId = userId;
+        // Joined before the client is told it is connected, so events sent
+        // right after `connect` already reach this socket
+        await socket.join(userId);
+    }
+
+    /**
+     * Verifies the access token cookie and returns the id of the chat user it
+     * belongs to. The token's `sub` is the auth user id, so it is mapped to the
+     * user id the same way as in AuthGuard.
+     */
+    private async resolveUserId(socket: Socket): Promise<string> {
+        const cookies = socket.handshake.headers.cookie;
+        const token = cookies ? parseCookie(cookies).accessToken : undefined;
+        if (!token) {
+            this.logger.warn(`No accessToken cookie for socket ${socket.id}`);
+            throw new WsUnauthorizedError();
+        }
+
+        let authUserId: string;
+        try {
+            const payload = this.jwtService.verify<JwtPayload>(token, {
+                secret: this.JWT_SECRET,
+            });
+            authUserId = payload?.sub;
+        } catch (err: unknown) {
+            this.logger.warn(
+                `Unable to verify token for socket ${socket.id}: ${err instanceof Error ? err.message : 'Unknown error'}`,
+            );
+            throw new WsUnauthorizedError();
+        }
+        if (!authUserId) {
+            this.logger.warn(`Token without sub for socket ${socket.id}`);
+            throw new WsUnauthorizedError();
+        }
+
+        const user = await this.userModel
+            .findOne({ authUserId }, { _id: 1 })
+            .lean();
+        if (!user) {
+            this.logger.warn(
+                `No user for auth user ${authUserId} on socket ${socket.id}`,
+            );
+            throw new WsUnauthorizedError();
+        }
+        return user._id.toString();
+    }
+
+    handleConnection(socket: Socket): void {
+        const userId = this.getAuthenticatedUserId(socket);
+        if (!userId) {
+            // Can't happen: the middleware rejects unauthenticated sockets
             socket.disconnect(true);
             return;
         }
-
-        if (!this.canSocketBeAuthenticated(socket)) {
-            return;
-        }
-
-        const userId = socket.handshake.query.userId as string;
         this.logger.log(`New connection: ${socket.id} for user: ${userId}`);
-
-        // Join the socket to a room named after the userId
-        socket.join(userId);
 
         this.onlineStatusService.setContactOnline(userId, true);
 
@@ -245,39 +331,12 @@ export class RealTimeChatGateway
             });
     }
 
-    canSocketBeAuthenticated(socket: Socket): boolean {
-        const cookies = socket.handshake.headers.cookie;
-        if (!cookies) {
-            this.logger.warn(`No cookies for socket ${socket.id}`);
-            socket.disconnect();
-            return false;
-        }
-
-        const parsed = parseCookie(cookies);
-        const token = parsed.accessToken;
-
-        if (!token) {
-            this.logger.warn(`No accessToken cookie for socket ${socket.id}`);
-            socket.disconnect();
-            return false;
-        }
-
-        try {
-            this.jwtService.verify<JwtPayload>(token, {
-                secret: this.JWT_SECRET,
-            });
-            return true;
-        } catch (err: unknown) {
-            this.logger.warn(
-                `Unable to verify token for socket ${socket.id}: ${err instanceof Error ? err.message : 'Unknown error'}`,
-            );
-            socket.disconnect();
-            return false;
-        }
-    }
-
     handleDisconnect(socket: Socket): void {
-        const userId = socket.handshake.query.userId as string;
+        const userId = this.getAuthenticatedUserId(socket);
+        if (!userId) {
+            // Rejected by the middleware, never connected
+            return;
+        }
         this.logger.log(
             `Client disconnected: ${socket.id} for user: ${userId}`,
         );
@@ -297,7 +356,10 @@ export class RealTimeChatGateway
 
     @SubscribeMessage(SocketMessageTypes.ping)
     async pong(client: Socket): Promise<void> {
-        const userId = client.handshake.query.userId as string;
+        const userId = this.getAuthenticatedUserId(client);
+        if (!userId) {
+            return;
+        }
         const throttleResult = await this.wsThrottler.checkMessageThrottle(
             userId,
             'ping',
@@ -317,9 +379,12 @@ export class RealTimeChatGateway
     @SubscribeMessage(SocketMessageTypes.typing)
     async handleTyping(
         client: Socket,
-        payload: { userId: string; contactId: string; isTyping: boolean },
+        payload: { contactId: string; isTyping: boolean },
     ): Promise<void> {
-        const userId = client.handshake.query.userId as string;
+        const userId = this.getAuthenticatedUserId(client);
+        if (!userId) {
+            return;
+        }
         const throttleResult = await this.wsThrottler.checkMessageThrottle(
             userId,
             'typing',
@@ -334,9 +399,14 @@ export class RealTimeChatGateway
         }
 
         this.server.to(payload.contactId).emit(SocketMessageTypes.typing, {
-            userId: payload.userId,
+            userId,
             isTyping: payload.isTyping,
         });
+    }
+
+    private getAuthenticatedUserId(socket: Socket): string | undefined {
+        const userId: unknown = socket.data?.userId;
+        return typeof userId === 'string' ? userId : undefined;
     }
 
     // Method to send a message to a specific user using their room

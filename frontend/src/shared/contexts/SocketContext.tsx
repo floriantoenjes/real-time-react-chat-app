@@ -7,7 +7,6 @@ import React, {
     useState,
 } from "react";
 import { io, Socket } from "socket.io-client";
-import { User } from "@t/user.contract";
 import { BACKEND_URL } from "../../environment";
 import { SnackbarLevels, snackbarService } from "./SnackbarContext";
 import { RoutesEnum } from "../enums/routes";
@@ -17,14 +16,15 @@ import { useI18nContext } from "../../i18n/i18n-react";
 import { TranslationFunctions } from "../../i18n/i18n-types";
 import { SocketMessageTypes } from "@t/socket-message-types.enum";
 import { ExternalErrors } from "@t/enums/errors.enum";
+import { SocketConnectErrorData } from "@t/socket-connect-error";
 
 function initializeWebSocket(
     setSocket: Dispatch<SetStateAction<Socket | undefined>>,
-    user: User,
     LL: TranslationFunctions,
 ) {
     let socketReconnectInterval: ReturnType<typeof setInterval>;
     let heartbeatInterval: ReturnType<typeof setInterval>;
+    let throttleTimeout: ReturnType<typeof setTimeout> | undefined;
 
     let missedPings = 0;
     const MAX_MISSED_PINGS = 3;
@@ -32,27 +32,33 @@ function initializeWebSocket(
     let throttled = false;
 
     const socket = io(BACKEND_URL, {
-        query: { userId: user?._id },
         transports: ["websocket"],
     });
     socket.connect();
     setSocket(socket);
 
+    // The server rejects throttled and unauthenticated connections in its
+    // connection middleware; the client then gets a connect_error
     socket.on(
-        "error",
-        (error: {
-            error: string;
-            errorCode: ExternalErrors;
-            message: string;
-            retryAfterMs: number;
-        }) => {
-            if (error.errorCode === ExternalErrors.EXT_WS_THROTTLE_001) {
-                throttled = true;
-
-                setTimeout(() => {
-                    throttled = false;
-                }, error.retryAfterMs + 1000);
+        "connect_error",
+        (error: Error & { data?: SocketConnectErrorData }) => {
+            if (error.data?.errorCode !== ExternalErrors.EXT_WS_THROTTLE_001) {
+                // Socket.IO retries on its own with backoff
+                return;
             }
+
+            throttled = true;
+            // Pause Socket.IO's own reconnection as well until the window is over
+            socket.io.reconnection(false);
+            clearTimeout(throttleTimeout);
+            throttleTimeout = setTimeout(
+                () => {
+                    throttled = false;
+                    socket.io.reconnection(true);
+                    socket.connect();
+                },
+                (error.data.retryAfterMs ?? 60000) + 1000,
+            );
         },
     );
 
@@ -95,6 +101,7 @@ function initializeWebSocket(
 
     return () => {
         clearInterval(socketReconnectInterval);
+        clearTimeout(throttleTimeout);
         socket?.disconnect();
         setSocket(undefined);
     };
@@ -114,7 +121,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     useEffect(() => {
         if (user?._id) {
             navigate(RoutesEnum.DASHBOARD);
-            return initializeWebSocket(setSocket, user, LL);
+            return initializeWebSocket(setSocket, LL);
         }
     }, [user?._id]);
 

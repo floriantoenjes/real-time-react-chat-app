@@ -68,7 +68,6 @@ export function useMessageSending(selectedContact: Contact | ContactGroup) {
     ) {
         // Send typing false event
         socket?.emit(SocketMessageTypes.typing, {
-            userId: user._id,
             contactId: selectedContact?._id,
             isTyping: false,
         });
@@ -139,7 +138,6 @@ export function useMessageSending(selectedContact: Contact | ContactGroup) {
         }
         setIsTyping(true);
         socket?.emit(SocketMessageTypes.typing, {
-            userId: user._id,
             contactId: selectedContact?._id,
             isTyping: true,
         });
