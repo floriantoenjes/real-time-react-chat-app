@@ -153,6 +153,14 @@ export function Register() {
                             helperText={formState.errors.email?.message}
                         />
                     </div>
+                    <div className="mb-3">
+                        <TextField
+                            type="text"
+                            label={LL.USERNAME()}
+                            {...register("username", { required: true })}
+                            className={"w-80"}
+                        />
+                    </div>
                     <div className={"mb-3"}>
                         <TextField
                             type="password"
@@ -175,10 +183,13 @@ export function Register() {
                             }
                         />
                     </div>
-                    <div className={"mb-3"} style={{ height: "0.5rem" }}>
+                    <div
+                        className={"mb-3 mx-auto"}
+                        style={{ height: "0.5rem", width: "98%" }}
+                    >
                         <hr className={getPasswordScoreColor()} />
                     </div>
-                    <div className="mb-3">
+                    <div className="mb-5">
                         <TextField
                             type="password"
                             label={LL.CONFIRM_PASSWORD()}
@@ -201,16 +212,8 @@ export function Register() {
                             }
                         />
                     </div>
-                    <div className="mb-3">
-                        <TextField
-                            type="text"
-                            label={LL.USERNAME()}
-                            {...register("username", { required: true })}
-                            className={"w-80"}
-                        />
-                    </div>
 
-                    <div className="w-fit mx-auto">
+                    <div className="w-fit mx-auto mb-5">
                         <span className={"mr-3"}>
                             <Button variant={"contained"} type={"submit"}>
                                 {LL.SIGN_UP()}
