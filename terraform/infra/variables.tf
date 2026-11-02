@@ -20,7 +20,7 @@ variable "zone" {
 }
 
 variable "domain" {
-  description = "Apex domain; the app is served on whatsapp./peer./turn.<domain>."
+  description = "Apex domain; the app is served on chat./peer./turn.<domain> (whatsapp.<domain> during the transition)."
   type        = string
   default     = "floriantoenjes.com"
 }

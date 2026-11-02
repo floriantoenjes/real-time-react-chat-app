@@ -11,7 +11,7 @@ image:
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "1.10.6"
+  tag: "1.10.7"
 
 # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
@@ -68,6 +68,16 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
   hosts:
+    - host: chat
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: realtime-chat
+              port:
+                number: 4200
+    # Legacy hostname, kept while DNS moves to chat.<domain>; remove afterwards
     - host: whatsapp
       paths:
         - path: /
@@ -88,6 +98,7 @@ ingress:
                 number: 9000
   tls:
     - hosts:
+        - chat
         - whatsapp
         - peer
         #testing

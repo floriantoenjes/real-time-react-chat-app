@@ -1,5 +1,5 @@
 output "app_url" {
-  value = "https://whatsapp.${local.infra.domain}"
+  value = "https://chat.${local.infra.domain}"
 }
 
 output "check_certificate" {

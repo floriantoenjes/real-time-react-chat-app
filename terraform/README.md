@@ -56,7 +56,7 @@ terraform output namecheap_records
 **3. DNS at Namecheap (once)**
 
 Domain List → Manage → Advanced DNS → add every record from `namecheap_records`
-(A records for `whatsapp`, `peer`, `turn`; the `_acme-challenge` CNAME; the `acme` NS records).
+(A records for `chat`, `peer`, `turn` and the legacy `whatsapp` during the transition; the `_acme-challenge` CNAME; the `acme` NS records).
 Remove any existing records for these hosts first. Check:
 
 ```bash
