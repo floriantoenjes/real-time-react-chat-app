@@ -68,6 +68,16 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
   hosts:
+    - host: chat
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: realtime-chat
+              port:
+                number: 4200
+    # Legacy hostname, kept while DNS moves to chat.<domain>; remove afterwards
     - host: whatsapp
       paths:
         - path: /
@@ -88,6 +98,7 @@ ingress:
                 number: 9000
   tls:
     - hosts:
+        - chat
         - whatsapp
         - peer
         #testing

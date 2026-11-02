@@ -80,7 +80,8 @@ output "namecheap_records" {
   description = "Create these once under Domain List > Manage > Advanced DNS."
   value       = <<-EOT
     Type    Host              Value
-    A       whatsapp          ${google_compute_address.ingress.address}
+    A       chat              ${google_compute_address.ingress.address}
+    A       whatsapp          ${google_compute_address.ingress.address}   (legacy, remove after move to chat)
     A       peer              ${google_compute_address.ingress.address}
     A       turn              ${google_compute_address.turn.address}
     CNAME   _acme-challenge   _acme-challenge.acme.${var.domain}.
