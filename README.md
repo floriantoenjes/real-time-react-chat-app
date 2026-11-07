@@ -15,6 +15,10 @@ The complete production environment on Google Kubernetes Engine is reproducible 
 and one set of DNS records take an empty GCP billing account to a running, TLS-secured deployment, and every tagged
 release after that deploys itself.
 
+**Trying the live demo:** sign up with any made-up email address, no confirmation mail is sent. To try chatting
+and voice/video calls on your own, sign up a second account in an incognito window and add it as a contact by its
+username. The demo data is reset regularly.
+
 ---
 <img src="./imgs/demo.gif" alt="Two users chatting in real time: typing indicator, live delivery, read receipts and image sharing" width="100%">
 

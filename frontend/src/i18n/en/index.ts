@@ -105,6 +105,24 @@ const en = {
     STATUS_TEXT: "Status",
     STATUS_TEXT_PLACEHOLDER: "What's on your mind?",
     SAVE_STATUS_TEXT: "Save status",
+    DEMO_INFO_TITLE: "Welcome to the demo",
+    DEMO_INFO_EMAIL:
+        "Sign up with any made-up email address. No confirmation email is sent, you can start right away.",
+    DEMO_INFO_SECOND_WINDOW:
+        "To try real-time chat, read receipts and voice/video calls on your own, open a second incognito/private window (or another browser or your phone), sign up a second account there and add it as a contact by its username.",
+    DEMO_INFO_PERSONAS:
+        "You can also add the demo users Florian, Alex, Tom and Stella as contacts.",
+    DEMO_INFO_RESET:
+        "All data is reset from time to time. Please don't use real personal data or a password you use elsewhere.",
+    DEMO_INFO_COPY_LINK: "Copy app link",
+    DEMO_INFO_GOT_IT: "Got it",
+    DEMO_LINK_COPIED: "Link copied, paste it into an incognito window",
+    DEMO_HINT_SHORT: "Demo: any email works, no confirmation needed.",
+    SHOW_DEMO_INFO: "How to try the demo",
+    FILL_DEMO_DATA: "Fill with demo data",
+    DEMO_DATA_FILLED: "Demo data filled in. Your password is {password}",
+    DEMO_EMPTY_CONTACTS:
+        "No contacts yet. Search for Florian, Alex, Tom or Stella above, or sign up a second account in an incognito window and add it by its username to try chatting and calls.",
 } satisfies BaseTranslation;
 
 export default en;

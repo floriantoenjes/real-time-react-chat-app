@@ -108,6 +108,25 @@ const de = {
     STATUS_TEXT: "Status",
     STATUS_TEXT_PLACEHOLDER: "Was gibt's Neues?",
     SAVE_STATUS_TEXT: "Status speichern",
+    DEMO_INFO_TITLE: "Willkommen zur Demo",
+    DEMO_INFO_EMAIL:
+        "Registriere dich mit einer beliebigen ausgedachten E-Mail-Adresse. Es wird keine Bestätigungsmail verschickt, du kannst sofort loslegen.",
+    DEMO_INFO_SECOND_WINDOW:
+        "Um Echtzeit-Chat, Lesebestätigungen und Sprach-/Videoanrufe selbst auszuprobieren, öffne ein zweites Inkognito-/privates Fenster (oder einen anderen Browser oder dein Handy), registriere dort ein zweites Konto und füge es über den Benutzernamen als Kontakt hinzu.",
+    DEMO_INFO_PERSONAS:
+        "Du kannst auch die Demo-Benutzer Florian, Alex, Tom und Stella als Kontakte hinzufügen.",
+    DEMO_INFO_RESET:
+        "Alle Daten werden von Zeit zu Zeit zurückgesetzt. Bitte verwende keine echten persönlichen Daten und kein Passwort, das du anderswo nutzt.",
+    DEMO_INFO_COPY_LINK: "App-Link kopieren",
+    DEMO_INFO_GOT_IT: "Verstanden",
+    DEMO_LINK_COPIED: "Link kopiert, füge ihn in einem Inkognito-Fenster ein",
+    DEMO_HINT_SHORT:
+        "Demo: Jede E-Mail-Adresse funktioniert, keine Bestätigung nötig.",
+    SHOW_DEMO_INFO: "So probierst du die Demo aus",
+    FILL_DEMO_DATA: "Mit Demo-Daten füllen",
+    DEMO_DATA_FILLED: "Demo-Daten eingetragen. Dein Passwort ist {password}",
+    DEMO_EMPTY_CONTACTS:
+        "Noch keine Kontakte. Suche oben nach Florian, Alex, Tom oder Stella, oder registriere ein zweites Konto in einem Inkognito-Fenster und füge es über den Benutzernamen hinzu, um Chat und Anrufe auszuprobieren.",
 } satisfies Translation;
 
 export default de;

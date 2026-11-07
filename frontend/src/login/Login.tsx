@@ -5,9 +5,17 @@ import { useDiContext } from "../shared/contexts/DiContext";
 import { RoutesEnum } from "../shared/enums/routes";
 import { useI18nContext } from "../i18n/i18n-react";
 import { LanguageModal } from "../dashboard/sidebar/top-section/language-modal/LanguageModal";
-import { GlobeAltIcon } from "@heroicons/react/24/outline";
+import {
+    GlobeAltIcon,
+    InformationCircleIcon,
+} from "@heroicons/react/24/outline";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { DEMO_MODE } from "../environment";
+import {
+    DemoInfoDialog,
+    useDemoInfoDialog,
+} from "../shared/components/DemoInfoDialog";
 
 type SignInData = {
     email: string;
@@ -18,6 +26,7 @@ export function Login() {
     const { LL } = useI18nContext();
     const authService = useDiContext().AuthService;
     const [modalOpen, setModalOpen] = useState(false);
+    const [demoInfoOpen, setDemoInfoOpen] = useDemoInfoDialog();
     const locale = useI18nContext().locale;
 
     const { register, handleSubmit, formState } = useForm<SignInData>();
@@ -46,6 +55,16 @@ export function Login() {
                     <div className="flex items-center">
                         <h4 className="text-center">{LL.SIGN_IN()}</h4>
                         <div id={"switch-locale-button"} className={"ml-auto"}>
+                            {DEMO_MODE && (
+                                <IconButton
+                                    aria-label={LL.SHOW_DEMO_INFO()}
+                                    title={LL.SHOW_DEMO_INFO()}
+                                    onClick={() => setDemoInfoOpen(true)}
+                                    color={"primary"}
+                                >
+                                    <InformationCircleIcon className={"w-6"} />
+                                </IconButton>
+                            )}
                             {locale.toUpperCase()}
                             <IconButton
                                 aria-label={LL.CHANGE_LANGUAGE()}
@@ -101,9 +120,22 @@ export function Login() {
                             <Button variant={"text"}>{LL.SIGN_UP()}</Button>
                         </Link>
                     </div>
+                    {DEMO_MODE && (
+                        <p
+                            className={
+                                "text-sm text-gray-500 text-center mt-3 w-80"
+                            }
+                        >
+                            {LL.DEMO_HINT_SHORT()}
+                        </p>
+                    )}
                 </form>
             </div>
             <LanguageModal modalOpen={modalOpen} setModalOpen={setModalOpen} />
+            <DemoInfoDialog
+                open={demoInfoOpen}
+                onClose={() => setDemoInfoOpen(false)}
+            />
         </div>
     );
 }

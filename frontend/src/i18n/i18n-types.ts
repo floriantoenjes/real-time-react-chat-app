@@ -410,6 +410,59 @@ type RootTranslation = {
 	 * S​a​v​e​ ​s​t​a​t​u​s
 	 */
 	SAVE_STATUS_TEXT: string
+	/**
+	 * W​e​l​c​o​m​e​ ​t​o​ ​t​h​e​ ​d​e​m​o
+	 */
+	DEMO_INFO_TITLE: string
+	/**
+	 * S​i​g​n​ ​u​p​ ​w​i​t​h​ ​a​n​y​ ​m​a​d​e​-​u​p​ ​e​m​a​i​l​ ​a​d​d​r​e​s​s​.​ ​N​o​ ​c​o​n​f​i​r​m​a​t​i​o​n​ ​e​m​a​i​l​ ​i​s​ ​s​e​n​t​,​ ​y​o​u​ ​c​a​n​ ​s​t​a​r​t​ ​r​i​g​h​t​ ​a​w​a​y​.
+	 */
+	DEMO_INFO_EMAIL: string
+	/**
+	 * T​o​ ​t​r​y​ ​r​e​a​l​-​t​i​m​e​ ​c​h​a​t​,​ ​r​e​a​d​ ​r​e​c​e​i​p​t​s​ ​a​n​d​ ​v​o​i​c​e​/​v​i​d​e​o​ ​c​a​l​l​s​ ​o​n​ ​y​o​u​r​ ​o​w​n​,​ ​o​p​e​n​ ​a​ ​s​e​c​o​n​d​ ​i​n​c​o​g​n​i​t​o​/​p​r​i​v​a​t​e​ ​w​i​n​d​o​w​ ​(​o​r​ ​a​n​o​t​h​e​r​ ​b​r​o​w​s​e​r​ ​o​r​ ​y​o​u​r​ ​p​h​o​n​e​)​,​ ​s​i​g​n​ ​u​p​ ​a​ ​s​e​c​o​n​d​ ​a​c​c​o​u​n​t​ ​t​h​e​r​e​ ​a​n​d​ ​a​d​d​ ​i​t​ ​a​s​ ​a​ ​c​o​n​t​a​c​t​ ​b​y​ ​i​t​s​ ​u​s​e​r​n​a​m​e​.
+	 */
+	DEMO_INFO_SECOND_WINDOW: string
+	/**
+	 * Y​o​u​ ​c​a​n​ ​a​l​s​o​ ​a​d​d​ ​t​h​e​ ​d​e​m​o​ ​u​s​e​r​s​ ​F​l​o​r​i​a​n​,​ ​A​l​e​x​,​ ​T​o​m​ ​a​n​d​ ​S​t​e​l​l​a​ ​a​s​ ​c​o​n​t​a​c​t​s​.
+	 */
+	DEMO_INFO_PERSONAS: string
+	/**
+	 * A​l​l​ ​d​a​t​a​ ​i​s​ ​r​e​s​e​t​ ​f​r​o​m​ ​t​i​m​e​ ​t​o​ ​t​i​m​e​.​ ​P​l​e​a​s​e​ ​d​o​n​'​t​ ​u​s​e​ ​r​e​a​l​ ​p​e​r​s​o​n​a​l​ ​d​a​t​a​ ​o​r​ ​a​ ​p​a​s​s​w​o​r​d​ ​y​o​u​ ​u​s​e​ ​e​l​s​e​w​h​e​r​e​.
+	 */
+	DEMO_INFO_RESET: string
+	/**
+	 * C​o​p​y​ ​a​p​p​ ​l​i​n​k
+	 */
+	DEMO_INFO_COPY_LINK: string
+	/**
+	 * G​o​t​ ​i​t
+	 */
+	DEMO_INFO_GOT_IT: string
+	/**
+	 * L​i​n​k​ ​c​o​p​i​e​d​,​ ​p​a​s​t​e​ ​i​t​ ​i​n​t​o​ ​a​n​ ​i​n​c​o​g​n​i​t​o​ ​w​i​n​d​o​w
+	 */
+	DEMO_LINK_COPIED: string
+	/**
+	 * D​e​m​o​:​ ​a​n​y​ ​e​m​a​i​l​ ​w​o​r​k​s​,​ ​n​o​ ​c​o​n​f​i​r​m​a​t​i​o​n​ ​n​e​e​d​e​d​.
+	 */
+	DEMO_HINT_SHORT: string
+	/**
+	 * H​o​w​ ​t​o​ ​t​r​y​ ​t​h​e​ ​d​e​m​o
+	 */
+	SHOW_DEMO_INFO: string
+	/**
+	 * F​i​l​l​ ​w​i​t​h​ ​d​e​m​o​ ​d​a​t​a
+	 */
+	FILL_DEMO_DATA: string
+	/**
+	 * D​e​m​o​ ​d​a​t​a​ ​f​i​l​l​e​d​ ​i​n​.​ ​Y​o​u​r​ ​p​a​s​s​w​o​r​d​ ​i​s​ ​{​p​a​s​s​w​o​r​d​}
+	 * @param {unknown} password
+	 */
+	DEMO_DATA_FILLED: RequiredParams<'password'>
+	/**
+	 * N​o​ ​c​o​n​t​a​c​t​s​ ​y​e​t​.​ ​S​e​a​r​c​h​ ​f​o​r​ ​F​l​o​r​i​a​n​,​ ​A​l​e​x​,​ ​T​o​m​ ​o​r​ ​S​t​e​l​l​a​ ​a​b​o​v​e​,​ ​o​r​ ​s​i​g​n​ ​u​p​ ​a​ ​s​e​c​o​n​d​ ​a​c​c​o​u​n​t​ ​i​n​ ​a​n​ ​i​n​c​o​g​n​i​t​o​ ​w​i​n​d​o​w​ ​a​n​d​ ​a​d​d​ ​i​t​ ​b​y​ ​i​t​s​ ​u​s​e​r​n​a​m​e​ ​t​o​ ​t​r​y​ ​c​h​a​t​t​i​n​g​ ​a​n​d​ ​c​a​l​l​s​.
+	 */
+	DEMO_EMPTY_CONTACTS: string
 }
 
 export type TranslationFunctions = {
@@ -795,6 +848,58 @@ export type TranslationFunctions = {
 	 * Save status
 	 */
 	SAVE_STATUS_TEXT: () => LocalizedString
+	/**
+	 * Welcome to the demo
+	 */
+	DEMO_INFO_TITLE: () => LocalizedString
+	/**
+	 * Sign up with any made-up email address. No confirmation email is sent, you can start right away.
+	 */
+	DEMO_INFO_EMAIL: () => LocalizedString
+	/**
+	 * To try real-time chat, read receipts and voice/video calls on your own, open a second incognito/private window (or another browser or your phone), sign up a second account there and add it as a contact by its username.
+	 */
+	DEMO_INFO_SECOND_WINDOW: () => LocalizedString
+	/**
+	 * You can also add the demo users Florian, Alex, Tom and Stella as contacts.
+	 */
+	DEMO_INFO_PERSONAS: () => LocalizedString
+	/**
+	 * All data is reset from time to time. Please don't use real personal data or a password you use elsewhere.
+	 */
+	DEMO_INFO_RESET: () => LocalizedString
+	/**
+	 * Copy app link
+	 */
+	DEMO_INFO_COPY_LINK: () => LocalizedString
+	/**
+	 * Got it
+	 */
+	DEMO_INFO_GOT_IT: () => LocalizedString
+	/**
+	 * Link copied, paste it into an incognito window
+	 */
+	DEMO_LINK_COPIED: () => LocalizedString
+	/**
+	 * Demo: any email works, no confirmation needed.
+	 */
+	DEMO_HINT_SHORT: () => LocalizedString
+	/**
+	 * How to try the demo
+	 */
+	SHOW_DEMO_INFO: () => LocalizedString
+	/**
+	 * Fill with demo data
+	 */
+	FILL_DEMO_DATA: () => LocalizedString
+	/**
+	 * Demo data filled in. Your password is {password}
+	 */
+	DEMO_DATA_FILLED: (arg: { password: unknown }) => LocalizedString
+	/**
+	 * No contacts yet. Search for Florian, Alex, Tom or Stella above, or sign up a second account in an incognito window and add it by its username to try chatting and calls.
+	 */
+	DEMO_EMPTY_CONTACTS: () => LocalizedString
 }
 
 export type Formatters = {}
