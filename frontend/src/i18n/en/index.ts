@@ -120,6 +120,8 @@ const en = {
     DEMO_HINT_SHORT: "Demo: any email works, no confirmation needed.",
     SHOW_DEMO_INFO: "How to try the demo",
     FILL_DEMO_DATA: "Fill with demo data",
+    SHOW_PASSWORD: "Show password",
+    HIDE_PASSWORD: "Hide password",
     DEMO_DATA_FILLED: "Demo data filled in. Your password is {password}",
     DEMO_EMPTY_CONTACTS:
         "No contacts yet. Search for Florian, Alex, Tom or Stella above, or sign up a second account in an incognito window and add it by its username to try chatting and calls.",

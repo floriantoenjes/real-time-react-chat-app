@@ -124,6 +124,8 @@ const de = {
         "Demo: Jede E-Mail-Adresse funktioniert, keine Bestätigung nötig.",
     SHOW_DEMO_INFO: "So probierst du die Demo aus",
     FILL_DEMO_DATA: "Mit Demo-Daten füllen",
+    SHOW_PASSWORD: "Passwort anzeigen",
+    HIDE_PASSWORD: "Passwort verbergen",
     DEMO_DATA_FILLED: "Demo-Daten eingetragen. Dein Passwort ist {password}",
     DEMO_EMPTY_CONTACTS:
         "Noch keine Kontakte. Suche oben nach Florian, Alex, Tom oder Stella, oder registriere ein zweites Konto in einem Inkognito-Fenster und füge es über den Benutzernamen hinzu, um Chat und Anrufe auszuprobieren.",

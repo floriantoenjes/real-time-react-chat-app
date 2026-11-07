@@ -455,6 +455,14 @@ type RootTranslation = {
 	 */
 	FILL_DEMO_DATA: string
 	/**
+	 * S​h​o​w​ ​p​a​s​s​w​o​r​d
+	 */
+	SHOW_PASSWORD: string
+	/**
+	 * H​i​d​e​ ​p​a​s​s​w​o​r​d
+	 */
+	HIDE_PASSWORD: string
+	/**
 	 * D​e​m​o​ ​d​a​t​a​ ​f​i​l​l​e​d​ ​i​n​.​ ​Y​o​u​r​ ​p​a​s​s​w​o​r​d​ ​i​s​ ​{​p​a​s​s​w​o​r​d​}
 	 * @param {unknown} password
 	 */
@@ -892,6 +900,14 @@ export type TranslationFunctions = {
 	 * Fill with demo data
 	 */
 	FILL_DEMO_DATA: () => LocalizedString
+	/**
+	 * Show password
+	 */
+	SHOW_PASSWORD: () => LocalizedString
+	/**
+	 * Hide password
+	 */
+	HIDE_PASSWORD: () => LocalizedString
 	/**
 	 * Demo data filled in. Your password is {password}
 	 */

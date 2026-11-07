@@ -1,10 +1,12 @@
-import { Button, IconButton, TextField } from "@mui/material";
+import { Button, IconButton, InputAdornment, TextField } from "@mui/material";
 import { Link } from "react-router";
 import React, { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDiContext } from "../shared/contexts/DiContext";
 import { useI18nContext } from "../i18n/i18n-react";
 import {
+    EyeIcon,
+    EyeSlashIcon,
     GlobeAltIcon,
     InformationCircleIcon,
 } from "@heroicons/react/24/outline";
@@ -92,12 +94,14 @@ export function Register() {
 
     const [modalOpen, setModalOpen] = useState(false);
     const [demoInfoOpen, setDemoInfoOpen] = useDemoInfoDialog();
-    // Set once demo data was filled in: shows the generated password and keeps the MUI labels
-    // shrunk, since MUI does not notice values set via setValue.
+    // Set once demo data was filled in: keeps the MUI labels shrunk, since MUI does not notice
+    // values set via setValue.
     const [demoDataFilled, setDemoDataFilled] = useState(false);
     const demoFieldProps = demoDataFilled
         ? { slotProps: { inputLabel: { shrink: true } } }
         : {};
+    const [showPassword, setShowPassword] = useState(false);
+    const passwordType = showPassword ? "text" : "password";
     const locale = useI18nContext().locale;
 
     const [password, setPassword] = useState<string>("");
@@ -237,9 +241,45 @@ export function Register() {
                     </div>
                     <div className={"mb-3"}>
                         <TextField
-                            type={demoDataFilled ? "text" : "password"}
+                            type={passwordType}
                             label={LL.PASSWORD()}
-                            {...demoFieldProps}
+                            slotProps={{
+                                ...demoFieldProps.slotProps,
+                                input: {
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                aria-label={
+                                                    showPassword
+                                                        ? LL.HIDE_PASSWORD()
+                                                        : LL.SHOW_PASSWORD()
+                                                }
+                                                title={
+                                                    showPassword
+                                                        ? LL.HIDE_PASSWORD()
+                                                        : LL.SHOW_PASSWORD()
+                                                }
+                                                onClick={() =>
+                                                    setShowPassword(
+                                                        (show) => !show,
+                                                    )
+                                                }
+                                                edge="end"
+                                            >
+                                                {showPassword ? (
+                                                    <EyeSlashIcon
+                                                        className={"w-5"}
+                                                    />
+                                                ) : (
+                                                    <EyeIcon
+                                                        className={"w-5"}
+                                                    />
+                                                )}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                },
+                            }}
                             {...register("password", {
                                 required: true,
                                 validate: (value) =>
@@ -266,7 +306,7 @@ export function Register() {
                     </div>
                     <div className="mb-5">
                         <TextField
-                            type={demoDataFilled ? "text" : "password"}
+                            type={passwordType}
                             label={LL.CONFIRM_PASSWORD()}
                             {...demoFieldProps}
                             {...register("passwordConfirm", {
