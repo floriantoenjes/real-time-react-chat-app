@@ -76,7 +76,8 @@ IMAGE=$(terraform -chdir=terraform/infra output -raw image_repository)
 docker buildx build --platform linux/amd64 --push -t $IMAGE:1.9.10 \
   --build-arg VITE_PEERJS_SERVER_HOST=peer.floriantoenjes.com \
   --build-arg VITE_PEERJS_SERVER_PORT=443 \
-  --build-arg VITE_TURN_SERVER_URL=turns:turn.floriantoenjes.com:5349 .
+  --build-arg VITE_TURN_SERVER_URL=turns:turn.floriantoenjes.com:5349 \
+  --build-arg VITE_DEMO_MODE=true .
 ```
 
 **5. Kubernetes**

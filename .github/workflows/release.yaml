@@ -83,6 +83,7 @@ jobs:
             VITE_PEERJS_SERVER_HOST=peer.${{ vars.DOMAIN }}
             VITE_PEERJS_SERVER_PORT=443
             VITE_TURN_SERVER_URL=turns:turn.${{ vars.DOMAIN }}:5349
+            VITE_DEMO_MODE=true
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v4

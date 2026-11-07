@@ -5,8 +5,11 @@ import { IgnoredUsersContext } from "../../../shared/contexts/IgnoredUsersContex
 import { Contact } from "../../../shared/components/Contact";
 import { Message } from "@t/message.contract";
 import { useLastContactMessageCache } from "../../../shared/hooks/useLastContactMessageCache";
+import { useI18nContext } from "../../../i18n/i18n-react";
+import { DEMO_MODE } from "../../../environment";
 
 export function ContactList(props: { nameFilter?: string }) {
+    const { LL } = useI18nContext();
     const contactsContext = useContext(ContactsContext);
     const ignoredUsersContext = useContext(IgnoredUsersContext);
     const [selectedContact, setSelectedContact] =
@@ -84,5 +87,20 @@ export function ContactList(props: { nameFilter?: string }) {
             );
         });
 
-    return <div>{loaded && contactElements}</div>;
+    const showDemoHint =
+        DEMO_MODE &&
+        loaded &&
+        userContacts.length === 0 &&
+        userContactGroups.length === 0;
+
+    return (
+        <div>
+            {loaded && contactElements}
+            {showDemoHint && (
+                <p className={"text-sm text-gray-500 p-4"}>
+                    {LL.DEMO_EMPTY_CONTACTS()}
+                </p>
+            )}
+        </div>
+    );
 }

@@ -1,10 +1,15 @@
-import { Button, IconButton, TextField } from "@mui/material";
+import { Button, IconButton, InputAdornment, TextField } from "@mui/material";
 import { Link } from "react-router";
 import React, { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDiContext } from "../shared/contexts/DiContext";
 import { useI18nContext } from "../i18n/i18n-react";
-import { GlobeAltIcon } from "@heroicons/react/24/outline";
+import {
+    EyeIcon,
+    EyeSlashIcon,
+    GlobeAltIcon,
+    InformationCircleIcon,
+} from "@heroicons/react/24/outline";
 import { LanguageModal } from "../dashboard/sidebar/top-section/language-modal/LanguageModal";
 import { z } from "zod";
 import {
@@ -16,6 +21,28 @@ import * as zxcvbnCommonPackage from "@zxcvbn-ts/language-common";
 import * as zxcvbnEnPackage from "@zxcvbn-ts/language-en";
 import * as zxcvbnDePackage from "@zxcvbn-ts/language-de";
 import { Locales } from "../i18n/i18n-types";
+import { DEMO_MODE } from "../environment";
+import {
+    DemoInfoDialog,
+    useDemoInfoDialog,
+} from "../shared/components/DemoInfoDialog";
+
+const DEMO_PASSWORD_CHARS =
+    "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+function randomString(length: number, chars: string) {
+    const values = crypto.getRandomValues(new Uint32Array(length));
+    return Array.from(values, (v) => chars[v % chars.length]).join("");
+}
+
+function createDemoSignUpData() {
+    const digits = "0123456789";
+    return {
+        email: `demo-${randomString(6, "abcdefghijklmnopqrstuvwxyz0123456789")}@example.com`,
+        username: `Demo${randomString(4, digits)}`,
+        password: randomString(16, DEMO_PASSWORD_CHARS),
+    };
+}
 
 function createPasswordStrengthChecker(locale: Locales) {
     return new ZxcvbnFactory({
@@ -66,13 +93,39 @@ export function Register() {
     const authService = useDiContext().AuthService;
 
     const [modalOpen, setModalOpen] = useState(false);
+    const [demoInfoOpen, setDemoInfoOpen] = useDemoInfoDialog();
+    // Set once demo data was filled in: keeps the MUI labels shrunk, since MUI does not notice
+    // values set via setValue.
+    const [demoDataFilled, setDemoDataFilled] = useState(false);
+    const demoFieldProps = demoDataFilled
+        ? { slotProps: { inputLabel: { shrink: true } } }
+        : {};
+    const [showPassword, setShowPassword] = useState(false);
+    const passwordType = showPassword ? "text" : "password";
     const locale = useI18nContext().locale;
 
     const [password, setPassword] = useState<string>("");
     const result = usePasswordStrength(password);
     const [passwordsDontMatch, setPasswordsDontMatch] = useState(false);
 
-    const { register, handleSubmit, formState } = useForm<SignUpData>();
+    const { register, handleSubmit, formState, setValue } =
+        useForm<SignUpData>();
+
+    function fillDemoData() {
+        const demoData = createDemoSignUpData();
+        const options = { shouldValidate: true, shouldDirty: true };
+        setValue("email", demoData.email, options);
+        setValue("username", demoData.username, options);
+        setValue("password", demoData.password, options);
+        setValue("passwordConfirm", demoData.password, options);
+        setPassword(demoData.password);
+        setPasswordsDontMatch(false);
+        setDemoDataFilled(true);
+        snackbarService.showSnackbar(
+            LL.DEMO_DATA_FILLED({ password: demoData.password }),
+            SnackbarLevels.INFO,
+        );
+    }
 
     async function signUp(formData: SignUpData) {
         const signUpSuccess = await authService.signUp(
@@ -120,6 +173,16 @@ export function Register() {
                     <div className={"flex items-center"}>
                         <h4 className="text-center">{LL.SIGN_UP()}</h4>
                         <div className={"ml-auto"}>
+                            {DEMO_MODE && (
+                                <IconButton
+                                    aria-label={LL.SHOW_DEMO_INFO()}
+                                    title={LL.SHOW_DEMO_INFO()}
+                                    onClick={() => setDemoInfoOpen(true)}
+                                    color={"primary"}
+                                >
+                                    <InformationCircleIcon className={"w-6"} />
+                                </IconButton>
+                            )}
                             {locale.toUpperCase()}
                             <IconButton
                                 aria-label={LL.CHANGE_LANGUAGE()}
@@ -130,10 +193,25 @@ export function Register() {
                             </IconButton>
                         </div>
                     </div>
+                    {DEMO_MODE && (
+                        <div className="mt-3">
+                            <Button
+                                variant={"outlined"}
+                                onClick={fillDemoData}
+                                className={"w-80"}
+                            >
+                                {LL.FILL_DEMO_DATA()}
+                            </Button>
+                            <p className={"text-sm text-gray-500 mt-2 w-80"}>
+                                {LL.DEMO_HINT_SHORT()}
+                            </p>
+                        </div>
+                    )}
                     <div className="my-3">
                         <TextField
                             type="email"
                             label={LL.EMAIL()}
+                            {...demoFieldProps}
                             error={!!formState.errors.email}
                             {...register("email", {
                                 required: true,
@@ -156,14 +234,52 @@ export function Register() {
                         <TextField
                             type="text"
                             label={LL.USERNAME()}
+                            {...demoFieldProps}
                             {...register("username", { required: true })}
                             className={"w-80"}
                         />
                     </div>
                     <div className={"mb-3"}>
                         <TextField
-                            type="password"
+                            type={passwordType}
                             label={LL.PASSWORD()}
+                            slotProps={{
+                                ...demoFieldProps.slotProps,
+                                input: {
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                aria-label={
+                                                    showPassword
+                                                        ? LL.HIDE_PASSWORD()
+                                                        : LL.SHOW_PASSWORD()
+                                                }
+                                                title={
+                                                    showPassword
+                                                        ? LL.HIDE_PASSWORD()
+                                                        : LL.SHOW_PASSWORD()
+                                                }
+                                                onClick={() =>
+                                                    setShowPassword(
+                                                        (show) => !show,
+                                                    )
+                                                }
+                                                edge="end"
+                                            >
+                                                {showPassword ? (
+                                                    <EyeSlashIcon
+                                                        className={"w-5"}
+                                                    />
+                                                ) : (
+                                                    <EyeIcon
+                                                        className={"w-5"}
+                                                    />
+                                                )}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                },
+                            }}
                             {...register("password", {
                                 required: true,
                                 validate: (value) =>
@@ -190,8 +306,9 @@ export function Register() {
                     </div>
                     <div className="mb-5">
                         <TextField
-                            type="password"
+                            type={passwordType}
                             label={LL.CONFIRM_PASSWORD()}
+                            {...demoFieldProps}
                             {...register("passwordConfirm", {
                                 required: true,
                                 validate: (value, formValues) => {
@@ -226,6 +343,10 @@ export function Register() {
                 </form>
             </div>
             <LanguageModal modalOpen={modalOpen} setModalOpen={setModalOpen} />
+            <DemoInfoDialog
+                open={demoInfoOpen}
+                onClose={() => setDemoInfoOpen(false)}
+            />
         </div>
     );
 }
